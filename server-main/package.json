@@ -1,0 +1,59 @@
+{
+  "name": "dune-server-main",
+  "description": "Server Dune pour la gestion de la machine de production de bobines MONDON",
+  "version": "1.0.0",
+  "author": "Matthis Perrin",
+  "scripts": {
+    "// --- SETUP COMMANDS ---": "",
+    "postinstall": "install-app-deps",
+    "// --- PROD COMMANDS ---": "",
+    "build": "npm run build --prefix ../server-renderer && npm run build:prod",
+    "build:prod": "node ../webpack/index --mode=production --target=electron-main --ts=src/index.ts",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "builder": "electron-builder",
+    "// --- DEV COMMANDS ---": "",
+    "build:dev": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts",
+    "start": "electron dist/index.js"
+  },
+  "main": "dist/index.js",
+  "build": {
+    "appId": "dune.mondon.server",
+    "directories": {
+      "buildResources": "assets",
+      "output": "out"
+    },
+    "files": [
+      {
+        "from": "dist/renderer",
+        "to": "renderer"
+      },
+      {
+        "from": "../shared/src/electron",
+        "to": ".",
+        "filter": [
+          "preload_script.js"
+        ]
+      },
+      "dist/index.js",
+      "package.json"
+    ]
+  },
+  "sideEffect": false,
+  "dependencies": {
+    "electron-log": "^3.0.5",
+    "knex": "^0.16.5",
+    "lodash-es": "^4.17.11",
+    "mssql": "^5.1.0",
+    "sqlite3": "^4.0.7",
+    "tedious": "^6.1.1"
+  },
+  "devDependencies": {
+    "@types/knex": "^0.16.1",
+    "@types/lodash-es": "^4.17.3",
+    "@types/node": "^10.5.3",
+    "electron": "^5.0.1",
+    "electron-builder": "^20.40.2"
+  },
+  "private": true
+}

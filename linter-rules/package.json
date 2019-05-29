@@ -1,0 +1,18 @@
+{
+  "name": "linter-rules",
+  "scripts": {
+    "webpack:prod": "npm run _webpack -- --mode=production",
+    "webpack:dev": "npm run _webpack -- --mode=development",
+    "_webpack": "node ../webpack/index --target=node --ts=src/*Rule.ts --lib --noLint"
+  },
+  "dependencies": {
+    "path": "^0.12.7",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.9",
+    "tsc": "^1.20150623.0"
+  },
+  "private": true
+}

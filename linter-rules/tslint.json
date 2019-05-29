@@ -1,0 +1,9 @@
+{
+  "extends": "../tslint.json",
+  "rules": {
+    "custom-ordered-import": false,
+    "event-handler-name": false,
+    "file-name-casing": [true, "camel-case"],
+    "key-in-map": false
+  }
+}

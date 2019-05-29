@@ -1,0 +1,10 @@
+export const BOBINES_FILLES_TABLE_NAME = 'bobines_filles';
+export const BOBINES_MERES_TABLE_NAME = 'bobines_meres';
+export const CADENCIER_TABLE_NAME = 'cadencier';
+export const CLICHES_TABLE_NAME = 'cliches';
+export const PERFOS_TABLE_NAME = 'perfos';
+export const REFENTES_TABLE_NAME = 'refentes';
+export const STOCKS_TABLE_NAME = 'stocks';
+export const GESCOM_SYNC_TABLE_NAME = 'gescom_sync';
+export const MONDON_SPEED = 'mondon_speed';
+export const OPERATIONS_TABLE_NAME = 'operations';

@@ -1,0 +1,16 @@
+root = true
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+trim_trailing_whitespace=true
+insert_final_newline=true
+max_line_length=120
+
+[*.{js,jsx,ts,tsx}]
+indent_size = 2
+
+[*.{css,less,scss}]
+indent_size = 4

@@ -1,0 +1,31 @@
+{
+  "name": "dune-client-renderer",
+  "scripts": {
+    "build": "node ../webpack/index --mode=production --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer",
+    "build:dev": "node ../webpack/index --mode=development --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer --lintAutoFix",
+    "build:prod": "node ../webpack/index --mode=production --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer"
+  },
+  "dependencies": {
+    "core-js": "^3.0.0",
+    "lodash-es": "^4.17.11",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5",
+    "react-router-dom": "^4.3.1",
+    "react-virtualized-auto-sizer": "^1.0.2",
+    "react-window": "^1.8.1",
+    "styled-components": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.1",
+    "@types/react": "^16.4.16",
+    "@types/react-dom": "^16.0.4",
+    "@types/react-router-dom": "^4.3.1",
+    "@types/react-virtualized-auto-sizer": "^1.0.0",
+    "@types/react-window": "^1.8.0",
+    "@types/styled-components": "^4.1.14"
+  },
+  "version": "1.0.0",
+  "author": "Matthis Perrin",
+  "private": true,
+  "sideEffects": false
+}

@@ -1,0 +1,20 @@
+export type BridgeCommand = string & {_: 'bridgeCommand'};
+
+export const ListUsers = 'list-users' as BridgeCommand;
+export const ListBobinesFilles = 'list-bobines-filles' as BridgeCommand;
+export const ListBobinesMeres = 'list-bobines-meres' as BridgeCommand;
+export const ListCliches = 'list-cliches' as BridgeCommand;
+export const ListStocks = 'list-stocks' as BridgeCommand;
+export const ListPerfos = 'list-perfos' as BridgeCommand;
+export const ListRefentes = 'list-refentes' as BridgeCommand;
+
+export const GetAppInfo = 'get-app-info' as BridgeCommand;
+export const OpenApp = 'open-app' as BridgeCommand;
+
+export const ListOperations = 'list-operations' as BridgeCommand;
+export const CreateOperation = 'view-operation' as BridgeCommand;
+export const UpdateOperation = 'update-operation' as BridgeCommand;
+
+export const ServerGetStatus = 'server-get-status' as BridgeCommand;
+export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;
+export const ServerClearErrors = 'server-clear-errors' as BridgeCommand;

@@ -1,0 +1,13 @@
+{
+  "name": "shared",
+  "author": "Matthis Perrin",
+  "private": true,
+  "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "@types/lodash-es": "^4.17.3",
+    "electron-log": "^3.0.5"
+  },
+  "dependencies": {
+    "@types/knex": "^0.16.1"
+  }
+}
