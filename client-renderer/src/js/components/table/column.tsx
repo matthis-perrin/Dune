@@ -79,6 +79,7 @@ const ColumnHeaderWrapper = styled.div`
   cursor: pointer;
   font-size: ${theme.table.headerFontSize}px;
   font-weight: ${theme.table.headerFontWeight};
+  user-select: none;
 `;
 
 const NumberColumnHeaderWrapper = styled(ColumnHeaderWrapper)`
