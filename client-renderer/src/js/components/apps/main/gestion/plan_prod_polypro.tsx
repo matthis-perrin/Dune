@@ -46,14 +46,27 @@ export class PlanProductionPolypro extends React.Component<Props> {
                 appStore.closeModal();
               }}
               title="polypro"
-              filterTitle="non selectionnable"
-              filterFunction={bobineMere => {
-                return (
-                  planProd.selectables.selectablePolypros
-                    .map(r => r.ref)
-                    .indexOf(bobineMere.ref) !== -1
-                );
-              }}
+              filters={[
+                {
+                  enableByDefault: true,
+                  title: 'Bobines mère polypro sélectionnables',
+                  shouldShowRow: (polypro: BobineMere, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) !==
+                      -1,
+                },
+                {
+                  enableByDefault: false,
+                  title: 'Bobines mère polypro non-sélectionnables',
+                  shouldShowRow: (polypro: BobineMere, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) ===
+                      -1,
+                },
+              ]}
+              isRowDisabled={polypro =>
+                planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) === -1
+              }
               width={width - modalPadding}
               height={height - modalPadding}
             />

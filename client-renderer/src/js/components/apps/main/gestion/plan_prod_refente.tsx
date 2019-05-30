@@ -43,13 +43,27 @@ export class PlanProductionRefente extends React.Component<Props> {
                 appStore.closeModal();
               }}
               title="refente"
-              filterTitle="non selectionnable"
-              filterFunction={refente => {
-                return (
-                  planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) !==
-                  -1
-                );
-              }}
+              filters={[
+                {
+                  enableByDefault: true,
+                  title: 'Refentes sélectionnables',
+                  shouldShowRow: (refente: Refente, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) !==
+                      -1,
+                },
+                {
+                  enableByDefault: false,
+                  title: 'Refentes non-sélectionnables',
+                  shouldShowRow: (refente: Refente, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) ===
+                      -1,
+                },
+              ]}
+              isRowDisabled={refente =>
+                planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) === -1
+              }
               width={width - modalPadding}
               height={height - modalPadding}
             />

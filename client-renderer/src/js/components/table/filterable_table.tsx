@@ -1,3 +1,4 @@
+import {without} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -7,6 +8,12 @@ import {theme} from '@root/theme/default';
 
 import {asString} from '@shared/type_utils';
 
+export interface TableFilter<T> {
+  title: string;
+  shouldShowRow(row: T, filterEnabled: boolean): boolean;
+  enableByDefault: boolean;
+}
+
 interface Props<T> {
   data: T[];
   lastUpdate: number;
@@ -14,24 +21,26 @@ interface Props<T> {
   initialSort?: SortInfo;
   onSelected?(row: T): void;
   title: string;
-  filterTitle: string;
-  filterFunction(row: T): boolean;
+  filters?: TableFilter<T>[];
+  isRowDisabled?(row: T): boolean;
   width: number;
   height: number;
 }
 
-interface State {
-  showFiltered: boolean;
+interface State<T> {
+  enabledFilters: ((row: T, filterEnabled: boolean) => boolean)[];
   searchValue: string;
 }
 
-export class FilterableTable<T> extends React.Component<Props<T>, State> {
+export class FilterableTable<T> extends React.Component<Props<T>, State<T>> {
   public static displayName = 'FilterableTable';
 
   public constructor(props: Props<T>) {
     super(props);
     this.state = {
-      showFiltered: false,
+      enabledFilters: (props.filters || [])
+        .filter(f => f.enableByDefault)
+        .map(f => f.shouldShowRow),
       searchValue: '',
     };
   }
@@ -39,36 +48,50 @@ export class FilterableTable<T> extends React.Component<Props<T>, State> {
   private readonly handleRowClick = (row: T, event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    if (this.props.onSelected) {
+    if (this.props.onSelected && !(this.props.isRowDisabled && this.props.isRowDisabled(row))) {
       this.props.onSelected(row);
     }
   };
 
-  private readonly handleSommeilCheckboxChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    this.setState({showFiltered: !this.state.showFiltered});
-  };
+  private toggleFilter(filter: TableFilter<T>): void {
+    const fn = filter.shouldShowRow;
+    const {enabledFilters} = this.state;
+    const filterIndex = enabledFilters.indexOf(fn);
+    if (filterIndex === -1) {
+      this.setState({enabledFilters: enabledFilters.concat([fn])});
+    } else {
+      this.setState({enabledFilters: without(enabledFilters, fn)});
+    }
+  }
 
   private readonly handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const searchValue = event.target.value;
     this.setState({searchValue});
   };
 
+  private renderFilter(filter: TableFilter<T>): JSX.Element {
+    const {shouldShowRow, title} = filter;
+    return (
+      <label key={filter.title}>
+        <FooterCheckbox
+          type="checkbox"
+          checked={this.state.enabledFilters.indexOf(shouldShowRow) !== -1}
+          onChange={() => this.toggleFilter(filter)}
+        />
+        {title}
+      </label>
+    );
+  }
+
   private renderFooter(data: T[]): JSX.Element {
-    const {title, filterTitle} = this.props;
+    const {title, filters = []} = this.props;
     const pluralCharacter = data.length === 1 ? '' : 's';
+    const formTitle = filters.length > 0 ? 'Afficher: ' : '';
     return (
       <FooterContainer>
         <FooterForm>
-          <label>
-            <FooterCheckbox
-              type="checkbox"
-              checked={this.state.showFiltered}
-              onChange={this.handleSommeilCheckboxChange}
-            />
-            {`Afficher les ${title}s ${filterTitle}`}
-          </label>
+          {formTitle}
+          {filters.map(filter => this.renderFilter(filter))}
         </FooterForm>
         <FooterStats>
           {`${data.length} ${title}${pluralCharacter} affichee${pluralCharacter}`}
@@ -78,10 +101,16 @@ export class FilterableTable<T> extends React.Component<Props<T>, State> {
   }
 
   public render(): JSX.Element {
-    const {data, columns, filterFunction, width, height, lastUpdate} = this.props;
-    const {showFiltered, searchValue} = this.state;
+    const {data, columns, width, height, lastUpdate, filters = []} = this.props;
+    const {searchValue, enabledFilters} = this.state;
     const filteredData = data.filter(d => {
-      if (!showFiltered && !filterFunction(d)) {
+      let isFilteredOut = true;
+      for (const filter of filters) {
+        if (filter.shouldShowRow(d, enabledFilters.indexOf(filter.shouldShowRow) !== -1)) {
+          isFilteredOut = false;
+        }
+      }
+      if (isFilteredOut) {
         return false;
       }
       if (searchValue.length > 0) {
@@ -128,7 +157,7 @@ export class FilterableTable<T> extends React.Component<Props<T>, State> {
             searchInputHeight
           }
           rowStyles={row => {
-            if (!filterFunction(row)) {
+            if (this.props.isRowDisabled && this.props.isRowDisabled(row)) {
               return {
                 opacity: 0.5,
               };

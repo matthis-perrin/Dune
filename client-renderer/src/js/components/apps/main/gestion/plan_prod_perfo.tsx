@@ -39,10 +39,25 @@ export class PlanProductionPerfo extends React.Component<Props> {
                 appStore.closeModal();
               }}
               title="perfo"
-              filterTitle="non selectionnable"
-              filterFunction={perfo => {
-                return planProd.selectables.selectablePerfos.indexOf(perfo) !== -1;
-              }}
+              filters={[
+                {
+                  enableByDefault: true,
+                  title: 'Perfos sélectionnables',
+                  shouldShowRow: (perfo: Perfo, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) !== -1,
+                },
+                {
+                  enableByDefault: false,
+                  title: 'Perfos non-sélectionnables',
+                  shouldShowRow: (perfo: Perfo, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) === -1,
+                },
+              ]}
+              isRowDisabled={perfo =>
+                planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) === -1
+              }
               width={width - modalPadding}
               height={height - modalPadding}
             />

@@ -41,9 +41,24 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
                 appStore.closeModal();
               }}
               title="bobine"
-              filterTitle="non selectionnable"
-              filterFunction={bobineFille =>
-                planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) !== -1
+              filters={[
+                {
+                  enableByDefault: true,
+                  title: 'Bobines filles sélectionnables',
+                  shouldShowRow: (bobineFille: BobineFilleClichePose, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) !== -1,
+                },
+                {
+                  enableByDefault: false,
+                  title: 'Bobines filles non-sélectionnables',
+                  shouldShowRow: (bobineFille: BobineFilleClichePose, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) === -1,
+                },
+              ]}
+              isRowDisabled={bobineFille =>
+                planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) === -1
               }
               width={width - modalPadding}
               height={height - modalPadding}

@@ -94,31 +94,31 @@ export class PlanProductionExplorer {
     console.log(`Generated ${generated} in ${t2 - t1}ms`);
     // console.log(rootState);
     console.log(this.sortedHashCompletePlanProdCache);
-    console.log(JSON.stringify(this.planProdStateToBobinesTree(rootState), null, 2));
+    console.log(JSON.stringify(this.planProdStateToBobinesTree(rootState), undefined, 2));
   }
 
-  private bobinesFillesHaveCompatibleCouleursPapierAndGrammage(
-    bobines: BobineFilleClichePose[]
-  ): boolean {
-    // Incompatibility starts with at least 2 bobines
-    if (bobines.length <= 1) {
-      return true;
-    }
-    const {couleurPapier, grammage} = bobines[0];
-    for (let i = 1; i < bobines.length; i++) {
-      const b = bobines[i];
-      if (b.couleurPapier !== couleurPapier || b.grammage !== grammage) {
-        return false;
-      }
-    }
-    return true;
-  }
+  // private bobinesFillesHaveCompatibleCouleursPapierAndGrammage(
+  //   bobines: BobineFilleClichePose[]
+  // ): boolean {
+  //   // Incompatibility starts with at least 2 bobines
+  //   if (bobines.length <= 1) {
+  //     return true;
+  //   }
+  //   const {couleurPapier, grammage} = bobines[0];
+  //   for (let i = 1; i < bobines.length; i++) {
+  //     const b = bobines[i];
+  //     if (b.couleurPapier !== couleurPapier || b.grammage !== grammage) {
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // }
 
-  private bobinesFillesHaveCompatibleCouleursImpression(bobines: BobineFilleClichePose[]): boolean {
-    const bobinesColorRestrictions = bobines.map(getColorsRestrictionsForBobine);
-    const MAX_COULEURS_IMPRESSIONS = 3;
-    return checkColorsAreCompatbile(bobinesColorRestrictions, MAX_COULEURS_IMPRESSIONS);
-  }
+  // private bobinesFillesHaveCompatibleCouleursImpression(bobines: BobineFilleClichePose[]): boolean {
+  //   const bobinesColorRestrictions = bobines.map(getColorsRestrictionsForBobine);
+  //   const MAX_COULEURS_IMPRESSIONS = 3;
+  //   return checkColorsAreCompatbile(bobinesColorRestrictions, MAX_COULEURS_IMPRESSIONS);
+  // }
 
   private getSortedHash(bobinesFilles: BobineFilleClichePose[]): string {
     return bobinesFilles

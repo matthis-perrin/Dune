@@ -44,13 +44,28 @@ export class PlanProductionPapier extends React.Component<Props> {
                 appStore.closeModal();
               }}
               title="papier"
-              filterTitle="non selectionnable"
-              filterFunction={bobineMere => {
-                return (
-                  planProd.selectables.selectablePapiers.map(r => r.ref).indexOf(bobineMere.ref) !==
-                  -1
-                );
-              }}
+              filters={[
+                {
+                  enableByDefault: true,
+                  title: 'Bobines mères papier sélectionnables',
+                  shouldShowRow: (papier: BobineMere, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(papier.ref) !==
+                      -1,
+                },
+                {
+                  enableByDefault: false,
+                  title: 'Bobines mères papier non-sélectionnables',
+                  shouldShowRow: (papier: BobineMere, filterEnabled: boolean) =>
+                    filterEnabled &&
+                    planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(papier.ref) ===
+                      -1,
+                },
+              ]}
+              isRowDisabled={bobineMere =>
+                planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(bobineMere.ref) ===
+                -1
+              }
               width={width - modalPadding}
               height={height - modalPadding}
             />
