@@ -24,7 +24,7 @@ export function getRefentes(refentes: RefenteModel[]): RefenteAlgo[] {
       refentesAlgo.push({
         ref,
         refPerfo,
-        laizes,
+        laizes: laizes.map(l => Math.round(l)),
         laize,
       });
     }
