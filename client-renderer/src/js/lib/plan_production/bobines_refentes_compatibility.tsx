@@ -1,6 +1,10 @@
 import {uniqBy, without, sum} from 'lodash-es';
 
 import {
+  compatibilityCache,
+  BobineHashCombinaison,
+} from '@root/lib/plan_production/bobines_refentes_compatibility_cache';
+import {
   checkColorsAreCompatbile,
   getColorsRestrictionsForBobine,
 } from '@root/lib/plan_production/colors_compatibility';
@@ -17,7 +21,17 @@ export function compatibilityExists(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
   refente: Refente
-): BobineFilleClichePose[] | undefined {
+): BobineHashCombinaison | undefined {
+  // Check in the cache if we've already found a valid combinaison
+  const cachedCombi = compatibilityCache.compatibilityInCache(
+    refente,
+    selectedBobines,
+    selectableBobines
+  );
+  if (cachedCombi) {
+    return cachedCombi;
+  }
+
   // Optimization #1
   // Ensure that each selected bobines filles can be placed somewhere on the refente, otherwise we
   // can already return undefined
@@ -54,7 +68,7 @@ export function compatibilityExists(
   for (const combi of selectedBobinesCombinaison) {
     const res = compatibilityExistsForOrderedBobines(combi, compatibleSelectableBobines, refente);
     if (res !== undefined) {
-      return res;
+      return compatibilityCache.addCompatibility(refente, selectedBobines, res);
     }
   }
   return undefined;

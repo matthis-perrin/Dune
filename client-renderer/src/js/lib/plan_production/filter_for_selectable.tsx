@@ -151,12 +151,9 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   selectableRefentes: Refente[],
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineFilleClichePose[] {
-  let compatibleBobinesFilles: BobineFilleClichePose[] = [];
-  let i = 0;
+  const compatibleBobinesFillesHashes = new Map<string, void>();
   for (const bobine of selectableBobinesFilles) {
-    i++;
-    console.log(`${i}/${selectableBobinesFilles.length}`);
-    if (compatibleBobinesFilles.indexOf(bobine) !== -1) {
+    if (compatibleBobinesFillesHashes.has(bobine.hash)) {
       continue;
     }
     for (const refente of selectableRefentes) {
@@ -171,24 +168,26 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         refente
       );
       if (res !== undefined) {
-        compatibleBobinesFilles = compatibleBobinesFilles.concat(res);
+        for (const hash of res.keys()) {
+          compatibleBobinesFillesHashes.set(hash);
+        }
         break;
       }
     }
   }
 
-  compatibleBobinesFilles = uniq(
-    compatibleBobinesFilles.filter(b => selectedBobinesFilles.indexOf(b) === -1)
+  const compatibleSelectableBobines = selectableBobinesFilles.filter(b =>
+    compatibleBobinesFillesHashes.has(b.hash)
   );
-  if (compatibleBobinesFilles.length === selectableBobinesFilles.length) {
+  if (compatibleSelectableBobines.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;
   }
-  const dropped = differenceBy(selectableBobinesFilles, compatibleBobinesFilles, 'ref');
+  const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
   console.log(
     `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
       dropped.length
     } BobinesFilles`,
     dropped
   );
-  return compatibleBobinesFilles;
+  return compatibleSelectableBobines;
 }

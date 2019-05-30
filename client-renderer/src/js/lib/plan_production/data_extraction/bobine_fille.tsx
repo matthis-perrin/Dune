@@ -51,7 +51,8 @@ export function getBobineFilleClichePose(
         clichePose.importanceOrdreCouleurs,
         clichePose.couleursImpression
       );
-      return {...clichePose, ref, laize, grammage, couleurPapier, hash};
+      const transformedCouleurPapier = couleurPapier === 'ECRU ENDUIT' ? 'ECRU' : couleurPapier;
+      return {...clichePose, ref, laize, grammage, couleurPapier: transformedCouleurPapier, hash};
     });
   }
   return [];

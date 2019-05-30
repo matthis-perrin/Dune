@@ -206,8 +206,8 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
   refente: Refente,
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineFilleClichePose[] {
-  let compatibleBobinesFillesHashes: string[] = [];
-  const notCompatibleBobinesFillesHashes: string[] = [];
+  const compatibleBobinesFillesHashes = new Map<string, void>();
+  const notCompatibleBobinesFillesHashes = new Map<string, void>();
 
   // let i = 0;
   // let len = selectableBobinesFilles.length;
@@ -222,8 +222,8 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
     // }
     // No need to check a bobine if it is already in the compatibile (or not compatible) array
     if (
-      compatibleBobinesFillesHashes.indexOf(bobine.hash) !== -1 ||
-      notCompatibleBobinesFillesHashes.indexOf(bobine.hash) !== -1
+      compatibleBobinesFillesHashes.has(bobine.hash) ||
+      notCompatibleBobinesFillesHashes.has(bobine.hash)
     ) {
       continue;
     }
@@ -244,16 +244,18 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
 
     // If there is no compatible combinaison, add the bobine to the array of non-compatible bobines
     if (res === undefined) {
-      notCompatibleBobinesFillesHashes.push(bobine.hash);
+      notCompatibleBobinesFillesHashes.set(bobine.hash);
     } else {
-      compatibleBobinesFillesHashes = compatibleBobinesFillesHashes.concat(res.map(r => r.hash));
+      for (const hash of res.keys()) {
+        compatibleBobinesFillesHashes.set(hash);
+      }
     }
   }
 
   // Once all the bobines have been checked, we filter the array of selectable bobines and only keep the bobines
   // whose hash is in `compatibleBobinesFillesHashes`
-  const compatibleBobinesFilles = selectableBobinesFilles.filter(
-    b => compatibleBobinesFillesHashes.indexOf(b.hash) !== -1
+  const compatibleBobinesFilles = selectableBobinesFilles.filter(b =>
+    compatibleBobinesFillesHashes.has(b.hash)
   );
   if (compatibleBobinesFilles.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;

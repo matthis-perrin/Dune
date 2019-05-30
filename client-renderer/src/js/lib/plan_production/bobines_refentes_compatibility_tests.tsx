@@ -11,7 +11,6 @@ import {getBobineHash} from '@root/lib/plan_production/data_extraction/bobine_fi
 import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
 
 // tslint:disable:no-magic-numbers variable-name
-
 export function debugBobines(selectedBobines: BobineFilleClichePose[]): string {
   return selectedBobines.map(b => `${b.laize}-${b.pose}`).join(' ');
 }
