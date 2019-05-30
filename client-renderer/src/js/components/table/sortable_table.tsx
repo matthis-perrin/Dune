@@ -76,7 +76,10 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
   }
 
   public componentDidUpdate(prevProps: Props<T>): void {
-    if (prevProps.lastUpdate !== this.props.lastUpdate) {
+    if (
+      prevProps.lastUpdate !== this.props.lastUpdate ||
+      prevProps.data.length !== this.props.data.length
+    ) {
       this.setState({data: this.computeData(this.props.data, this.state.sort)});
     }
   }

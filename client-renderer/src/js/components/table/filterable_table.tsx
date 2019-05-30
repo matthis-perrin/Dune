@@ -90,7 +90,7 @@ export class FilterableTable<T> extends React.Component<Props<T>, State> {
           if (column.type === ColumnType.String) {
             // tslint:disable-next-line:no-any
             const value = asString((d as any)[column.name], undefined);
-            if (value !== undefined && value.includes(searchValue)) {
+            if (value !== undefined && value.toUpperCase().includes(searchValue.toUpperCase())) {
               hasMatch = true;
             }
           }
