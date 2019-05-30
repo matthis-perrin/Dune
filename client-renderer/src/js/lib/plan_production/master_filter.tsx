@@ -9,6 +9,8 @@ import {
   filterPerfosForSelectableRefentes,
   filterBobinesFillesForSelectablePapiers,
   filterBobinesFillesForSelectableRefentesAndSelectedBobines,
+  filterRefentesForSelectableBobinesAndSelectedBobines,
+  filterPapierForRefentesAndSelectableBobinesAndSelectedBobines,
 } from '@root/lib/plan_production/filter_for_selectable';
 import {
   filterPolyprosForSelectedPapier,
@@ -59,7 +61,7 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
 
   while (somethingChanged) {
     if (i > MAX_STEP) {
-      console.log(`Manual stop after ${MAX_STEP} steps`);
+      alert(`Manual stop after ${MAX_STEP} steps!`);
       break;
     }
     const t = Date.now();
@@ -110,10 +112,13 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
     filtered.selectableRefentes = [];
   }
   if (bobinesFilles.length > 0) {
-    console.log('Removing selected Bobines Filles from selectable Bobines Filles');
-    filtered.selectableBobinesFilles = filtered.selectableBobinesFilles.filter(b => {
-      return bobinesFilles.indexOf(b) === -1;
-    });
+    const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(
+      b => bobinesFilles.indexOf(b) === -1
+    );
+    if (newSelectableBobinesFilles.length !== filtered.selectableBobinesFilles.length) {
+      filtered.selectableBobinesFilles = newSelectableBobinesFilles;
+      console.log('Removing selected Bobines Filles from selectable Bobines Filles');
+    }
   }
 
   // Filtering Polypro against
@@ -205,8 +210,36 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
     return filtered;
   }
 
+  // Filtering of Refente to ensure there is at least one combinaison of bobines that fits it
+  if (!refente) {
+    filtered.selectableRefentes = filterRefentesForSelectableBobinesAndSelectedBobines(
+      filtered.selectableRefentes,
+      filtered.selectableBobinesFilles,
+      bobinesFilles
+    );
+
+    if (selectablesAreDifferent(selectables, filtered)) {
+      return filtered;
+    }
+  }
+
+  // Filtering of Papier to ensure there is at least one combinaison of bobines that fits it in at least one
+  // refente that is compatible with the Papier laize
+  if (!papier) {
+    filtered.selectablePapiers = filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
+      filtered.selectablePapiers,
+      refente ? [refente] : filtered.selectableRefentes,
+      filtered.selectableBobinesFilles,
+      bobinesFilles
+    );
+
+    if (selectablesAreDifferent(selectables, filtered)) {
+      return filtered;
+    }
+  }
+
   // Filtering of BobineFilleClichePose to ensure there exist for each at least one combinaison of
-  // bobines that fits the refente laizes (or at least one of the refente laizes)
+  // bobines that fits the refente (or at least one of the refente if none are selected)
   filtered.selectableBobinesFilles = refente
     ? filterBobinesFillesForSelectedRefenteAndBobines(
         filtered.selectableBobinesFilles,
@@ -218,6 +251,10 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
         filtered.selectableRefentes,
         bobinesFilles
       );
+
+  if (selectablesAreDifferent(selectables, filtered)) {
+    return filtered;
+  }
 
   return filtered;
 }

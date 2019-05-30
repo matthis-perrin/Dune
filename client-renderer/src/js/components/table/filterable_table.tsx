@@ -2,6 +2,7 @@ import {without} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Input} from '@root/components/core/input';
 import {ColumnType} from '@root/components/table/column';
 import {ColumnMetadata, SortableTable, SortInfo} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
@@ -134,6 +135,7 @@ export class FilterableTable<T> extends React.Component<Props<T>, State<T>> {
     return (
       <TableContainer>
         <SearchInput
+          focusOnMount
           type="text"
           placeholder="Search something"
           value={this.state.searchValue}
@@ -171,7 +173,7 @@ export class FilterableTable<T> extends React.Component<Props<T>, State<T>> {
   }
 }
 
-const SearchInput = styled.input`
+const SearchInput = styled(Input)`
   padding: 4px 8px;
   font-size: 16px;
   width: 100%;

@@ -3,7 +3,7 @@ import {css} from 'styled-components';
 
 export interface ReactProps {
   children?: React.ReactNode;
-  styles?: React.CSSProperties;
+  // styles?: React.CSSProperties;
 }
 
 export interface UIComponentProps {

@@ -84,7 +84,9 @@ function generateAcceptableColorsOrder(restrictions: ColorRestriction[]): string
     .filter(r => !r.importanceOrdre)
     .map(r => r.couleurs);
 
-  const mergedOrderedColors = smallestMergedOrderedColorsSequences(orderImportantColorsSequences);
+  const mergedOrderedColors = [
+    ...smallestMergedOrderedColorsSequences(orderImportantColorsSequences),
+  ];
   orderNotImportantColorsSequences.forEach(colors => {
     colors.forEach(c => {
       if (mergedOrderedColors.indexOf(c) === -1) {

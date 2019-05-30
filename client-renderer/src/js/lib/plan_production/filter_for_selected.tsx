@@ -120,7 +120,8 @@ export function filterPerfosForSelectedRefente(
 
 export function filterBobinesFillesForSelectedPapier(
   selectableBobinesFilles: BobineFilleClichePose[],
-  selectedPapier: BobineMerePapier
+  selectedPapier: BobineMerePapier,
+  debug: boolean = true
 ): BobineFilleClichePose[] {
   const newBobinesFilles = selectableBobinesFilles.filter(
     bobineFille =>
@@ -131,10 +132,12 @@ export function filterBobinesFillesForSelectedPapier(
     return selectableBobinesFilles;
   }
   const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
-  console.log(
-    `filterBobinesFillesForSelectedPapier dropping ${dropped.length} BobinesFilles`,
-    dropped
-  );
+  if (debug) {
+    console.log(
+      `filterBobinesFillesForSelectedPapier dropping ${dropped.length} BobinesFilles`,
+      dropped
+    );
+  }
   return newBobinesFilles;
 }
 
@@ -183,7 +186,7 @@ export function filterBobinesFillesForSelectedBobinesFilles(
   const selectedBobinesFillesColorsRestrictions = selectedBobinesFilles.map(
     getColorsRestrictionsForBobine
   );
-  const newBobinesFilles = selectableBobinesFilles.filter(b => {
+  const newBobinesFilles = selectableBobinesFilles.filter((b, i) => {
     const bobineColorsRestrictions = getColorsRestrictionsForBobine(b);
     return checkColorsAreCompatbile(
       selectedBobinesFillesColorsRestrictions.concat([bobineColorsRestrictions]),
@@ -209,17 +212,8 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
   const compatibleBobinesFillesHashes = new Map<string, void>();
   const notCompatibleBobinesFillesHashes = new Map<string, void>();
 
-  // let i = 0;
-  // let len = selectableBobinesFilles.length;
-
   // Check each bobine to see if a compatibility exists
   for (const bobine of selectableBobinesFilles) {
-    // if (bobine.ref === 'B140098ABPL1' && bobine.pose === 1) {
-    //   debugger;
-    // }
-    // if (bobine.hash === '140_1_BISTRE_N') {
-    //   debugger;
-    // }
     // No need to check a bobine if it is already in the compatibile (or not compatible) array
     if (
       compatibleBobinesFillesHashes.has(bobine.hash) ||
@@ -227,13 +221,6 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
     ) {
       continue;
     }
-    // i++;
-    // console.log(`${i}/${len}`);
-    // console.log(JSON.stringify(bobine, undefined, 2));
-    // if (i > 6) {
-    //   break;
-    // }
-
     // Add the bobine to the already selected bobine
     const newSelectedBobinesFilles = selectedBobinesFilles.concat([bobine]);
     // and remove it from the selectable

@@ -38,7 +38,7 @@ export function compatibilityExists(
   const incompatibleSelectedBobines = selectedBobines.filter(
     b => applyBobinesOnRefente([b], refente) === RefenteStatus.INCOMPATIBLE
   );
-  if (incompatibleSelectedBobines.length > 0) {
+  if (selectedBobines.length > 0 && incompatibleSelectedBobines.length > 0) {
     return undefined;
   }
 
@@ -64,11 +64,18 @@ export function compatibilityExists(
   // TODO - Optimization #4
   // Greedy algorithm before looking for all combinaisons
 
-  const selectedBobinesCombinaison = getSelectedBobinesCombinaison(selectedBobines);
-  for (const combi of selectedBobinesCombinaison) {
-    const res = compatibilityExistsForOrderedBobines(combi, compatibleSelectableBobines, refente);
+  if (selectedBobines.length === 0) {
+    const res = compatibilityExistsForOrderedBobines([], compatibleSelectableBobines, refente);
     if (res !== undefined) {
       return compatibilityCache.addCompatibility(refente, selectedBobines, res);
+    }
+  } else {
+    const selectedBobinesCombinaison = getSelectedBobinesCombinaison(selectedBobines);
+    for (const combi of selectedBobinesCombinaison) {
+      const res = compatibilityExistsForOrderedBobines(combi, compatibleSelectableBobines, refente);
+      if (res !== undefined) {
+        return compatibilityCache.addCompatibility(refente, selectedBobines, res);
+      }
     }
   }
   return undefined;

@@ -4,6 +4,7 @@ import {
   compatibilityExists,
   refenteHasSpotForBobine,
 } from '@root/lib/plan_production/bobines_refentes_compatibility';
+import {filterBobinesFillesForSelectedPapier} from '@root/lib/plan_production/filter_for_selected';
 import {
   BobineFilleClichePose,
   BobineMerePapier,
@@ -190,4 +191,75 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
     dropped
   );
   return compatibleSelectableBobines;
+}
+
+export function filterRefentesForSelectableBobinesAndSelectedBobines(
+  selectableRefentes: Refente[],
+  selectableBobinesFilles: BobineFilleClichePose[],
+  bobinesFilles: BobineFilleClichePose[]
+): Refente[] {
+  const newRefentes = selectableRefentes.filter(r => {
+    return compatibilityExists(bobinesFilles, selectableBobinesFilles, r) !== undefined;
+  });
+  if (newRefentes.length === selectableRefentes.length) {
+    return selectableRefentes;
+  }
+  const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
+  console.log(
+    `filterRefentesForSelectableBobinesAndSelectedBobines dropping ${dropped.length} Refente`,
+    dropped
+  );
+  return newRefentes;
+}
+
+export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
+  selectablePapiers: BobineMerePapier[],
+  selectableRefentes: Refente[],
+  selectableBobinesFilles: BobineFilleClichePose[],
+  bobinesFilles: BobineFilleClichePose[]
+): BobineMerePapier[] {
+  const newPapiers = selectablePapiers.filter(papier => {
+    // Check if the selected bobines are compatible with that Papier.
+    // Should never happen?
+    if (bobinesFilles.length > 0) {
+      const firstBobine = bobinesFilles[0];
+      if (
+        firstBobine.couleurPapier !== papier.couleurPapier ||
+        firstBobine.grammage !== papier.grammage
+      ) {
+        console.log(
+          'Passing this papier because the selected bobines does not match the couleurPapier or grammage!',
+          papier,
+          bobinesFilles
+        );
+        return false;
+      }
+    }
+    const filteredSelectableBobines = filterBobinesFillesForSelectedPapier(
+      selectableBobinesFilles,
+      papier,
+      false /* debug */
+    );
+    for (const refente of selectableRefentes) {
+      // Ensure the refente is compatible with the papier.
+      if (refente.laize !== papier.laize) {
+        continue;
+      }
+      if (compatibilityExists(bobinesFilles, filteredSelectableBobines, refente) !== undefined) {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (newPapiers.length === selectablePapiers.length) {
+    return selectablePapiers;
+  }
+  const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
+  console.log(
+    `filterPapierForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
+      dropped.length
+    } Papier`,
+    dropped
+  );
+  return newPapiers;
 }

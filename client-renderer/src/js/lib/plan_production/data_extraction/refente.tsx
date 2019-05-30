@@ -20,7 +20,7 @@ export function getRefentes(refentes: RefenteModel[]): RefenteAlgo[] {
     } = r;
     if (!sommeil) {
       const laizes = [laize1, laize2, laize3, laize4, laize5, laize6, laize7].filter(l => l > 0);
-      const laize = Math.round(sum(laizes) - chute);
+      const laize = Math.round(sum(laizes) + chute);
       refentesAlgo.push({
         ref,
         refPerfo,
