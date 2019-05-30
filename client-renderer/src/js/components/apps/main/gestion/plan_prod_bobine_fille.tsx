@@ -26,6 +26,7 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
       <SizeMonitor>
         {(width, height) => {
           const modalPadding = 2 * theme.modal.margin + 2 * theme.modal.padding;
+          const tableBorderNumber = 3;
           return (
             <FilterableTable
               data={planProd.allBobinesFilles}
@@ -60,7 +61,7 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
               isRowDisabled={bobineFille =>
                 planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) === -1
               }
-              width={width - modalPadding}
+              width={width - modalPadding - tableBorderNumber * theme.table.borderThickness}
               height={height - modalPadding}
             />
           );

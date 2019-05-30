@@ -24,6 +24,7 @@ export class PlanProductionPerfo extends React.Component<Props> {
       <SizeMonitor>
         {(width, height) => {
           const modalPadding = 2 * theme.modal.margin + 2 * theme.modal.padding;
+          const tableBorderNumber = 3;
           return (
             <FilterableTable
               data={planProd.allPerfos}
@@ -58,7 +59,7 @@ export class PlanProductionPerfo extends React.Component<Props> {
               isRowDisabled={perfo =>
                 planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) === -1
               }
-              width={width - modalPadding}
+              width={width - modalPadding - tableBorderNumber * theme.table.borderThickness}
               height={height - modalPadding}
             />
           );

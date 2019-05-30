@@ -196,6 +196,7 @@ const FooterContainer = styled.div`
 
 const FooterForm = styled.div`
   flex-shrink: 0;
+  margin-left: 10px;
 `;
 
 const FooterStats = styled.div`

@@ -27,6 +27,7 @@ export class PlanProductionRefente extends React.Component<Props> {
       <SizeMonitor>
         {(width, height) => {
           const modalPadding = 2 * theme.modal.margin + 2 * theme.modal.padding;
+          const tableBorderNumber = 3;
           return (
             <FilterableTable
               data={planProd.allRefentes.map(r => refentesByRef[r.ref])}
@@ -64,7 +65,7 @@ export class PlanProductionRefente extends React.Component<Props> {
               isRowDisabled={refente =>
                 planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) === -1
               }
-              width={width - modalPadding}
+              width={width - modalPadding - tableBorderNumber * theme.table.borderThickness}
               height={height - modalPadding}
             />
           );

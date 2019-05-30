@@ -28,6 +28,7 @@ export class PlanProductionPapier extends React.Component<Props> {
       <SizeMonitor>
         {(width, height) => {
           const modalPadding = 2 * theme.modal.margin + 2 * theme.modal.padding;
+          const tableBorderNumber = 3;
           return (
             <FilterableTable
               data={planProd.allPapiers.map(b => bobinesMeresByRef[b.ref])}
@@ -66,7 +67,7 @@ export class PlanProductionPapier extends React.Component<Props> {
                 planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(bobineMere.ref) ===
                 -1
               }
-              width={width - modalPadding}
+              width={width - modalPadding - tableBorderNumber * theme.table.borderThickness}
               height={height - modalPadding}
             />
           );
