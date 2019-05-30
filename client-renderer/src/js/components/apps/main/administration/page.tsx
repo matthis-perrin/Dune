@@ -74,6 +74,7 @@ export class AdministrationPage extends React.Component<Props, State> {
     stocksStore.removeListener(this.handleStocksChange);
     refentesStore.removeListener(this.handleRefentesChange);
     perfosStore.removeListener(this.handlePerfosChange);
+    operationsStore.removeListener(this.handleOperationsChange);
   }
 
   private readonly handleBobinesFillesChange = (): void => {

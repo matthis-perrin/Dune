@@ -3,7 +3,7 @@ import {isEqual, minBy} from 'lodash-es';
 import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 import {permutations} from '@root/lib/plan_production/utils';
 
-export interface ColorRetriction {
+export interface ColorRestriction {
   couleurs: string[];
   importanceOrdre: boolean;
 }
@@ -76,7 +76,7 @@ function smallestMergedOrderedColorsSequences(colors: string[][]): string[] {
   return smallest;
 }
 
-function generateAcceptableColorsOrder(restrictions: ColorRetriction[]): string[] {
+function generateAcceptableColorsOrder(restrictions: ColorRestriction[]): string[] {
   const orderImportantColorsSequences = restrictions
     .filter(r => r.importanceOrdre)
     .map(r => r.couleurs);
@@ -97,14 +97,14 @@ function generateAcceptableColorsOrder(restrictions: ColorRetriction[]): string[
 }
 
 export function checkColorsAreCompatbile(
-  restrictions: ColorRetriction[],
+  restrictions: ColorRestriction[],
   maxColors: number
 ): boolean {
   const acceptableColorsOrder = generateAcceptableColorsOrder(restrictions);
   return acceptableColorsOrder.length <= maxColors;
 }
 
-export function getColorsRestrictionsForBobine(bobine: BobineFilleClichePose): ColorRetriction {
+export function getColorsRestrictionsForBobine(bobine: BobineFilleClichePose): ColorRestriction {
   return {
     couleurs: [...bobine.couleursImpression],
     importanceOrdre: bobine.importanceOrdreCouleurs,

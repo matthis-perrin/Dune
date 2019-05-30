@@ -38,7 +38,9 @@ export function getBobineFilleClichePose(
         clichePose.importanceOrdreCouleurs
           ? clichePose.couleursImpression.join(',')
           : clichePose.couleursImpression.sort().join(',')
-      }_${clichePose.importanceOrdreCouleurs ? 'Y' : 'N'}`;
+      }_${
+        clichePose.importanceOrdreCouleurs && clichePose.couleursImpression.length > 1 ? 'Y' : 'N'
+      }`;
       return {...clichePose, ref, laize, grammage, couleurPapier, hash};
     });
   }

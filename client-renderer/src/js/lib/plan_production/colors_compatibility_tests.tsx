@@ -1,9 +1,9 @@
 import {
   checkColorsAreCompatbile,
-  ColorRetriction,
+  ColorRestriction,
 } from '@root/lib/plan_production/colors_compatibility';
 
-const tests: {restrictions: ColorRetriction[]; maxColors: number; expected: boolean}[] = [
+const tests: {restrictions: ColorRestriction[]; maxColors: number; expected: boolean}[] = [
   {restrictions: [], maxColors: 3, expected: true},
   {restrictions: [], maxColors: 0, expected: true},
   {restrictions: [{couleurs: [], importanceOrdre: true}], maxColors: 3, expected: true},

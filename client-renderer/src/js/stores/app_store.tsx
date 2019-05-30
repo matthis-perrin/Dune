@@ -18,7 +18,7 @@ interface AppState {
 
 class AppStore extends BaseStore {
   private readonly state: AppState = {
-    currentPage: AppPage.Administration,
+    currentPage: AppPage.Gestion,
     modal: {
       isOpened: false,
     },

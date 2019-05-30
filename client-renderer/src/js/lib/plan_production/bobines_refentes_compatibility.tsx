@@ -1,21 +1,27 @@
+import {
+  checkColorsAreCompatbile,
+  getColorsRestrictionsForBobine,
+} from 'C:\Users\Matthis\git\dune\client-renderer\src\js\lib\plan_production\colors_compatibility';
 import {uniqBy, without, sum} from 'lodash-es';
 
 import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
 import {permutations} from '@root/lib/plan_production/utils';
+
+const MAX_COULEURS_IMPRESSIONS = 3;
 
 // This function checks if there is at aleast one combinaison of `BobineFilleClichePose`
 // in `selectableBobines` that fits in `refente` given a list of already selected `BobineFilleClichePose`
 // provided in `selectedBobines`.
 // Returns `undefined` if no combinaison exists. Otherwise returns the first combinaison found.
 // TODO - When generating a combinaison, we should check if the color combinaison is also possible
-let debug = false;
+const debug = false;
 export function compatibilityExists(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
   refente: Refente
 ): BobineFilleClichePose[] | undefined {
   // Optimization #1
-  // Ensure that each selected bobine fille can be placed somewhere on the refente, otherwise we
+  // Ensure that each selected bobines filles can be placed somewhere on the refente, otherwise we
   // can already return undefined
   const incompatibleSelectedBobines = selectedBobines.filter(
     b => applyBobinesOnRefente([b], refente) === RefenteStatus.INCOMPATIBLE
@@ -32,15 +38,20 @@ export function compatibilityExists(
   );
 
   // Optimization #3
-  // Greedy algorithm
-  //
-
-  counter = 0;
-  if (selectedBobines[0] && selectedBobines[0].ref === 'B150075APPUMONTMOR') {
-    debug = true;
-  } else {
-    debug = false;
+  // Ensure that the selected bobines filles have compatible colors, otherwise we can already
+  // return undefined
+  if (
+    !checkColorsAreCompatbile(
+      selectedBobines.map(getColorsRestrictionsForBobine),
+      MAX_COULEURS_IMPRESSIONS
+    )
+  ) {
+    return undefined;
   }
+
+  // TODO - Optimization #4
+  // Greedy algorithm before looking for all combinaisons
+
   const selectedBobinesCombinaison = getSelectedBobinesCombinaison(selectedBobines);
   for (const combi of selectedBobinesCombinaison) {
     const res = compatibilityExistsForOrderedBobines(combi, compatibleSelectableBobines, refente);
@@ -97,20 +108,21 @@ function analyseLaizesLeftOnRefente(
   return res;
 }
 
+function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[]): boolean {
+  return checkColorsAreCompatbile(
+    bobines.map(getColorsRestrictionsForBobine),
+    MAX_COULEURS_IMPRESSIONS
+  );
+}
+
 // Same as `compatibilityExists` but without trying all permutation of `selectedBobines`
-let depth = 0;
-let counter = 0;
 function compatibilityExistsForOrderedBobines(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
   refente: Refente
 ): BobineFilleClichePose[] | undefined {
-  depth++;
-  counter++;
-
   const laizesLeft = analyseLaizesLeftOnRefente(selectedBobines, refente);
   if (!laizesLeft) {
-    depth--;
     return undefined;
   }
   const compatibleSelectableBobines = selectableBobines.filter(
@@ -120,29 +132,25 @@ function compatibilityExistsForOrderedBobines(
   // First we check if the selected bobines can be applied on the refente
   const status = applyBobinesOnRefente(selectedBobines, refente);
   if (status === RefenteStatus.COMPATIBLE) {
-    depth--;
-    return selectedBobines;
+    // If everything is good, verify the colors are compatbile
+    bobinesColorsAreCompatbile(selectedBobines) ? selectedBobines : undefined;
   }
   if (status === RefenteStatus.INCOMPATIBLE) {
-    depth--;
     return undefined;
   }
 
   const uniqSelectables = uniqByLaizePoseAndColor(compatibleSelectableBobines);
 
-  // let i1 = 0;
   for (const selectableBobine of uniqSelectables) {
     const newSelectable = without(compatibleSelectableBobines, selectableBobine);
     if (status === RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION) {
       // Test with the selectable bobine before and after the selected ones as well as every position in between
       for (let i = 0; i < selectedBobines.length + 1; i++) {
-        // console.log(i1, uniqSelectables.length, i, compatibleSelectableBobines.length);
         const newSelected = selectedBobines
           .slice(0, i)
           .concat([selectableBobine].concat(selectedBobines.slice(i)));
         const res = compatibilityExistsForOrderedBobines(newSelected, newSelectable, refente);
         if (res !== undefined) {
-          depth--;
           return res;
         }
       }
@@ -156,7 +164,6 @@ function compatibilityExistsForOrderedBobines(
         refente
       );
       if (resForAfter !== undefined) {
-        depth--;
         return resForAfter;
       }
       const newSelectedWithSelectableBefore = [selectableBobine].concat(selectedBobines);
@@ -166,12 +173,10 @@ function compatibilityExistsForOrderedBobines(
         refente
       );
       if (resForBefore !== undefined) {
-        depth--;
         return resForBefore;
       }
     }
   }
-  depth--;
   return undefined;
 }
 
@@ -194,7 +199,7 @@ export enum RefenteStatus {
   COMPATIBLE,
 }
 
-function applyBobinesOnRefenteFromIndex(
+export function applyBobinesOnRefenteFromIndex(
   bobines: BobineFilleClichePose[],
   refente: Refente,
   startIndex: number
