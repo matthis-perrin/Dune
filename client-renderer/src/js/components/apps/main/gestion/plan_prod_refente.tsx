@@ -6,7 +6,7 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getRefenteColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme/default';
 
@@ -45,7 +45,10 @@ export class PlanProductionRefente extends React.Component<Props> {
               title="refente"
               filterTitle="non selectionnable"
               filterFunction={refente => {
-                return planProd.selectableRefentes.map(r => r.ref).indexOf(refente.ref) !== -1;
+                return (
+                  planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) !==
+                  -1
+                );
               }}
               width={width - modalPadding}
               height={height - modalPadding}

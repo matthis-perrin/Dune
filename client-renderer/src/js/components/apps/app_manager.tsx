@@ -8,12 +8,13 @@ import {ListOperationsApp} from '@root/components/apps/list_operations/app';
 import {ListPerfosApp} from '@root/components/apps/list_perfos/app';
 import {ListRefentesApp} from '@root/components/apps/list_refentes/app';
 import {MainApp} from '@root/components/apps/main/app';
-import {ViewOperationApp} from '@root/components/apps/view_operation/app';
+import {ViewOperationApp, ViewMode} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -65,8 +66,13 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.ViewOperationApp) {
-      const {operationId, mode} = data;
-      return <ViewOperationApp operationId={operationId} modeInitial={mode} />;
+      const {operationId, mode} = asMap(data);
+      return (
+        <ViewOperationApp
+          operationId={asNumber(operationId, undefined)}
+          modeInitial={asString(mode, undefined) as ViewMode}
+        />
+      );
     }
     return (
       <TempWrapper>

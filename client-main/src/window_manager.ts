@@ -114,6 +114,9 @@ class WindowManager {
       ...sizeWithDefaults,
       show: false,
     });
+    if (process.env.MODE === 'development') {
+      browserWindow.webContents.openDevTools({mode: 'detach'});
+    }
 
     // Save the window in the manager
     windowInfo = {browserWindow, appInfo, id};
@@ -127,9 +130,6 @@ class WindowManager {
         browserWindow.maximize();
       }
       browserWindow.show();
-      if (process.env.MODE === 'development') {
-        browserWindow.webContents.openDevTools({mode: 'detach'});
-      }
       return windowInfo;
     } catch (err) {
       // If something went wrong, close the window and remove it from the window manager

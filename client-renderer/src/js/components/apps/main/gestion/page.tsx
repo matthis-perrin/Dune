@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import {PlanProduction} from '@root/components/apps/main/gestion/plan_production';
 import {Page} from '@root/components/apps/main/page';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {
   bobinesFillesStore,
   bobinesMeresStore,

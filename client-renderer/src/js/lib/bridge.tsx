@@ -69,6 +69,7 @@ class Bridge {
   public async getAppInfo(windowId: string): Promise<ClientAppInfo> {
     return this.bridgeTransport.sendBridgeCommand<ClientAppInfo>(GetAppInfo, {windowId});
   }
+  // tslint:disable-next-line:no-any
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(OpenApp, {type, data});
   }

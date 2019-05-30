@@ -6,7 +6,7 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getBobineMereColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme/default';
 
@@ -48,7 +48,11 @@ export class PlanProductionPolypro extends React.Component<Props> {
               title="polypro"
               filterTitle="non selectionnable"
               filterFunction={bobineMere => {
-                return planProd.selectablePolypros.map(r => r.ref).indexOf(bobineMere.ref) !== -1;
+                return (
+                  planProd.selectables.selectablePolypros
+                    .map(r => r.ref)
+                    .indexOf(bobineMere.ref) !== -1
+                );
               }}
               width={width - modalPadding}
               height={height - modalPadding}

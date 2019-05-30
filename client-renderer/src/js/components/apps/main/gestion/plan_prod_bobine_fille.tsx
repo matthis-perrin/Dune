@@ -5,7 +5,7 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getBobineFilleClichePoseColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 import {appStore} from '@root/stores/app_store';
 import {theme, getCouleurByName} from '@root/theme/default';
@@ -43,7 +43,7 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
               title="bobine"
               filterTitle="non selectionnable"
               filterFunction={bobineFille =>
-                planProd.selectableBobinesFilles.indexOf(bobineFille) !== -1
+                planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) !== -1
               }
               width={width - modalPadding}
               height={height - modalPadding}
@@ -86,7 +86,7 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
     return (
       <ProdElementWrapper>
         {bobines.map(bobine => this.renderBobineFille(bobine))}
-        {planProd.selectableBobinesFilles.length > 0 ? (
+        {planProd.selectables.selectableBobinesFilles.length > 0 ? (
           <Button onClick={this.handleAddBobineFille}>Ajouter Bobine</Button>
         ) : (
           <React.Fragment />

@@ -3,6 +3,17 @@ import {BobineFilleClichePose, ClichePose} from '@root/lib/plan_production/model
 
 import {BobineFille, Cliche} from '@shared/models';
 
+export function getBobineHash(
+  laize: number,
+  pose: number,
+  importanceOrdreCouleurs: boolean,
+  couleursImpression: string[]
+): string {
+  return `${laize}_${pose}_${
+    importanceOrdreCouleurs ? couleursImpression.join(',') : couleursImpression.sort().join(',')
+  }_${importanceOrdreCouleurs && couleursImpression.length > 1 ? 'Y' : 'N'}`;
+}
+
 export function getBobineFilleClichePose(
   bobine: BobineFille,
   allCliches: {[key: string]: Cliche}
@@ -34,13 +45,12 @@ export function getBobineFilleClichePose(
       clichePoses = clichePoses.concat(getClichePoses());
     }
     return clichePoses.map(clichePose => {
-      const hash = `${laize}_${clichePose.pose}_${
-        clichePose.importanceOrdreCouleurs
-          ? clichePose.couleursImpression.join(',')
-          : clichePose.couleursImpression.sort().join(',')
-      }_${
-        clichePose.importanceOrdreCouleurs && clichePose.couleursImpression.length > 1 ? 'Y' : 'N'
-      }`;
+      const hash = getBobineHash(
+        laize,
+        clichePose.pose,
+        clichePose.importanceOrdreCouleurs,
+        clichePose.couleursImpression
+      );
       return {...clichePose, ref, laize, grammage, couleurPapier, hash};
     });
   }

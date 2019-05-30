@@ -15,7 +15,7 @@ export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore
     const {data} = response;
     if (data.length > 0) {
       this.lastCheck = Date.now();
-      const newData: {[id: string]: T} = {};
+      const newData = new Map<string, T>();
       let latestLocalUpdate = 0;
       data.forEach(element => {
         element.localUpdate = new Date(element.localUpdate);
@@ -23,7 +23,7 @@ export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore
         if (localUpdateTimestamp > latestLocalUpdate) {
           latestLocalUpdate = localUpdateTimestamp;
         }
-        newData[this.getId(element)] = element;
+        newData.set(this.getId(element), element);
       });
       this.localUpdate = latestLocalUpdate;
       if (this.data === undefined) {
@@ -31,12 +31,13 @@ export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore
       }
       this.data.forEach((element, index) => {
         const id = this.getId(element);
-        if (newData[id] !== undefined && this.data !== undefined) {
-          this.data[index] = newData[id];
+        const value = newData.get(id);
+        if (value !== undefined && this.data !== undefined) {
+          this.data[index] = value;
         }
-        delete newData[id];
+        newData.delete(id);
       });
-      this.data = this.data.concat(Object.values(newData));
+      this.data = this.data.concat(Array.from(newData.values()));
       this.emit();
     }
     if (data.length === 0 && this.lastCheck === 0) {

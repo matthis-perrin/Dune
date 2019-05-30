@@ -5,7 +5,7 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getPerfoColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme/default';
 
@@ -41,7 +41,7 @@ export class PlanProductionPerfo extends React.Component<Props> {
               title="perfo"
               filterTitle="non selectionnable"
               filterFunction={perfo => {
-                return planProd.selectablePerfos.indexOf(perfo) !== -1;
+                return planProd.selectables.selectablePerfos.indexOf(perfo) !== -1;
               }}
               width={width - modalPadding}
               height={height - modalPadding}

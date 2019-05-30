@@ -6,7 +6,7 @@ import {PlanProductionPapier} from '@root/components/apps/main/gestion/plan_prod
 import {PlanProductionPerfo} from '@root/components/apps/main/gestion/plan_prod_perfo';
 import {PlanProductionPolypro} from '@root/components/apps/main/gestion/plan_prod_polypro';
 import {PlanProductionRefente} from '@root/components/apps/main/gestion/plan_prod_refente';
-import {PlanProductionEngine} from '@root/lib/plan_production/algo';
+import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock} from '@shared/models';
 
@@ -58,52 +58,59 @@ export class PlanProduction extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const plan = this.state.planProductionEngine;
+    const {bobinesMeres, refentes, stocks} = this.props;
+    const {
+      selectableBobinesFilles,
+      selectableRefentes,
+      selectablePapiers,
+      selectablePerfos,
+      selectablePolypros,
+    } = plan.selectables;
+
     return (
       <div>
         <PlanProdWrapper>
           <ProdElement>
-            <ProdElementTitle>{`Bobines (${
-              plan.selectableBobinesFilles.length
-            })`}</ProdElementTitle>
+            <ProdElementTitle>{`Bobines (${selectableBobinesFilles.length})`}</ProdElementTitle>
             <ProdElementWrapper>
-              <PlanProductionBobineFilleClichePose planProd={plan} stocks={this.props.stocks} />
+              <PlanProductionBobineFilleClichePose planProd={plan} stocks={stocks} />
             </ProdElementWrapper>
           </ProdElement>
           <ProdElement>
-            <ProdElementTitle>{`Refente (${plan.selectableRefentes.length})`}</ProdElementTitle>
+            <ProdElementTitle>{`Refente (${selectableRefentes.length})`}</ProdElementTitle>
             <ProdElementWrapper>
-              <PlanProductionRefente planProd={plan} allRefentes={this.props.refentes} />
+              <PlanProductionRefente planProd={plan} allRefentes={refentes} />
             </ProdElementWrapper>
           </ProdElement>
           <ProdElement>
-            <ProdElementTitle>{`Papier (${plan.selectablePapiers.length})`}</ProdElementTitle>
+            <ProdElementTitle>{`Papier (${selectablePapiers.length})`}</ProdElementTitle>
             <ProdElementWrapper>
               <PlanProductionPapier
                 planProd={plan}
-                allBobinesMeres={this.props.bobinesMeres}
-                stocks={this.props.stocks}
+                allBobinesMeres={bobinesMeres}
+                stocks={stocks}
               />
             </ProdElementWrapper>
           </ProdElement>
           <ProdElement>
-            <ProdElementTitle>{`Perfo (${plan.selectablePerfos.length})`}</ProdElementTitle>
+            <ProdElementTitle>{`Perfo (${selectablePerfos.length})`}</ProdElementTitle>
             <ProdElementWrapper>
               <PlanProductionPerfo planProd={plan} />
             </ProdElementWrapper>
           </ProdElement>
           <ProdElement>
-            <ProdElementTitle>{`Polypro (${plan.selectablePolypros.length})`}</ProdElementTitle>
+            <ProdElementTitle>{`Polypro (${selectablePolypros.length})`}</ProdElementTitle>
             <ProdElementWrapper>
               <PlanProductionPolypro
                 planProd={plan}
-                allBobinesMeres={this.props.bobinesMeres}
-                stocks={this.props.stocks}
+                allBobinesMeres={bobinesMeres}
+                stocks={stocks}
               />
             </ProdElementWrapper>
           </ProdElement>
         </PlanProdWrapper>
         <PlanProdFooter>
-          <button onClick={() => this.state.planProductionEngine.recalculate()}>Recalcule</button>
+          <button onClick={() => plan.recalculate()}>Recalcule</button>
           <CalculationTime>{`Calculé en ${Math.round(plan.calculationTime * 100) /
             100}ms`}</CalculationTime>
         </PlanProdFooter>

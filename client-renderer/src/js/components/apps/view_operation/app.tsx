@@ -9,7 +9,7 @@ export type ViewMode = 'view' | 'update' | 'create';
 
 interface Props {
   operationId?: number;
-  modeInitial: ViewMode;
+  modeInitial?: ViewMode;
 }
 
 interface State {
@@ -22,7 +22,7 @@ export class ViewOperationApp extends React.Component<Props, State> {
 
   public constructor(props: Props) {
     super(props);
-    this.state = {currentMode: props.modeInitial};
+    this.state = {currentMode: props.modeInitial || 'view'};
   }
 
   public componentDidMount(): void {

@@ -1,9 +1,9 @@
+import {uniqBy, without, sum} from 'lodash-es';
+
 import {
   checkColorsAreCompatbile,
   getColorsRestrictionsForBobine,
-} from 'C:\Users\Matthis\git\dune\client-renderer\src\js\lib\plan_production\colors_compatibility';
-import {uniqBy, without, sum} from 'lodash-es';
-
+} from '@root/lib/plan_production/colors_compatibility';
 import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
 import {permutations} from '@root/lib/plan_production/utils';
 
@@ -13,8 +13,6 @@ const MAX_COULEURS_IMPRESSIONS = 3;
 // in `selectableBobines` that fits in `refente` given a list of already selected `BobineFilleClichePose`
 // provided in `selectedBobines`.
 // Returns `undefined` if no combinaison exists. Otherwise returns the first combinaison found.
-// TODO - When generating a combinaison, we should check if the color combinaison is also possible
-const debug = false;
 export function compatibilityExists(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
@@ -84,28 +82,29 @@ export function refenteHasSpotForBobine(refente: Refente, bobine: BobineFilleCli
 function analyseLaizesLeftOnRefente(
   selectedBobines: BobineFilleClichePose[],
   refente: Refente
-): {[key: number]: number} | undefined {
-  const res: {[key: number]: number} = {};
+): Map<number, number> | undefined {
+  const laizesLeft = new Map<number, number>();
   for (const laize of refente.laizes) {
-    if (!res[laize]) {
-      res[laize] = 0;
-    }
-    res[laize]++;
+    const left = laizesLeft.get(laize) || 0;
+    laizesLeft.set(laize, left + 1);
   }
   for (const bobine of selectedBobines) {
     const {laize, pose} = bobine;
-    if (!res[laize]) {
+    if (!laizesLeft.has(laize)) {
       return undefined;
     }
-    res[laize] -= pose;
-    if (res[laize] < 0) {
+    const left = laizesLeft.get(laize) || 0;
+    const newLeft = left - pose;
+    if (newLeft < 0) {
       return undefined;
     }
-    if (res[laize] === 0) {
-      delete res[laize];
+    if (newLeft === 0) {
+      laizesLeft.delete(laize);
+    } else {
+      laizesLeft.set(laize, left - pose);
     }
   }
-  return res;
+  return laizesLeft;
 }
 
 function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[]): boolean {
@@ -126,17 +125,23 @@ function compatibilityExistsForOrderedBobines(
     return undefined;
   }
   const compatibleSelectableBobines = selectableBobines.filter(
-    b => (laizesLeft[b.laize] || 0) >= b.pose
+    b => laizesLeft.get(b.laize) || 0 >= b.pose
   );
 
   // First we check if the selected bobines can be applied on the refente
   const status = applyBobinesOnRefente(selectedBobines, refente);
-  if (status === RefenteStatus.COMPATIBLE) {
-    // If everything is good, verify the colors are compatbile
-    bobinesColorsAreCompatbile(selectedBobines) ? selectedBobines : undefined;
-  }
   if (status === RefenteStatus.INCOMPATIBLE) {
     return undefined;
+  }
+
+  // If there is some kind of compatibility, it's now worth checking the colors
+  if (!bobinesColorsAreCompatbile(selectedBobines)) {
+    return undefined;
+  }
+
+  // Yay! Perfect match, we're done
+  if (status === RefenteStatus.COMPATIBLE) {
+    return selectedBobines;
   }
 
   const uniqSelectables = uniqByLaizePoseAndColor(compatibleSelectableBobines);

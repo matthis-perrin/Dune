@@ -16,11 +16,11 @@ import {Perfo} from '@shared/models';
 export function filterPolyprosForSelectablePapiers(
   selectablePolypros: BobineMerePolypro[],
   selectablePapiers: BobineMerePapier[]
-): BobineMerePolypro[] | undefined {
+): BobineMerePolypro[] {
   const availableLaizes = uniq(selectablePapiers.map(p => p.laize));
   const newPolypros = selectablePolypros.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newPolypros.length === selectablePolypros.length) {
-    return undefined;
+    return selectablePolypros;
   }
   const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
   console.log(`filterPolyprosForSelectablePapiers dropping ${dropped.length} Polypros`, dropped);
@@ -30,11 +30,11 @@ export function filterPolyprosForSelectablePapiers(
 export function filterPolyprosForSelectableRefentes(
   selectablePolypros: BobineMerePolypro[],
   selectableRefentes: Refente[]
-): BobineMerePolypro[] | undefined {
+): BobineMerePolypro[] {
   const availableLaizes = uniq(selectableRefentes.map(p => p.laize));
   const newPolypros = selectablePolypros.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newPolypros.length === selectablePolypros.length) {
-    return undefined;
+    return selectablePolypros;
   }
   const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
   console.log(`filterPolyprosForSelectableRefentes dropping ${dropped.length} Polypros`, dropped);
@@ -44,11 +44,11 @@ export function filterPolyprosForSelectableRefentes(
 export function filterPapiersForSelectablePolypros(
   selectablePapiers: BobineMerePapier[],
   selectablePolypros: BobineMerePolypro[]
-): BobineMerePapier[] | undefined {
+): BobineMerePapier[] {
   const availableLaizes = uniq(selectablePolypros.map(p => p.laize));
   const newPapiers = selectablePapiers.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newPapiers.length === selectablePapiers.length) {
-    return undefined;
+    return selectablePapiers;
   }
   const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
   console.log(`filterPapiersForSelectablePolypros dropping ${dropped.length} Papier`, dropped);
@@ -58,11 +58,11 @@ export function filterPapiersForSelectablePolypros(
 export function filterPapiersForSelectableRefentes(
   selectablePapiers: BobineMerePapier[],
   selectableRefentes: Refente[]
-): BobineMerePapier[] | undefined {
+): BobineMerePapier[] {
   const availableLaizes = uniq(selectableRefentes.map(r => r.laize));
   const newPapiers = selectablePapiers.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newPapiers.length === selectablePapiers.length) {
-    return undefined;
+    return selectablePapiers;
   }
   const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
   console.log(`filterPapiersForSelectableRefentes dropping ${dropped.length} Papier`, dropped);
@@ -72,11 +72,11 @@ export function filterPapiersForSelectableRefentes(
 export function filterPerfosForSelectableRefentes(
   selectablePerfos: Perfo[],
   selectableRefentes: Refente[]
-): Perfo[] | undefined {
+): Perfo[] {
   const availableRefs = uniq(selectableRefentes.map(r => r.refPerfo));
   const newPerfos = selectablePerfos.filter(p => availableRefs.indexOf(p.ref) !== -1);
   if (newPerfos.length === selectablePerfos.length) {
-    return undefined;
+    return selectablePerfos;
   }
   const dropped = differenceBy(selectablePerfos, newPerfos, 'ref');
   console.log(`filterPerfosForSelectableRefentes dropping ${dropped.length} Perfos`, dropped);
@@ -86,11 +86,11 @@ export function filterPerfosForSelectableRefentes(
 export function filterRefentesForSelectablePerfos(
   selectableRefentes: Refente[],
   selectablePerfos: Perfo[]
-): Refente[] | undefined {
+): Refente[] {
   const availableRefs = uniq(selectablePerfos.map(p => p.ref));
   const newRefentes = selectableRefentes.filter(p => availableRefs.indexOf(p.refPerfo) !== -1);
   if (newRefentes.length === selectableRefentes.length) {
-    return undefined;
+    return selectableRefentes;
   }
   const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
   console.log(`filterRefentesForSelectablePerfos dropping ${dropped.length} Refentes`, dropped);
@@ -100,11 +100,11 @@ export function filterRefentesForSelectablePerfos(
 export function filterRefentesForSelectablePapiers(
   selectableRefentes: Refente[],
   selectablePapiers: BobineMerePapier[]
-): Refente[] | undefined {
+): Refente[] {
   const availableLaizes = uniq(selectablePapiers.map(p => p.laize));
   const newRefentes = selectableRefentes.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newRefentes.length === selectableRefentes.length) {
-    return undefined;
+    return selectableRefentes;
   }
   const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
   console.log(`filterRefentesForSelectablePapiers dropping ${dropped.length} Refentes`, dropped);
@@ -114,11 +114,11 @@ export function filterRefentesForSelectablePapiers(
 export function filterRefentesForSelectablePolypros(
   selectableRefentes: Refente[],
   selectablePolypros: BobineMerePolypro[]
-): Refente[] | undefined {
+): Refente[] {
   const availableLaizes = uniq(selectablePolypros.map(p => p.laize));
   const newRefentes = selectableRefentes.filter(p => availableLaizes.indexOf(p.laize) !== -1);
   if (newRefentes.length === selectableRefentes.length) {
-    return undefined;
+    return selectableRefentes;
   }
   const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
   console.log(`filterRefentesForSelectablePolypros dropping ${dropped.length} Refentes`, dropped);
@@ -128,7 +128,7 @@ export function filterRefentesForSelectablePolypros(
 export function filterBobinesFillesForSelectablePapiers(
   selectableBobinesFilles: BobineFilleClichePose[],
   selectablePapiers: BobineMerePapier[]
-): BobineFilleClichePose[] | undefined {
+): BobineFilleClichePose[] {
   const availableCouleursGrammages = uniq(
     selectablePapiers.map(p => `${p.couleurPapier}-${p.grammage}`)
   );
@@ -136,7 +136,7 @@ export function filterBobinesFillesForSelectablePapiers(
     p => availableCouleursGrammages.indexOf(`${p.couleurPapier}-${p.grammage}`) !== -1
   );
   if (newBobinesFilles.length === selectableBobinesFilles.length) {
-    return undefined;
+    return selectableBobinesFilles;
   }
   const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
   console.log(
@@ -150,9 +150,12 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   selectableBobinesFilles: BobineFilleClichePose[],
   selectableRefentes: Refente[],
   selectedBobinesFilles: BobineFilleClichePose[]
-): BobineFilleClichePose[] | undefined {
+): BobineFilleClichePose[] {
   let compatibleBobinesFilles: BobineFilleClichePose[] = [];
+  let i = 0;
   for (const bobine of selectableBobinesFilles) {
+    i++;
+    console.log(`${i}/${selectableBobinesFilles.length}`);
     if (compatibleBobinesFilles.indexOf(bobine) !== -1) {
       continue;
     }
@@ -178,7 +181,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
     compatibleBobinesFilles.filter(b => selectedBobinesFilles.indexOf(b) === -1)
   );
   if (compatibleBobinesFilles.length === selectableBobinesFilles.length) {
-    return undefined;
+    return selectableBobinesFilles;
   }
   const dropped = differenceBy(selectableBobinesFilles, compatibleBobinesFilles, 'ref');
   console.log(

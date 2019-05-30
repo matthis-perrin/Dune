@@ -1,4 +1,4 @@
-import {isEqual} from 'lodash-es';
+import {isEqual, difference} from 'lodash-es';
 
 import {
   compatibilityExists,
@@ -7,6 +7,7 @@ import {
   uniqByLaizePoseAndColor,
   getSelectedBobinesCombinaison,
 } from '@root/lib/plan_production/bobines_refentes_compatibility';
+import {getBobineHash} from '@root/lib/plan_production/data_extraction/bobine_fille';
 import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
 
 // tslint:disable:no-magic-numbers variable-name
@@ -20,7 +21,7 @@ const dummyBobineTemplate = {
   couleurPapier: 'dummy-couleur-papier',
   grammage: 13,
   refCliche: 'dummy-ref-cliche',
-  couleursImpression: [],
+  couleursImpression: [] as string[],
   importanceOrdreCouleurs: false,
 };
 
@@ -31,10 +32,8 @@ const dummyRefenteTemplate = {
 };
 
 function dummyB(laize: number, pose: number): BobineFilleClichePose {
-  const hash = Math.random()
-    .toString(36)
-    .substr(2)
-    .toUpperCase();
+  const {couleursImpression, importanceOrdreCouleurs} = dummyBobineTemplate;
+  const hash = getBobineHash(laize, pose, importanceOrdreCouleurs, couleursImpression);
   return {...dummyBobineTemplate, laize, pose, hash};
 }
 
@@ -44,10 +43,7 @@ function dummyBC(
   couleursImpression: string[],
   importanceOrdreCouleurs: boolean
 ): BobineFilleClichePose {
-  const hash = Math.random()
-    .toString(36)
-    .substr(2)
-    .toUpperCase();
+  const hash = getBobineHash(laize, pose, importanceOrdreCouleurs, couleursImpression);
   return {...dummyBobineTemplate, laize, pose, couleursImpression, importanceOrdreCouleurs, hash};
 }
 
@@ -131,7 +127,7 @@ function testApplyBobinesOnRefente(): void {
     {
       bobines: [],
       refente: dummyR([140, 140, 140, 140]),
-      expected: RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT,
+      expected: RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION,
     },
     {
       bobines: [dummyB(150, 1)],
@@ -242,13 +238,17 @@ function testUniqByLaizePoseAndColor(): void {
     .concat(bobines4);
   const res = uniqByLaizePoseAndColor(bobines);
 
-  const expected1 = [a1, b1, c1, d1, e1, f1, g1];
-  const expected3 = [a3, b3, c3, d3, e3, f3, g3];
-  const expected4 = [a4, b4, c4, d4, e4, f4, g4];
+  const expected1 = [a1, c1, d1, e1, f1, g1];
+  const expected3 = [a3, c3, d3, e3, f3, g3];
+  const expected4 = [a4, c4, d4, e4, f4, g4];
   const expected = expected1.concat(expected3).concat(expected4);
 
   if (!isEqual(res, expected)) {
-    console.log('Error with test testUniqByLaizePoseAndColor');
+    console.log(
+      'Error with test testUniqByLaizePoseAndColor, diff:',
+      difference(res, expected),
+      difference(expected, res)
+    );
   }
 }
 

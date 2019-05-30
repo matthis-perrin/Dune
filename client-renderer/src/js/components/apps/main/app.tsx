@@ -42,19 +42,12 @@ export class MainApp extends React.Component<Props, State> {
     return <div style={{display: pageName === currentPage ? 'block' : 'none'}}>{page}</div>;
   }
 
-  private renderPages(pageName: AppPage): JSX.Element[] {
-    const pages: JSX.Element[] = [];
-    pages.push(this.renderPage(<GestionPage />, AppPage.Gestion));
-    pages.push(this.renderPage(<AdministrationPage />, AppPage.Administration));
-    return pages;
-  }
-
   public render(): JSX.Element {
-    const {currentPage} = this.state;
     return (
       <React.Fragment>
         <Sidebar />
-        {this.renderPages(currentPage)}
+        {this.renderPage(<GestionPage />, AppPage.Gestion)}
+        {this.renderPage(<AdministrationPage />, AppPage.Administration)}
       </React.Fragment>
     );
   }
