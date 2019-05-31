@@ -148,6 +148,9 @@ export const theme = {
     rowFontWeight: FontWeight.SemiBold,
     rowBackgroundColor: Colors.white,
     rowBackgroundColorHovered: Colors.lightGray,
+    filterIconOpacity: 0.5,
+    filterIconHoverOpacity: 0.75,
+    filterIconSelectedOpacity: 1,
   },
   rightPanel: {
     width: 480,

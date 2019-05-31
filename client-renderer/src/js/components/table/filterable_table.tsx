@@ -7,7 +7,7 @@ import {ColumnType} from '@root/components/table/column';
 import {ColumnMetadata, SortableTable, SortInfo} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
 
-import {asString} from '@shared/type_utils';
+import {asString, asMap} from '@shared/type_utils';
 
 export interface TableFilter<T> {
   title: string;
@@ -15,10 +15,10 @@ export interface TableFilter<T> {
   enableByDefault: boolean;
 }
 
-interface Props<T> {
+interface Props<T, U> {
   data: T[];
   lastUpdate: number;
-  columns: ColumnMetadata<T>[];
+  columns: ColumnMetadata<T, U>[];
   initialSort?: SortInfo;
   onSelected?(row: T): void;
   title: string;
@@ -33,10 +33,10 @@ interface State<T> {
   searchValue: string;
 }
 
-export class FilterableTable<T> extends React.Component<Props<T>, State<T>> {
+export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>> {
   public static displayName = 'FilterableTable';
 
-  public constructor(props: Props<T>) {
+  public constructor(props: Props<T, U>) {
     super(props);
     this.state = {
       enabledFilters: (props.filters || [])
@@ -118,8 +118,8 @@ export class FilterableTable<T> extends React.Component<Props<T>, State<T>> {
         let hasMatch = false;
         for (const column of columns) {
           if (column.type === ColumnType.String) {
-            // tslint:disable-next-line:no-any
-            const value = asString((d as any)[column.name], undefined);
+            const cellRawValue = asMap(d)[column.name];
+            const value = asString(cellRawValue, undefined);
             if (value !== undefined && value.toUpperCase().includes(searchValue.toUpperCase())) {
               hasMatch = true;
             }

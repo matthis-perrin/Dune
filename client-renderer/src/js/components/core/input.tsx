@@ -1,3 +1,4 @@
+import {omit} from 'lodash-es';
 import * as React from 'react';
 
 interface InputProps extends React.HTMLProps<HTMLInputElement> {
@@ -24,6 +25,6 @@ export class Input extends React.Component<InputProps> {
   }
 
   public render(): JSX.Element {
-    return <input ref={this.getRef()} {...this.props} />;
+    return <input ref={this.getRef()} {...omit(this.props, ['focusOnMount'])} />;
   }
 }

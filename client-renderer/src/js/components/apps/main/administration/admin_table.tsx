@@ -6,15 +6,15 @@ import {FilterableTable} from '@root/components/table/filterable_table';
 import {ColumnMetadata, SortInfo} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
 
-interface Props<T extends {sommeil: boolean}> {
+interface Props<T extends {sommeil: boolean}, U> {
   data: T[];
   lastUpdate: number;
-  columns: ColumnMetadata<T>[];
+  columns: ColumnMetadata<T, U>[];
   initialSort?: SortInfo;
   title: string;
 }
 
-export class AdminTable<T extends {sommeil: boolean}> extends React.Component<Props<T>> {
+export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component<Props<T, U>> {
   public static displayName = 'AdminTable';
 
   public render(): JSX.Element {

@@ -81,7 +81,7 @@ const REFERENCE_COLUMN = (width: number) => ({
   title: 'Reference',
   type: ColumnType.String,
   width,
-  canFilter: false,
+  // canFilter: false,
 });
 
 const ID_COLUMN = (width: number) => ({
@@ -89,21 +89,21 @@ const ID_COLUMN = (width: number) => ({
   title: 'Id',
   type: ColumnType.Number,
   width,
-  canFilter: false,
+  // canFilter: false,
 });
 
 const DESIGNATION_COLUMN = {
   name: 'designation',
   title: 'Designation',
   type: ColumnType.String,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const DESCRIPTION_COLUMN = {
   name: 'description',
   title: 'Description',
   type: ColumnType.String,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const LAIZE_COLUMN = {
@@ -111,7 +111,7 @@ const LAIZE_COLUMN = {
   title: 'Laize',
   type: ColumnType.Number,
   width: 60,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const LONGUEUR_COLUMN = {
@@ -119,7 +119,7 @@ const LONGUEUR_COLUMN = {
   title: 'Long.',
   type: ColumnType.Number,
   width: 60,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const COULEUR_PAPIER_COLUMN = {
@@ -127,7 +127,7 @@ const COULEUR_PAPIER_COLUMN = {
   title: 'Couleur',
   type: ColumnType.String,
   width: 110,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const GRAMMAGE_COLUMN = {
@@ -135,7 +135,7 @@ const GRAMMAGE_COLUMN = {
   title: 'Gram.',
   type: ColumnType.Number,
   width: 60,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const STOCK_COLUMN = (stocks: StockIndex) => ({
@@ -144,7 +144,7 @@ const STOCK_COLUMN = (stocks: StockIndex) => ({
   type: ColumnType.Number,
   sortFunction: getStocksSortFunction(stocks),
   width: 80,
-  canFilter: false,
+  // canFilter: false,
   renderCell: <T extends {ref: string}>(element: T) => getStock(element, stocks),
 });
 
@@ -153,7 +153,7 @@ const TYPE_IMPRESSION_COLUMN = {
   title: 'Type Imp.',
   type: ColumnType.String,
   width: 90,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const REF_CLICHE_COLUMN = (name: string) => ({
@@ -161,7 +161,7 @@ const REF_CLICHE_COLUMN = (name: string) => ({
   title: 'Cliche 1',
   type: ColumnType.String,
   width: 90,
-  canFilter: true,
+  // canFilter: true,
 });
 
 const COULEUR_CLICHE_COLUMN = (index: number) => ({
@@ -169,7 +169,7 @@ const COULEUR_CLICHE_COLUMN = (index: number) => ({
   title: `Couleur ${index}`,
   type: ColumnType.String,
   width: 70,
-  canFilter: true,
+  // canFilter: true,
 });
 
 const COULEURS_CLICHE_COLUMN = {
@@ -178,7 +178,7 @@ const COULEURS_CLICHE_COLUMN = {
   type: ColumnType.String,
   sortFunction: sortBobineFilleClichePoseCouleursFunction,
   width: 160,
-  canFilter: false,
+  // canFilter: false,
   renderCell: (b: BobineFilleClichePose) => `[${b.couleursImpression.join(', ')}]`,
 };
 
@@ -187,7 +187,7 @@ const IMPORTANCE_ORDRE_COULEUR_COLUMN = {
   title: 'Ordre Imp.',
   type: ColumnType.Boolean,
   width: 90,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const IS_REQUIRED_COLUMN = {
@@ -195,7 +195,7 @@ const IS_REQUIRED_COLUMN = {
   title: 'Obligatoire',
   type: ColumnType.Boolean,
   width: 95,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const LAST_UPDATE_COLUMN = {
@@ -203,14 +203,14 @@ const LAST_UPDATE_COLUMN = {
   title: 'Date Modification',
   type: ColumnType.Date,
   width: 170,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const LAIZE_PERFO_COLUMN = (index: number) => ({
   name: `laize${index}`,
   title: `Laize ${index}`,
   type: ColumnType.Number,
-  canFilter: true,
+  // canFilter: true,
 });
 
 const NOMBRE_POSES_COLUMN = {
@@ -219,7 +219,7 @@ const NOMBRE_POSES_COLUMN = {
   type: ColumnType.String,
   sortFunction: sortClichesPosesFunction,
   width: 70,
-  canFilter: false,
+  // canFilter: false,
   renderCell: (cliche: Cliche) => `[${getPoses(cliche).join(', ')}]`,
 };
 
@@ -228,7 +228,7 @@ const POSE_COLUMN = {
   title: 'Pose',
   type: ColumnType.Number,
   width: 40,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const DECALAGE_INITIAL_COLUMN = {
@@ -236,7 +236,7 @@ const DECALAGE_INITIAL_COLUMN = {
   title: 'Decalage',
   type: ColumnType.Number,
   width: 70,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const CALE_COLUMN = (index: number) => ({
@@ -244,14 +244,14 @@ const CALE_COLUMN = (index: number) => ({
   title: `Cale ${index}`,
   width: 57,
   type: ColumnType.Number,
-  canFilter: true,
+  // canFilter: true,
 });
 
 const BAGUE_COLUMN = (index: number) => ({
   name: `bague${index}`,
   title: `Bague ${index}`,
   type: ColumnType.Number,
-  canFilter: true,
+  // canFilter: true,
 });
 
 const REF_PERFO_COLUMN = {
@@ -259,7 +259,7 @@ const REF_PERFO_COLUMN = {
   title: 'Ref Perfo',
   type: ColumnType.String,
   width: 70,
-  canFilter: false,
+  // canFilter: false,
 };
 
 const DECALAGE = {
@@ -267,7 +267,7 @@ const DECALAGE = {
   title: 'Decalage',
   type: ColumnType.Number,
   width: 70,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const CHUTE_COLUMN = {
@@ -275,7 +275,7 @@ const CHUTE_COLUMN = {
   title: 'Chute',
   type: ColumnType.Number,
   width: 70,
-  canFilter: true,
+  // canFilter: true,
 };
 
 const OPERATION_CONSTRAINT_COLUMN = {
@@ -283,7 +283,7 @@ const OPERATION_CONSTRAINT_COLUMN = {
   title: 'Contrainte',
   type: ColumnType.String,
   width: 90,
-  canFilter: true,
+  // canFilter: true,
   renderCell(constraint: OperationConstraintModel): JSX.Element {
     return <OperationConstraint constraint={constraint} />;
   },
@@ -294,7 +294,7 @@ const DURATION_SECONDS_COLUMN = {
   title: 'Temps',
   type: ColumnType.String,
   width: 90,
-  canFilter: true,
+  // canFilter: true,
   renderCell(duration: number): JSX.Element {
     return <Duration durationMs={duration * 1000} />;
   },

@@ -17,4 +17,9 @@ export const GlobalStyle = createGlobalStyle`
         bottom: 0;
         left: 0;
     }
+
+    .popup-overlay {
+        z-index: 1;
+        cursor: default;
+    }
 `;

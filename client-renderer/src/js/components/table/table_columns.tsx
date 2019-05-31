@@ -12,9 +12,12 @@ import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock, Operation} from '@shared/models';
 
+// tslint:disable-next-line:no-any
+type AnyColumnMetadata<T> = ColumnMetadata<T, any>;
+
 export function getBobineFilleColumns(stocks: {
   [key: string]: Stock[];
-}): ColumnMetadata<BobineFille>[] {
+}): AnyColumnMetadata<BobineFille>[] {
   return [
     BobineFilleColumns.Ref,
     BobineFilleColumns.Designation,
@@ -32,7 +35,7 @@ export function getBobineFilleColumns(stocks: {
 
 export function getBobineFilleClichePoseColumns(stocks: {
   [key: string]: Stock[];
-}): ColumnMetadata<BobineFilleClichePose>[] {
+}): AnyColumnMetadata<BobineFilleClichePose>[] {
   return [
     BobineFilleClichePoseColumns.Ref,
     BobineFilleClichePoseColumns.Laize,
@@ -49,7 +52,7 @@ export function getBobineFilleClichePoseColumns(stocks: {
 
 export function getBobineMereColumns(stocks: {
   [key: string]: Stock[];
-}): ColumnMetadata<BobineMere>[] {
+}): AnyColumnMetadata<BobineMere>[] {
   return [
     BobineMereColumns.Ref,
     BobineMereColumns.Designation,
@@ -62,7 +65,7 @@ export function getBobineMereColumns(stocks: {
   ];
 }
 
-export function getClicheColumns(): ColumnMetadata<Cliche>[] {
+export function getClicheColumns(): AnyColumnMetadata<Cliche>[] {
   return [
     ClicheColumns.Ref,
     ClicheColumns.Designation,
@@ -75,7 +78,7 @@ export function getClicheColumns(): ColumnMetadata<Cliche>[] {
   ];
 }
 
-export function getPerfoColumns(): ColumnMetadata<Perfo>[] {
+export function getPerfoColumns(): AnyColumnMetadata<Perfo>[] {
   return [
     PerfoColumns.Ref,
     PerfoColumns.DecalageInitial,
@@ -97,7 +100,7 @@ export function getPerfoColumns(): ColumnMetadata<Perfo>[] {
   ];
 }
 
-export function getRefenteColumns(): ColumnMetadata<Refente>[] {
+export function getRefenteColumns(): AnyColumnMetadata<Refente>[] {
   return [
     RefenteColumns.Ref,
     RefenteColumns.RefPerfo,
@@ -114,7 +117,7 @@ export function getRefenteColumns(): ColumnMetadata<Refente>[] {
   ];
 }
 
-export function getOperationsColumns(): ColumnMetadata<Operation>[] {
+export function getOperationsColumns(): AnyColumnMetadata<Operation>[] {
   return [
     OperationColumns.Id,
     OperationColumns.Description,

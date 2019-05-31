@@ -33,13 +33,21 @@ function getDefaultSortFunction(columnType: ColumnType): SortFunction<any> {
   return stringSort;
 }
 
-export interface ColumnMetadata<T> {
+type FilterType = 'group';
+
+export interface ColumnFilter<T, U> {
+  filterType?: FilterType;
+  getValue(row: T): U;
+  sortValue?(v1: U, v2: U): number;
+}
+
+export interface ColumnMetadata<T, U> {
   name: string;
   title: string;
   type: ColumnType;
   sortFunction?: SortFunction<T>;
   width?: number;
-  canFilter: boolean;
+  filter?: ColumnFilter<T, U>;
   renderCell?(element: T): JSX.Element | string;
 }
 
@@ -48,47 +56,56 @@ export interface SortInfo {
   columnName: string;
 }
 
-interface Props<T> {
+interface Props<T, U> {
   width: number;
   height: number;
   data: T[];
   lastUpdate: number;
-  columns: ColumnMetadata<T>[];
+  columns: ColumnMetadata<T, U>[];
   initialSort?: SortInfo;
   onRowClick(row: T, event: React.MouseEvent): void;
   rowStyles?(element: T): React.CSSProperties;
 }
 
 interface State<T> {
-  data: T[];
+  sortedData: T[];
+  filteredData: T[];
   sort?: SortInfo;
   hoveredIndex?: number;
 }
 
-export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
+export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> {
   public static displayName = 'SortableTable';
 
-  public constructor(props: Props<T>) {
+  private readonly columnFilters = new Map<number, (row: T) => boolean>();
+
+  public constructor(props: Props<T, U>) {
     super(props);
-    const sort = props.initialSort;
-    const data = this.computeData(props.data, sort);
-    this.state = {data, sort};
+    const {initialSort, data} = props;
+    const sort = initialSort;
+    this.state = {sortedData: data, sort, filteredData: data};
   }
 
-  public componentDidUpdate(prevProps: Props<T>): void {
+  public componentDidMount(): void {
+    this.recomputeData(this.state.sort);
+  }
+
+  public componentDidUpdate(prevProps: Props<T, U>): void {
     if (
       prevProps.lastUpdate !== this.props.lastUpdate ||
       prevProps.data.length !== this.props.data.length
     ) {
-      this.setState({data: this.computeData(this.props.data, this.state.sort)});
+      this.recomputeData(this.state.sort);
     }
   }
 
-  private getColumn(name: string): ColumnMetadata<T> | undefined {
+  private getColumn(name: string): ColumnMetadata<T, U> | undefined {
     return this.props.columns.find(c => c.name === name);
   }
 
-  private computeData(data: T[], sortInfo?: SortInfo): T[] {
+  private sortData(sortInfo?: SortInfo): T[] {
+    const {data} = this.props;
+
     if (!sortInfo) {
       return data;
     }
@@ -122,6 +139,28 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
     });
   }
 
+  private filterData(sortedData: T[]): T[] {
+    return sortedData.filter(row => {
+      for (const filterFn of this.columnFilters.values()) {
+        if (!filterFn(row)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  private recomputeData(sortInfo?: SortInfo): void {
+    const sortedData = this.sortData(sortInfo);
+    const filteredData = this.filterData(sortedData);
+
+    this.setState({
+      sort: sortInfo,
+      sortedData,
+      filteredData,
+    });
+  }
+
   private handleCellMouseOver(rowIndex: number): void {
     this.setState(state => {
       if (state.hoveredIndex !== rowIndex) {
@@ -145,7 +184,7 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
     const {columns, rowStyles} = this.props;
     const isHovered = this.state.hoveredIndex === rowIndex;
 
-    const line = this.state.data[rowIndex];
+    const line = this.state.filteredData[rowIndex];
     const {renderCell, type, name} = columns[columnIndex];
     const isFirst = columnIndex === 0;
     const isLast = columnIndex === columns.length - 1;
@@ -200,6 +239,14 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
     );
   };
 
+  private readonly handleColumnFilterChange = (
+    index: number,
+    filter: (row: T) => boolean
+  ): void => {
+    this.columnFilters.set(index, filter);
+    this.recomputeData(this.state.sort);
+  };
+
   private readonly renderColumn = (index: number): JSX.Element => {
     const columnMetadata = this.props.columns[index];
     let sort: ColumnSortMode = 'none';
@@ -222,14 +269,14 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
               this.state.sort.asc
             ),
           };
-          this.setState({
-            sort: newSortInfo,
-            data: this.computeData(this.props.data, newSortInfo),
-          });
+          this.recomputeData(newSortInfo);
         }}
         sort={sort}
         type={columnMetadata.type}
         title={columnMetadata.title}
+        filter={columnMetadata.filter}
+        data={this.state.sortedData}
+        onColumnFilterChange={this.handleColumnFilterChange.bind(this, index)}
       />
     );
   };
@@ -263,14 +310,14 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
 
   public render(): JSX.Element {
     const {width, height} = this.props;
-    const {data} = this.state;
+    const {filteredData} = this.state;
 
     return (
       <VirtualizedTable
         width={width}
         height={height}
         columnCount={this.props.columns.length}
-        rowCount={data.length}
+        rowCount={filteredData.length}
         getColumnWidth={this.getColumnWidth}
         rowHeight={theme.table.rowHeight}
         renderCell={this.renderCell}
