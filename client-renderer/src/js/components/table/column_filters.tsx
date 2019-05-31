@@ -158,6 +158,16 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
     this.notifyHandler();
   }
 
+  private renderValue(value: U): string {
+    if (typeof value === 'boolean') {
+      return value ? 'OUI' : 'NON';
+    }
+    if (typeof value === 'undefined') {
+      return '?';
+    }
+    return String(value);
+  }
+
   private renderCheckboxAll(): JSX.Element {
     const allChecked = this.allChecked();
     return (
@@ -183,14 +193,15 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
       if (!info) {
         return <React.Fragment />;
       }
+      const valueStr = this.renderValue(value);
       const checkbox = (
-        <FilterLabel key={String(value)}>
+        <FilterLabel key={valueStr}>
           <FilterCheckbox
             type="checkbox"
             checked={info.isSelected}
             onChange={() => this.toggleValue(value)}
           />
-          {`${String(value)} (${info.count})`}
+          {`${valueStr} (${info.count})`}
         </FilterLabel>
       );
       return checkbox;

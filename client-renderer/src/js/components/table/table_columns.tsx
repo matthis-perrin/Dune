@@ -45,7 +45,6 @@ export function getBobineFilleClichePoseColumns(stocks: {
     BobineFilleClichePoseColumns.Pose,
     BobineFilleClichePoseColumns.CouleursImpression,
     BobineFilleClichePoseColumns.ImportanceOrdreCouleurs,
-    BobineFilleClichePoseColumns.Longueur,
     BobineFilleClichePoseColumns.TypeImpression,
   ];
 }

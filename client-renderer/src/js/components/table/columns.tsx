@@ -6,7 +6,14 @@ import {OperationConstraint} from '@root/components/common/operation_constraint'
 import {ColumnType} from '@root/components/table/column';
 import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 
-import {Stock, Cliche, OperationConstraint as OperationConstraintModel} from '@shared/models';
+import {
+  Stock,
+  Cliche,
+  OperationConstraint as OperationConstraintModel,
+  Perfo,
+  Refente,
+} from '@shared/models';
+import {asMap, asString, asNumber} from '@shared/type_utils';
 
 interface StockIndex {
   [key: string]: Stock[];
@@ -81,7 +88,6 @@ const REFERENCE_COLUMN = (width: number) => ({
   title: 'Reference',
   type: ColumnType.String,
   width,
-  // canFilter: false,
 });
 
 const ID_COLUMN = (width: number) => ({
@@ -89,21 +95,18 @@ const ID_COLUMN = (width: number) => ({
   title: 'Id',
   type: ColumnType.Number,
   width,
-  // canFilter: false,
 });
 
 const DESIGNATION_COLUMN = {
   name: 'designation',
   title: 'Designation',
   type: ColumnType.String,
-  // canFilter: false,
 };
 
 const DESCRIPTION_COLUMN = {
   name: 'description',
   title: 'Description',
   type: ColumnType.String,
-  // canFilter: false,
 };
 
 const LAIZE_COLUMN = {
@@ -121,7 +124,9 @@ const LONGUEUR_COLUMN = {
   title: 'Long.',
   type: ColumnType.Number,
   width: 60,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {longueur: number}) => row.longueur,
+  },
 };
 
 const COULEUR_PAPIER_COLUMN = {
@@ -129,7 +134,9 @@ const COULEUR_PAPIER_COLUMN = {
   title: 'Couleur',
   type: ColumnType.String,
   width: 110,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {couleurPapier: string}) => row.couleurPapier,
+  },
 };
 
 const GRAMMAGE_COLUMN = {
@@ -137,7 +144,9 @@ const GRAMMAGE_COLUMN = {
   title: 'Gram.',
   type: ColumnType.Number,
   width: 60,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {grammage: number}) => row.grammage,
+  },
 };
 
 const STOCK_COLUMN = (stocks: StockIndex) => ({
@@ -146,7 +155,6 @@ const STOCK_COLUMN = (stocks: StockIndex) => ({
   type: ColumnType.Number,
   sortFunction: getStocksSortFunction(stocks),
   width: 80,
-  // canFilter: false,
   renderCell: <T extends {ref: string}>(element: T) => getStock(element, stocks),
 });
 
@@ -158,12 +166,11 @@ const TYPE_IMPRESSION_COLUMN = {
   // canFilter: true,
 };
 
-const REF_CLICHE_COLUMN = (name: string) => ({
-  name: 'refCliche1',
-  title: 'Cliche 1',
+const REF_CLICHE_COLUMN = (name: string, title: string) => ({
+  name,
+  title,
   type: ColumnType.String,
   width: 90,
-  // canFilter: true,
 });
 
 const COULEUR_CLICHE_COLUMN = (index: number) => ({
@@ -171,7 +178,9 @@ const COULEUR_CLICHE_COLUMN = (index: number) => ({
   title: `Couleur ${index}`,
   type: ColumnType.String,
   width: 70,
-  // canFilter: true,
+  filter: {
+    getValue: (row: Cliche) => asString(asMap(row)[`couleur${index}`], ''),
+  },
 });
 
 const COULEURS_CLICHE_COLUMN = {
@@ -180,7 +189,6 @@ const COULEURS_CLICHE_COLUMN = {
   type: ColumnType.String,
   sortFunction: sortBobineFilleClichePoseCouleursFunction,
   width: 160,
-  // canFilter: false,
   renderCell: (b: BobineFilleClichePose) => `[${b.couleursImpression.join(', ')}]`,
 };
 
@@ -189,7 +197,9 @@ const IMPORTANCE_ORDRE_COULEUR_COLUMN = {
   title: 'Ordre Imp.',
   type: ColumnType.Boolean,
   width: 90,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {importanceOrdreCouleurs: boolean}) => row.importanceOrdreCouleurs,
+  },
 };
 
 const IS_REQUIRED_COLUMN = {
@@ -197,7 +207,9 @@ const IS_REQUIRED_COLUMN = {
   title: 'Obligatoire',
   type: ColumnType.Boolean,
   width: 95,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {required: boolean}) => row.required,
+  },
 };
 
 const LAST_UPDATE_COLUMN = {
@@ -205,14 +217,15 @@ const LAST_UPDATE_COLUMN = {
   title: 'Date Modification',
   type: ColumnType.Date,
   width: 170,
-  // canFilter: false,
 };
 
-const LAIZE_PERFO_COLUMN = (index: number) => ({
+const LAIZE_REFENTE_COLUMN = (index: number) => ({
   name: `laize${index}`,
   title: `Laize ${index}`,
   type: ColumnType.Number,
-  // canFilter: true,
+  filter: {
+    getValue: (row: Refente) => asNumber(asMap(row)[`laize${index}`], 0),
+  },
 });
 
 const NOMBRE_POSES_COLUMN = {
@@ -221,7 +234,6 @@ const NOMBRE_POSES_COLUMN = {
   type: ColumnType.String,
   sortFunction: sortClichesPosesFunction,
   width: 70,
-  // canFilter: false,
   renderCell: (cliche: Cliche) => `[${getPoses(cliche).join(', ')}]`,
 };
 
@@ -230,7 +242,9 @@ const POSE_COLUMN = {
   title: 'Pose',
   type: ColumnType.Number,
   width: 40,
-  // canFilter: false,
+  filter: {
+    getValue: (row: {pose: number}) => row.pose,
+  },
 };
 
 const DECALAGE_INITIAL_COLUMN = {
@@ -238,7 +252,9 @@ const DECALAGE_INITIAL_COLUMN = {
   title: 'Decalage',
   type: ColumnType.Number,
   width: 70,
-  // canFilter: false,
+  filter: {
+    getValue: (row: {decalageInitial: number}) => row.decalageInitial,
+  },
 };
 
 const CALE_COLUMN = (index: number) => ({
@@ -246,14 +262,18 @@ const CALE_COLUMN = (index: number) => ({
   title: `Cale ${index}`,
   width: 57,
   type: ColumnType.Number,
-  // canFilter: true,
+  filter: {
+    getValue: (row: Perfo) => asNumber(asMap(row)[`cale${index}`], 0),
+  },
 });
 
 const BAGUE_COLUMN = (index: number) => ({
   name: `bague${index}`,
   title: `Bague ${index}`,
   type: ColumnType.Number,
-  // canFilter: true,
+  filter: {
+    getValue: (row: Perfo) => asNumber(asMap(row)[`bague${index}`], 0),
+  },
 });
 
 const REF_PERFO_COLUMN = {
@@ -261,7 +281,6 @@ const REF_PERFO_COLUMN = {
   title: 'Ref Perfo',
   type: ColumnType.String,
   width: 70,
-  // canFilter: false,
 };
 
 const DECALAGE = {
@@ -269,7 +288,9 @@ const DECALAGE = {
   title: 'Decalage',
   type: ColumnType.Number,
   width: 70,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {decalage: number}) => row.decalage,
+  },
 };
 
 const CHUTE_COLUMN = {
@@ -277,7 +298,9 @@ const CHUTE_COLUMN = {
   title: 'Chute',
   type: ColumnType.Number,
   width: 70,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {chute: number}) => row.chute,
+  },
 };
 
 const OPERATION_CONSTRAINT_COLUMN = {
@@ -285,7 +308,6 @@ const OPERATION_CONSTRAINT_COLUMN = {
   title: 'Contrainte',
   type: ColumnType.String,
   width: 90,
-  // canFilter: true,
   renderCell(constraint: OperationConstraintModel): JSX.Element {
     return <OperationConstraint constraint={constraint} />;
   },
@@ -296,7 +318,6 @@ const DURATION_SECONDS_COLUMN = {
   title: 'Temps',
   type: ColumnType.String,
   width: 90,
-  // canFilter: true,
   renderCell(duration: number): JSX.Element {
     return <Duration durationMs={duration * 1000} />;
   },
@@ -310,8 +331,8 @@ export const BobineFilleColumns = {
   CouleurPapier: COULEUR_PAPIER_COLUMN,
   Grammage: GRAMMAGE_COLUMN,
   TypeImpression: TYPE_IMPRESSION_COLUMN,
-  RefCliche1: REF_CLICHE_COLUMN('refCliche1'),
-  RefCliche2: REF_CLICHE_COLUMN('refCliche2'),
+  RefCliche1: REF_CLICHE_COLUMN('refCliche1', 'Cliché 1'),
+  RefCliche2: REF_CLICHE_COLUMN('refCliche2', 'Cliché 2'),
   Stock: STOCK_COLUMN,
   LastUpdate: LAST_UPDATE_COLUMN,
 };
@@ -325,7 +346,6 @@ export const BobineFilleClichePoseColumns = {
   Pose: POSE_COLUMN,
   CouleursImpression: COULEURS_CLICHE_COLUMN,
   ImportanceOrdreCouleurs: IMPORTANCE_ORDRE_COULEUR_COLUMN,
-  Longueur: LONGUEUR_COLUMN,
   TypeImpression: TYPE_IMPRESSION_COLUMN,
 };
 
@@ -375,13 +395,13 @@ export const RefenteColumns = {
   Ref: REFERENCE_COLUMN(70),
   RefPerfo: REF_PERFO_COLUMN,
   Decalage: DECALAGE,
-  Laize1: LAIZE_PERFO_COLUMN(1),
-  Laize2: LAIZE_PERFO_COLUMN(2),
-  Laize3: LAIZE_PERFO_COLUMN(3),
-  Laize4: LAIZE_PERFO_COLUMN(4),
-  Laize5: LAIZE_PERFO_COLUMN(5),
-  Laize6: LAIZE_PERFO_COLUMN(6),
-  Laize7: LAIZE_PERFO_COLUMN(7),
+  Laize1: LAIZE_REFENTE_COLUMN(1),
+  Laize2: LAIZE_REFENTE_COLUMN(2),
+  Laize3: LAIZE_REFENTE_COLUMN(3),
+  Laize4: LAIZE_REFENTE_COLUMN(4),
+  Laize5: LAIZE_REFENTE_COLUMN(5),
+  Laize6: LAIZE_REFENTE_COLUMN(6),
+  Laize7: LAIZE_REFENTE_COLUMN(7),
   Chute: CHUTE_COLUMN,
   LastUpdate: LAST_UPDATE_COLUMN,
 };
