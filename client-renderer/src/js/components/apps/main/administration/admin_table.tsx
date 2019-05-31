@@ -17,6 +17,10 @@ interface Props<T extends {sommeil: boolean}, U> {
 export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component<Props<T, U>> {
   public static displayName = 'AdminTable';
 
+  private shouldShowRow(row: T, filterEnabled: boolean): boolean {
+    return filterEnabled || !row.sommeil;
+  }
+
   public render(): JSX.Element {
     const {data, columns, title, lastUpdate} = this.props;
 
@@ -38,8 +42,7 @@ export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component
                   {
                     enableByDefault: false,
                     title: 'Bobines filles en sommeil',
-                    shouldShowRow: (row: T, filterEnabled: boolean) =>
-                      filterEnabled || !row.sommeil,
+                    shouldShowRow: this.shouldShowRow,
                   },
                 ]}
                 isRowDisabled={row => row.sommeil}

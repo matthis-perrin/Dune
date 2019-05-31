@@ -21,6 +21,27 @@ interface Props {
 export class PlanProductionPolypro extends React.Component<Props> {
   public static displayName = 'PlanProductionPolypro';
 
+  private shouldShow(polypro: BobineMere, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectablePolypros
+      .map(p => p.ref)
+      .indexOf(polypro.ref);
+    return isSelectionnable ? index !== -1 : index === -1;
+  }
+
+  private readonly shouldShowSelectionnableRow = (
+    polypro: BobineMere,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(polypro, true);
+  };
+
+  private readonly shouldShowNonSelectionnableRow = (
+    polypro: BobineMere,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(polypro, false);
+  };
+
   private readonly handleAddPolypro = (): void => {
     const {planProd, allBobinesMeres, stocks} = this.props;
     const bobinesMeresByRef = keyBy(allBobinesMeres, 'ref');
@@ -51,18 +72,12 @@ export class PlanProductionPolypro extends React.Component<Props> {
                 {
                   enableByDefault: true,
                   title: 'Bobines mère polypro sélectionnables',
-                  shouldShowRow: (polypro: BobineMere, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) !==
-                      -1,
+                  shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
                   title: 'Bobines mère polypro non-sélectionnables',
-                  shouldShowRow: (polypro: BobineMere, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) ===
-                      -1,
+                  shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
               isRowDisabled={polypro =>

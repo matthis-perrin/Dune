@@ -21,6 +21,27 @@ interface Props {
 export class PlanProductionPapier extends React.Component<Props> {
   public static displayName = 'PlanProductionPapier';
 
+  private shouldShow(papier: BobineMere, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectablePapiers
+      .map(p => p.ref)
+      .indexOf(papier.ref);
+    return isSelectionnable ? index !== -1 : index === -1;
+  }
+
+  private readonly shouldShowSelectionnableRow = (
+    papier: BobineMere,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(papier, true);
+  };
+
+  private readonly shouldShowNonSelectionnableRow = (
+    papier: BobineMere,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(papier, false);
+  };
+
   private readonly handleAddPapier = (): void => {
     const {planProd, allBobinesMeres, stocks} = this.props;
     const bobinesMeresByRef = keyBy(allBobinesMeres, 'ref');
@@ -49,18 +70,12 @@ export class PlanProductionPapier extends React.Component<Props> {
                 {
                   enableByDefault: true,
                   title: 'Bobines mères papier sélectionnables',
-                  shouldShowRow: (papier: BobineMere, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(papier.ref) !==
-                      -1,
+                  shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
                   title: 'Bobines mères papier non-sélectionnables',
-                  shouldShowRow: (papier: BobineMere, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(papier.ref) ===
-                      -1,
+                  shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
               isRowDisabled={bobineMere =>

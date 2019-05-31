@@ -20,6 +20,24 @@ interface Props {
 export class PlanProductionRefente extends React.Component<Props> {
   public static displayName = 'PlanProductionRefente';
 
+  private shouldShow(refente: Refente, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectableRefentes
+      .map(p => p.ref)
+      .indexOf(refente.ref);
+    return isSelectionnable ? index !== -1 : index === -1;
+  }
+
+  private readonly shouldShowSelectionnableRow = (refente: Refente, enabled: boolean): boolean => {
+    return enabled && this.shouldShow(refente, true);
+  };
+
+  private readonly shouldShowNonSelectionnableRow = (
+    refente: Refente,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(refente, false);
+  };
+
   private readonly handleAddRefente = (): void => {
     const {planProd, allRefentes} = this.props;
     const refentesByRef = keyBy(allRefentes, 'ref');
@@ -48,18 +66,12 @@ export class PlanProductionRefente extends React.Component<Props> {
                 {
                   enableByDefault: true,
                   title: 'Refentes sélectionnables',
-                  shouldShowRow: (refente: Refente, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) !==
-                      -1,
+                  shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
                   title: 'Refentes non-sélectionnables',
-                  shouldShowRow: (refente: Refente, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectableRefentes.map(r => r.ref).indexOf(refente.ref) ===
-                      -1,
+                  shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
               isRowDisabled={refente =>

@@ -18,6 +18,21 @@ interface Props {
 export class PlanProductionPerfo extends React.Component<Props> {
   public static displayName = 'PlanProductionPerfo';
 
+  private shouldShow(perfo: Perfo, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectablePerfos
+      .map(p => p.ref)
+      .indexOf(perfo.ref);
+    return isSelectionnable ? index !== -1 : index === -1;
+  }
+
+  private readonly shouldShowSelectionnableRow = (perfo: Perfo, enabled: boolean): boolean => {
+    return enabled && this.shouldShow(perfo, true);
+  };
+
+  private readonly shouldShowNonSelectionnableRow = (perfo: Perfo, enabled: boolean): boolean => {
+    return enabled && this.shouldShow(perfo, false);
+  };
+
   private readonly handleAddPerfo = (): void => {
     const {planProd} = this.props;
     const perfoTable = (
@@ -44,16 +59,12 @@ export class PlanProductionPerfo extends React.Component<Props> {
                 {
                   enableByDefault: true,
                   title: 'Perfos sélectionnables',
-                  shouldShowRow: (perfo: Perfo, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) !== -1,
+                  shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
                   title: 'Perfos non-sélectionnables',
-                  shouldShowRow: (perfo: Perfo, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectablePerfos.map(p => p.ref).indexOf(perfo.ref) === -1,
+                  shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
               isRowDisabled={perfo =>

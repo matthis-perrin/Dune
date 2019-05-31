@@ -20,6 +20,25 @@ interface Props {
 export class PlanProductionBobineFilleClichePose extends React.Component<Props> {
   public static displayName = 'PlanProductionBobineFilleClichePose';
 
+  private shouldShow(bobine: BobineFilleClichePose, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectableBobinesFilles.indexOf(bobine);
+    return isSelectionnable ? index !== -1 : index === -1;
+  }
+
+  private readonly shouldShowSelectionnableRow = (
+    bobine: BobineFilleClichePose,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(bobine, true);
+  };
+
+  private readonly shouldShowNonSelectionnableRow = (
+    bobine: BobineFilleClichePose,
+    enabled: boolean
+  ): boolean => {
+    return enabled && this.shouldShow(bobine, false);
+  };
+
   private readonly handleAddBobineFille = (): void => {
     const {planProd, stocks} = this.props;
     const bobineFilleTable = (
@@ -46,16 +65,12 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
                 {
                   enableByDefault: true,
                   title: 'Bobines filles sélectionnables',
-                  shouldShowRow: (bobineFille: BobineFilleClichePose, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) !== -1,
+                  shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
                   title: 'Bobines filles non-sélectionnables',
-                  shouldShowRow: (bobineFille: BobineFilleClichePose, filterEnabled: boolean) =>
-                    filterEnabled &&
-                    planProd.selectables.selectableBobinesFilles.indexOf(bobineFille) === -1,
+                  shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
               isRowDisabled={bobineFille =>
