@@ -2,6 +2,7 @@ import * as React from 'react';
 import {GridChildComponentProps} from 'react-window';
 
 import {ColumnHeader, ColumnSortMode, ColumnType} from '@root/components/table/column';
+import {FilterState} from '@root/components/table/column_filters';
 import {VirtualizedTable} from '@root/components/table/virtualized_table';
 import {theme} from '@root/theme/default';
 
@@ -77,7 +78,7 @@ interface State<T> {
 export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> {
   public static displayName = 'SortableTable';
 
-  private readonly columnFilters = new Map<number, (row: T) => boolean>();
+  private readonly columnFilters = new Map<number, FilterState<T>>();
 
   public constructor(props: Props<T, U>) {
     super(props);
@@ -141,7 +142,7 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
 
   private filterData(sortedData: T[]): T[] {
     return sortedData.filter(row => {
-      for (const filterFn of this.columnFilters.values()) {
+      for (const {filterFn} of this.columnFilters.values()) {
         if (!filterFn(row)) {
           return false;
         }
@@ -241,13 +242,14 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
 
   private readonly handleColumnFilterChange = (
     index: number,
-    filter: (row: T) => boolean
+    filterState: FilterState<T>
   ): void => {
-    this.columnFilters.set(index, filter);
+    this.columnFilters.set(index, filterState);
     this.recomputeData(this.state.sort);
   };
 
   private readonly renderColumn = (index: number): JSX.Element => {
+    const filterState = this.columnFilters.get(index);
     const columnMetadata = this.props.columns[index];
     let sort: ColumnSortMode = 'none';
     if (this.state.sort && this.state.sort.columnName === columnMetadata.name) {
@@ -276,6 +278,8 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
         title={columnMetadata.title}
         filter={columnMetadata.filter}
         data={this.state.sortedData}
+        // tslint:disable-next-line:no-unsafe-any
+        filterData={filterState && filterState.filterStateData}
         onColumnFilterChange={this.handleColumnFilterChange.bind(this, index)}
       />
     );

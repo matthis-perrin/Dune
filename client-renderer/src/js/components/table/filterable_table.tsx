@@ -94,9 +94,7 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
           {formTitle}
           {filters.map(filter => this.renderFilter(filter))}
         </FooterForm>
-        <FooterStats>
-          {`${data.length} ${title}${pluralCharacter} affichee${pluralCharacter}`}
-        </FooterStats>
+        <FooterStats>{`Total : ${data.length} ${title}${pluralCharacter}`}</FooterStats>
       </FooterContainer>
     );
   }

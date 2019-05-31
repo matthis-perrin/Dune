@@ -111,7 +111,9 @@ const LAIZE_COLUMN = {
   title: 'Laize',
   type: ColumnType.Number,
   width: 60,
-  // canFilter: true,
+  filter: {
+    getValue: (row: {laize: number}) => row.laize,
+  },
 };
 
 const LONGUEUR_COLUMN = {

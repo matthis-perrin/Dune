@@ -168,10 +168,12 @@ export class PlanProductionExplorer {
       const newSelectablePapiers = previouslySelectablePapiers.filter(p => {
         if (p.couleurPapier === couleurPapier && p.grammage === grammage) {
           // If the papier is valid, add it to the laize registery
-          if (!laizesRegistery.has(p.laize)) {
-            laizesRegistery.set(p.laize, {papier: false, refente: false});
+          const laizeInfo = laizesRegistery.get(p.laize);
+          if (!laizeInfo) {
+            laizesRegistery.set(p.laize, {papier: true, refente: false});
+          } else {
+            laizeInfo.papier = true;
           }
-          laizesRegistery.get(p.laize)!.papier = true;
           return true;
         }
         return false;
@@ -198,10 +200,12 @@ export class PlanProductionExplorer {
         isComplete = true;
       }
       // If the refente is valid, add it to the laize registery
-      if (!laizesRegistery.has(r.laize)) {
-        laizesRegistery.set(r.laize, {papier: false, refente: false});
+      const laizeInfo = laizesRegistery.get(r.laize);
+      if (!laizeInfo) {
+        laizesRegistery.set(r.laize, {papier: false, refente: true});
+      } else {
+        laizeInfo.refente = true;
       }
-      laizesRegistery.get(r.laize)!.refente = true;
       return true;
     });
     if (newSelectableRefentes.length !== selectableRefentes.length) {
@@ -215,10 +219,12 @@ export class PlanProductionExplorer {
       // selected -- see the step 1).
       if (bobinesFilles.length !== 1) {
         selectablePapiers.forEach(p => {
-          if (!laizesRegistery.has(p.laize)) {
-            laizesRegistery.set(p.laize, {papier: false, refente: false});
+          const laizeInfo = laizesRegistery.get(p.laize);
+          if (!laizeInfo) {
+            laizesRegistery.set(p.laize, {papier: true, refente: false});
+          } else {
+            laizeInfo.papier = true;
           }
-          laizesRegistery.get(p.laize)!.papier = true;
         });
       }
     }
@@ -419,7 +425,9 @@ export class PlanProductionExplorer {
     return childStateCount;
   }
 
+  // tslint:disable-next-line:no-any
   private planProdStateToBobinesTree(state: PlanProductionState): any[] {
+    // tslint:disable-next-line:no-any
     const tree: any[] = [this.planProdStateToString(state)];
     if (state.childStates.length === 0) {
       return [this.planProdStateToString(state)];

@@ -3,7 +3,11 @@ import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {ColumnFilterPane} from '@root/components/table/column_filters';
+import {
+  ColumnFilterPane,
+  FilterState,
+  FilterStateData,
+} from '@root/components/table/column_filters';
 import {ColumnFilter} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
 
@@ -25,8 +29,9 @@ interface ColumnHeaderProps<T, U> {
   isLast: boolean;
   onClick?(evt: React.MouseEvent): void;
   data: T[];
+  filterData?: FilterStateData;
   filter?: ColumnFilter<T, U>;
-  onColumnFilterChange(filter: (row: T) => boolean): void;
+  onColumnFilterChange(filterState: FilterState<T>): void;
 }
 
 interface ColumnHeaderState {
@@ -70,17 +75,17 @@ export class ColumnHeader<T, U> extends React.Component<
   };
 
   private readonly handleFilterColumnChange = (
-    filterFn: (row: T) => boolean,
+    filterState: FilterState<T>,
     isEnabled: boolean
   ): void => {
     this.setState({
       isFilterEnabled: isEnabled,
     });
-    this.props.onColumnFilterChange(filterFn);
+    this.props.onColumnFilterChange(filterState);
   };
 
   public render(): JSX.Element {
-    const {sort, title, type, isFirst, isLast, data, filter} = this.props;
+    const {sort, title, type, isFirst, isLast, data, filter, filterData} = this.props;
     const {isFilteringOpened, isFilterEnabled} = this.state;
 
     const titleWrapper = <TitleWrapper>{title}</TitleWrapper>;
@@ -97,6 +102,7 @@ export class ColumnHeader<T, U> extends React.Component<
       <Popup
         onOpen={() => this.setState({isFilteringOpened: true})}
         onClose={() => this.setState({isFilteringOpened: false})}
+        contentStyle={{cursor: 'default'}}
         trigger={
           <FilteringIcon
             minOpacity={
@@ -108,7 +114,13 @@ export class ColumnHeader<T, U> extends React.Component<
           </FilteringIcon>
         }
       >
-        <ColumnFilterPane data={data} filter={filter} onChange={this.handleFilterColumnChange} />
+        <ColumnFilterPane
+          data={data}
+          // tslint:disable-next-line:no-unsafe-any
+          filterData={filterData}
+          filter={filter}
+          onChange={this.handleFilterColumnChange}
+        />
       </Popup>
     ) : (
       <React.Fragment />
@@ -135,7 +147,7 @@ export class ColumnHeader<T, U> extends React.Component<
 }
 
 const FilteringIcon = styled.div<{minOpacity: number}>`
-  padding: 8px 8px 6px 8px;
+  padding: 9px 8px 6px 8px;
   fill: ${theme.table.headerColor};
   ${props => `opacity: ${props.minOpacity}`}
   :hover {
