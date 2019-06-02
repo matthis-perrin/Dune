@@ -83,4 +83,15 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     // tslint:disable-next-line:no-unsafe-any
     return createOrUpdateOperation(db, operation);
   }
+
+  // Operateurs Management
+  if (command === ListOperateurs) {
+    const {localUpdate} = asMap(params);
+    return {data: await listOperateurs(db, asNumber(localUpdate, 0))};
+  }
+  if (command === CreateOrUpdateOperateur) {
+    const {operation} = asMap(params);
+    // tslint:disable-next-line:no-unsafe-any
+    return createOrUpdateOperateur(db, operation);
+  }
 }

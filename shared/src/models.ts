@@ -136,6 +136,14 @@ export enum OperationConstraint {
   AugmentationRefentes = 'augmentation-refentes',
 }
 
+export interface Operateur {
+  id: number;
+  name: string;
+  sommeil: boolean;
+  localUpdate: Date;
+  operationIds: string[];
+}
+
 // export interface User {
 //   username: string;
 //   password: string;

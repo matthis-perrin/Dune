@@ -15,6 +15,9 @@ export const CloseApp = 'close-app' as BridgeCommand;
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;
 
+export const ListOperateurs = 'list-operateurs' as BridgeCommand;
+export const CreateOrUpdateOperateur = 'create-or-update-operateur' as BridgeCommand;
+
 export const ServerGetStatus = 'server-get-status' as BridgeCommand;
 export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;
 export const ServerClearErrors = 'server-clear-errors' as BridgeCommand;
