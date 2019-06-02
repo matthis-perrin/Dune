@@ -32,10 +32,11 @@ export class Duration extends React.Component<DurationProps> {
     const seconds = Math.floor(duration / MS_IN_SECONDS);
     const milliseconds = duration - seconds * MS_IN_SECONDS;
 
-    const hoursStr = hours > 0 ? `${this.padNumber(hours, 2)}h` : '';
-    const minutesStr = minutes > 0 ? `${this.padNumber(minutes, 2)}min` : '';
-    const secondsStr = seconds > 0 ? `${this.padNumber(seconds, 2)}s` : '';
-    const millisecondsStr = milliseconds > 0 ? `${this.padNumber(milliseconds, MS_DIGITS)}ms` : '';
+    const hoursStr = hours > 0 ? `${hours} h` : '';
+    const minutesStr = minutes > 0 ? `${this.padNumber(minutes, hours > 0 ? 2 : 1)} min` : '';
+    const secondsStr =
+      seconds > 0 ? `${this.padNumber(seconds, (minutes || hours) > 0 ? 2 : 1)} s` : '';
+    const millisecondsStr = milliseconds > 0 ? `${this.padNumber(milliseconds, MS_DIGITS)} ms` : '';
 
     return `${hoursStr}${minutesStr}${secondsStr}${millisecondsStr}`;
   }

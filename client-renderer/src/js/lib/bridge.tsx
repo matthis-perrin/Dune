@@ -1,4 +1,4 @@
-import {ViewMode} from '@root/components/apps/view_operation/app';
+import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
 import {
@@ -12,6 +12,8 @@ import {
   ListStocks,
   GetAppInfo,
   OpenApp,
+  CreateOrUpdateOperation,
+  CloseApp,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -62,8 +64,11 @@ class Bridge {
     return this.listGeneric<Operation>(ListOperations, localUpdate);
   }
 
-  public async viewOperation(operationId: number | undefined, mode: ViewMode): Promise<void> {
-    return this.openApp(ClientAppType.ViewOperationApp, {operationId, mode});
+  public async viewOperation(operationId: number | undefined): Promise<void> {
+    return this.openApp(ClientAppType.ViewOperationApp, {operationId});
+  }
+  public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
+    return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});
   }
 
   public async getAppInfo(windowId: string): Promise<ClientAppInfo> {
@@ -72,6 +77,9 @@ class Bridge {
   // tslint:disable-next-line:no-any
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(OpenApp, {type, data});
+  }
+  public async closeApp(): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CloseApp, {windowId: getWindowId()});
   }
 }
 

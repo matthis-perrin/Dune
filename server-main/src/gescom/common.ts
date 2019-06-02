@@ -13,6 +13,7 @@ import {
 } from '@shared/db/gescom_sync';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createRefentesTable} from '@shared/db/refentes';
+import {createOperationsTable} from '@shared/db/operations';
 import {createStocksTable} from '@shared/db/stocks';
 
 export async function setupSqliteDB(db: knex): Promise<void> {
@@ -25,6 +26,7 @@ export async function setupSqliteDB(db: knex): Promise<void> {
     createPerfosTable(db),
     createRefentesTable(db),
     createCadencierTable(db),
+    createOperationsTable(db),
   ]);
 }
 

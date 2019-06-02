@@ -37,6 +37,10 @@ export class ListOperationsApp extends React.Component<Props, State> {
     this.setState({operations, lastUpdate: operationsStore.getLastUpdate()});
   };
 
+  private readonly handleOperationSelected = (operation: Operation): void => {
+    bridge.viewOperation(operation.id).catch(err => console.error(err));
+  };
+
   public render(): JSX.Element {
     const {operations, lastUpdate} = this.state;
 
@@ -45,12 +49,14 @@ export class ListOperationsApp extends React.Component<Props, State> {
     }
     return (
       <React.Fragment>
-        <Button onClick={() => bridge.viewOperation(undefined, 'create')}>Créer</Button>
+        <Button onClick={() => bridge.viewOperation(undefined)}>Créer</Button>
         <AdminTable
           title="opération"
           data={operations}
           lastUpdate={lastUpdate}
           columns={getOperationsColumns()}
+          onSelected={this.handleOperationSelected}
+          headerHeight={32}
         />
       </React.Fragment>
     );

@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {OPERATIONS_TABLE_NAME} from '@shared/db/table_names';
 import {Operation, OperationConstraint} from '@shared/models';
-import {asDate, asMap, asNumber, asString, asBoolean, Omit} from '@shared/type_utils';
+import {asDate, asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export const OperationsColumn = {
   ID_COLUMN: 'id',
@@ -29,40 +29,48 @@ export async function createOperationsTable(db: knex): Promise<void> {
   }
 }
 
+// tslint:disable-next-line:no-any
 function rowToOperation(operationLine: any): Operation {
   const o = asMap(operationLine);
   return {
     id: asNumber(o[OperationsColumn.ID_COLUMN], 0),
     description: asString(o[OperationsColumn.DESCRIPTION_COLUMN], ''),
-    required: asBoolean(o[OperationsColumn.DESCRIPTION_COLUMN]),
+    required: asBoolean(o[OperationsColumn.REQUIRED_COLUMN]),
     constraint: asString(
-      o[OperationsColumn.DESCRIPTION_COLUMN],
+      o[OperationsColumn.CONSTRAINT_COLUMN],
       OperationConstraint.None
     ) as OperationConstraint,
-    duration: asNumber(o[OperationsColumn.DESCRIPTION_COLUMN], 0),
+    duration: asNumber(o[OperationsColumn.DURATION_COLUMN], 0),
     sommeil: asBoolean(o[OperationsColumn.SOMMEIL_COLUMN]),
     localUpdate: asDate(o[OperationsColumn.LOCAL_UPDATE_COLUMN]),
   };
 }
 
-export async function createOperation(
-  db: knex,
-  operation: Omit<Operation, 'id' | 'localUpdate'>
-): Promise<Operation> {
+export async function createOrUpdateOperation(db: knex, operation: Operation): Promise<Operation> {
   const localUpdate = new Date();
-  const row = await db(OPERATIONS_TABLE_NAME).insert({...operation, localUpdate});
-  return rowToOperation(row);
-}
-
-export async function updateOperation(db: knex, operation: Operation): Promise<void> {
-  operation.localUpdate = new Date();
-  return db(OPERATIONS_TABLE_NAME)
-    .where('id', operation.id)
-    .update(operation);
+  const id = operation.id;
+  if (id === -1) {
+    // Creation mode
+    const operationFields = {...operation};
+    delete operationFields.id;
+    delete operationFields.localUpdate;
+    return rowToOperation(
+      await db(OPERATIONS_TABLE_NAME).insert({...operationFields, localUpdate})
+    );
+  } else {
+    // Update mode
+    const operationFields = {...operation};
+    operationFields.localUpdate = new Date();
+    return rowToOperation(
+      await db(OPERATIONS_TABLE_NAME)
+        .where('id', operationFields.id)
+        .update(operationFields)
+    );
+  }
 }
 
 export async function listOperations(db: knex, sinceLocalUpdate: number): Promise<Operation[]> {
-  return await db(OPERATIONS_TABLE_NAME)
+  return db(OPERATIONS_TABLE_NAME)
     .select()
     .where(OperationsColumn.LOCAL_UPDATE_COLUMN, '>', new Date(sinceLocalUpdate))
     .map(rowToOperation);

@@ -4,6 +4,7 @@ import {handleCommand} from '@root/bridge';
 
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 import {ClientAppInfo, ClientAppType} from '@shared/models';
+import {asMap} from '@shared/type_utils';
 
 interface WindowOptions {
   id: string;
@@ -23,7 +24,7 @@ interface WindowInfo {
 const MAIN_APP_ID = 'main-app';
 
 class WindowManager {
-  private readonly windows: {[key: string]: WindowInfo} = {};
+  private readonly windows = new Map<string, WindowInfo>();
 
   public async openWindow(appInfo: ClientAppInfo): Promise<void> {
     const windowInfo = await this.openOrForegroundWindow(appInfo);
@@ -32,12 +33,23 @@ class WindowManager {
       if (appInfo.type === ClientAppType.MainApp) {
         this.closeAllNoneMainWindows();
       }
-      delete this.windows[windowInfo.id];
+      this.windows.delete(windowInfo.id);
     });
   }
 
+  public closeWindow(windowId: string): void {
+    const windowInfo = this.windows.get(windowId);
+    if (!windowInfo) {
+      return;
+    }
+    if (!windowInfo.browserWindow.isDestroyed() && windowInfo.browserWindow.isClosable()) {
+      windowInfo.browserWindow.close();
+    }
+    this.windows.delete(windowId);
+  }
+
   public getAppInfo(windowId: string): ClientAppInfo | undefined {
-    const windowInfo = this.windows[windowId];
+    const windowInfo = this.windows.get(windowId);
     if (!windowInfo) {
       return undefined;
     }
@@ -69,8 +81,8 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.ViewOperationApp) {
-      const {operationId = 'create'} = appInfo.data;
-      return {id: `view-operation-app--${operationId}`, size: {width: 300, height: 600}};
+      const {operationId = 'create'} = asMap(appInfo.data);
+      return {id: `view-operation-app--${operationId}`, size: {width: 535, height: 250}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
@@ -82,22 +94,16 @@ class WindowManager {
     return {width: width - 2 * padding, height: height - 2 * padding};
   }
 
-  private closeAllNoneMainWindows() {
-    Object.keys(this.windows)
+  private closeAllNoneMainWindows(): void {
+    Array.from(this.windows.keys())
       .filter(id => id !== MAIN_APP_ID)
-      .forEach(id => {
-        const window = this.windows[id];
-        if (window) {
-          window.browserWindow.close();
-          delete this.windows[id];
-        }
-      });
+      .forEach(id => this.closeWindow(id));
   }
 
   private async openOrForegroundWindow(appInfo: ClientAppInfo): Promise<WindowInfo> {
     // If window already exists, just bring it to the foreground
     const {size, id} = this.getWindowOptionsForAppInfo(appInfo);
-    let windowInfo = this.windows[id];
+    let windowInfo = this.windows.get(id);
     if (windowInfo) {
       const {browserWindow} = windowInfo;
       if (browserWindow.isMinimized()) {
@@ -110,33 +116,30 @@ class WindowManager {
 
     // Create the BrowserWindow, hidden at first.
     const sizeWithDefaults = size || this.getDefaultSize();
-    const browserWindow = createBrowserWindow({
+    const newBrowserWindow = createBrowserWindow({
       ...sizeWithDefaults,
       show: false,
     });
     if (process.env.MODE === 'development') {
-      browserWindow.webContents.openDevTools({mode: 'detach'});
+      newBrowserWindow.webContents.openDevTools({mode: 'detach'});
     }
 
     // Save the window in the manager
-    windowInfo = {browserWindow, appInfo, id};
-    this.windows[id] = windowInfo;
+    windowInfo = {browserWindow: newBrowserWindow, appInfo, id};
+    this.windows.set(id, windowInfo);
 
     // Setup the window, and show if once it's done.
     // tslint:disable-next-line: no-any
     try {
-      await setupBrowserWindow(browserWindow, handleCommand, id);
+      await setupBrowserWindow(newBrowserWindow, handleCommand, id);
       if (size === undefined) {
-        browserWindow.maximize();
+        newBrowserWindow.maximize();
       }
-      browserWindow.show();
+      newBrowserWindow.show();
       return windowInfo;
     } catch (err) {
       // If something went wrong, close the window and remove it from the window manager
-      if (!windowInfo.browserWindow.isDestroyed() && windowInfo.browserWindow.isClosable()) {
-        windowInfo.browserWindow.close();
-      }
-      delete this.windows[id];
+      this.closeWindow(id);
       return Promise.reject(err);
     }
   }

@@ -6,13 +6,7 @@ import {OperationConstraint} from '@root/components/common/operation_constraint'
 import {ColumnType} from '@root/components/table/column';
 import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 
-import {
-  Stock,
-  Cliche,
-  OperationConstraint as OperationConstraintModel,
-  Perfo,
-  Refente,
-} from '@shared/models';
+import {Stock, Cliche, Perfo, Refente, Operation} from '@shared/models';
 import {asMap, asString, asNumber} from '@shared/type_utils';
 
 interface StockIndex {
@@ -113,7 +107,7 @@ const LAIZE_COLUMN = {
   name: 'laize',
   title: 'Laize',
   type: ColumnType.Number,
-  width: 60,
+  width: 70,
   filter: {
     getValue: (row: {laize: number}) => row.laize,
   },
@@ -123,7 +117,7 @@ const LONGUEUR_COLUMN = {
   name: 'longueur',
   title: 'Long.',
   type: ColumnType.Number,
-  width: 60,
+  width: 70,
   filter: {
     getValue: (row: {longueur: number}) => row.longueur,
   },
@@ -143,7 +137,7 @@ const GRAMMAGE_COLUMN = {
   name: 'grammage',
   title: 'Gram.',
   type: ColumnType.Number,
-  width: 60,
+  width: 70,
   filter: {
     getValue: (row: {grammage: number}) => row.grammage,
   },
@@ -206,7 +200,7 @@ const IS_REQUIRED_COLUMN = {
   name: 'required',
   title: 'Obligatoire',
   type: ColumnType.Boolean,
-  width: 95,
+  width: 110,
   filter: {
     getValue: (row: {required: boolean}) => row.required,
   },
@@ -241,7 +235,7 @@ const POSE_COLUMN = {
   name: 'pose',
   title: 'Pose',
   type: ColumnType.Number,
-  width: 40,
+  width: 60,
   filter: {
     getValue: (row: {pose: number}) => row.pose,
   },
@@ -260,7 +254,7 @@ const DECALAGE_INITIAL_COLUMN = {
 const CALE_COLUMN = (index: number) => ({
   name: `cale${index}`,
   title: `Cale ${index}`,
-  width: 57,
+  width: 70,
   type: ColumnType.Number,
   filter: {
     getValue: (row: Perfo) => asNumber(asMap(row)[`cale${index}`], 0),
@@ -297,7 +291,7 @@ const CHUTE_COLUMN = {
   name: 'chute',
   title: 'Chute',
   type: ColumnType.Number,
-  width: 70,
+  width: 80,
   filter: {
     getValue: (row: {chute: number}) => row.chute,
   },
@@ -307,9 +301,8 @@ const OPERATION_CONSTRAINT_COLUMN = {
   name: 'constraint',
   title: 'Contrainte',
   type: ColumnType.String,
-  width: 90,
-  renderCell(constraint: OperationConstraintModel): JSX.Element {
-    return <OperationConstraint constraint={constraint} />;
+  renderCell(operation: Operation): JSX.Element {
+    return <OperationConstraint constraint={operation.constraint} />;
   },
 };
 
@@ -318,8 +311,8 @@ const DURATION_SECONDS_COLUMN = {
   title: 'Temps',
   type: ColumnType.String,
   width: 90,
-  renderCell(duration: number): JSX.Element {
-    return <Duration durationMs={duration * 1000} />;
+  renderCell(operation: Operation): JSX.Element {
+    return <Duration durationMs={operation.duration} />;
   },
 };
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {AppManager} from '@root/components/apps/app_manager';
+import {getWindowId} from '@root/lib/window_utils';
 import {storeManager} from '@root/stores/store_manager';
 
 function injectApp(app: JSX.Element): void {
@@ -13,8 +14,8 @@ function injectApp(app: JSX.Element): void {
 
 function injectAppWhenDOMReady(): void {
   document.addEventListener('DOMContentLoaded', () => {
-    const id = new URLSearchParams(window.location.search).get('id') || '';
-    injectApp(<AppManager windowId={id} />);
+    const windowId = getWindowId();
+    injectApp(<AppManager windowId={windowId} />);
   });
 }
 

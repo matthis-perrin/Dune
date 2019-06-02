@@ -12,68 +12,75 @@ import {
   GetAppInfo,
   OpenApp,
   ListOperations,
-  CreateOperation,
-  UpdateOperation,
+  CreateOrUpdateOperation,
+  CloseApp,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listCliches} from '@shared/db/cliches';
-import {listOperations, createOperation} from '@shared/db/operations';
+import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
+import {ClientAppType} from '@shared/models';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 // tslint:disable-next-line:no-any
 export async function handleCommand(command: BridgeCommand, params: any): Promise<any> {
   // Listing commands
   if (command === ListBobinesFilles) {
-    const {localUpdate} = params;
-    return {data: await listBobinesFilles(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listBobinesFilles(db, asNumber(localUpdate, 0))};
   }
   if (command === ListBobinesMeres) {
-    const {localUpdate} = params;
-    return {data: await listBobinesMeres(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listBobinesMeres(db, asNumber(localUpdate, 0))};
   }
   if (command === ListCliches) {
-    const {localUpdate} = params;
-    return {data: await listCliches(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listCliches(db, asNumber(localUpdate, 0))};
   }
   if (command === ListStocks) {
-    const {localUpdate} = params;
-    return {data: await listStocks(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listStocks(db, asNumber(localUpdate, 0))};
   }
   if (command === ListPerfos) {
-    const {localUpdate} = params;
-    return {data: await listPerfos(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listPerfos(db, asNumber(localUpdate, 0))};
   }
   if (command === ListRefentes) {
-    const {localUpdate} = params;
-    return {data: await listRefentes(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listRefentes(db, asNumber(localUpdate, 0))};
   }
 
   // Window Management
   if (command === GetAppInfo) {
-    const {windowId} = params;
-    const appInfo = windowManager.getAppInfo(windowId);
+    const {windowId} = asMap(params);
+    const appInfo = windowManager.getAppInfo(asString(windowId, ''));
     if (!appInfo) {
       return Promise.reject(`Unknown window id ${windowId}`);
     }
     return Promise.resolve(appInfo);
   }
   if (command === OpenApp) {
-    const {type, data} = params;
-    return windowManager.openWindow({type, data});
+    const {type, data} = asMap(params);
+    const appType = asString(type, '') as ClientAppType;
+    return windowManager.openWindow({type: appType, data});
+  }
+  if (command === CloseApp) {
+    const {windowId} = asMap(params);
+    windowManager.closeWindow(asString(windowId, ''));
+    return Promise.resolve();
   }
 
   // Operations Management
   if (command === ListOperations) {
-    const {localUpdate} = params;
-    return {data: await listOperations(db, localUpdate)};
+    const {localUpdate} = asMap(params);
+    return {data: await listOperations(db, asNumber(localUpdate, 0))};
   }
-  if (command === CreateOperation) {
-    const {operation} = params;
-    return createOperation(db, operation);
-  }
-  if (command === UpdateOperation) {
+  if (command === CreateOrUpdateOperation) {
+    const {operation} = asMap(params);
+    // tslint:disable-next-line:no-unsafe-any
+    return createOrUpdateOperation(db, operation);
   }
 }

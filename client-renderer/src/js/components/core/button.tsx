@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {theme} from '@root/theme/default';
 
-export const Button = styled.div`
+export const Button = styled.button`
   display: inline-block;
   font-size: ${theme.administration.buttonFontSize}px;
   font-weight: ${theme.administration.buttonFontWeight};
@@ -12,5 +12,5 @@ export const Button = styled.div`
   background-color: ${theme.administration.buttonBackgroundColor};
   color: ${theme.administration.buttonColor};
   border-radius: ${theme.administration.buttonBorderRadius}px;
-  cursor: pointer;
+  opacity: ${props => (props.disabled ? 0.5 : 1)};
 `;

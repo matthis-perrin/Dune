@@ -1,4 +1,5 @@
 import knex from 'knex';
+import {asString} from '@shared/type_utils';
 
 const GESCOM_USER = 'ProDune';
 const GESCOM_PASSWORD = 'Per1';
@@ -8,7 +9,9 @@ const GESCOM_DATABASE = 'DUNE';
 export const sqliteDB = knex({
   client: 'sqlite3',
   connection: {
-    filename: '../database.sqlite',
+    user: process.env.SQLITE_DATABASE_USER,
+    password: process.env.SQLITE_DATABASE_PASSWORD,
+    filename: asString(process.env.SQLITE_DATABASE_PATH, ''),
   },
   useNullAsDefault: true,
 });

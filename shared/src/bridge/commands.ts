@@ -10,10 +10,10 @@ export const ListRefentes = 'list-refentes' as BridgeCommand;
 
 export const GetAppInfo = 'get-app-info' as BridgeCommand;
 export const OpenApp = 'open-app' as BridgeCommand;
+export const CloseApp = 'close-app' as BridgeCommand;
 
 export const ListOperations = 'list-operations' as BridgeCommand;
-export const CreateOperation = 'view-operation' as BridgeCommand;
-export const UpdateOperation = 'update-operation' as BridgeCommand;
+export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;
 
 export const ServerGetStatus = 'server-get-status' as BridgeCommand;
 export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;

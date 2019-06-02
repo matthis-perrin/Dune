@@ -12,6 +12,8 @@ interface Props<T extends {sommeil: boolean}, U> {
   columns: ColumnMetadata<T, U>[];
   initialSort?: SortInfo;
   title: string;
+  headerHeight?: number;
+  onSelected?(row: T): void;
 }
 
 export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component<Props<T, U>> {
@@ -22,12 +24,13 @@ export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component
   }
 
   public render(): JSX.Element {
-    const {data, columns, title, lastUpdate} = this.props;
+    const {data, columns, title, lastUpdate, headerHeight = 0} = this.props;
 
     return (
-      <Container>
+      <Container style={{height: `calc(100% - ${headerHeight})`}}>
         <SizeMonitor>
           {(width, height) => {
+            const borderCount = 3;
             return (
               <FilterableTable
                 data={data}
@@ -41,13 +44,19 @@ export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component
                 filters={[
                   {
                     enableByDefault: false,
-                    title: 'Bobines filles en sommeil',
+                    title: `${title} en sommeil`,
                     shouldShowRow: this.shouldShowRow,
                   },
                 ]}
                 isRowDisabled={row => row.sommeil}
                 width={width - 2 * theme.page.padding - 2 * theme.table.borderThickness}
-                height={height - 2 * theme.page.padding}
+                height={
+                  height -
+                  2 * theme.page.padding -
+                  borderCount * theme.table.borderThickness -
+                  headerHeight
+                }
+                onSelected={this.props.onSelected}
               />
             );
           }}
@@ -59,7 +68,6 @@ export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component
 
 const Container = styled.div`
   width: 100%;
-  height: 100%;
   box-sizing: border-box;
   padding: ${theme.page.padding}px;
   background-color: ${theme.page.backgroundColor};

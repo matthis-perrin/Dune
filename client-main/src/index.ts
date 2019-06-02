@@ -1,6 +1,8 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
+
 import {windowManager} from '@root/window_manager';
+
 import {ClientAppType} from '@shared/models';
 
 app.on('ready', () => {

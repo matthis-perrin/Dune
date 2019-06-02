@@ -152,6 +152,9 @@ export const theme = {
     filterIconHoverOpacity: 0.75,
     filterIconSelectedOpacity: 1,
   },
+  form: {
+    inputBorderColor: '#7F7F7F',
+  },
   rightPanel: {
     width: 480,
     backgroundColor: Colors.lightGray,

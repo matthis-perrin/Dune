@@ -16,7 +16,8 @@ export function asNumber<T>(value: any, defaultValue: T): T | number {
   }
   if (typeof value === 'string') {
     try {
-      return parseFloat(value);
+      const parsedValue = parseFloat(value);
+      return !isNaN(parsedValue) ? parsedValue : defaultValue;
     } catch (e) {
       return defaultValue;
     }
