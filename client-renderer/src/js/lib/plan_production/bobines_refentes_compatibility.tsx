@@ -1,9 +1,7 @@
 import {uniqBy, without, sum} from 'lodash-es';
 
-import {
-  compatibilityCache,
-  BobineHashCombinaison,
-} from '@root/lib/plan_production/bobines_refentes_compatibility_cache';
+import {BobineHashCombinaison} from '@root/lib/plan_production/bobines_hash_combinaison';
+import {compatibilityCache} from '@root/lib/plan_production/bobines_refentes_compatibility_cache';
 import {
   checkColorsAreCompatbile,
   getColorsRestrictionsForBobine,
@@ -22,6 +20,13 @@ export function compatibilityExists(
   selectableBobines: BobineFilleClichePose[],
   refente: Refente
 ): BobineHashCombinaison | undefined {
+  // if (
+  //   selectedBobines.length >= 2 &&
+  //   selectedBobines[0].hash === '173_2_BLEU,ORANGE,NOIR_Y' &&
+  //   selectedBobines[1].hash === '173_2_BLEU,ORANGE,NOIR_Y'
+  // ) {
+  //   debugger;
+  // }
   // Check in the cache if we've already found a valid combinaison
   const cachedCombi = compatibilityCache.compatibilityInCache(
     refente,
@@ -100,7 +105,7 @@ export function refenteHasSpotForBobine(refente: Refente, bobine: BobineFilleCli
 // Analyse and count the laizes available on the refente and substract the one that will be taken
 // by the selected bobines.
 // Return undefined if the selected bobines are not compatible on the refente
-function analyseLaizesLeftOnRefente(
+export function analyseLaizesLeftOnRefente(
   selectedBobines: BobineFilleClichePose[],
   refente: Refente
 ): Map<number, number> | undefined {

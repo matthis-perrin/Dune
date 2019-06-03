@@ -1,3 +1,4 @@
+import {analyseLaizesLeftOnRefente} from '@root/lib/plan_production/bobines_refentes_compatibility';
 import {
   filterPolyprosForSelectablePapiers,
   filterPolyprosForSelectableRefentes,
@@ -72,9 +73,16 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
     i++;
   }
 
-  console.log('Done');
+  console.log('Done', planProd, currentSelectable);
 
   return currentSelectable;
+}
+
+let perfTime = Date.now();
+function markPerf(label: string) {
+  const now = Date.now();
+  console.log(label, now - perfTime);
+  perfTime = now;
 }
 
 function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Selectables {
@@ -95,6 +103,8 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
   // - Perfo
   // - Refente
 
+  perfTime = Date.now();
+
   if (papier && filtered.selectablePapiers.length > 0) {
     console.log('Empty selectable Papiers because one is already selected');
     filtered.selectablePapiers = [];
@@ -111,15 +121,22 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
     console.log('Empty selectable Refentes because one is already selected');
     filtered.selectableRefentes = [];
   }
-  if (bobinesFilles.length > 0) {
-    const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(
-      b => bobinesFilles.indexOf(b) === -1
-    );
-    if (newSelectableBobinesFilles.length !== filtered.selectableBobinesFilles.length) {
-      filtered.selectableBobinesFilles = newSelectableBobinesFilles;
-      console.log('Removing selected Bobines Filles from selectable Bobines Filles');
+  if (bobinesFilles.length > 0 && filtered.selectableBobinesFilles.length > 0) {
+    const laizesLeft = refente && analyseLaizesLeftOnRefente(bobinesFilles, refente);
+    if (laizesLeft && laizesLeft.size === 0) {
+      console.log('Empty selectable Bobines Filles because the refente is filled');
+      filtered.selectableBobinesFilles = [];
+    } else {
+      const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(
+        b => bobinesFilles.indexOf(b) === -1
+      );
+      if (newSelectableBobinesFilles.length !== filtered.selectableBobinesFilles.length) {
+        filtered.selectableBobinesFilles = newSelectableBobinesFilles;
+        console.log('Removing selected Bobines Filles from selectable Bobines Filles');
+      }
     }
   }
+  markPerf('Filtered from selected');
 
   // Filtering Polypro against
   // 1. Papier
@@ -128,10 +145,12 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
   filtered.selectablePolypros = papier
     ? filterPolyprosForSelectedPapier(filtered.selectablePolypros, papier)
     : filterPolyprosForSelectablePapiers(filtered.selectablePolypros, filtered.selectablePapiers);
+  markPerf(papier ? 'filterPolyprosForSelectedPapier' : 'filterPolyprosForSelectablePapiers');
 
   filtered.selectablePolypros = refente
     ? filterPolyprosForSelectedRefente(filtered.selectablePolypros, refente)
     : filterPolyprosForSelectableRefentes(filtered.selectablePolypros, filtered.selectableRefentes);
+  markPerf(refente ? 'filterPolyprosForSelectedRefente' : 'filterPolyprosForSelectableRefentes');
 
   // Filtering Papier against
   // 1. Polypro
@@ -141,17 +160,20 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
   filtered.selectablePapiers = polypro
     ? filterPapiersForSelectedPolypro(filtered.selectablePapiers, polypro)
     : filterPapiersForSelectablePolypros(filtered.selectablePapiers, filtered.selectablePolypros);
+  markPerf(polypro ? 'filterPapiersForSelectedPolypro' : 'filterPapiersForSelectablePolypros');
 
   if (bobinesFilles.length > 0) {
     filtered.selectablePapiers = filterPapiersForSelectedBobinesFilles(
       filtered.selectablePapiers,
       bobinesFilles
     );
+    markPerf('filterPapiersForSelectedBobinesFilles');
   }
 
   filtered.selectablePapiers = refente
     ? filterPapiersForSelectedRefente(filtered.selectablePapiers, refente)
     : filterPapiersForSelectableRefentes(filtered.selectablePapiers, filtered.selectableRefentes);
+  markPerf(refente ? 'filterPapiersForSelectedRefente' : 'filterPapiersForSelectableRefentes');
 
   // Filtering Refente against
   // 1. Perfo
@@ -161,14 +183,17 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
   filtered.selectableRefentes = perfo
     ? filterRefentesForSelectedPerfo(filtered.selectableRefentes, perfo)
     : filterRefentesForSelectablePerfos(filtered.selectableRefentes, filtered.selectablePerfos);
+  markPerf(perfo ? 'filterRefentesForSelectedPerfo' : 'filterRefentesForSelectablePerfos');
 
   filtered.selectableRefentes = papier
     ? filterRefentesForSelectedPapier(filtered.selectableRefentes, papier)
     : filterRefentesForSelectablePapiers(filtered.selectableRefentes, filtered.selectablePapiers);
+  markPerf(papier ? 'filterRefentesForSelectedPapier' : 'filterRefentesForSelectablePapiers');
 
   filtered.selectableRefentes = polypro
     ? filterRefentesForSelectedPolypro(filtered.selectableRefentes, polypro)
     : filterRefentesForSelectablePolypros(filtered.selectableRefentes, filtered.selectablePolypros);
+  markPerf(polypro ? 'filterRefentesForSelectedPolypro' : 'filterRefentesForSelectablePolypros');
 
   // TODO - See if that helps with performance (might just also be necessary too, but potentially expensive)
   // 4. BobineFilleClichePose (basic check to ensure that at least one bobine fits in the refente somwhere)
@@ -179,6 +204,7 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
   filtered.selectablePerfos = refente
     ? filterPerfosForSelectedRefente(filtered.selectablePerfos, refente)
     : filterPerfosForSelectableRefentes(filtered.selectablePerfos, filtered.selectableRefentes);
+  markPerf(refente ? 'filterPerfosForSelectedRefente' : 'filterPerfosForSelectableRefentes');
 
   // Filtering BobineFilleClichePose against
   // 1. Papier
@@ -189,6 +215,9 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
         filtered.selectableBobinesFilles,
         filtered.selectablePapiers
       );
+  markPerf(
+    papier ? 'filterBobinesFillesForSelectedPapier' : 'filterBobinesFillesForSelectablePapiers'
+  );
 
   // The following processing is costly, so if something has changed during the previous filtering,
   // we stop there and wait for the next cycle in case more filtering can be done (which would make things
@@ -204,6 +233,7 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
       filtered.selectableBobinesFilles,
       bobinesFilles
     );
+    markPerf('filterBobinesFillesForSelectedBobinesFilles');
   }
 
   if (selectablesAreDifferent(selectables, filtered)) {
@@ -217,6 +247,7 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
       filtered.selectableBobinesFilles,
       bobinesFilles
     );
+    markPerf('filterRefentesForSelectableBobinesAndSelectedBobines');
 
     if (selectablesAreDifferent(selectables, filtered)) {
       return filtered;
@@ -232,6 +263,7 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
       filtered.selectableBobinesFilles,
       bobinesFilles
     );
+    markPerf('filterPapierForRefentesAndSelectableBobinesAndSelectedBobines');
 
     if (selectablesAreDifferent(selectables, filtered)) {
       return filtered;
@@ -251,6 +283,11 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
         filtered.selectableRefentes,
         bobinesFilles
       );
+  markPerf(
+    refente
+      ? 'filterBobinesFillesForSelectedRefenteAndBobines'
+      : 'filterBobinesFillesForSelectableRefentesAndSelectedBobines'
+  );
 
   if (selectablesAreDifferent(selectables, filtered)) {
     return filtered;

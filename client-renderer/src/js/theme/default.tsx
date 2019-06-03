@@ -7,6 +7,7 @@ const Colors = {
   lightGray: '#E6E6E6',
   gray: '#EDEDED',
   darkGray: '#DDDDDD',
+  black: '#000000',
 };
 
 const Fonts = {
@@ -151,6 +152,22 @@ export const theme = {
     filterIconOpacity: 0.5,
     filterIconHoverOpacity: 0.75,
     filterIconSelectedOpacity: 1,
+  },
+  bague: {
+    borderColor: Colors.black,
+    backgroundColor: '#DDD9C3',
+  },
+  cale: {
+    borderColor: Colors.black,
+    backgroundColor: '#F2F2F2',
+  },
+  refente: {
+    borderColor: Colors.black,
+    backgroundColor: '#F2F2F2',
+    chuteBackgroundColor: '#F2F2F2',
+    chuteStripeSpacing: 6,
+    chuteStripeSize: 1,
+    chuteStripeColor: '#333333',
   },
   form: {
     inputBorderColor: '#7F7F7F',

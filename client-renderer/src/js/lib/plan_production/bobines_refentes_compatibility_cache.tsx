@@ -1,3 +1,10 @@
+import {
+  BobineHashCombinaison,
+  addCombinaisons,
+  combinaisonIsContained,
+  getBobineHashCombinaison,
+  substractCombinaisons,
+} from '@root/lib/plan_production/bobines_hash_combinaison';
 import {Refente, BobineFilleClichePose} from '@root/lib/plan_production/model';
 
 // Checking for compatibility is very expensive. So we want to cache every valid combinaison we have found,
@@ -7,8 +14,6 @@ import {Refente, BobineFilleClichePose} from '@root/lib/plan_production/model';
 type RefenteRef = string;
 type BobineHash = string;
 type SelectedBobineSortedHashes = BobineHash;
-type NumberOfBobineUsed = number;
-export type BobineHashCombinaison = Map<BobineHash, NumberOfBobineUsed>;
 
 // Defines a collection of compatibilities.
 // For lookup performances, we store them twice in different data structures.
@@ -38,10 +43,10 @@ class CompatibilityCache {
     const validCombinaisonHashes = validCombinaisonBobines.map(b => b.hash);
 
     const selectedBobinesSortedHash = selectedBobinesHashes.sort().join('/');
-    const compatibility = this.getBobineHashCombinaison(validCombinaisonHashes);
-    const selectableCompatibility = this.substractCombinaisons(
+    const compatibility = getBobineHashCombinaison(validCombinaisonHashes);
+    const selectableCompatibility = substractCombinaisons(
       compatibility,
-      this.getBobineHashCombinaison(selectedBobinesHashes)
+      getBobineHashCombinaison(selectedBobinesHashes)
     );
 
     // Get the compatibilities (or create a brand new) for the refente
@@ -83,93 +88,27 @@ class CompatibilityCache {
     }
     const selectedBobinesHashes = selectedBobines.map(b => b.hash);
     const selectedBobinesSortedHash = selectedBobinesHashes.sort().join('/');
-    const selectedCombinaison = this.getBobineHashCombinaison(selectedBobinesHashes);
+    const selectedCombinaison = getBobineHashCombinaison(selectedBobinesHashes);
     const compatibilities = compatibilitiesForRefente.compatibilityBySelected.get(
       selectedBobinesSortedHash
     );
-    const selectableHashCombinaisons = this.getBobineHashCombinaison(
-      selectableBobines.map(b => b.hash)
-    );
+    const selectableHashCombinaisons = getBobineHashCombinaison(selectableBobines.map(b => b.hash));
     if (compatibilities) {
       for (const compatibility of compatibilities) {
-        if (this.combinaisonIsContained(compatibility, selectableHashCombinaisons)) {
-          return this.addCombinaisons(compatibility, selectedCombinaison);
+        if (combinaisonIsContained(compatibility, selectableHashCombinaisons)) {
+          return addCombinaisons(compatibility, selectedCombinaison);
         }
       }
     }
     for (const compatibility of compatibilitiesForRefente.allCompatibilities) {
-      if (this.combinaisonIsContained(selectedCombinaison, compatibility)) {
-        const combiWithoutSelected = this.substractCombinaisons(compatibility, selectedCombinaison);
-        if (this.combinaisonIsContained(combiWithoutSelected, selectableHashCombinaisons)) {
+      if (combinaisonIsContained(selectedCombinaison, compatibility)) {
+        const combiWithoutSelected = substractCombinaisons(compatibility, selectedCombinaison);
+        if (combinaisonIsContained(combiWithoutSelected, selectableHashCombinaisons)) {
           return compatibility;
         }
       }
     }
     return undefined;
-  }
-
-  private getBobineHashCombinaison(hashes: string[]): BobineHashCombinaison {
-    const combi = new Map<string, number>();
-    for (const hash of hashes) {
-      const count = combi.get(hash) || 0;
-      combi.set(hash, count + 1);
-    }
-    return combi;
-  }
-
-  // Return true if `combi1` is contained in `combi2`
-  private combinaisonIsContained(
-    combi1: BobineHashCombinaison,
-    combi2: BobineHashCombinaison
-  ): boolean {
-    for (const [hash, count] of combi1.entries()) {
-      if ((combi2.get(hash) || 0) < count) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private addCombinaisons(
-    combi1: BobineHashCombinaison,
-    combi2: BobineHashCombinaison
-  ): BobineHashCombinaison {
-    const res = new Map<string, number>();
-    for (const [hash, count] of combi1.entries()) {
-      res.set(hash, count);
-    }
-    for (const [hash, count] of combi2.entries()) {
-      const newCount = (res.get(hash) || 0) + count;
-      res.set(hash, newCount);
-    }
-    return res;
-  }
-
-  // `combi1` - `combi2`.
-  // Throws if something goes negative.
-  private substractCombinaisons(
-    combi1: BobineHashCombinaison,
-    combi2: BobineHashCombinaison
-  ): BobineHashCombinaison {
-    // Copy combi1
-    const res = new Map<string, number>();
-    for (const [hash, count] of combi1.entries()) {
-      res.set(hash, count);
-    }
-    // And substract it combi2
-    for (const [hash, count] of combi2.entries()) {
-      const newCount = (res.get(hash) || 0) - count;
-      if (newCount < 0) {
-        console.log(combi1, combi2);
-        throw new Error("Can't perform substraction");
-      }
-      if (newCount === 0) {
-        res.delete(hash);
-      } else {
-        res.set(hash, newCount);
-      }
-    }
-    return res;
   }
 }
 

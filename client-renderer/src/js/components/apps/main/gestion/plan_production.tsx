@@ -6,7 +6,11 @@ import {PlanProductionPapier} from '@root/components/apps/main/gestion/plan_prod
 import {PlanProductionPerfo} from '@root/components/apps/main/gestion/plan_prod_perfo';
 import {PlanProductionPolypro} from '@root/components/apps/main/gestion/plan_prod_polypro';
 import {PlanProductionRefente} from '@root/components/apps/main/gestion/plan_prod_refente';
+import {Perfo as PerfoComponent} from '@root/components/common/perfo';
+import {Refente as RefenteComponent} from '@root/components/common/refente';
+import {SizeMonitor} from '@root/components/core/size_monitor';
 import {PlanProductionEngine} from '@root/lib/plan_production/engine';
+import {theme} from '@root/theme/default';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock} from '@shared/models';
 
@@ -58,7 +62,7 @@ export class PlanProduction extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const plan = this.state.planProductionEngine;
-    const {bobinesMeres, refentes, stocks} = this.props;
+    const {bobinesMeres, refentes, stocks, perfos} = this.props;
     const {
       selectableBobinesFilles,
       selectableRefentes,
@@ -114,6 +118,35 @@ export class PlanProduction extends React.Component<Props, State> {
           <CalculationTime>{`Calculé en ${Math.round(plan.calculationTime * 100) /
             100}ms`}</CalculationTime>
         </PlanProdFooter>
+        <SizeMonitor>
+          {width => {
+            const CAPACITE_MACHINE = 980;
+            const pixelPerMM =
+              (width - (theme.sidebar.width + 2 * theme.page.padding + 17)) / CAPACITE_MACHINE;
+            console.log(pixelPerMM, width, width - (theme.sidebar.width + 2 * theme.page.padding));
+            return (
+              <div style={{width: CAPACITE_MACHINE * pixelPerMM}}>
+                {perfos.map(p => (
+                  <React.Fragment>
+                    <PerfoComponent perfo={p} pixelPerMM={pixelPerMM} />
+                    <br />
+                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
+                      {refentes
+                        .filter(r => r.refPerfo === p.ref)
+                        .map(r => (
+                          <React.Fragment>
+                            <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                            <br />
+                          </React.Fragment>
+                        ))}
+                    </div>
+                    <br />
+                  </React.Fragment>
+                ))}
+              </div>
+            );
+          }}
+        </SizeMonitor>
       </div>
     );
   }

@@ -1,6 +1,10 @@
 import {uniq, differenceBy, without} from 'lodash-es';
 
 import {
+  getBobineHashCombinaison,
+  substractCombinaisons,
+} from '@root/lib/plan_production/bobines_hash_combinaison';
+import {
   compatibilityExists,
   refenteHasSpotForBobine,
 } from '@root/lib/plan_production/bobines_refentes_compatibility';
@@ -169,7 +173,11 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         refente
       );
       if (res !== undefined) {
-        for (const hash of res.keys()) {
+        const selectedBobineHashes = getBobineHashCombinaison(
+          selectedBobinesFilles.map(b => b.hash)
+        );
+        const compatibleSelectableHashes = substractCombinaisons(res, selectedBobineHashes);
+        for (const hash of compatibleSelectableHashes.keys()) {
           compatibleBobinesFillesHashes.set(hash);
         }
         break;
