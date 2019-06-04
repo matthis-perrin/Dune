@@ -3,14 +3,14 @@ import {theme} from '@root/theme/default';
 
 export const Button = styled.button`
   display: inline-block;
-  font-size: ${theme.administration.buttonFontSize}px;
-  font-weight: ${theme.administration.buttonFontWeight};
-  padding: ${theme.administration.buttonPadding};
-  height: ${theme.administration.buttonHeight}px;
+  font-size: ${theme.button.fontSize}px;
+  font-weight: ${theme.button.fontWeight};
+  padding: ${theme.button.padding};
+  height: ${theme.button.height}px;
   box-sizing: border-box;
   box-shadow: none;
-  background-color: ${theme.administration.buttonBackgroundColor};
-  color: ${theme.administration.buttonColor};
-  border-radius: ${theme.administration.buttonBorderRadius}px;
-  opacity: ${props => (props.disabled ? 0.5 : 1)};
+  background-color: ${theme.button.backgroundColor};
+  color: ${theme.button.color};
+  border-radius: ${theme.button.borderRadius}px;
+  opacity: ${props => (props.disabled ? theme.button.disabledOpacity : 1)};
 `;

@@ -118,13 +118,6 @@ export const theme = {
     backgroundColor: Colors.lightGray,
   },
   administration: {
-    buttonFontSize: 15,
-    buttonFontWeight: FontWeight.SemiBold,
-    buttonPadding: '4px 8px',
-    buttonBackgroundColor: Colors.primary,
-    buttonColor: Colors.secondary,
-    buttonBorderRadius: 3,
-    buttonHeight: 32,
     titleColor: Colors.secondary,
   },
   table: {
@@ -156,14 +149,20 @@ export const theme = {
   bague: {
     borderColor: Colors.black,
     backgroundColor: '#DDD9C3',
+    baseFontSize: 15,
+    baseTriangleHeight: 6,
+    baseHeight: 50,
   },
   cale: {
     borderColor: Colors.black,
     backgroundColor: '#F2F2F2',
+    baseFontSize: 15,
+    baseHeight: 30,
   },
   refente: {
     borderColor: Colors.black,
     backgroundColor: '#F2F2F2',
+    baseFontSize: 15,
     chuteBackgroundColor: '#F2F2F2',
     chuteStripeSpacing: 6,
     chuteStripeSize: 1,
@@ -178,6 +177,16 @@ export const theme = {
     padding: 16,
     animationDuration: 200,
     shadowSize: 8,
+  },
+  button: {
+    fontSize: 15,
+    fontWeight: FontWeight.SemiBold,
+    padding: '4px 8px',
+    backgroundColor: Colors.primary,
+    color: Colors.secondary,
+    borderRadius: 3,
+    height: 32,
+    disabledOpacity: 0.5,
   },
   modal: {
     margin: 24,

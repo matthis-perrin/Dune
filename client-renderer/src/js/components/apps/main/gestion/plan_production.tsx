@@ -122,8 +122,7 @@ export class PlanProduction extends React.Component<Props, State> {
           {width => {
             const CAPACITE_MACHINE = 980;
             const pixelPerMM =
-              (width - (theme.sidebar.width + 2 * theme.page.padding + 17)) / CAPACITE_MACHINE;
-            console.log(pixelPerMM, width, width - (theme.sidebar.width + 2 * theme.page.padding));
+              (width - (theme.sidebar.width + 2 * theme.page.padding)) / CAPACITE_MACHINE;
             return (
               <div style={{width: CAPACITE_MACHINE * pixelPerMM}}>
                 {perfos.map(p => (

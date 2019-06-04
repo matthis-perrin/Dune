@@ -21,7 +21,11 @@ export class Cale extends React.Component<CaleProps> {
     return (
       <CaleContainer
         leftBorder={leftBorder}
-        style={{fontSize: Math.round(15 * pixelPerMM), width, height: height * pixelPerMM}}
+        style={{
+          fontSize: Math.round(theme.cale.baseFontSize * pixelPerMM),
+          width,
+          height: height * pixelPerMM,
+        }}
       >
         {size}
       </CaleContainer>

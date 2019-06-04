@@ -10,8 +10,6 @@ interface BagueProps {
   height: number;
 }
 
-const BASE_TRIANGLE_SIZE = 6;
-
 export class Bague extends React.Component<BagueProps> {
   public static displayName = 'Bague';
 
@@ -34,7 +32,7 @@ export class Bague extends React.Component<BagueProps> {
   public render(): JSX.Element {
     const {size, pixelPerMM, height} = this.props;
     const width = size * pixelPerMM;
-    const triangleCount = Math.round(width / (BASE_TRIANGLE_SIZE * pixelPerMM));
+    const triangleCount = Math.round(width / (theme.bague.baseTriangleHeight * pixelPerMM));
     const triangleWidth = width / triangleCount;
     const triangleHeight = triangleWidth + 1;
     return (
@@ -44,7 +42,7 @@ export class Bague extends React.Component<BagueProps> {
         </TrianglesContainer>
         <BagueInner
           style={{
-            fontSize: Math.round(15 * pixelPerMM),
+            fontSize: Math.round(theme.bague.baseFontSize * pixelPerMM),
             height: height * pixelPerMM - 2 * triangleHeight,
           }}
         >

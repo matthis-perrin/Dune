@@ -58,7 +58,7 @@ export class Refente extends React.Component<RefenteProps> {
     const {refente, pixelPerMM} = this.props;
 
     return (
-      <RefenteContainer style={{fontSize: 15 * pixelPerMM}}>
+      <RefenteContainer style={{fontSize: theme.refente.baseFontSize * pixelPerMM}}>
         {this.renderChute(refente.chute)}
         {this.renderLaize(refente.laize1, !refente.chute)}
         {this.renderLaize(refente.laize2)}
