@@ -1,7 +1,7 @@
-import {isEqual, minBy} from 'lodash-es';
+import {isEqual, minBy} from 'lodash';
 
-import {BobineFilleClichePose} from '@root/lib/plan_production/model';
-import {permutations} from '@root/lib/plan_production/utils';
+import {BobineFilleClichePose} from '@root/plan_production/models';
+import {permutations} from '@root/plan_production/utils';
 
 export interface ColorRestriction {
   couleurs: string[];

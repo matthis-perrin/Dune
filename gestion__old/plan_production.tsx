@@ -1,3 +1,4 @@
+import {PlanProductionEngine} from 'C:\Users\Matthis\git\dune\client-renderer\src\js\components\apps\main\client-main\src\plan_production\engine';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -9,7 +10,6 @@ import {PlanProductionRefente} from '@root/components/apps/main/gestion/plan_pro
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {SizeMonitor} from '@root/components/core/size_monitor';
-import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {theme} from '@root/theme/default';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock} from '@shared/models';

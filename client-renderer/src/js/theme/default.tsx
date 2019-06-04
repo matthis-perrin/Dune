@@ -196,5 +196,11 @@ export const theme = {
     borderColor: Colors.primary,
     borderWidth: 2,
   },
+  loadingIndicator: {
+    defaultColor: '#999999',
+    largeSize: 64,
+    mediumSize: 32,
+    smallSize: 16,
+  },
   typography,
 };

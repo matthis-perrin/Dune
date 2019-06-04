@@ -1,3 +1,4 @@
+import {PlanProductionEngine} from 'C:\Users\Matthis\git\dune\client-renderer\src\js\components\apps\main\client-main\src\plan_production\engine';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -5,7 +6,6 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getPerfoColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme/default';
 

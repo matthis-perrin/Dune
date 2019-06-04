@@ -8,9 +8,17 @@ import {
   BobineFilleClichePoseColumns,
 } from '@root/components/table/columns';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 
-import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock, Operation} from '@shared/models';
+import {
+  BobineFille,
+  BobineMere,
+  Cliche,
+  Perfo,
+  Refente,
+  Stock,
+  Operation,
+  BobineFilleWithPose,
+} from '@shared/models';
 
 // tslint:disable-next-line:no-any
 type AnyColumnMetadata<T> = ColumnMetadata<T, any>;
@@ -35,7 +43,7 @@ export function getBobineFilleColumns(stocks: {
 
 export function getBobineFilleClichePoseColumns(stocks: {
   [key: string]: Stock[];
-}): AnyColumnMetadata<BobineFilleClichePose>[] {
+}): AnyColumnMetadata<BobineFilleWithPose>[] {
   return [
     BobineFilleClichePoseColumns.Ref,
     BobineFilleClichePoseColumns.Laize,
@@ -43,7 +51,7 @@ export function getBobineFilleClichePoseColumns(stocks: {
     BobineFilleClichePoseColumns.Grammage,
     BobineFilleClichePoseColumns.Stock(stocks),
     BobineFilleClichePoseColumns.Pose,
-    BobineFilleClichePoseColumns.CouleursImpression,
+    // BobineFilleClichePoseColumns.CouleursImpression,
     BobineFilleClichePoseColumns.ImportanceOrdreCouleurs,
     BobineFilleClichePoseColumns.TypeImpression,
   ];

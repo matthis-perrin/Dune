@@ -1,3 +1,22 @@
+import {Refente as RefenteAlgo} from '@root/plan_production/models';
+import {Perfo} from '@shared/models';
+
+export interface PlanProduction {
+  polypro?: BobineMerePolypro;
+  papier?: BobineMerePapier;
+  perfo?: Perfo;
+  refente?: RefenteAlgo;
+  bobinesFilles: BobineFilleClichePose[];
+}
+
+export interface Selectables {
+  selectablePolypros: BobineMerePolypro[];
+  selectablePapiers: BobineMerePapier[];
+  selectablePerfos: Perfo[];
+  selectableRefentes: RefenteAlgo[];
+  selectableBobinesFilles: BobineFilleClichePose[];
+}
+
 export interface ClichePose {
   refCliche?: string;
   pose: number;

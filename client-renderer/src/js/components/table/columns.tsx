@@ -4,7 +4,6 @@ import * as React from 'react';
 import {Duration} from '@root/components/common/duration';
 import {OperationConstraint} from '@root/components/common/operation_constraint';
 import {ColumnType} from '@root/components/table/column';
-import {BobineFilleClichePose} from '@root/lib/plan_production/model';
 
 import {Stock, Cliche, Perfo, Refente, Operation} from '@shared/models';
 import {asMap, asString, asNumber} from '@shared/type_utils';
@@ -67,14 +66,14 @@ function sortClichesPosesFunction(c1: Cliche, c2: Cliche): number {
   return sortArrayFunction(getPoses(c1), getPoses(c2), false, (p1, p2) => p1 - p2);
 }
 
-function sortBobineFilleClichePoseCouleursFunction(
-  b1: BobineFilleClichePose,
-  b2: BobineFilleClichePose
-): number {
-  return sortArrayFunction(b1.couleursImpression, b2.couleursImpression, true, (el1, el2) =>
-    el1.toLowerCase().localeCompare(el2.toLowerCase())
-  );
-}
+// function sortBobineFilleClichePoseCouleursFunction(
+//   b1: BobineFilleClichePose,
+//   b2: BobineFilleClichePose
+// ): number {
+//   return sortArrayFunction(b1.couleursImpression, b2.couleursImpression, true, (el1, el2) =>
+//     el1.toLowerCase().localeCompare(el2.toLowerCase())
+//   );
+// }
 
 // tslint:disable:no-magic-numbers
 const REFERENCE_COLUMN = (width: number) => ({
@@ -177,14 +176,14 @@ const COULEUR_CLICHE_COLUMN = (index: number) => ({
   },
 });
 
-const COULEURS_CLICHE_COLUMN = {
-  name: 'couleursImpression',
-  title: 'Couleurs Impression',
-  type: ColumnType.String,
-  sortFunction: sortBobineFilleClichePoseCouleursFunction,
-  width: 160,
-  renderCell: (b: BobineFilleClichePose) => `[${b.couleursImpression.join(', ')}]`,
-};
+// const COULEURS_CLICHE_COLUMN = {
+//   name: 'couleursImpression',
+//   title: 'Couleurs Impression',
+//   type: ColumnType.String,
+//   sortFunction: sortBobineFilleClichePoseCouleursFunction,
+//   width: 160,
+//   renderCell: (b: BobineFilleClichePose) => `[${b.couleursImpression.join(', ')}]`,
+// };
 
 const IMPORTANCE_ORDRE_COULEUR_COLUMN = {
   name: 'importanceOrdreCouleurs',
@@ -337,7 +336,7 @@ export const BobineFilleClichePoseColumns = {
   Grammage: GRAMMAGE_COLUMN,
   Stock: STOCK_COLUMN,
   Pose: POSE_COLUMN,
-  CouleursImpression: COULEURS_CLICHE_COLUMN,
+  // CouleursImpression: COULEURS_CLICHE_COLUMN,
   ImportanceOrdreCouleurs: IMPORTANCE_ORDRE_COULEUR_COLUMN,
   TypeImpression: TYPE_IMPRESSION_COLUMN,
 };

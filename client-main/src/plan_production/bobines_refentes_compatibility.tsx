@@ -1,13 +1,13 @@
-import {uniqBy, without, sum} from 'lodash-es';
+import {uniqBy, without, sum} from 'lodash';
 
-import {BobineHashCombinaison} from '@root/lib/plan_production/bobines_hash_combinaison';
-import {compatibilityCache} from '@root/lib/plan_production/bobines_refentes_compatibility_cache';
+import {BobineHashCombinaison} from '@root/plan_production/bobines_hash_combinaison';
+import {compatibilityCache} from '@root/plan_production/bobines_refentes_compatibility_cache';
 import {
   checkColorsAreCompatbile,
   getColorsRestrictionsForBobine,
-} from '@root/lib/plan_production/colors_compatibility';
-import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
-import {permutations} from '@root/lib/plan_production/utils';
+} from '@root/plan_production/colors_compatibility';
+import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
+import {permutations} from '@root/plan_production/utils';
 
 const MAX_COULEURS_IMPRESSIONS = 3;
 

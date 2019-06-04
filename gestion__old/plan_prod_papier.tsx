@@ -1,3 +1,4 @@
+import {PlanProductionEngine} from 'C:\Users\Matthis\git\dune\client-renderer\src\js\components\apps\main\client-main\src\plan_production\engine';
 import {keyBy} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -6,7 +7,6 @@ import {Button} from '@root/components/core/button';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getBobineMereColumns} from '@root/components/table/table_columns';
-import {PlanProductionEngine} from '@root/lib/plan_production/engine';
 import {appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme/default';
 
@@ -18,31 +18,31 @@ interface Props {
   planProd: PlanProductionEngine;
 }
 
-export class PlanProductionPolypro extends React.Component<Props> {
-  public static displayName = 'PlanProductionPolypro';
+export class PlanProductionPapier extends React.Component<Props> {
+  public static displayName = 'PlanProductionPapier';
 
-  private shouldShow(polypro: BobineMere, isSelectionnable: boolean): boolean {
-    const index = this.props.planProd.selectables.selectablePolypros
+  private shouldShow(papier: BobineMere, isSelectionnable: boolean): boolean {
+    const index = this.props.planProd.selectables.selectablePapiers
       .map(p => p.ref)
-      .indexOf(polypro.ref);
+      .indexOf(papier.ref);
     return isSelectionnable ? index !== -1 : index === -1;
   }
 
   private readonly shouldShowSelectionnableRow = (
-    polypro: BobineMere,
+    papier: BobineMere,
     enabled: boolean
   ): boolean => {
-    return enabled && this.shouldShow(polypro, true);
+    return enabled && this.shouldShow(papier, true);
   };
 
   private readonly shouldShowNonSelectionnableRow = (
-    polypro: BobineMere,
+    papier: BobineMere,
     enabled: boolean
   ): boolean => {
-    return enabled && this.shouldShow(polypro, false);
+    return enabled && this.shouldShow(papier, false);
   };
 
-  private readonly handleAddPolypro = (): void => {
+  private readonly handleAddPapier = (): void => {
     const {planProd, allBobinesMeres, stocks} = this.props;
     const bobinesMeresByRef = keyBy(allBobinesMeres, 'ref');
     const bobineMereTable = (
@@ -52,7 +52,7 @@ export class PlanProductionPolypro extends React.Component<Props> {
           const tableBorderNumber = 3;
           return (
             <FilterableTable
-              data={planProd.allPolypros.map(b => bobinesMeresByRef[b.ref])}
+              data={planProd.allPapiers.map(b => bobinesMeresByRef[b.ref])}
               lastUpdate={0}
               columns={getBobineMereColumns(stocks)}
               initialSort={{
@@ -60,28 +60,27 @@ export class PlanProductionPolypro extends React.Component<Props> {
                 asc: true,
               }}
               onSelected={(bobineMere: BobineMere) => {
-                const selectedPolypro = planProd.allPolypros.filter(
-                  r => r.ref === bobineMere.ref
-                )[0];
-                planProd.setPolypro(selectedPolypro);
+                const selectedPapier = planProd.allPapiers.filter(r => r.ref === bobineMere.ref)[0];
+                planProd.setPapier(selectedPapier);
                 this.forceUpdate();
                 appStore.closeModal();
               }}
-              title="polypro"
+              title="papier"
               filters={[
                 {
                   enableByDefault: true,
-                  title: 'Bobines mère polypro sélectionnables',
+                  title: 'Bobines mères papier sélectionnables',
                   shouldShowRow: this.shouldShowSelectionnableRow,
                 },
                 {
                   enableByDefault: false,
-                  title: 'Bobines mère polypro non-sélectionnables',
+                  title: 'Bobines mères papier non-sélectionnables',
                   shouldShowRow: this.shouldShowNonSelectionnableRow,
                 },
               ]}
-              isRowDisabled={polypro =>
-                planProd.selectables.selectablePolypros.map(p => p.ref).indexOf(polypro.ref) === -1
+              isRowDisabled={bobineMere =>
+                planProd.selectables.selectablePapiers.map(p => p.ref).indexOf(bobineMere.ref) ===
+                -1
               }
               width={width - modalPadding - tableBorderNumber * theme.table.borderThickness}
               height={height - modalPadding}
@@ -93,26 +92,30 @@ export class PlanProductionPolypro extends React.Component<Props> {
     appStore.openModal(bobineMereTable);
   };
 
-  private readonly handleRemovePolypro = (): void => {
-    this.props.planProd.setPolypro(undefined);
+  private readonly handleRemovePapier = (): void => {
+    this.props.planProd.setPapier(undefined);
   };
 
-  private renderPolypro(bobineMere: BobineMere): JSX.Element {
+  private renderPapier(bobineMere: BobineMere): JSX.Element {
     return (
-      <PolyproWrapper>
-        {`Polypro: ${bobineMere.ref}`}
+      <PapierWrapper>
+        {`Papier: ${bobineMere.ref}`}
         <br />
         {`Laize: ${bobineMere.laize}`}
         <br />
+        {`Couleur: ${bobineMere.couleurPapier}`}
+        <br />
         {`Grammage: ${bobineMere.grammage}`}
-      </PolyproWrapper>
+        <br />
+        {`Longueur: ${bobineMere.longueur}`}
+      </PapierWrapper>
     );
   }
 
   public render(): JSX.Element {
     const {allBobinesMeres, planProd} = this.props;
-    const polypro = planProd.planProduction.polypro;
-    const bobineMereRef = polypro && polypro.ref;
+    const papier = planProd.planProduction.papier;
+    const bobineMereRef = papier && papier.ref;
     const bobineMereModel: BobineMere | undefined = allBobinesMeres.filter(
       r => r.ref === bobineMereRef
     )[0];
@@ -121,11 +124,11 @@ export class PlanProductionPolypro extends React.Component<Props> {
       <ProdElementWrapper>
         {bobineMereModel ? (
           <React.Fragment>
-            {this.renderPolypro(bobineMereModel)}
-            <Button onClick={this.handleRemovePolypro}>Enlever Polypro</Button>
+            {this.renderPapier(bobineMereModel)}
+            <Button onClick={this.handleRemovePapier}>Enlever Papier</Button>
           </React.Fragment>
         ) : (
-          <Button onClick={this.handleAddPolypro}>Selection Polypro</Button>
+          <Button onClick={this.handleAddPapier}>Selection Papier</Button>
         )}
       </ProdElementWrapper>
     );
@@ -140,7 +143,7 @@ const ProdElementWrapper = styled.div`
   background-color: #ddd;
 `;
 
-const PolyproWrapper = styled.div`
+const PapierWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

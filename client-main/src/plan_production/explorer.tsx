@@ -1,26 +1,26 @@
-import {flatten, keyBy, without} from 'lodash-es';
+import {flatten, keyBy, without} from 'lodash';
 
 import {
   applyBobinesOnRefenteFromIndex,
   RefenteStatus,
-} from '@root/lib/plan_production/bobines_refentes_compatibility';
+} from '@root/plan_production/bobines_refentes_compatibility';
 import {
   ColorRestriction,
   getColorsRestrictionsForBobine,
   checkColorsAreCompatbile,
-} from '@root/lib/plan_production/colors_compatibility';
-import {getBobineFilleClichePose} from '@root/lib/plan_production/data_extraction/bobine_fille';
+} from '@root/plan_production/colors_compatibility';
+import {getBobineFilleClichePose} from '@root/plan_production/data_extraction/bobine_fille';
 import {
   getBobinesMeresPapier,
   getBobinesMeresPolypro,
-} from '@root/lib/plan_production/data_extraction/bobine_mere';
-import {getRefentes} from '@root/lib/plan_production/data_extraction/refente';
+} from '@root/plan_production/data_extraction/bobine_mere';
+import {getRefentes} from '@root/plan_production/data_extraction/refente';
 import {
   BobineFilleClichePose,
   BobineMerePapier,
   BobineMerePolypro,
   Refente as RefenteAlgo,
-} from '@root/lib/plan_production/model';
+} from '@root/plan_production/models';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente as RefenteModel} from '@shared/models';
 
@@ -76,7 +76,6 @@ export class PlanProductionExplorer {
     const sortedSelectableBobinesFilles = this.selectableBobinesFilles
       .concat()
       .sort((b1, b2) => b1.hash.localeCompare(b2.hash));
-
     const rootState = {
       bobinesFilles: [],
       bobinesFillesColorRestrictions: [],
@@ -92,7 +91,7 @@ export class PlanProductionExplorer {
     const generated = this.buildChildStates(rootState);
     const t2 = Date.now();
     console.log(`Generated ${generated} in ${t2 - t1}ms`);
-    // console.log(rootState);
+    console.log(rootState);
     console.log(this.sortedHashCompletePlanProdCache);
     console.log(JSON.stringify(this.planProdStateToBobinesTree(rootState), undefined, 2));
   }
@@ -129,7 +128,7 @@ export class PlanProductionExplorer {
 
   private completePlanProductionStateHash(planProductionState: PlanProductionState): string {
     if (!planProductionState.isComplete) {
-      console.log(planProductionState);
+      // console.log(planProductionState);
       throw new Error('PlanProductionState is not complete');
     }
     return this.getSortedHash(planProductionState.bobinesFilles);

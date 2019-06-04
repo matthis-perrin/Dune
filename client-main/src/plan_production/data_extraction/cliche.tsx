@@ -1,4 +1,4 @@
-import {ClichePose} from '@root/lib/plan_production/model';
+import {ClichePose} from '@root/plan_production/models';
 import {Cliche} from '@shared/models';
 
 const POSES_NEUTRES = [1, 1, 1, 1, 1, 1, 1];

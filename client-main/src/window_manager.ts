@@ -1,7 +1,10 @@
 import {BrowserWindow, screen} from 'electron';
 
 import {handleCommand} from '@root/bridge';
+import {planProductionStore} from '@root/store';
 
+import {sendBridgeEvent} from '@shared/bridge/bridge_main';
+import {PlanProductionChanged} from '@shared/bridge/commands';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 import {ClientAppInfo, ClientAppType} from '@shared/models';
 import {asMap} from '@shared/type_utils';
@@ -9,9 +12,9 @@ import {asMap} from '@shared/type_utils';
 interface WindowOptions {
   id: string;
   // Size of the window in pixels, if not specified, the window will be opened fullscreen
-  size?: {
-    width: number;
-    height: number;
+  size: {
+    width?: number;
+    height?: number;
   };
 }
 
@@ -25,6 +28,10 @@ const MAIN_APP_ID = 'main-app';
 
 class WindowManager {
   private readonly windows = new Map<string, WindowInfo>();
+
+  public constructor() {
+    planProductionStore.addListener(this.handlePlanProductionChanged, false);
+  }
 
   public async openWindow(appInfo: ClientAppInfo): Promise<void> {
     const windowInfo = await this.openOrForegroundWindow(appInfo);
@@ -56,9 +63,15 @@ class WindowManager {
     return windowInfo.appInfo;
   }
 
+  private readonly handlePlanProductionChanged = () => {
+    Array.from(this.windows.values()).forEach(w =>
+      sendBridgeEvent(w.browserWindow, PlanProductionChanged, undefined)
+    );
+  };
+
   private getWindowOptionsForAppInfo(appInfo: ClientAppInfo): WindowOptions {
     if (appInfo.type === ClientAppType.MainApp) {
-      return {id: MAIN_APP_ID};
+      return {id: MAIN_APP_ID, size: {}};
     }
     const listAppSize = {width: 1400, height: 1000};
     if (appInfo.type === ClientAppType.ListBobinesFillesApp) {
@@ -83,6 +96,13 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ViewOperationApp) {
       const {operationId = 'create'} = asMap(appInfo.data);
       return {id: `view-operation-app--${operationId}`, size: {width: 535, height: 250}};
+    }
+
+    if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
+      return {id: 'plan-production-editor-app', size: {width: 1200, height: 900}};
+    }
+    if (appInfo.type === ClientAppType.RefentePickerApp) {
+      return {id: 'refente-picker-app', size: {width: 1200}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
@@ -115,9 +135,11 @@ class WindowManager {
     }
 
     // Create the BrowserWindow, hidden at first.
-    const sizeWithDefaults = size || this.getDefaultSize();
+    const defaultSize = this.getDefaultSize();
+    const {width = defaultSize.width, height = defaultSize.height} = size;
     const newBrowserWindow = createBrowserWindow({
-      ...sizeWithDefaults,
+      width,
+      height,
       show: false,
     });
     if (process.env.MODE === 'development') {

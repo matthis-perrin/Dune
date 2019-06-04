@@ -17,6 +17,8 @@ import {
   CreateOrUpdateOperation,
   CloseApp,
   BridgeEvent,
+  CreateNewPlanProduction,
+  GetNewPlanProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -28,6 +30,7 @@ import {
   Stock,
   ClientAppInfo,
   ClientAppType,
+  PlanProductionState,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -87,6 +90,13 @@ class Bridge {
   }
   public async listOperations(localUpdate: number): Promise<BridgeListResponse<Operation>> {
     return this.listGeneric<Operation>(ListOperations, localUpdate);
+  }
+
+  public async createNewPlanProduction(): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CreateNewPlanProduction);
+  }
+  public async getPlanProduction(): Promise<PlanProductionState> {
+    return this.bridgeTransport.sendBridgeCommand<PlanProductionState>(GetNewPlanProduction);
   }
 
   public async viewOperation(operationId: number | undefined): Promise<void> {

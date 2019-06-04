@@ -1,7 +1,7 @@
 import {bridge, BridgeListResponse} from '@root/lib/bridge';
-import {BaseStore} from '@root/stores/store';
 
 import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock, Operation} from '@shared/models';
+import {BaseStore} from '@shared/store';
 
 export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore {
   private data?: T[] = undefined;

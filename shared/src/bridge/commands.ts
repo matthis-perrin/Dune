@@ -12,6 +12,9 @@ export const GetAppInfo = 'get-app-info' as BridgeCommand;
 export const OpenApp = 'open-app' as BridgeCommand;
 export const CloseApp = 'close-app' as BridgeCommand;
 
+export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
+export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;
+
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;
 

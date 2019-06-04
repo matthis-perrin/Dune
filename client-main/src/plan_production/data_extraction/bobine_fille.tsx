@@ -1,5 +1,5 @@
-import {getClichePoses} from '@root/lib/plan_production/data_extraction/cliche';
-import {BobineFilleClichePose, ClichePose} from '@root/lib/plan_production/model';
+import {getClichePoses} from '@root/plan_production/data_extraction/cliche';
+import {BobineFilleClichePose, ClichePose} from '@root/plan_production/models';
 
 import {BobineFille, Cliche} from '@shared/models';
 
@@ -18,16 +18,8 @@ export function getBobineFilleClichePose(
   bobine: BobineFille,
   allCliches: {[key: string]: Cliche}
 ): BobineFilleClichePose[] {
-  const {ref, sommeil, laize, couleurPapier, grammage, refCliche1, refCliche2} = bobine;
-  if (
-    !sommeil &&
-    laize !== undefined &&
-    laize > 0 &&
-    grammage !== undefined &&
-    grammage > 0 &&
-    couleurPapier !== undefined &&
-    couleurPapier !== ''
-  ) {
+  if (isValidBobineFille(bobine)) {
+    const {ref, laize = 0, couleurPapier = '', grammage = 0, refCliche1, refCliche2} = bobine;
     let clichePoses: ClichePose[] = [];
     if (refCliche1) {
       const cliche1 = allCliches[refCliche1];
@@ -56,4 +48,17 @@ export function getBobineFilleClichePose(
     });
   }
   return [];
+}
+
+export function isValidBobineFille(bobineFille: BobineFille): boolean {
+  const {sommeil, laize, couleurPapier, grammage} = bobineFille;
+  return (
+    !sommeil &&
+    laize !== undefined &&
+    laize > 0 &&
+    grammage !== undefined &&
+    grammage > 0 &&
+    couleurPapier !== undefined &&
+    couleurPapier !== ''
+  );
 }

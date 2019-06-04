@@ -8,13 +8,16 @@ import {ListOperationsApp} from '@root/components/apps/list_operations/app';
 import {ListPerfosApp} from '@root/components/apps/list_perfos/app';
 import {ListRefentesApp} from '@root/components/apps/list_refentes/app';
 import {MainApp} from '@root/components/apps/main/app';
+import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
+import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
+import {storeManager} from '@root/stores/store_manager';
 
-import {ClientAppInfo, ClientAppType} from '@shared/models';
-import {asMap, asNumber} from '@shared/type_utils';
+import {ClientAppInfo, ClientAppType, Refente} from '@shared/models';
+import {asMap, asNumber, asArray} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -36,7 +39,13 @@ export class AppManager extends React.Component<Props, State> {
   public componentDidMount(): void {
     bridge
       .getAppInfo(this.props.windowId)
-      .then(appInfo => this.setState({appInfo}))
+      .then(appInfo => {
+        const {type} = appInfo;
+        if (type === ClientAppType.MainApp || type === ClientAppType.ViewOperationApp) {
+          storeManager.start();
+        }
+        this.setState({appInfo});
+      })
       .catch(err => this.setState({error: err as string}));
   }
 
@@ -63,6 +72,13 @@ export class AppManager extends React.Component<Props, State> {
     }
     if (type === ClientAppType.ListOperationsApp) {
       return <ListOperationsApp />;
+    }
+    if (type === ClientAppType.PlanProductionEditorApp) {
+      return <PlanProdEditorApp />;
+    }
+    if (type === ClientAppType.RefentePickerApp) {
+      const selectableRefentes = asArray<Refente>(data);
+      return <RefentePickerApp refentes={selectableRefentes} />;
     }
 
     if (type === ClientAppType.ViewOperationApp) {

@@ -1,20 +1,20 @@
-import {uniq, differenceBy, without} from 'lodash-es';
+import {uniq, without} from 'lodash';
 
 import {
   getBobineHashCombinaison,
   substractCombinaisons,
-} from '@root/lib/plan_production/bobines_hash_combinaison';
+} from '@root/plan_production/bobines_hash_combinaison';
 import {
   compatibilityExists,
   refenteHasSpotForBobine,
-} from '@root/lib/plan_production/bobines_refentes_compatibility';
-import {filterBobinesFillesForSelectedPapier} from '@root/lib/plan_production/filter_for_selected';
+} from '@root/plan_production/bobines_refentes_compatibility';
+import {filterBobinesFillesForSelectedPapier} from '@root/plan_production/filter_for_selected';
 import {
   BobineFilleClichePose,
   BobineMerePapier,
   BobineMerePolypro,
   Refente,
-} from '@root/lib/plan_production/model';
+} from '@root/plan_production/models';
 
 import {Perfo} from '@shared/models';
 
@@ -27,8 +27,8 @@ export function filterPolyprosForSelectablePapiers(
   if (newPolypros.length === selectablePolypros.length) {
     return selectablePolypros;
   }
-  const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
-  console.log(`filterPolyprosForSelectablePapiers dropping ${dropped.length} Polypros`, dropped);
+  // const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
+  // console.log(`filterPolyprosForSelectablePapiers dropping ${dropped.length} Polypros`, dropped);
   return newPolypros;
 }
 
@@ -41,8 +41,8 @@ export function filterPolyprosForSelectableRefentes(
   if (newPolypros.length === selectablePolypros.length) {
     return selectablePolypros;
   }
-  const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
-  console.log(`filterPolyprosForSelectableRefentes dropping ${dropped.length} Polypros`, dropped);
+  // const dropped = differenceBy(selectablePolypros, newPolypros, 'ref');
+  // console.log(`filterPolyprosForSelectableRefentes dropping ${dropped.length} Polypros`, dropped);
   return newPolypros;
 }
 
@@ -55,8 +55,8 @@ export function filterPapiersForSelectablePolypros(
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
   }
-  const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
-  console.log(`filterPapiersForSelectablePolypros dropping ${dropped.length} Papier`, dropped);
+  // const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
+  // console.log(`filterPapiersForSelectablePolypros dropping ${dropped.length} Papier`, dropped);
   return newPapiers;
 }
 
@@ -69,8 +69,8 @@ export function filterPapiersForSelectableRefentes(
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
   }
-  const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
-  console.log(`filterPapiersForSelectableRefentes dropping ${dropped.length} Papier`, dropped);
+  // const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
+  // console.log(`filterPapiersForSelectableRefentes dropping ${dropped.length} Papier`, dropped);
   return newPapiers;
 }
 
@@ -83,8 +83,8 @@ export function filterPerfosForSelectableRefentes(
   if (newPerfos.length === selectablePerfos.length) {
     return selectablePerfos;
   }
-  const dropped = differenceBy(selectablePerfos, newPerfos, 'ref');
-  console.log(`filterPerfosForSelectableRefentes dropping ${dropped.length} Perfos`, dropped);
+  // const dropped = differenceBy(selectablePerfos, newPerfos, 'ref');
+  // console.log(`filterPerfosForSelectableRefentes dropping ${dropped.length} Perfos`, dropped);
   return newPerfos;
 }
 
@@ -97,8 +97,8 @@ export function filterRefentesForSelectablePerfos(
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
-  const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
-  console.log(`filterRefentesForSelectablePerfos dropping ${dropped.length} Refentes`, dropped);
+  // const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
+  // console.log(`filterRefentesForSelectablePerfos dropping ${dropped.length} Refentes`, dropped);
   return newRefentes;
 }
 
@@ -111,8 +111,8 @@ export function filterRefentesForSelectablePapiers(
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
-  const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
-  console.log(`filterRefentesForSelectablePapiers dropping ${dropped.length} Refentes`, dropped);
+  // const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
+  // console.log(`filterRefentesForSelectablePapiers dropping ${dropped.length} Refentes`, dropped);
   return newRefentes;
 }
 
@@ -125,8 +125,8 @@ export function filterRefentesForSelectablePolypros(
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
-  const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
-  console.log(`filterRefentesForSelectablePolypros dropping ${dropped.length} Refentes`, dropped);
+  // const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
+  // console.log(`filterRefentesForSelectablePolypros dropping ${dropped.length} Refentes`, dropped);
   return newRefentes;
 }
 
@@ -143,11 +143,11 @@ export function filterBobinesFillesForSelectablePapiers(
   if (newBobinesFilles.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;
   }
-  const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
-  console.log(
-    `filterBobinesFillesForSelectablePapiers dropping ${dropped.length} BobinesFilles`,
-    dropped
-  );
+  // const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
+  // console.log(
+  //   `filterBobinesFillesForSelectablePapiers dropping ${dropped.length} BobinesFilles`,
+  //   dropped
+  // );
   return newBobinesFilles;
 }
 
@@ -191,13 +191,13 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   if (compatibleSelectableBobines.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;
   }
-  const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
-  console.log(
-    `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
-      dropped.length
-    } BobinesFilles`,
-    dropped
-  );
+  // const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
+  // console.log(
+  //   `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
+  //     dropped.length
+  //   } BobinesFilles`,
+  //   dropped
+  // );
   return compatibleSelectableBobines;
 }
 
@@ -212,11 +212,11 @@ export function filterRefentesForSelectableBobinesAndSelectedBobines(
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
-  const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
-  console.log(
-    `filterRefentesForSelectableBobinesAndSelectedBobines dropping ${dropped.length} Refente`,
-    dropped
-  );
+  // const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
+  // console.log(
+  //   `filterRefentesForSelectableBobinesAndSelectedBobines dropping ${dropped.length} Refente`,
+  //   dropped
+  // );
   return newRefentes;
 }
 
@@ -235,11 +235,11 @@ export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
         firstBobine.couleurPapier !== papier.couleurPapier ||
         firstBobine.grammage !== papier.grammage
       ) {
-        console.log(
-          'Passing this papier because the selected bobines does not match the couleurPapier or grammage!',
-          papier,
-          bobinesFilles
-        );
+        // console.log(
+        //   'Passing this papier because the selected bobines does not match the couleurPapier or grammage!',
+        //   papier,
+        //   bobinesFilles
+        // );
         return false;
       }
     }
@@ -262,12 +262,12 @@ export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
   }
-  const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
-  console.log(
-    `filterPapierForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
-      dropped.length
-    } Papier`,
-    dropped
-  );
+  // const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
+  // console.log(
+  //   `filterPapierForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
+  //     dropped.length
+  //   } Papier`,
+  //   dropped
+  // );
   return newPapiers;
 }

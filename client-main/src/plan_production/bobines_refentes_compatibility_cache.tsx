@@ -4,8 +4,8 @@ import {
   combinaisonIsContained,
   getBobineHashCombinaison,
   substractCombinaisons,
-} from '@root/lib/plan_production/bobines_hash_combinaison';
-import {Refente, BobineFilleClichePose} from '@root/lib/plan_production/model';
+} from '@root/plan_production/bobines_hash_combinaison';
+import {Refente, BobineFilleClichePose} from '@root/plan_production/models';
 
 // Checking for compatibility is very expensive. So we want to cache every valid combinaison we have found,
 // and skip as often as possible the compatibility.

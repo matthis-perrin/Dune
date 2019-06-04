@@ -5,8 +5,8 @@ export function asMap(value: any): {[key: string]: any} {
 }
 
 // tslint:disable-next-line:no-any
-export function asArray(value: any): any[] {
-  return Array.isArray(value) ? value : [];
+export function asArray<T = any>(value: any): T[] {
+  return Array.isArray(value) ? (value as T[]) : [];
 }
 
 // tslint:disable-next-line:no-any
@@ -61,6 +61,14 @@ export function asDate(value: any, defaultValue: Date = new Date(0)): Date {
     return new Date(value);
   }
   return value instanceof Date ? value : defaultValue;
+}
+
+export function notUndefined<T>(val: T | undefined): val is T {
+  return val !== undefined;
+}
+
+export function removeUndefined<T>(arr: (T | undefined)[]): T[] {
+  return arr.filter(notUndefined);
 }
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;

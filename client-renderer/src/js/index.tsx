@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 
 import {AppManager} from '@root/components/apps/app_manager';
 import {getWindowId} from '@root/lib/window_utils';
-import {storeManager} from '@root/stores/store_manager';
 
 function injectApp(app: JSX.Element): void {
   const root = document.getElementById('root');
@@ -20,7 +19,6 @@ function injectAppWhenDOMReady(): void {
 }
 
 function start(): void {
-  storeManager.start();
   injectAppWhenDOMReady();
 }
 

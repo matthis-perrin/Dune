@@ -1,4 +1,4 @@
-import {isEqual, difference} from 'lodash-es';
+import {isEqual, difference} from 'lodash';
 
 import {
   compatibilityExists,
@@ -6,9 +6,9 @@ import {
   RefenteStatus,
   uniqByLaizePoseAndColor,
   getSelectedBobinesCombinaison,
-} from '@root/lib/plan_production/bobines_refentes_compatibility';
-import {getBobineHash} from '@root/lib/plan_production/data_extraction/bobine_fille';
-import {BobineFilleClichePose, Refente} from '@root/lib/plan_production/model';
+} from '@root/plan_production/bobines_refentes_compatibility';
+import {getBobineHash} from '@root/plan_production/data_extraction/bobine_fille';
+import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
 
 // tslint:disable:no-magic-numbers variable-name
 export function debugBobines(selectedBobines: BobineFilleClichePose[]): string {
@@ -89,7 +89,7 @@ function testCompatibilityExists(): void {
   tests.forEach(test => {
     const res = compatibilityExists(test.selected, test.selectable, test.refente);
     if (!isEqual(res, test.expected)) {
-      console.log('Error with test testCompatibilityExists for ', test, res);
+      // console.log('Error with test testCompatibilityExists for ', test, res);
     }
   });
 }
@@ -116,7 +116,7 @@ function testGetSelectedBobinesCombinaison(): void {
   tests.forEach(test => {
     const res = resultToString(getSelectedBobinesCombinaison(test.selected));
     if (res !== test.expected) {
-      console.log('Error with test for testGetSelectedBobinesCombinaison', test, res);
+      // console.log('Error with test for testGetSelectedBobinesCombinaison', test, res);
     }
   });
 }
@@ -188,7 +188,7 @@ function testApplyBobinesOnRefente(): void {
   tests.forEach(test => {
     const res = applyBobinesOnRefente(test.bobines, test.refente);
     if (res !== test.expected) {
-      console.log('Error with test for testApplyBobinesOnRefente', test, res);
+      // console.log('Error with test for testApplyBobinesOnRefente', test, res);
     }
   });
 }
@@ -243,7 +243,7 @@ function testUniqByLaizePoseAndColor(): void {
   const expected = expected1.concat(expected3).concat(expected4);
 
   if (!isEqual(res, expected)) {
-    console.log(
+    console.error(
       'Error with test testUniqByLaizePoseAndColor, diff:',
       difference(res, expected),
       difference(expected, res)

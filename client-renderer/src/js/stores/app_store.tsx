@@ -1,4 +1,4 @@
-import {BaseStore} from '@root/stores/store';
+import {BaseStore} from '@shared/store';
 
 export enum AppPage {
   Gestion = 'gestion',

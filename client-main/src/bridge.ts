@@ -1,4 +1,5 @@
 import {db} from '@root/db';
+import {planProductionStore} from '@root/store';
 import {windowManager} from '@root/window_manager';
 
 import {
@@ -16,6 +17,8 @@ import {
   CloseApp,
   ListOperateurs,
   CreateOrUpdateOperateur,
+  CreateNewPlanProduction,
+  GetNewPlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -73,6 +76,18 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     const {windowId} = asMap(params);
     windowManager.closeWindow(asString(windowId, ''));
     return Promise.resolve();
+  }
+
+  // Plan Production
+  if (command === CreateNewPlanProduction) {
+    return planProductionStore.createNewPlan();
+  }
+  if (command === GetNewPlanProduction) {
+    const planProduction = planProductionStore.getPlanProductionState();
+    if (!planProduction) {
+      return Promise.reject('No plan production available');
+    }
+    return Promise.resolve(planProduction);
   }
 
   // Operations Management

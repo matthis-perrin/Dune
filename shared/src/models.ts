@@ -13,6 +13,10 @@ export interface BobineFille {
   localUpdate: Date;
 }
 
+export interface BobineFilleWithPose extends BobineFille {
+  pose: number;
+}
+
 export interface BobineMere {
   ref: string;
   designation?: string;
@@ -113,6 +117,20 @@ export interface Refente {
   localUpdate: Date;
 }
 
+export interface PlanProductionState {
+  selectedPolypro: BobineMere | undefined;
+  selectedPapier: BobineMere | undefined;
+  selectedPerfo: Perfo | undefined;
+  selectedRefente: Refente | undefined;
+  selectedBobines: BobineFilleWithPose[];
+
+  selectablePolypros: BobineMere[];
+  selectablePapiers: BobineMere[];
+  selectablePerfos: Perfo[];
+  selectableRefentes: Refente[];
+  selectableBobines: BobineFilleWithPose[];
+}
+
 export interface Operation {
   id: number;
   description: string;
@@ -184,5 +202,6 @@ export enum ClientAppType {
   ListRefentesApp = 'ListRefentesApp',
   ListOperationsApp = 'ListOperationsApp',
   ViewOperationApp = 'ViewOperationApp',
-  PlanProductionForm = 'PlanProductionForm',
+  PlanProductionEditorApp = 'PlanProductionEditorApp',
+  RefentePickerApp = 'RefentePickerApp',
 }

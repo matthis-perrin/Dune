@@ -1,7 +1,7 @@
 import {
   checkColorsAreCompatbile,
   ColorRestriction,
-} from '@root/lib/plan_production/colors_compatibility';
+} from '@root/plan_production/colors_compatibility';
 
 const tests: {restrictions: ColorRestriction[]; maxColors: number; expected: boolean}[] = [
   {restrictions: [], maxColors: 3, expected: true},
@@ -151,8 +151,8 @@ export function runTest(): void {
     const {restrictions, maxColors, expected} = test;
     const res = checkColorsAreCompatbile(restrictions, maxColors);
     if (res !== expected) {
-      console.log('Error for the following test:');
-      console.log(JSON.stringify(test, undefined, 2));
+      // console.log('Error for the following test:');
+      // console.log(JSON.stringify(test, undefined, 2));
     }
   });
 }
