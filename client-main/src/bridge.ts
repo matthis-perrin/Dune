@@ -14,6 +14,8 @@ import {
   ListOperations,
   CreateOrUpdateOperation,
   CloseApp,
+  ListOperateurs,
+  CreateOrUpdateOperateur,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -86,12 +88,12 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
 
   // Operateurs Management
   if (command === ListOperateurs) {
-    const {localUpdate} = asMap(params);
-    return {data: await listOperateurs(db, asNumber(localUpdate, 0))};
+    // const {localUpdate} = asMap(params);
+    // return {data: await listOperateurs(db, asNumber(localUpdate, 0))};
   }
   if (command === CreateOrUpdateOperateur) {
-    const {operation} = asMap(params);
-    // tslint:disable-next-line:no-unsafe-any
-    return createOrUpdateOperateur(db, operation);
+    // const {operation} = asMap(params);
+    // // tslint:disable-next-line:no-unsafe-any
+    // return createOrUpdateOperateur(db, operation);
   }
 }

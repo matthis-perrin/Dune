@@ -21,3 +21,7 @@ export const CreateOrUpdateOperateur = 'create-or-update-operateur' as BridgeCom
 export const ServerGetStatus = 'server-get-status' as BridgeCommand;
 export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;
 export const ServerClearErrors = 'server-clear-errors' as BridgeCommand;
+
+export type BridgeEvent = string & {_: 'bridgeEvent'};
+
+export const PlanProductionChanged = 'plan-production-changed' as BridgeEvent;

@@ -1,7 +1,7 @@
 import {BrowserWindow} from 'electron';
 import log from 'electron-log';
 
-import {BridgeCommand} from '@shared/bridge/commands';
+import {BridgeCommand, BridgeEvent} from '@shared/bridge/commands';
 import {asFunction, asMap, asString} from '@shared/type_utils';
 
 // tslint:disable-next-line:no-any
@@ -19,6 +19,11 @@ function sendMessage(browserWindow: BrowserWindow, message: string): void {
 
 // tslint:disable-next-line:no-any
 export type BridgeCommandHandler = (command: BridgeCommand, data: any) => Promise<any>;
+
+// tslint:disable-next-line:no-any
+export function sendBridgeEvent(browserWindow: BrowserWindow, event: BridgeEvent, data: any): void {
+  sendMessage(browserWindow, JSON.stringify({event, data}));
+}
 
 export function setupBridge(
   browserWindow: BrowserWindow,

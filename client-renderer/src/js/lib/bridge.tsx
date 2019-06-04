@@ -1,3 +1,5 @@
+import {without} from 'lodash-es';
+
 import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
@@ -14,6 +16,7 @@ import {
   OpenApp,
   CreateOrUpdateOperation,
   CloseApp,
+  BridgeEvent,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -32,8 +35,30 @@ export interface BridgeListResponse<T> {
   localUpdate: number;
 }
 
+// tslint:disable-next-line:no-any
+type EventData = any;
+
 class Bridge {
-  private readonly bridgeTransport = new BridgeTransport();
+  private readonly bridgeTransport = new BridgeTransport(this.handleEvent);
+  private readonly eventListeners = new Map<BridgeEvent, ((data: EventData) => void)[]>();
+
+  private handleEvent(event: BridgeEvent, data: EventData): void {}
+
+  public addEventListener(event: BridgeEvent, listener: (data: EventData) => void): void {
+    const listeners = this.eventListeners.get(event);
+    if (!listeners) {
+      this.eventListeners.set(event, [listener]);
+    } else {
+      listeners.push(listener);
+    }
+  }
+
+  public removeEventListener(event: BridgeEvent, listener: (data: EventData) => void): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      this.eventListeners.set(event, without(listeners, listener));
+    }
+  }
 
   private async listGeneric<T>(
     command: BridgeCommand,

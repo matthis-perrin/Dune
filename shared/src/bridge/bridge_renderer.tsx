@@ -1,4 +1,4 @@
-import {BridgeCommand} from '@shared/bridge/commands';
+import {BridgeCommand, BridgeEvent} from '@shared/bridge/commands';
 import {asMap, asString} from '@shared/type_utils';
 
 const DEFAULT_COMMAND_TIMEOUT_MS = 10000;
@@ -22,7 +22,8 @@ export class BridgeTransport {
     };
   } = {};
 
-  constructor() {
+  // tslint:disable-next-line:no-any
+  constructor(private readonly eventHandler: (event: BridgeEvent, data: any) => void) {
     window.addEventListener(
       'message',
       event => {
@@ -83,6 +84,11 @@ export class BridgeTransport {
     resolve(response);
   }
 
+  // tslint:disable-next-line:no-any
+  private handleEvent(event: BridgeEvent, data: any): void {
+    this.eventHandler(event, data);
+  }
+
   private handleCommandTimingOut(id: string): void {
     this.handleCommandError(id, 'timeout');
   }
@@ -101,18 +107,24 @@ export class BridgeTransport {
     try {
       const bridgeMessageJSON = asMap(JSON.parse(bridgeMessage));
       const id = asString(bridgeMessageJSON.id, undefined);
-      if (!id) {
+      const event = asString(bridgeMessageJSON.event, undefined);
+      if (!id && !event) {
         console.error(
           `Received invalid bridge response (id is not a string): ${bridgeMessageJSON}`
         );
         return;
       }
-      const error = asString(bridgeMessageJSON.error, undefined);
-      if (error) {
-        this.handleCommandError(id, error);
-        return;
+      if (id) {
+        const error = asString(bridgeMessageJSON.error, undefined);
+        if (error) {
+          this.handleCommandError(id, error);
+          return;
+        }
+        this.handleCommandResponse(id, bridgeMessageJSON.response);
+      } else if (event) {
+        const eventData = bridgeMessageJSON.data;
+        this.handleEvent(event as BridgeEvent, eventData);
       }
-      this.handleCommandResponse(id, bridgeMessageJSON.response);
     } catch {
       console.error(`Received invalid bridge message (message is not a valid JSON): ${data}`);
       return;
