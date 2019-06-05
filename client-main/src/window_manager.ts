@@ -102,7 +102,7 @@ class WindowManager {
       return {id: 'plan-production-editor-app', size: {width: 1200, height: 900}};
     }
     if (appInfo.type === ClientAppType.RefentePickerApp) {
-      return {id: 'refente-picker-app', size: {width: 1200}};
+      return {id: 'refente-picker-app', size: {width: 700}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};

@@ -35,7 +35,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge
       .getPlanProduction()
       .then(planProduction => this.setState({planProduction}))
-      .catch(err => console.error);
+      .catch(err => console.error(err));
   };
 
   public render(): JSX.Element {

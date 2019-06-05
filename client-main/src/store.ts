@@ -6,7 +6,6 @@ import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listCliches} from '@shared/db/cliches';
 import {listPerfos} from '@shared/db/perfos';
 import {listRefentes} from '@shared/db/refentes';
-import {PlanProductionState} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 class PlanProductionStore extends BaseStore {
@@ -27,12 +26,12 @@ class PlanProductionStore extends BaseStore {
       cliches,
       refentes,
       perfos,
-      this.emit
+      () => this.emit()
     );
   }
 
-  public getPlanProductionState(): PlanProductionState | undefined {
-    return this.planProductionEngine && this.planProductionEngine.getPlanProductionState();
+  public getEngine(): PlanProductionEngine | undefined {
+    return this.planProductionEngine;
   }
 }
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {SizeMonitor} from '@root/components/core/size_monitor';
@@ -24,29 +25,59 @@ export class RefentePickerApp extends React.Component<Props> {
   }
 
   private readonly refreshPlanProduction = async (): Promise<void> => {
-    document.title = 'Plan de production';
     const planProduction = await bridge.getPlanProduction();
+    document.title = `Choix de la Refente (${planProduction.selectableRefentes.length})`;
     this.setState({planProd: planProduction});
+  };
+
+  private readonly handleRefenteSelected = (refente: Refente) => {
+    bridge
+      .setPlanRefente(refente.ref)
+      .then(() => {
+        bridge.closeApp().catch(console.error);
+      })
+      .catch(console.error);
   };
 
   public render(): JSX.Element {
     const {refentes} = this.props;
     return (
-      <SizeMonitor>
-        {width => {
-          const CAPACITE_MACHINE = 980;
-          const pixelPerMM = (width - 2 * theme.page.padding) / CAPACITE_MACHINE;
-          return (
-            <div style={{width}}>
-              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
+      <div>
+        <SizeMonitor>
+          {width => {
+            const CAPACITE_MACHINE = 980;
+            const availableWidth = width - 2 * theme.page.padding;
+            const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+            return (
+              <RefenteList style={{width}}>
                 {refentes.map(r => (
-                  <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                  <RefenteWrapper key={r.ref} onClick={() => this.handleRefenteSelected(r)}>
+                    <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                  </RefenteWrapper>
                 ))}
-              </div>
-            </div>
-          );
-        }}
-      </SizeMonitor>
+              </RefenteList>
+            );
+          }}
+        </SizeMonitor>
+      </div>
     );
   }
 }
+
+const RefenteList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+const RefenteWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  box-sizing: border-box;
+  padding: ${theme.page.padding}px;
+  cursor: pointer;
+  &:hover {
+    background-color: #eeeeee;
+  }
+`;

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {HorizontalCote} from '@root/components/common/cote';
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {theme} from '@root/theme/default';
 
 import {Refente as RefenteModel} from '@shared/models';
@@ -21,9 +23,11 @@ export class Refente extends React.Component<RefenteProps> {
       return <React.Fragment />;
     }
     return (
-      <Decalage style={{width: decalage * pixelPerMM, height: REFENTE_HEIGHT * pixelPerMM}}>
-        {`[${decalage}]`}
-      </Decalage>
+      <HorizontalCote
+        fontSize={theme.refente.baseFontSize * pixelPerMM}
+        size={decalage}
+        pixelPerMM={pixelPerMM}
+      />
     );
   }
 
@@ -32,9 +36,15 @@ export class Refente extends React.Component<RefenteProps> {
     if (!chute) {
       return <React.Fragment />;
     }
+    const basePadding = 6;
     return (
       <Chute style={{width: chute * pixelPerMM, height: REFENTE_HEIGHT * pixelPerMM}}>
-        <ChuteInner>{chute}</ChuteInner>
+        <ChuteInner
+          fontSize={theme.refente.baseFontSize * pixelPerMM}
+          style={{padding: basePadding * pixelPerMM}}
+        >
+          {chute}
+        </ChuteInner>
       </Chute>
     );
   }
@@ -46,8 +56,12 @@ export class Refente extends React.Component<RefenteProps> {
     }
     return (
       <Laize
-        leftBorder={leftBorder}
-        style={{width: laize * pixelPerMM, height: REFENTE_HEIGHT * pixelPerMM}}
+        fontSize={theme.refente.baseFontSize * pixelPerMM}
+        style={{
+          width: laize * pixelPerMM,
+          height: REFENTE_HEIGHT * pixelPerMM,
+          borderLeft: `solid ${leftBorder ? 1 : 0}px ${theme.refente.borderColor}`,
+        }}
       >
         {laize}
       </Laize>
@@ -55,10 +69,10 @@ export class Refente extends React.Component<RefenteProps> {
   }
 
   public render(): JSX.Element {
-    const {refente, pixelPerMM} = this.props;
+    const {refente} = this.props;
 
     return (
-      <RefenteContainer style={{fontSize: theme.refente.baseFontSize * pixelPerMM}}>
+      <RefenteContainer>
         {this.renderChute(refente.chute)}
         {this.renderLaize(refente.laize1, !refente.chute)}
         {this.renderLaize(refente.laize2)}
@@ -77,14 +91,13 @@ const RefenteContainer = styled.div`
   display: flex;
 `;
 
-const Laize = styled.div<{leftBorder?: boolean}>`
+const Laize = styled(AutoFontWeight)`
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   background-color: ${theme.refente.backgroundColor};
   border: solid 1px ${theme.refente.borderColor};
-  border-left: solid ${props => (props.leftBorder ? 1 : 0)}px ${theme.refente.borderColor};
 `;
 
 const Chute = styled.div`
@@ -105,15 +118,7 @@ const Chute = styled.div`
   border: solid 1px ${theme.refente.borderColor};
 `;
 
-const ChuteInner = styled.div`
+const ChuteInner = styled(AutoFontWeight)`
     background-color: ${theme.refente.chuteBackgroundColor}
-    padding: 2px 6px 4px 6px;
     border-radius: 14px;
-`;
-
-const Decalage = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
 `;

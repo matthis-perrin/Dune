@@ -162,7 +162,7 @@ export const theme = {
   refente: {
     borderColor: Colors.black,
     backgroundColor: '#F2F2F2',
-    baseFontSize: 15,
+    baseFontSize: 22,
     chuteBackgroundColor: '#F2F2F2',
     chuteStripeSpacing: 6,
     chuteStripeSize: 1,
@@ -170,13 +170,6 @@ export const theme = {
   },
   form: {
     inputBorderColor: '#7F7F7F',
-  },
-  rightPanel: {
-    width: 480,
-    backgroundColor: Colors.lightGray,
-    padding: 16,
-    animationDuration: 200,
-    shadowSize: 8,
   },
   button: {
     fontSize: 15,

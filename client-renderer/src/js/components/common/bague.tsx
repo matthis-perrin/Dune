@@ -2,6 +2,7 @@ import {range} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {theme} from '@root/theme/default';
 
 interface BagueProps {
@@ -41,10 +42,8 @@ export class Bague extends React.Component<BagueProps> {
           {range(triangleCount).map(() => this.renderTriangle(triangleWidth, triangleHeight, true))}
         </TrianglesContainer>
         <BagueInner
-          style={{
-            fontSize: Math.round(theme.bague.baseFontSize * pixelPerMM),
-            height: height * pixelPerMM - 2 * triangleHeight,
-          }}
+          fontSize={Math.round(theme.bague.baseFontSize * pixelPerMM)}
+          style={{height: height * pixelPerMM - 2 * triangleHeight}}
         >
           {size}
         </BagueInner>
@@ -62,7 +61,7 @@ const BagueContainer = styled.div``;
 const TrianglesContainer = styled.div`
   display: flex;
 `;
-const BagueInner = styled.div`
+const BagueInner = styled(AutoFontWeight)`
   display: flex;
   align-items: center;
   justify-content: center;

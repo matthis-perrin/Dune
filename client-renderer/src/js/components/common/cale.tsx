@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {theme} from '@root/theme/default';
 
 interface CaleProps {
@@ -20,12 +21,9 @@ export class Cale extends React.Component<CaleProps> {
 
     return (
       <CaleContainer
+        fontSize={Math.round(theme.cale.baseFontSize * pixelPerMM)}
         leftBorder={leftBorder}
-        style={{
-          fontSize: Math.round(theme.cale.baseFontSize * pixelPerMM),
-          width,
-          height: height * pixelPerMM,
-        }}
+        style={{width, height: height * pixelPerMM}}
       >
         {size}
       </CaleContainer>
@@ -33,7 +31,7 @@ export class Cale extends React.Component<CaleProps> {
   }
 }
 
-const CaleContainer = styled.div<{leftBorder?: boolean; rightBorder?: boolean}>`
+const CaleContainer = styled(AutoFontWeight)<{leftBorder?: boolean; rightBorder?: boolean}>`
   display: flex;
   align-items: center;
   justify-content: center;

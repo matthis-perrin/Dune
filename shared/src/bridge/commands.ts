@@ -14,6 +14,11 @@ export const CloseApp = 'close-app' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
 export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;
+export const SetPlanPerfo = 'set-plan-perfo' as BridgeCommand;
+export const SetPlanRefente = 'set-plan-refente' as BridgeCommand;
+export const SetPlanPapier = 'set-plan-papier' as BridgeCommand;
+export const SetPlanPolypro = 'set-plan-polypro' as BridgeCommand;
+export const AddPlanBobine = 'add-plan-bobine' as BridgeCommand;
 
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;

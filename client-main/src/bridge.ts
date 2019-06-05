@@ -19,6 +19,11 @@ import {
   CreateOrUpdateOperateur,
   CreateNewPlanProduction,
   GetNewPlanProduction,
+  SetPlanPerfo,
+  SetPlanRefente,
+  SetPlanPapier,
+  SetPlanPolypro,
+  AddPlanBobine,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -83,11 +88,57 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     return planProductionStore.createNewPlan();
   }
   if (command === GetNewPlanProduction) {
-    const planProduction = planProductionStore.getPlanProductionState();
-    if (!planProduction) {
-      return Promise.reject('No plan production available');
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
     }
-    return Promise.resolve(planProduction);
+    return Promise.resolve(engine.getPlanProductionState());
+  }
+
+  if (command === SetPlanPerfo) {
+    const {ref} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.setPerfo(ref);
+    return Promise.resolve();
+  }
+  if (command === SetPlanRefente) {
+    const {ref} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.setRefente(ref);
+    return Promise.resolve();
+  }
+  if (command === SetPlanPapier) {
+    const {ref} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.setPapier(ref);
+    return Promise.resolve();
+  }
+  if (command === SetPlanPolypro) {
+    const {ref} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.setPolypro(ref);
+    return Promise.resolve();
+  }
+  if (command === AddPlanBobine) {
+    const {ref, pose} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.addBobine(ref, pose);
+    return Promise.resolve();
   }
 
   // Operations Management

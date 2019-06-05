@@ -19,6 +19,11 @@ import {
   BridgeEvent,
   CreateNewPlanProduction,
   GetNewPlanProduction,
+  SetPlanPerfo,
+  SetPlanRefente,
+  SetPlanPapier,
+  SetPlanPolypro,
+  AddPlanBobine,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -42,10 +47,12 @@ export interface BridgeListResponse<T> {
 type EventData = any;
 
 class Bridge {
-  private readonly bridgeTransport = new BridgeTransport(this.handleEvent);
+  private readonly bridgeTransport = new BridgeTransport(this.handleEvent.bind(this));
   private readonly eventListeners = new Map<BridgeEvent, ((data: EventData) => void)[]>();
 
-  private handleEvent(event: BridgeEvent, data: EventData): void {}
+  private handleEvent(event: BridgeEvent, data: EventData): void {
+    (this.eventListeners.get(event) || []).forEach(listener => listener(data));
+  }
 
   public addEventListener(event: BridgeEvent, listener: (data: EventData) => void): void {
     const listeners = this.eventListeners.get(event);
@@ -97,6 +104,21 @@ class Bridge {
   }
   public async getPlanProduction(): Promise<PlanProductionState> {
     return this.bridgeTransport.sendBridgeCommand<PlanProductionState>(GetNewPlanProduction);
+  }
+  public async setPlanPerfo(ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPerfo, {ref});
+  }
+  public async setPlanRefente(ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanRefente, {ref});
+  }
+  public async setPlanPapier(ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPapier, {ref});
+  }
+  public async setPlanPolypro(ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPolypro, {ref});
+  }
+  public async addPlanBobine(ref: string, pose: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {ref, pose});
   }
 
   public async viewOperation(operationId: number | undefined): Promise<void> {

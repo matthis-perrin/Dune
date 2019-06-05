@@ -102,32 +102,36 @@ export class PlanProductionEngine {
     };
   }
 
-  public setPerfo(perfo?: Perfo): void {
-    this.planProduction.perfo = perfo;
+  private getByRef<T extends {ref: string}>(all: T[], ref?: string): T | undefined {
+    if (ref === undefined) {
+      return undefined;
+    }
+    return all.filter(item => item.ref === ref)[0];
+  }
+
+  public setPerfo(ref?: string): void {
+    this.planProduction.perfo = this.getByRef(this.selectables.selectablePerfos, ref);
     this.recalculate();
   }
 
-  public setRefente(refente?: RefenteModel): void {
-    this.planProduction.refente =
-      refente && this.selectables.selectableRefentes.filter(r => r.ref === refente.ref)[0];
+  public setRefente(ref?: string): void {
+    this.planProduction.refente = this.getByRef(this.selectables.selectableRefentes, ref);
     this.recalculate();
   }
 
-  public setPapier(papier?: BobineMere): void {
-    this.planProduction.papier =
-      papier && this.selectables.selectablePapiers.filter(p => p.ref === papier.ref)[0];
+  public setPapier(ref?: string): void {
+    this.planProduction.papier = this.getByRef(this.selectables.selectablePapiers, ref);
     this.recalculate();
   }
 
-  public setPolypro(polypro?: BobineMere): void {
-    this.planProduction.polypro =
-      polypro && this.selectables.selectablePolypros.filter(p => p.ref === polypro.ref)[0];
+  public setPolypro(ref?: string): void {
+    this.planProduction.polypro = this.getByRef(this.selectables.selectablePolypros, ref);
     this.recalculate();
   }
 
-  public addBobine(bobine: BobineFilleWithPose): void {
+  public addBobine(ref: string, pose: number): void {
     const firstSelectableBobine = this.selectables.selectableBobinesFilles.filter(
-      b => b.ref === bobine.ref && b.pose === bobine.pose
+      b => b.ref === ref && b.pose === pose
     )[0];
     if (firstSelectableBobine) {
       this.planProduction.bobinesFilles.push(firstSelectableBobine);
@@ -143,8 +147,10 @@ export class PlanProductionEngine {
   // }
 
   public recalculate(): void {
-    this.selectables = this.computeSelectables();
-    this.changeHandler();
+    setTimeout(() => {
+      this.selectables = this.computeSelectables();
+      this.changeHandler();
+    }, 0);
   }
 
   private getSelectedPerfo(): Perfo | undefined {

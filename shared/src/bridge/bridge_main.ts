@@ -14,7 +14,9 @@ function sendError(browserWindow: BrowserWindow, id: string, error: string | und
 }
 
 function sendMessage(browserWindow: BrowserWindow, message: string): void {
-  browserWindow.webContents.send('bridge-message', message);
+  if (!browserWindow.isDestroyed()) {
+    browserWindow.webContents.send('bridge-message', message);
+  }
 }
 
 // tslint:disable-next-line:no-any

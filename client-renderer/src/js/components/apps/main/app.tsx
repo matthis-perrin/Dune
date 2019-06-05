@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import {AdministrationPage} from '@root/components/apps/main/administration/page';
 import {GestionPage} from '@root/components/apps/main/gestion/page';
+import {MainGlobalStyle} from '@root/components/apps/main/main_global_styles';
 import {Sidebar} from '@root/components/apps/main/sidebar/index';
 import {AppPage, appStore} from '@root/stores/app_store';
 
@@ -45,6 +46,7 @@ export class MainApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     return (
       <React.Fragment>
+        <MainGlobalStyle />
         <Sidebar />
         {this.renderPage(<GestionPage />, AppPage.Gestion)}
         {this.renderPage(<AdministrationPage />, AppPage.Administration)}

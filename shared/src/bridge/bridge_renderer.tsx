@@ -125,8 +125,8 @@ export class BridgeTransport {
         const eventData = bridgeMessageJSON.data;
         this.handleEvent(event as BridgeEvent, eventData);
       }
-    } catch {
-      console.error(`Received invalid bridge message (message is not a valid JSON): ${data}`);
+    } catch (err) {
+      console.error(`Error while processing bridge message (invalid JSON?): ${data}`, err);
       return;
     }
   }

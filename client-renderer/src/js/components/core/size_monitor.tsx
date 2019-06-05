@@ -16,14 +16,12 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
 
   public constructor(props: SizeMonitorProps) {
     super(props);
-    this.state = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
+    this.state = this.getState();
   }
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleWindowResize, false);
+    this.handleWindowResize();
   }
 
   public componentWillUnmount(): void {
@@ -35,11 +33,15 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
   }
 
   private readonly handleWindowResize = () => {
-    this.setState({
-      width: window.innerWidth - (this.windowHasVerticalScrollbar ? SCROLLBAR_WIDTH : 0),
-      height: window.innerHeight,
-    });
+    this.setState(this.getState());
   };
+
+  private getState(): SizeMonitorState {
+    return {
+      width: window.innerWidth - (this.windowHasVerticalScrollbar() ? SCROLLBAR_WIDTH : 0),
+      height: window.innerHeight,
+    };
+  }
 
   public render(): JSX.Element {
     const {children} = this.props;
