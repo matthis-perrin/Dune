@@ -6,9 +6,9 @@ import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 interface HorizontalCoteProps {
   size: number; // Actual size of the cote
   pixelPerMM: number;
+  fontSize: number;
   textColor?: string;
   arrowColor?: string;
-  fontSize?: number;
 }
 
 const MIN_LINE_HEIGHT = 1;
@@ -40,7 +40,7 @@ export class HorizontalCote extends React.Component<HorizontalCoteProps> {
   }
 
   public render(): JSX.Element {
-    const {size, pixelPerMM, fontSize = 15, arrowColor = 'black', textColor = 'black'} = this.props;
+    const {size, pixelPerMM, fontSize, arrowColor = 'black', textColor = 'black'} = this.props;
     const width = size * pixelPerMM;
 
     let triangleBase = Math.max(

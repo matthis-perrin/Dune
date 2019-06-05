@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
@@ -42,24 +43,21 @@ export class RefentePickerApp extends React.Component<Props> {
   public render(): JSX.Element {
     const {refentes} = this.props;
     return (
-      <div>
-        <SizeMonitor>
-          {width => {
-            const CAPACITE_MACHINE = 980;
-            const availableWidth = width - 2 * theme.page.padding;
-            const pixelPerMM = availableWidth / CAPACITE_MACHINE;
-            return (
-              <RefenteList style={{width}}>
-                {refentes.map(r => (
-                  <RefenteWrapper key={r.ref} onClick={() => this.handleRefenteSelected(r)}>
-                    <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
-                  </RefenteWrapper>
-                ))}
-              </RefenteList>
-            );
-          }}
-        </SizeMonitor>
-      </div>
+      <SizeMonitor>
+        {width => {
+          const availableWidth = width - 2 * theme.page.padding;
+          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+          return (
+            <RefenteList style={{width}}>
+              {refentes.map(r => (
+                <RefenteWrapper key={r.ref} onClick={() => this.handleRefenteSelected(r)}>
+                  <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                </RefenteWrapper>
+              ))}
+            </RefenteList>
+          );
+        }}
+      </SizeMonitor>
     );
   }
 }

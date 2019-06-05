@@ -1,11 +1,17 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
-import {Button} from '@root/components/core/button';
+import {SelectRefenteButton} from '@root/components/apps/plan_prod_editor/select_buttons';
+import {Refente as RefenteComponent} from '@root/components/common/refente';
+import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {theme} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {ClientAppType, PlanProductionState} from '@shared/models';
+import {PlanProductionState} from '@shared/models';
 
 interface Props {}
 
@@ -38,20 +44,42 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       .catch(err => console.error(err));
   };
 
+  private removeRefente(): void {
+    bridge.setPlanRefente(undefined).catch(console.error);
+  }
+
   public render(): JSX.Element {
     const {planProduction} = this.state;
 
     if (!planProduction) {
       return <LoadingIndicator size="large" />;
     }
+
+    const {selectedRefente, selectableRefentes} = planProduction;
+
     return (
-      <Button
-        onClick={() =>
-          bridge.openApp(ClientAppType.RefentePickerApp, planProduction.selectableRefentes)
-        }
-      >
-        {`Select Refente (${planProduction.selectableRefentes.length})`}
-      </Button>
+      <SizeMonitor>
+        {width => {
+          const availableWidth = width - 2 * theme.page.padding;
+          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+          return (
+            <div style={{padding: theme.page.padding}}>
+              {selectedRefente ? (
+                <ClosableAlignRight onClose={this.removeRefente}>
+                  <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
+                </ClosableAlignRight>
+              ) : (
+                <SelectRefenteButton selectable={selectableRefentes} />
+              )}
+            </div>
+          );
+        }}
+      </SizeMonitor>
     );
   }
 }
+
+const ClosableAlignRight = styled(Closable)`
+  display: flex;
+  justify-content: flex-end;
+`;

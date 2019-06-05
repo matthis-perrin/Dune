@@ -12,8 +12,6 @@ interface RefenteProps {
   pixelPerMM: number;
 }
 
-const REFENTE_HEIGHT = 80;
-
 export class Refente extends React.Component<RefenteProps> {
   public static displayName = 'Refente';
 
@@ -38,7 +36,7 @@ export class Refente extends React.Component<RefenteProps> {
     }
     const basePadding = 6;
     return (
-      <Chute style={{width: chute * pixelPerMM, height: REFENTE_HEIGHT * pixelPerMM}}>
+      <Chute style={{width: chute * pixelPerMM, height: theme.refente.height * pixelPerMM}}>
         <ChuteInner
           fontSize={theme.refente.baseFontSize * pixelPerMM}
           style={{padding: basePadding * pixelPerMM}}
@@ -59,7 +57,7 @@ export class Refente extends React.Component<RefenteProps> {
         fontSize={theme.refente.baseFontSize * pixelPerMM}
         style={{
           width: laize * pixelPerMM,
-          height: REFENTE_HEIGHT * pixelPerMM,
+          height: theme.refente.height * pixelPerMM,
           borderLeft: `solid ${leftBorder ? 1 : 0}px ${theme.refente.borderColor}`,
         }}
       >
