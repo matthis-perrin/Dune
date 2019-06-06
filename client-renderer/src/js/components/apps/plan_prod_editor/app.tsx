@@ -1,7 +1,13 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {SelectRefenteButton} from '@root/components/apps/plan_prod_editor/select_buttons';
+import {
+  SelectRefenteButton,
+  SelectPapierButton,
+  SelectPerfoButton,
+  SelectPolyproButton,
+} from '@root/components/apps/plan_prod_editor/select_buttons';
+import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
@@ -48,6 +54,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanRefente(undefined).catch(console.error);
   }
 
+  private removePerfo(): void {
+    bridge.setPlanPerfo(undefined).catch(console.error);
+  }
+
+  private removePapier(): void {
+    bridge.setPlanPapier(undefined).catch(console.error);
+  }
+
+  private removePolypro(): void {
+    bridge.setPlanPolypro(undefined).catch(console.error);
+  }
+
   public render(): JSX.Element {
     const {planProduction} = this.state;
 
@@ -55,7 +73,16 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       return <LoadingIndicator size="large" />;
     }
 
-    const {selectedRefente, selectableRefentes} = planProduction;
+    const {
+      selectedRefente,
+      selectableRefentes,
+      selectedPapier,
+      selectablePapiers,
+      selectedPerfo,
+      selectablePerfos,
+      selectedPolypro,
+      selectablePolypros,
+    } = planProduction;
 
     return (
       <SizeMonitor>
@@ -70,6 +97,23 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 </ClosableAlignRight>
               ) : (
                 <SelectRefenteButton selectable={selectableRefentes} />
+              )}
+              {selectedPapier ? (
+                <Closable onClose={this.removePapier}>{JSON.stringify(selectedPapier)}</Closable>
+              ) : (
+                <SelectPapierButton selectable={selectablePapiers} />
+              )}
+              {selectedPerfo ? (
+                <Closable onClose={this.removePerfo}>
+                  <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
+                </Closable>
+              ) : (
+                <SelectPerfoButton selectable={selectablePerfos} />
+              )}
+              {selectedPolypro ? (
+                <Closable onClose={this.removePolypro}>{JSON.stringify(selectedPolypro)}</Closable>
+              ) : (
+                <SelectPolyproButton selectable={selectablePolypros} />
               )}
             </div>
           );

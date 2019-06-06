@@ -204,4 +204,7 @@ export enum ClientAppType {
   ViewOperationApp = 'ViewOperationApp',
   PlanProductionEditorApp = 'PlanProductionEditorApp',
   RefentePickerApp = 'RefentePickerApp',
+  PerfoPickerApp = 'PerfoPickerApp',
+  PapierPickerApp = 'PapierPickerApp',
+  PolyproPickerApp = 'PolyproPickerApp',
 }

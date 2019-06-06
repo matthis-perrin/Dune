@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {bridge} from '@root/lib/bridge';
 import {theme} from '@root/theme/default';
 
-import {Refente, ClientAppType} from '@shared/models';
+import {Refente, ClientAppType, Perfo, BobineMere} from '@shared/models';
 
 interface Props<T> {
   title: string;
@@ -21,7 +21,7 @@ class SelectButton<T> extends React.Component<Props<T>> {
 
     return (
       <Wrapper onClick={onClick}>
-        {`Sélectionner ${title}${plural} - ${selectable.length} disponibles`}
+        {`Sélectionner ${title}${plural} - ${selectable.length} compatible`}
       </Wrapper>
     );
   }
@@ -50,6 +50,36 @@ export const SelectRefenteButton = (props: {selectable: Refente[]}) => (
     selectable={props.selectable}
     onClick={() =>
       bridge.openApp(ClientAppType.RefentePickerApp, props.selectable).catch(console.error)
+    }
+  />
+);
+
+export const SelectPerfoButton = (props: {selectable: Perfo[]}) => (
+  <SelectButton
+    title="une perfo"
+    selectable={props.selectable}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PerfoPickerApp, props.selectable).catch(console.error)
+    }
+  />
+);
+
+export const SelectPapierButton = (props: {selectable: BobineMere[]}) => (
+  <SelectButton
+    title="un papier"
+    selectable={props.selectable}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PapierPickerApp, props.selectable).catch(console.error)
+    }
+  />
+);
+
+export const SelectPolyproButton = (props: {selectable: BobineMere[]}) => (
+  <SelectButton
+    title="un polypro"
+    selectable={props.selectable}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PolyproPickerApp, props.selectable).catch(console.error)
     }
   />
 );

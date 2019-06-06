@@ -101,7 +101,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.setPerfo(ref);
+    engine.setPerfo(asString(ref, ''));
     return Promise.resolve();
   }
   if (command === SetPlanRefente) {
@@ -110,7 +110,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.setRefente(ref);
+    engine.setRefente(asString(ref, ''));
     return Promise.resolve();
   }
   if (command === SetPlanPapier) {
@@ -119,7 +119,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.setPapier(ref);
+    engine.setPapier(asString(ref, ''));
     return Promise.resolve();
   }
   if (command === SetPlanPolypro) {
@@ -128,7 +128,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.setPolypro(ref);
+    engine.setPolypro(asString(ref, ''));
     return Promise.resolve();
   }
   if (command === AddPlanBobine) {
@@ -137,7 +137,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.addBobine(ref, pose);
+    engine.addBobine(asString(ref, ''), asNumber(pose, 0));
     return Promise.resolve();
   }
 

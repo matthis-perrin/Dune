@@ -8,7 +8,10 @@ import {ListOperationsApp} from '@root/components/apps/list_operations/app';
 import {ListPerfosApp} from '@root/components/apps/list_perfos/app';
 import {ListRefentesApp} from '@root/components/apps/list_refentes/app';
 import {MainApp} from '@root/components/apps/main/app';
+import {PapierPickerApp} from '@root/components/apps/papier_picker/app';
+import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
 import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
+import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
@@ -16,7 +19,7 @@ import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
 import {storeManager} from '@root/stores/store_manager';
 
-import {ClientAppInfo, ClientAppType, Refente} from '@shared/models';
+import {ClientAppInfo, ClientAppType, Refente, Perfo, BobineMere} from '@shared/models';
 import {asMap, asNumber, asArray} from '@shared/type_utils';
 
 interface Props {
@@ -73,12 +76,25 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ListOperationsApp) {
       return <ListOperationsApp />;
     }
+
     if (type === ClientAppType.PlanProductionEditorApp) {
       return <PlanProdEditorApp />;
     }
     if (type === ClientAppType.RefentePickerApp) {
       const selectableRefentes = asArray<Refente>(data);
       return <RefentePickerApp refentes={selectableRefentes} />;
+    }
+    if (type === ClientAppType.PerfoPickerApp) {
+      const selectablePerfos = asArray<Perfo>(data);
+      return <PerfoPickerApp perfos={selectablePerfos} />;
+    }
+    if (type === ClientAppType.PapierPickerApp) {
+      const selectablePapiers = asArray<BobineMere>(data);
+      return <PapierPickerApp papiers={selectablePapiers} />;
+    }
+    if (type === ClientAppType.PolyproPickerApp) {
+      const selectablePolypros = asArray<BobineMere>(data);
+      return <PolyproPickerApp polypros={selectablePolypros} />;
     }
 
     if (type === ClientAppType.ViewOperationApp) {
