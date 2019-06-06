@@ -20,19 +20,20 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
   }
 
   public componentDidMount(): void {
-    window.addEventListener('resize', this.handleWindowResize, false);
-    this.handleWindowResize();
+    window.addEventListener('resize', this.refreshState, false);
+    new ResizeObserver(this.refreshState).observe(document.body);
+    this.refreshState();
   }
 
   public componentWillUnmount(): void {
-    window.removeEventListener('resize', this.handleWindowResize);
+    window.removeEventListener('resize', this.refreshState);
   }
 
   private windowHasVerticalScrollbar(): boolean {
     return document.body.scrollHeight > window.outerHeight;
   }
 
-  private readonly handleWindowResize = () => {
+  private readonly refreshState = () => {
     this.setState(this.getState());
   };
 

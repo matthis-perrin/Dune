@@ -1,35 +1,24 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Picker} from '@root/components/common/picker';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {refentesStore} from '@root/stores/list_store';
 import {theme} from '@root/theme/default';
 
-import {PlanProductionChanged} from '@shared/bridge/commands';
 import {Refente} from '@shared/models';
 
-interface Props {
-  refentes: Refente[];
-}
+interface Props {}
 
 export class RefentePickerApp extends React.Component<Props> {
   public static displayName = 'RefentePickerApp';
 
-  public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+  constructor(props: Props) {
+    super(props);
   }
-
-  public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
-  }
-
-  private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction();
-    document.title = `Choix de la refente (${planProduction.selectableRefentes.length})`;
-    this.setState({planProd: planProduction});
-  };
 
   private readonly handleRefenteSelected = (refente: Refente) => {
     bridge
@@ -41,23 +30,41 @@ export class RefentePickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
-    const {refentes} = this.props;
     return (
-      <SizeMonitor>
-        {width => {
-          const availableWidth = width - 2 * theme.page.padding;
-          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
-          return (
-            <RefenteList style={{width}}>
-              {refentes.map(r => (
-                <RefenteWrapper key={r.ref} onClick={() => this.handleRefenteSelected(r)}>
-                  <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
-                </RefenteWrapper>
-              ))}
-            </RefenteList>
-          );
-        }}
-      </SizeMonitor>
+      <Picker<Refente>
+        getHash={r => r.ref}
+        getSelectable={p => p.selectableRefentes}
+        store={refentesStore}
+        title="Choix de la refente"
+      >
+        {(elements, isSelectionnable) => (
+          <SizeMonitor>
+            {width => {
+              const availableWidth = width - 2 * theme.page.padding;
+              const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+              return (
+                <RefenteList style={{width}}>
+                  {elements.map(r => {
+                    const enabled = isSelectionnable(r);
+                    return (
+                      <RefenteWrapper
+                        style={{
+                          opacity: enabled ? 1 : 0.35,
+                          pointerEvents: enabled ? 'all' : 'none',
+                        }}
+                        key={r.ref}
+                        onClick={() => this.handleRefenteSelected(r)}
+                      >
+                        <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                      </RefenteWrapper>
+                    );
+                  })}
+                </RefenteList>
+              );
+            }}
+          </SizeMonitor>
+        )}
+      </Picker>
     );
   }
 }
@@ -65,7 +72,6 @@ export class RefentePickerApp extends React.Component<Props> {
 const RefenteList = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
 `;
 
 const RefenteWrapper = styled.div`

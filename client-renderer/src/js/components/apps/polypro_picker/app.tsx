@@ -1,35 +1,26 @@
 import * as React from 'react';
 
+import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {bobinesMeresStore} from '@root/stores/list_store';
+import {theme} from '@root/theme/default';
 
-import {PlanProductionChanged} from '@shared/bridge/commands';
 import {BobineMere} from '@shared/models';
 
-interface Props {
-  polypros: BobineMere[];
-}
+interface Props {}
 
 export class PolyproPickerApp extends React.Component<Props> {
   public static displayName = 'PolyproPickerApp';
 
-  public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+  constructor(props: Props) {
+    super(props);
   }
 
-  public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
-  }
-
-  private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction();
-    document.title = `Choix du polypro (${planProduction.selectablePolypros.length})`;
-    this.setState({planProd: planProduction});
-  };
-
-  private readonly handlePolyproSelected = (refente: BobineMere) => {
+  private readonly handlePolyproSelected = (bobineMere: BobineMere) => {
     bridge
-      .setPlanPolypro(refente.ref)
+      .setPlanPolypro(bobineMere.ref)
       .then(() => {
         bridge.closeApp().catch(console.error);
       })
@@ -37,13 +28,34 @@ export class PolyproPickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
-    const {polypros} = this.props;
     return (
-      <SizeMonitor>
-        {width => {
-          return <div>{`${width}px / ${polypros.length}`}</div>;
-        }}
-      </SizeMonitor>
+      <Picker<BobineMere>
+        getHash={r => r.ref}
+        getSelectable={p => p.selectablePolypros}
+        store={bobinesMeresStore}
+        title="Choix du polypro"
+      >
+        {(elements, isSelectionnable) => (
+          <SizeMonitor>
+            {width => {
+              const availableWidth = width - 2 * theme.page.padding;
+              const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+              return (
+                <div style={{width}}>
+                  {elements.map(polypro => {
+                    const enabled = isSelectionnable(polypro);
+                    return (
+                      <div
+                        onClick={() => this.handlePolyproSelected(polypro)}
+                      >{`${pixelPerMM} / ${enabled} / ${JSON.stringify(polypro)}`}</div>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          </SizeMonitor>
+        )}
+      </Picker>
     );
   }
 }

@@ -2,34 +2,23 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
+import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {perfosStore} from '@root/stores/list_store';
 import {theme} from '@root/theme/default';
 
-import {PlanProductionChanged} from '@shared/bridge/commands';
 import {Perfo} from '@shared/models';
 
-interface Props {
-  perfos: Perfo[];
-}
+interface Props {}
 
 export class PerfoPickerApp extends React.Component<Props> {
   public static displayName = 'PerfoPickerApp';
 
-  public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+  constructor(props: Props) {
+    super(props);
   }
-
-  public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
-  }
-
-  private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction();
-    document.title = `Choix de la perfo (${planProduction.selectablePerfos.length})`;
-    this.setState({planProd: planProduction});
-  };
 
   private readonly handlePerfoSelected = (perfo: Perfo) => {
     bridge
@@ -41,23 +30,41 @@ export class PerfoPickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
-    const {perfos} = this.props;
     return (
-      <SizeMonitor>
-        {width => {
-          const availableWidth = width - 2 * theme.page.padding;
-          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
-          return (
-            <PerfoList style={{width}}>
-              {perfos.map(r => (
-                <PerfoWrapper key={r.ref} onClick={() => this.handlePerfoSelected(r)}>
-                  <PerfoComponent perfo={r} pixelPerMM={pixelPerMM} />
-                </PerfoWrapper>
-              ))}
-            </PerfoList>
-          );
-        }}
-      </SizeMonitor>
+      <Picker<Perfo>
+        getHash={r => r.ref}
+        getSelectable={p => p.selectablePerfos}
+        store={perfosStore}
+        title="Choix de la perfo"
+      >
+        {(elements, isSelectionnable) => (
+          <SizeMonitor>
+            {width => {
+              const availableWidth = width - 2 * theme.page.padding;
+              const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+              return (
+                <PerfoList style={{width}}>
+                  {elements.map(r => {
+                    const enabled = isSelectionnable(r);
+                    return (
+                      <PerfoWrapper
+                        style={{
+                          opacity: enabled ? 1 : 0.35,
+                          pointerEvents: enabled ? 'all' : 'none',
+                        }}
+                        key={r.ref}
+                        onClick={() => this.handlePerfoSelected(r)}
+                      >
+                        <PerfoComponent perfo={r} pixelPerMM={pixelPerMM} />
+                      </PerfoWrapper>
+                    );
+                  })}
+                </PerfoList>
+              );
+            }}
+          </SizeMonitor>
+        )}
+      </Picker>
     );
   }
 }

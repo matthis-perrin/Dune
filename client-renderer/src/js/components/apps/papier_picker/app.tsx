@@ -1,35 +1,26 @@
 import * as React from 'react';
 
+import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {bobinesMeresStore} from '@root/stores/list_store';
+import {theme} from '@root/theme/default';
 
-import {PlanProductionChanged} from '@shared/bridge/commands';
 import {BobineMere} from '@shared/models';
 
-interface Props {
-  papiers: BobineMere[];
-}
+interface Props {}
 
 export class PapierPickerApp extends React.Component<Props> {
   public static displayName = 'PapierPickerApp';
 
-  public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+  constructor(props: Props) {
+    super(props);
   }
 
-  public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
-  }
-
-  private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction();
-    document.title = `Choix du papier (${planProduction.selectablePapiers.length})`;
-    this.setState({planProd: planProduction});
-  };
-
-  private readonly handlePapierSelected = (refente: BobineMere) => {
+  private readonly handlePapierSelected = (bobineMere: BobineMere) => {
     bridge
-      .setPlanPapier(refente.ref)
+      .setPlanPapier(bobineMere.ref)
       .then(() => {
         bridge.closeApp().catch(console.error);
       })
@@ -37,13 +28,34 @@ export class PapierPickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
-    const {papiers} = this.props;
     return (
-      <SizeMonitor>
-        {width => {
-          return <div>{`${width}px / ${papiers.length}`}</div>;
-        }}
-      </SizeMonitor>
+      <Picker<BobineMere>
+        getHash={r => r.ref}
+        getSelectable={p => p.selectablePapiers}
+        store={bobinesMeresStore}
+        title="Choix du papier"
+      >
+        {(elements, isSelectionnable) => (
+          <SizeMonitor>
+            {width => {
+              const availableWidth = width - 2 * theme.page.padding;
+              const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+              return (
+                <div style={{width}}>
+                  {elements.map(papier => {
+                    const enabled = isSelectionnable(papier);
+                    return (
+                      <div
+                        onClick={() => this.handlePapierSelected(papier)}
+                      >{`${pixelPerMM} / ${enabled} / ${JSON.stringify(papier)}`}</div>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          </SizeMonitor>
+        )}
+      </Picker>
     );
   }
 }
