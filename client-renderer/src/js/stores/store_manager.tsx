@@ -9,9 +9,11 @@ import {
   operationsStore,
 } from '@root/stores/list_store';
 
-class StoreManager {
+export type AnyListStore = ListStore<{localUpdate: Date}>;
+
+export class StoreManager {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
-  private readonly stores: ListStore<{localUpdate: Date}>[] = [
+  public static AllStores: AnyListStore[] = [
     bobinesFillesStore,
     bobinesMeresStore,
     clichesStore,
@@ -21,13 +23,15 @@ class StoreManager {
     operationsStore,
   ];
 
+  constructor(private readonly stores: AnyListStore[]) {}
+
   public start(): void {
     this.stores.forEach(store => {
       this.refreshStore(store);
     });
   }
 
-  private refreshStore(store: ListStore<{localUpdate: Date}>): void {
+  private refreshStore(store: AnyListStore): void {
     store
       .refresh()
       .finally(() => {
@@ -38,5 +42,3 @@ class StoreManager {
       .catch(console.error);
   }
 }
-
-export const storeManager = new StoreManager();

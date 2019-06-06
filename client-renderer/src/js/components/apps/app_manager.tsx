@@ -17,7 +17,16 @@ import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
-import {storeManager} from '@root/stores/store_manager';
+import {
+  bobinesFillesStore,
+  bobinesMeresStore,
+  stocksStore,
+  clichesStore,
+  perfosStore,
+  refentesStore,
+  operationsStore,
+} from '@root/stores/list_store';
+import {AnyListStore, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType, Refente, Perfo, BobineMere} from '@shared/models';
 import {asMap, asNumber, asArray} from '@shared/type_utils';
@@ -33,6 +42,7 @@ interface State {
 
 export class AppManager extends React.Component<Props, State> {
   public static displayName = 'AppManager';
+  private storeManager: StoreManager | undefined;
 
   public constructor(props: Props) {
     super(props);
@@ -43,16 +53,61 @@ export class AppManager extends React.Component<Props, State> {
     bridge
       .getAppInfo(this.props.windowId)
       .then(appInfo => {
-        const {type} = appInfo;
-        if (type === ClientAppType.MainApp || type === ClientAppType.ViewOperationApp) {
-          storeManager.start();
-        }
+        this.storeManager = new StoreManager(this.getStoresForApp(appInfo));
+        this.storeManager.start();
         this.setState({appInfo});
       })
       .catch(err => this.setState({error: err as string}));
   }
 
-  private renderApp(appInfo: ClientAppInfo): JSX.Element {
+  private getStoresForApp(appInfo: ClientAppInfo): AnyListStore[] {
+    const {type} = appInfo;
+    if (type === ClientAppType.MainApp) {
+      return StoreManager.AllStores;
+    }
+    if (type === ClientAppType.ListBobinesFillesApp) {
+      return [bobinesFillesStore, stocksStore];
+    }
+    if (type === ClientAppType.ListBobinesMeresApp) {
+      return [bobinesMeresStore, stocksStore];
+    }
+    if (type === ClientAppType.ListClichesApp) {
+      return [clichesStore];
+    }
+    if (type === ClientAppType.ListPerfosApp) {
+      return [perfosStore];
+    }
+    if (type === ClientAppType.ListRefentesApp) {
+      return [refentesStore];
+    }
+    if (type === ClientAppType.ListOperationsApp) {
+      return [operationsStore];
+    }
+
+    if (type === ClientAppType.PlanProductionEditorApp) {
+      return [];
+    }
+    if (type === ClientAppType.RefentePickerApp) {
+      return [refentesStore];
+    }
+    if (type === ClientAppType.PerfoPickerApp) {
+      return [perfosStore];
+    }
+    if (type === ClientAppType.PapierPickerApp) {
+      return [bobinesMeresStore, stocksStore];
+    }
+    if (type === ClientAppType.PolyproPickerApp) {
+      return [bobinesMeresStore, stocksStore];
+    }
+
+    if (type === ClientAppType.ViewOperationApp) {
+      return [];
+    }
+
+    return [];
+  }
+
+  private renderForApp(appInfo: ClientAppInfo): JSX.Element {
     const {data, type} = appInfo;
 
     if (type === ClientAppType.MainApp) {
@@ -121,7 +176,7 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (appInfo) {
-      return this.renderApp(appInfo);
+      return this.renderForApp(appInfo);
     }
 
     return <TempWrapper>Loading...</TempWrapper>;
