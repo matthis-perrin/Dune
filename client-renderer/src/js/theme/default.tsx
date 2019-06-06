@@ -68,7 +68,7 @@ const typography = {
   },
 };
 
-export function getCouleurByName(name: string): string {
+export function getCouleurByName(name?: string): string {
   if (name === 'BLANC') {
     return '#f6f6f6';
   }

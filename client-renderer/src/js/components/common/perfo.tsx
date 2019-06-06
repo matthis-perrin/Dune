@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {Bague} from '@root/components/common/bague';
 import {Cale} from '@root/components/common/cale';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
 import {Perfo as PerfoModel} from '@shared/models';
@@ -39,10 +40,10 @@ export class Perfo extends React.Component<PerfoProps> {
   }
 
   public render(): JSX.Element {
-    const {perfo} = this.props;
+    const {perfo, pixelPerMM} = this.props;
 
     return (
-      <PerfoContainer>
+      <PerfoContainer style={{width: CAPACITE_MACHINE * pixelPerMM}}>
         {this.renderCale(perfo.cale1, true)}
         {this.renderBague(perfo.bague1)}
         {this.renderCale(perfo.cale2)}
@@ -65,4 +66,6 @@ export class Perfo extends React.Component<PerfoProps> {
 const PerfoContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  background-color: #ffbbbb;
 `;

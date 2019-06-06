@@ -7,6 +7,7 @@ import {
   SelectPerfoButton,
   SelectPolyproButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
+import {BobineMere} from '@root/components/common/bobine_mere';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Closable} from '@root/components/core/closable';
@@ -14,7 +15,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme, getCouleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState} from '@shared/models';
@@ -87,10 +88,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     return (
       <SizeMonitor>
         {width => {
-          const availableWidth = width - 2 * theme.page.padding;
+          const availableWidth = width - 4 * theme.page.padding;
           const pixelPerMM = availableWidth / CAPACITE_MACHINE;
           return (
-            <div style={{padding: theme.page.padding}}>
+            <Wrapper>
               {selectedRefente ? (
                 <ClosableAlignRight onClose={this.removeRefente}>
                   <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
@@ -99,7 +100,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <SelectRefenteButton selectable={selectableRefentes} />
               )}
               {selectedPapier ? (
-                <Closable onClose={this.removePapier}>{JSON.stringify(selectedPapier)}</Closable>
+                <Closable onClose={this.removePapier}>
+                  <BobineMere
+                    bobineMere={selectedPapier}
+                    pixelPerMM={pixelPerMM}
+                    decalage={selectedRefente && selectedRefente.decalage}
+                    color={getCouleurByName(selectedPapier.couleurPapier)}
+                  />
+                </Closable>
               ) : (
                 <SelectPapierButton selectable={selectablePapiers} />
               )}
@@ -111,17 +119,31 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <SelectPerfoButton selectable={selectablePerfos} />
               )}
               {selectedPolypro ? (
-                <Closable onClose={this.removePolypro}>{JSON.stringify(selectedPolypro)}</Closable>
+                <Closable onClose={this.removePolypro}>
+                  <BobineMere
+                    bobineMere={selectedPolypro}
+                    pixelPerMM={pixelPerMM}
+                    decalage={selectedRefente && selectedRefente.decalage}
+                    color="#ccc"
+                  />
+                </Closable>
               ) : (
                 <SelectPolyproButton selectable={selectablePolypros} />
               )}
-            </div>
+            </Wrapper>
           );
         }}
       </SizeMonitor>
     );
   }
 }
+
+const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const ClosableAlignRight = styled(Closable)`
   display: flex;

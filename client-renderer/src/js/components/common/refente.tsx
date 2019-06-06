@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {HorizontalCote} from '@root/components/common/cote';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
 import {Refente as RefenteModel} from '@shared/models';
@@ -67,10 +68,10 @@ export class Refente extends React.Component<RefenteProps> {
   }
 
   public render(): JSX.Element {
-    const {refente} = this.props;
+    const {refente, pixelPerMM} = this.props;
 
     return (
-      <RefenteContainer>
+      <RefenteContainer style={{width: CAPACITE_MACHINE * pixelPerMM}}>
         {this.renderChute(refente.chute)}
         {this.renderLaize(refente.laize1, !refente.chute)}
         {this.renderLaize(refente.laize2)}
@@ -87,6 +88,8 @@ export class Refente extends React.Component<RefenteProps> {
 
 const RefenteContainer = styled.div`
   display: flex;
+  justify-content: flex-end;
+  background-color: #bbffbb;
 `;
 
 const Laize = styled(AutoFontWeight)`

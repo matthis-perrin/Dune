@@ -33,6 +33,7 @@ const Wrapper = styled.div`
   justify-content: center;
   width: 100%;
   height: ${theme.refente.height}px;
+  margin: 0 ${theme.page.padding * 2}
   box-sizing: border-box;
   border: dashed 2px #888;
   color: #555;
