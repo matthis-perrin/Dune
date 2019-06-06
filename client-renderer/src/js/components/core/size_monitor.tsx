@@ -9,7 +9,7 @@ interface SizeMonitorState {
   height: number;
 }
 
-const SCROLLBAR_WIDTH = 17;
+export const SCROLLBAR_WIDTH = 17;
 
 export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorState> {
   public static displayName = 'SizeMonitor';
@@ -21,7 +21,8 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.refreshState, false);
-    new ResizeObserver(this.refreshState).observe(document.body);
+    // tslint:disable-next-line:no-any no-unsafe-any
+    new (window as any).ResizeObserver(this.refreshState).observe(document.body);
     this.refreshState();
   }
 
@@ -30,7 +31,7 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
   }
 
   private windowHasVerticalScrollbar(): boolean {
-    return document.body.scrollHeight > window.outerHeight;
+    return document.body.scrollHeight > window.innerHeight;
   }
 
   private readonly refreshState = () => {
@@ -38,8 +39,9 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
   };
 
   private getState(): SizeMonitorState {
+    const hasVerticalScrollbar = this.windowHasVerticalScrollbar();
     return {
-      width: window.innerWidth - (this.windowHasVerticalScrollbar() ? SCROLLBAR_WIDTH : 0),
+      width: window.innerWidth - (hasVerticalScrollbar ? SCROLLBAR_WIDTH : 0),
       height: window.innerHeight,
     };
   }

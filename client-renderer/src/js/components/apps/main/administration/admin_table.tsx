@@ -9,7 +9,8 @@ import {theme} from '@root/theme/default';
 interface Props<T extends {sommeil: boolean}, U> {
   data: T[];
   lastUpdate: number;
-  columns: ColumnMetadata<T, U>[];
+  //tslint:disable-next-line:no-any
+  columns: ColumnMetadata<T, any>[];
   initialSort?: SortInfo;
   title: string;
   headerHeight?: number;
@@ -37,7 +38,7 @@ export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component
                 lastUpdate={lastUpdate}
                 columns={columns}
                 initialSort={{
-                  columnName: 'lastUpdate',
+                  index: 0,
                   asc: false,
                 }}
                 title={title}

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {getPerfoColumns} from '@root/components/table/table_columns';
+import {PerfoColumns} from '@root/components/table/columns';
 import {perfosStore} from '@root/stores/list_store';
 
 import {Perfo} from '@shared/models';
@@ -42,7 +42,30 @@ export class ListPerfosApp extends React.Component<Props, State> {
       return <LoadingTable>Loading...</LoadingTable>;
     }
     return (
-      <AdminTable title="perfo" data={perfos} lastUpdate={lastUpdate} columns={getPerfoColumns()} />
+      <AdminTable
+        title="perfo"
+        data={perfos}
+        lastUpdate={lastUpdate}
+        columns={[
+          PerfoColumns.Ref,
+          PerfoColumns.DecalageInitial,
+          PerfoColumns.Cale1,
+          PerfoColumns.Bague1,
+          PerfoColumns.Cale2,
+          PerfoColumns.Bague2,
+          PerfoColumns.Cale3,
+          PerfoColumns.Bague3,
+          PerfoColumns.Cale4,
+          PerfoColumns.Bague4,
+          PerfoColumns.Cale5,
+          PerfoColumns.Bague5,
+          PerfoColumns.Cale6,
+          PerfoColumns.Bague6,
+          PerfoColumns.Cale7,
+          PerfoColumns.Bague7,
+          PerfoColumns.LastUpdate,
+        ]}
+      />
     );
   }
 }

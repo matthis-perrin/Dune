@@ -14,16 +14,10 @@ import {theme} from '@root/theme/default';
 const {filterIconOpacity, filterIconHoverOpacity, filterIconSelectedOpacity} = theme.table;
 
 export type ColumnSortMode = 'asc' | 'desc' | 'none';
-export enum ColumnType {
-  String,
-  Number,
-  Date,
-  Boolean,
-}
 
 interface ColumnHeaderProps<T, U> {
+  canSort: boolean;
   sort: ColumnSortMode;
-  type: ColumnType;
   title: string;
   isFirst: boolean;
   isLast: boolean;
@@ -85,7 +79,7 @@ export class ColumnHeader<T, U> extends React.Component<
   };
 
   public render(): JSX.Element {
-    const {sort, title, type, isFirst, isLast, data, filter, filterData} = this.props;
+    const {sort, title, isFirst, isLast, data, filter, filterData, canSort} = this.props;
     const {isFilteringOpened, isFilterEnabled} = this.state;
 
     const titleWrapper = <TitleWrapper>{title}</TitleWrapper>;
@@ -126,16 +120,12 @@ export class ColumnHeader<T, U> extends React.Component<
       <React.Fragment />
     );
 
-    const wrapperProps = {isFirst, isLast, onClick: this.handleColumnClick};
-    if (type === ColumnType.Number) {
-      return (
-        <NumberColumnHeaderWrapper {...wrapperProps}>
-          {titleWrapper}
-          {filterButton}
-          {icon}
-        </NumberColumnHeaderWrapper>
-      );
-    }
+    const wrapperProps = {
+      isFirst,
+      isLast,
+      onClick: this.handleColumnClick,
+      style: {cursor: canSort ? 'pointer' : 'default'},
+    };
     return (
       <ColumnHeaderWrapper {...wrapperProps}>
         {titleWrapper}
@@ -178,12 +168,7 @@ const ColumnHeaderWrapper = styled.div`
     padding-left: ${props.isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2}px;
     padding-right: ${props.isLast ? theme.table.headerPadding : theme.table.headerPadding / 2}px;
   `}
-  cursor: pointer;
   font-size: ${theme.table.headerFontSize}px;
   font-weight: ${theme.table.headerFontWeight};
   user-select: none;
-`;
-
-const NumberColumnHeaderWrapper = styled(ColumnHeaderWrapper)`
-  justify-content: flex-end;
 `;

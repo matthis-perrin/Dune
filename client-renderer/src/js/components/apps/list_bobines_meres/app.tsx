@@ -1,8 +1,7 @@
-import {groupBy} from 'lodash-es';
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {getBobineMereColumns} from '@root/components/table/table_columns';
+import {BobineMereColumns} from '@root/components/table/columns';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineMere, Stock} from '@shared/models';
@@ -11,7 +10,7 @@ interface Props {}
 
 interface State {
   bobinesMeres?: BobineMere[];
-  stocks?: {[key: string]: Stock[]};
+  stocks?: Map<string, Stock[]>;
   lastUpdate: number;
 }
 
@@ -45,7 +44,7 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
 
   private readonly handleStocksChange = (): void => {
     this.setState({
-      stocks: groupBy(stocksStore.getData(), 'ref'),
+      stocks: stocksStore.getStockIndex(),
       lastUpdate: this.getLatestLocalUpdate(),
     });
   };
@@ -61,7 +60,16 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
         title="bobine"
         data={bobinesMeres}
         lastUpdate={lastUpdate}
-        columns={getBobineMereColumns(stocks)}
+        columns={[
+          BobineMereColumns.Ref,
+          BobineMereColumns.Designation,
+          BobineMereColumns.Laize,
+          BobineMereColumns.Longueur,
+          BobineMereColumns.CouleurPapier,
+          BobineMereColumns.Grammage,
+          BobineMereColumns.Stock(stocks),
+          BobineMereColumns.LastUpdate,
+        ]}
       />
     );
   }

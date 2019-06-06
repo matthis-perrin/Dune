@@ -48,9 +48,7 @@ export const SelectRefenteButton = (props: {selectable: Refente[]}) => (
   <SelectButton
     title="une refente"
     selectable={props.selectable}
-    onClick={() =>
-      bridge.openApp(ClientAppType.RefentePickerApp, props.selectable).catch(console.error)
-    }
+    onClick={() => bridge.openApp(ClientAppType.RefentePickerApp).catch(console.error)}
   />
 );
 
@@ -58,9 +56,7 @@ export const SelectPerfoButton = (props: {selectable: Perfo[]}) => (
   <SelectButton
     title="une perfo"
     selectable={props.selectable}
-    onClick={() =>
-      bridge.openApp(ClientAppType.PerfoPickerApp, props.selectable).catch(console.error)
-    }
+    onClick={() => bridge.openApp(ClientAppType.PerfoPickerApp).catch(console.error)}
   />
 );
 
@@ -68,9 +64,7 @@ export const SelectPapierButton = (props: {selectable: BobineMere[]}) => (
   <SelectButton
     title="un papier"
     selectable={props.selectable}
-    onClick={() =>
-      bridge.openApp(ClientAppType.PapierPickerApp, props.selectable).catch(console.error)
-    }
+    onClick={() => bridge.openApp(ClientAppType.PapierPickerApp).catch(console.error)}
   />
 );
 
@@ -78,8 +72,6 @@ export const SelectPolyproButton = (props: {selectable: BobineMere[]}) => (
   <SelectButton
     title="un polypro"
     selectable={props.selectable}
-    onClick={() =>
-      bridge.openApp(ClientAppType.PolyproPickerApp, props.selectable).catch(console.error)
-    }
+    onClick={() => bridge.openApp(ClientAppType.PolyproPickerApp).catch(console.error)}
   />
 );

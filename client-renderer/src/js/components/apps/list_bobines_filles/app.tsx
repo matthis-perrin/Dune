@@ -1,8 +1,7 @@
-import {groupBy} from 'lodash-es';
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {getBobineFilleColumns} from '@root/components/table/table_columns';
+import {BobineFilleColumns} from '@root/components/table/columns';
 import {bobinesFillesStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineFille, Stock} from '@shared/models';
@@ -11,7 +10,7 @@ interface Props {}
 
 interface State {
   bobinesFilles?: BobineFille[];
-  stocks?: {[key: string]: Stock[]};
+  stocks?: Map<string, Stock[]>;
   lastUpdate: number;
 }
 
@@ -45,7 +44,7 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
 
   private readonly handleStocksChange = (): void => {
     this.setState({
-      stocks: groupBy(stocksStore.getData(), 'ref'),
+      stocks: stocksStore.getStockIndex(),
       lastUpdate: this.getLatestLocalUpdate(),
     });
   };
@@ -61,7 +60,19 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
         title="bobine"
         data={bobinesFilles}
         lastUpdate={lastUpdate}
-        columns={getBobineFilleColumns(stocks)}
+        columns={[
+          BobineFilleColumns.Ref,
+          BobineFilleColumns.Designation,
+          BobineFilleColumns.Laize,
+          BobineFilleColumns.Longueur,
+          BobineFilleColumns.CouleurPapier,
+          BobineFilleColumns.Grammage,
+          BobineFilleColumns.TypeImpression,
+          BobineFilleColumns.RefCliche1,
+          BobineFilleColumns.RefCliche2,
+          BobineFilleColumns.Stock(stocks),
+          BobineFilleColumns.LastUpdate,
+        ]}
       />
     );
   }

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Picker} from '@root/components/common/picker';
-import {SizeMonitor} from '@root/components/core/size_monitor';
+import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {perfosStore} from '@root/stores/list_store';
@@ -40,7 +40,7 @@ export class PerfoPickerApp extends React.Component<Props> {
         {(elements, isSelectionnable) => (
           <SizeMonitor>
             {width => {
-              const availableWidth = width - 2 * theme.page.padding;
+              const availableWidth = width - 2 * theme.page.padding - SCROLLBAR_WIDTH;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
               return (
                 <PerfoList style={{width}}>

@@ -1,39 +1,15 @@
 import * as React from 'react';
 import {GridChildComponentProps} from 'react-window';
 
-import {ColumnHeader, ColumnSortMode, ColumnType} from '@root/components/table/column';
+import {ColumnHeader, ColumnSortMode} from '@root/components/table/column';
 import {FilterState} from '@root/components/table/column_filters';
 import {VirtualizedTable} from '@root/components/table/virtualized_table';
 import {theme} from '@root/theme/default';
-
-const stringSort = (val1: string, val2: string) =>
-  val1.toLowerCase().localeCompare(val2.toLowerCase());
-const numberSort = (val1: number, val2: number) => val1 - val2;
-const booleanSort = (val1: boolean, val2: boolean) => (val1 && val2 ? 0 : val1 ? 1 : -1);
-const dateSort = (val1: Date, val2: Date) => val1.getTime() - val2.getTime();
 
 // tslint:disable-next-line:no-null-keyword
 const DONT_UPDATE_STATE = null;
 
 type SortFunction<T> = (val1: T, val2: T) => number;
-
-// tslint:disable-next-line:no-any
-function getDefaultSortFunction(columnType: ColumnType): SortFunction<any> {
-  if (columnType === ColumnType.String) {
-    return stringSort;
-  }
-  if (columnType === ColumnType.Number) {
-    return numberSort;
-  }
-  if (columnType === ColumnType.Boolean) {
-    return booleanSort;
-  }
-  if (columnType === ColumnType.Date) {
-    return dateSort;
-  }
-  return stringSort;
-}
-
 type FilterType = 'group';
 
 export interface ColumnFilter<T, U> {
@@ -43,26 +19,26 @@ export interface ColumnFilter<T, U> {
 }
 
 export interface ColumnMetadata<T, U> {
-  name: string;
   title: string;
-  type: ColumnType;
   sortFunction?: SortFunction<T>;
   width?: number;
   filter?: ColumnFilter<T, U>;
-  renderCell?(element: T): JSX.Element | string;
+  renderCell(element: T): JSX.Element | string;
+  getSearchValue?(element: T): string;
 }
 
 export interface SortInfo {
   asc: boolean;
-  columnName: string;
+  index: number;
 }
 
-interface Props<T, U> {
+interface Props<T> {
   width: number;
   height: number;
   data: T[];
   lastUpdate: number;
-  columns: ColumnMetadata<T, U>[];
+  // tslint:disable:no-any
+  columns: ColumnMetadata<T, any>[];
   initialSort?: SortInfo;
   onRowClick(row: T, event: React.MouseEvent): void;
   rowStyles?(element: T): React.CSSProperties;
@@ -75,12 +51,12 @@ interface State<T> {
   hoveredIndex?: number;
 }
 
-export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> {
+export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
   public static displayName = 'SortableTable';
 
   private readonly columnFilters = new Map<number, FilterState<T>>();
 
-  public constructor(props: Props<T, U>) {
+  public constructor(props: Props<T>) {
     super(props);
     const {initialSort, data} = props;
     const sort = initialSort;
@@ -91,7 +67,7 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
     this.recomputeData(this.state.sort);
   }
 
-  public componentDidUpdate(prevProps: Props<T, U>): void {
+  public componentDidUpdate(prevProps: Props<T>): void {
     if (
       prevProps.lastUpdate !== this.props.lastUpdate ||
       prevProps.data.length !== this.props.data.length
@@ -100,9 +76,10 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
     }
   }
 
-  private getColumn(name: string): ColumnMetadata<T, U> | undefined {
-    return this.props.columns.find(c => c.name === name);
-  }
+  // // tslint-disable-next-line:no-any
+  // private getColumn(name: string): ColumnMetadata<T, any> | undefined {
+  //   return this.props.columns.find(c => c.name === name);
+  // }
 
   private sortData(sortInfo?: SortInfo): T[] {
     const {data} = this.props;
@@ -110,32 +87,17 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
     if (!sortInfo) {
       return data;
     }
-    const {columnName, asc} = sortInfo;
-    const column = this.getColumn(columnName);
+    const {index, asc} = sortInfo;
+    const column = this.props.columns[index];
     if (!column) {
       return data;
     }
 
     return data.sort((b1: T, b2: T) => {
-      let sortRes = 0;
-
-      if (column.sortFunction) {
-        sortRes = column.sortFunction(b1, b2);
-      } else {
-        // tslint:disable-next-line:no-any
-        const b1Val = (b1 as any)[column.name];
-        // tslint:disable-next-line:no-any
-        const b2Val = (b2 as any)[column.name];
-        if (b1Val === undefined && b2Val === undefined) {
-          sortRes = 0;
-        } else if (b1Val === undefined && b2Val !== undefined) {
-          sortRes = -1;
-        } else if (b1Val !== undefined && b2Val === undefined) {
-          sortRes = 1;
-        } else {
-          sortRes = getDefaultSortFunction(column.type)(b1Val, b2Val);
-        }
+      if (!column.sortFunction) {
+        return 0;
       }
+      const sortRes = column.sortFunction(b1, b2);
       return asc ? sortRes : -sortRes;
     });
   }
@@ -186,12 +148,11 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
     const isHovered = this.state.hoveredIndex === rowIndex;
 
     const line = this.state.filteredData[rowIndex];
-    const {renderCell, type, name} = columns[columnIndex];
+    const {renderCell} = columns[columnIndex];
     const isFirst = columnIndex === 0;
     const isLast = columnIndex === columns.length - 1;
     const paddingLeft = isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2;
     const paddingRight = isLast ? theme.table.headerPadding : theme.table.headerPadding / 2;
-    const textAlign = type === ColumnType.Number ? 'right' : 'left';
     const backgroundColor = isHovered
       ? theme.table.rowBackgroundColorHovered
       : theme.table.rowBackgroundColor;
@@ -201,7 +162,6 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
       ...style,
       paddingLeft,
       paddingRight,
-      textAlign,
       backgroundColor,
       lineHeight: `${style.height}px`,
       overflow: 'hidden',
@@ -215,18 +175,17 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
       ...additionalStyles,
     };
 
-    let cell = renderCell && renderCell(line);
-    if (!cell) {
-      // tslint:disable-next-line:no-any
-      const unknownValue = (line as any)[name] as unknown;
-      if (type === ColumnType.Date) {
-        cell = <span>{(unknownValue as Date).toLocaleString('fr')}</span>;
-      } else if (type === ColumnType.Boolean) {
-        cell = <span>{(unknownValue as boolean) ? 'OUI' : 'NON'}</span>;
-      } else {
-        cell = <span>{(unknownValue as string) || '-'}</span>;
-      }
-    }
+    // if (!cell) {
+    //   // tslint:disable-next-line:no-any
+    //   const unknownValue = (line as any)[name] as unknown;
+    //   if (type === ColumnType.Date) {
+    //     cell = <span>{(unknownValue as Date).toLocaleString('fr')}</span>;
+    //   } else if (type === ColumnType.Boolean) {
+    //     cell = <span>{(unknownValue as boolean) ? 'OUI' : 'NON'}</span>;
+    //   } else {
+    //     cell = <span>{(unknownValue as string) || '-'}</span>;
+    //   }
+    // }
 
     return (
       <div
@@ -235,7 +194,7 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
         onClick={event => this.props.onRowClick(line, event)}
         style={transformedStyles}
       >
-        {cell}
+        {renderCell(line)}
       </div>
     );
   };
@@ -251,8 +210,9 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
   private readonly renderColumn = (index: number): JSX.Element => {
     const filterState = this.columnFilters.get(index);
     const columnMetadata = this.props.columns[index];
+    const canSort = columnMetadata.sortFunction !== undefined;
     let sort: ColumnSortMode = 'none';
-    if (this.state.sort && this.state.sort.columnName === columnMetadata.name) {
+    if (this.state.sort && this.state.sort.index === index) {
       sort = this.state.sort.asc ? 'asc' : 'desc';
     }
     const isFirst = index === 0;
@@ -262,19 +222,17 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
         isFirst={isFirst}
         isLast={isLast}
         onClick={() => {
-          const columnName = columnMetadata.name;
+          if (columnMetadata.sortFunction === undefined) {
+            return;
+          }
           const newSortInfo = {
-            columnName,
-            asc: !(
-              this.state.sort &&
-              this.state.sort.columnName === columnName &&
-              this.state.sort.asc
-            ),
+            index,
+            asc: !(this.state.sort && this.state.sort.index === index && this.state.sort.asc),
           };
           this.recomputeData(newSortInfo);
         }}
+        canSort={canSort}
         sort={sort}
-        type={columnMetadata.type}
         title={columnMetadata.title}
         filter={columnMetadata.filter}
         data={this.state.sortedData}
@@ -319,7 +277,7 @@ export class SortableTable<T, U> extends React.Component<Props<T, U>, State<T>> 
     return (
       <VirtualizedTable
         width={width}
-        height={height}
+        height={height - theme.table.headerHeight}
         columnCount={this.props.columns.length}
         rowCount={filteredData.length}
         getColumnWidth={this.getColumnWidth}

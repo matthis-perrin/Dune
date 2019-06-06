@@ -30,10 +30,11 @@ export class PapierPickerApp extends React.Component<Props> {
   public render(): JSX.Element {
     return (
       <Picker<BobineMere>
-        getHash={r => r.ref}
+        getHash={p => p.ref}
         getSelectable={p => p.selectablePapiers}
         store={bobinesMeresStore}
         title="Choix du papier"
+        dataFilter={p => p.couleurPapier !== 'POLYPRO'}
       >
         {(elements, isSelectionnable) => (
           <SizeMonitor>

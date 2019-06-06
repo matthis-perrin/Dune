@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
 import {Button} from '@root/components/core/button';
-import {getOperationsColumns} from '@root/components/table/table_columns';
+import {OperationColumns} from '@root/components/table/columns';
 import {bridge} from '@root/lib/bridge';
 import {operationsStore} from '@root/stores/list_store';
 
@@ -54,7 +54,14 @@ export class ListOperationsApp extends React.Component<Props, State> {
           title="opération"
           data={operations}
           lastUpdate={lastUpdate}
-          columns={getOperationsColumns()}
+          columns={[
+            OperationColumns.Id,
+            OperationColumns.Description,
+            OperationColumns.Required,
+            OperationColumns.Constraint,
+            OperationColumns.Duration,
+            OperationColumns.LastUpdate,
+          ]}
           onSelected={this.handleOperationSelected}
           headerHeight={32}
         />

@@ -1,28 +1,34 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {FilterBar} from '@root/components/common/filter_bar';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
 import {ListStore} from '@root/stores/list_store';
+import {theme} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState} from '@shared/models';
 
-interface Props<T extends {localUpdate: Date}> {
+interface Props<T extends {localUpdate: Date; sommeil: boolean}> {
   getSelectable(planProd: PlanProductionState): T[];
   getHash(value: T): string;
   children(elements: T[], isSelectionnable: (element: T) => boolean): JSX.Element;
   store: ListStore<T>;
+  dataFilter?(value: T): boolean;
   title: string;
 }
 
-interface State<T extends {localUpdate: Date}> {
+interface State<T extends {localUpdate: Date; sommeil: boolean}> {
   allElements?: T[];
   planProd?: PlanProductionState;
   filteredElements?: T[];
 }
 
-export class Picker<T extends {localUpdate: Date}> extends React.Component<Props<T>, State<T>> {
+export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends React.Component<
+  Props<T>,
+  State<T>
+> {
   public static displayName = 'Picker';
 
   constructor(props: Props<T>) {
@@ -76,7 +82,7 @@ export class Picker<T extends {localUpdate: Date}> extends React.Component<Props
   };
 
   public render(): JSX.Element {
-    const {children} = this.props;
+    const {children, dataFilter} = this.props;
     const {allElements, planProd, filteredElements = []} = this.state;
 
     if (!allElements || !planProd) {
@@ -84,10 +90,10 @@ export class Picker<T extends {localUpdate: Date}> extends React.Component<Props
     }
 
     return (
-      <React.Fragment>
+      <PickerWrapper>
         {children(filteredElements, this.isSelectionnable)}
         <FilterBar
-          data={allElements}
+          data={allElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
           filters={[
             {
               enableByDefault: true,
@@ -103,7 +109,9 @@ export class Picker<T extends {localUpdate: Date}> extends React.Component<Props
           onChange={this.handleElementsFiltered}
         />
         ;
-      </React.Fragment>
+      </PickerWrapper>
     );
   }
 }
+
+const PickerWrapper = styled.div``;

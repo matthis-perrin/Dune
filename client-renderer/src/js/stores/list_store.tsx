@@ -116,6 +116,22 @@ class StocksStore extends ListStore<Stock> {
   public getId(element: Stock): string {
     return element.ref;
   }
+  public getStockIndex(): Map<string, Stock[]> | undefined {
+    const stocks = this.getData();
+    if (stocks === undefined) {
+      return undefined;
+    }
+    const stockIndex = new Map<string, Stock[]>();
+    for (const stock of stocks) {
+      const currentStock = stockIndex.get(stock.ref);
+      if (!currentStock) {
+        stockIndex.set(stock.ref, [stock]);
+      } else {
+        currentStock.push(stock);
+      }
+    }
+    return stockIndex;
+  }
 }
 export const stocksStore = new StocksStore();
 

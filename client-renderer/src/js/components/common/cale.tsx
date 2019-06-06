@@ -16,14 +16,18 @@ export class Cale extends React.Component<CaleProps> {
   public static displayName = 'Cale';
 
   public render(): JSX.Element {
-    const {size, pixelPerMM, height, leftBorder} = this.props;
+    const {size, pixelPerMM, height, leftBorder, rightBorder} = this.props;
     const width = size * pixelPerMM;
 
     return (
       <CaleContainer
         fontSize={Math.round(theme.cale.baseFontSize * pixelPerMM)}
-        leftBorder={leftBorder}
-        style={{width, height: height * pixelPerMM}}
+        style={{
+          width,
+          height: height * pixelPerMM,
+          borderLeft: `solid ${leftBorder ? 1 : 0}px ${theme.cale.borderColor}`,
+          borderRight: `solid ${rightBorder ? 1 : 0}px ${theme.cale.borderColor}`,
+        }}
       >
         {size}
       </CaleContainer>
@@ -31,13 +35,11 @@ export class Cale extends React.Component<CaleProps> {
   }
 }
 
-const CaleContainer = styled(AutoFontWeight)<{leftBorder?: boolean; rightBorder?: boolean}>`
+const CaleContainer = styled(AutoFontWeight)`
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: ${theme.cale.backgroundColor};
   border-top: solid 1px ${theme.cale.borderColor};
   border-bottom: solid 1px ${theme.cale.borderColor};
-  border-left: solid ${props => (props.leftBorder ? 1 : 0)}px ${theme.cale.borderColor};
-  border-right: solid ${props => (props.rightBorder ? 1 : 0)}px ${theme.cale.borderColor};
 `;

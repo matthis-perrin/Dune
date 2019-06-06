@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {getRefenteColumns} from '@root/components/table/table_columns';
+import {RefenteColumns} from '@root/components/table/columns';
 import {refentesStore} from '@root/stores/list_store';
 
 import {Refente} from '@shared/models';
@@ -46,7 +46,20 @@ export class ListRefentesApp extends React.Component<Props, State> {
         title="refentes"
         data={refentes}
         lastUpdate={lastUpdate}
-        columns={getRefenteColumns()}
+        columns={[
+          RefenteColumns.Ref,
+          RefenteColumns.RefPerfo,
+          RefenteColumns.Decalage,
+          RefenteColumns.Laize1,
+          RefenteColumns.Laize2,
+          RefenteColumns.Laize3,
+          RefenteColumns.Laize4,
+          RefenteColumns.Laize5,
+          RefenteColumns.Laize6,
+          RefenteColumns.Laize7,
+          RefenteColumns.Chute,
+          RefenteColumns.LastUpdate,
+        ]}
       />
     );
   }

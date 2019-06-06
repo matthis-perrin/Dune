@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {getClicheColumns} from '@root/components/table/table_columns';
+import {ClicheColumns} from '@root/components/table/columns';
 import {clichesStore} from '@root/stores/list_store';
 
 import {Cliche} from '@shared/models';
@@ -46,7 +46,16 @@ export class ListClichesApp extends React.Component<Props, State> {
         title="cliché"
         data={cliches}
         lastUpdate={lastUpdate}
-        columns={getClicheColumns()}
+        columns={[
+          ClicheColumns.Ref,
+          ClicheColumns.Designation,
+          ClicheColumns.NombrePoses,
+          ClicheColumns.Couleur1,
+          ClicheColumns.Couleur2,
+          ClicheColumns.Couleur3,
+          ClicheColumns.ImportanceOrdreCouleurs,
+          ClicheColumns.LastUpdate,
+        ]}
       />
     );
   }

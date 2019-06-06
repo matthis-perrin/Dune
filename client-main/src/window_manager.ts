@@ -108,10 +108,10 @@ class WindowManager {
       return {id: 'perfo-picker-app', size: {width: 1150, height: 750}};
     }
     if (appInfo.type === ClientAppType.PapierPickerApp) {
-      return {id: 'papier-picker-app', size: {width: 700}};
+      return {id: 'papier-picker-app', size: {width: 1200, height: 800}};
     }
     if (appInfo.type === ClientAppType.PolyproPickerApp) {
-      return {id: 'polypro-picker-app', size: {width: 700}};
+      return {id: 'polypro-picker-app', size: {width: 1200, height: 800}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};

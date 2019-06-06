@@ -3,11 +3,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Input} from '@root/components/core/input';
-import {ColumnType} from '@root/components/table/column';
 import {ColumnMetadata, SortableTable, SortInfo} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
-
-import {asString, asMap} from '@shared/type_utils';
 
 export interface TableFilter<T> {
   title: string;
@@ -115,10 +112,9 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
       if (searchValue.length > 0) {
         let hasMatch = false;
         for (const column of columns) {
-          if (column.type === ColumnType.String) {
-            const cellRawValue = asMap(d)[column.name];
-            const value = asString(cellRawValue, undefined);
-            if (value !== undefined && value.toUpperCase().includes(searchValue.toUpperCase())) {
+          if (column.getSearchValue) {
+            const value = column.getSearchValue(d);
+            if (value.toUpperCase().includes(searchValue.toUpperCase())) {
               hasMatch = true;
             }
           }
@@ -145,7 +141,7 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
           columns={columns}
           onRowClick={this.handleRowClick}
           initialSort={{
-            columnName: 'lastUpdate',
+            index: 0,
             asc: false,
           }}
           width={width}

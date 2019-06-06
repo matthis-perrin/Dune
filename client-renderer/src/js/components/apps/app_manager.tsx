@@ -28,8 +28,8 @@ import {
 } from '@root/stores/list_store';
 import {AnyListStore, StoreManager} from '@root/stores/store_manager';
 
-import {ClientAppInfo, ClientAppType, Refente, Perfo, BobineMere} from '@shared/models';
-import {asMap, asNumber, asArray} from '@shared/type_utils';
+import {ClientAppInfo, ClientAppType} from '@shared/models';
+import {asMap, asNumber} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -136,20 +136,16 @@ export class AppManager extends React.Component<Props, State> {
       return <PlanProdEditorApp />;
     }
     if (type === ClientAppType.RefentePickerApp) {
-      const selectableRefentes = asArray<Refente>(data);
-      return <RefentePickerApp refentes={selectableRefentes} />;
+      return <RefentePickerApp />;
     }
     if (type === ClientAppType.PerfoPickerApp) {
-      const selectablePerfos = asArray<Perfo>(data);
-      return <PerfoPickerApp perfos={selectablePerfos} />;
+      return <PerfoPickerApp />;
     }
     if (type === ClientAppType.PapierPickerApp) {
-      const selectablePapiers = asArray<BobineMere>(data);
-      return <PapierPickerApp papiers={selectablePapiers} />;
+      return <PapierPickerApp />;
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      const selectablePolypros = asArray<BobineMere>(data);
-      return <PolyproPickerApp polypros={selectablePolypros} />;
+      return <PolyproPickerApp />;
     }
 
     if (type === ClientAppType.ViewOperationApp) {
