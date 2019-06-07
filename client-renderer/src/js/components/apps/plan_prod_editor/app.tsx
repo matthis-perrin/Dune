@@ -102,14 +102,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               {selectedPapier ? (
                 <Closable onClose={this.removePapier}>
                   <BobineMere
-                    bobineMere={selectedPapier}
+                    size={selectedPapier.laize || 0}
                     pixelPerMM={pixelPerMM}
                     decalage={selectedRefente && selectedRefente.decalage}
                     color={getCouleurByName(selectedPapier.couleurPapier)}
                   />
                 </Closable>
               ) : (
-                <SelectPapierButton selectable={selectablePapiers} />
+                <SelectPapierButton
+                  selectedRefente={selectedRefente}
+                  selectable={selectablePapiers}
+                  pixelPerMM={pixelPerMM}
+                />
               )}
               {selectedPerfo ? (
                 <Closable onClose={this.removePerfo}>
@@ -121,14 +125,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               {selectedPolypro ? (
                 <Closable onClose={this.removePolypro}>
                   <BobineMere
-                    bobineMere={selectedPolypro}
+                    size={selectedPolypro.laize || 0}
                     pixelPerMM={pixelPerMM}
                     decalage={selectedRefente && selectedRefente.decalage}
-                    color="#ccc"
+                    color="#f0f0f0"
                   />
                 </Closable>
               ) : (
-                <SelectPolyproButton selectable={selectablePolypros} />
+                <SelectPolyproButton
+                  selectedRefente={selectedRefente}
+                  selectable={selectablePolypros}
+                  pixelPerMM={pixelPerMM}
+                />
               )}
             </Wrapper>
           );

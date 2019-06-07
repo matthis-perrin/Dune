@@ -1,18 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {BobineMere} from '@root/components/common/bobine_mere';
 import {bridge} from '@root/lib/bridge';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
-import {Refente, ClientAppType, Perfo, BobineMere} from '@shared/models';
+import {Refente, ClientAppType, Perfo, BobineMere as BobineMereModel} from '@shared/models';
 
-interface Props<T> {
+interface SelectButtonProps<T> {
   title: string;
   selectable: T[];
   onClick(): void;
 }
 
-class SelectButton<T> extends React.Component<Props<T>> {
+class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
   public static displayName = 'SelectButton';
 
   public render(): JSX.Element {
@@ -21,7 +23,7 @@ class SelectButton<T> extends React.Component<Props<T>> {
 
     return (
       <Wrapper onClick={onClick}>
-        {`Sélectionner ${title}${plural} - ${selectable.length} compatible`}
+        {`Sélectionner ${title} - ${selectable.length} compatible${plural}`}
       </Wrapper>
     );
   }
@@ -61,18 +63,78 @@ export const SelectPerfoButton = (props: {selectable: Perfo[]}) => (
   />
 );
 
-export const SelectPapierButton = (props: {selectable: BobineMere[]}) => (
-  <SelectButton
+interface SelectBobineMereButtonProps extends SelectButtonProps<BobineMereModel> {
+  selectedRefente?: Refente;
+  pixelPerMM: number;
+}
+
+export class SelectBobineMereButton extends React.Component<
+  SelectBobineMereButtonProps,
+  {isHovered: boolean}
+> {
+  public static displayName = 'SelectBobineMereButton';
+
+  constructor(props: SelectBobineMereButtonProps) {
+    super(props);
+    this.state = {isHovered: false};
+  }
+
+  public render(): JSX.Element {
+    const {selectable, onClick, title, pixelPerMM, selectedRefente} = this.props;
+    const {isHovered} = this.state;
+    const plural = selectable.length > 1 ? 's' : '';
+    const decalage = selectedRefente && selectedRefente.decalage;
+
+    return (
+      <BobineMereWrapper
+        style={{cursor: 'pointer'}}
+        pixelPerMM={pixelPerMM}
+        size={CAPACITE_MACHINE - (decalage || 0)}
+        decalage={decalage}
+        onMouseEnter={() => this.setState({isHovered: true})}
+        onMouseLeave={() => this.setState({isHovered: false})}
+        onClick={onClick}
+        color="transparent"
+        borderColor={isHovered ? '#333' : '#888'}
+        dashed
+      >
+        {`Sélectionner ${title} - ${selectable.length} compatible${plural}`}
+      </BobineMereWrapper>
+    );
+  }
+}
+
+const BobineMereWrapper = styled(BobineMere)`
+  color: #555;
+  font-size: 24px;
+  cursor: pointer;
+  :hover {
+    color: #111;
+  }
+`;
+
+interface SelectPapierPolyproProps {
+  selectable: BobineMereModel[];
+  selectedRefente?: Refente;
+  pixelPerMM: number;
+}
+
+export const SelectPapierButton = (props: SelectPapierPolyproProps) => (
+  <SelectBobineMereButton
     title="un papier"
     selectable={props.selectable}
+    selectedRefente={props.selectedRefente}
+    pixelPerMM={props.pixelPerMM}
     onClick={() => bridge.openApp(ClientAppType.PapierPickerApp).catch(console.error)}
   />
 );
 
-export const SelectPolyproButton = (props: {selectable: BobineMere[]}) => (
-  <SelectButton
+export const SelectPolyproButton = (props: SelectPapierPolyproProps) => (
+  <SelectBobineMereButton
     title="un polypro"
     selectable={props.selectable}
+    selectedRefente={props.selectedRefente}
+    pixelPerMM={props.pixelPerMM}
     onClick={() => bridge.openApp(ClientAppType.PolyproPickerApp).catch(console.error)}
   />
 );

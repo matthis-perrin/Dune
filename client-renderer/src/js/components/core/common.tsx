@@ -1,6 +1,8 @@
 import * as React from 'react';
 import {css} from 'styled-components';
 
+import {Omit} from '@shared/type_utils';
+
 export interface ReactProps {
   children?: React.ReactNode;
   // styles?: React.CSSProperties;
@@ -18,6 +20,12 @@ export interface UIComponentProps {
   paddingBottom?: number | string;
   paddingLeft?: number | string;
 }
+
+export type HTMLDivProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
+export type DivProps = Omit<ReactProps & HTMLDivProps, 'ref'>;
 
 function asPixelString(value: number | string): string {
   if (typeof value === 'string') {

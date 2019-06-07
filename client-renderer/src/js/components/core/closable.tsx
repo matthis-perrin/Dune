@@ -65,6 +65,7 @@ const CloseButton = styled.div`
   right: 0;
   width: 24px;
   height: 24px;
+  z-index: 10;
   cursor: pointer;
   opacity: 0.5;
   fill: #888;
