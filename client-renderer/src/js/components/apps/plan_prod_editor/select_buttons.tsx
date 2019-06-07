@@ -6,6 +6,7 @@ import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
+import {getRefenteSize} from '@shared/lib/refentes';
 import {Refente, ClientAppType, Perfo, BobineMere as BobineMereModel} from '@shared/models';
 
 interface SelectButtonProps<T> {
@@ -33,9 +34,8 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: calc(100% - ${theme.page.padding * 2}px);
   height: ${theme.refente.height}px;
-  margin: 0 ${theme.page.padding * 2}
   box-sizing: border-box;
   border: dashed 2px #888;
   color: #555;
@@ -84,17 +84,21 @@ export class SelectBobineMereButton extends React.Component<
     const {isHovered} = this.state;
     const plural = selectable.length > 1 ? 's' : '';
     const decalage = selectedRefente && selectedRefente.decalage;
+    const size =
+      selectedRefente && decalage
+        ? getRefenteSize(selectedRefente)
+        : CAPACITE_MACHINE - (decalage || 0);
 
     return (
       <BobineMereWrapper
         style={{cursor: 'pointer'}}
         pixelPerMM={pixelPerMM}
-        size={CAPACITE_MACHINE - (decalage || 0)}
+        size={size}
         decalage={decalage}
         onMouseEnter={() => this.setState({isHovered: true})}
         onMouseLeave={() => this.setState({isHovered: false})}
         onClick={onClick}
-        color="transparent"
+        color="#fff"
         borderColor={isHovered ? '#333' : '#888'}
         dashed
       >

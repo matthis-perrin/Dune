@@ -99,6 +99,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               ) : (
                 <SelectRefenteButton selectable={selectableRefentes} />
               )}
+              <Padding />
               {selectedPapier ? (
                 <Closable onClose={this.removePapier}>
                   <BobineMere
@@ -115,6 +116,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   pixelPerMM={pixelPerMM}
                 />
               )}
+              <Padding />
               {selectedPerfo ? (
                 <Closable onClose={this.removePerfo}>
                   <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
@@ -122,6 +124,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               ) : (
                 <SelectPerfoButton selectable={selectablePerfos} />
               )}
+              <Padding />
               {selectedPolypro ? (
                 <Closable onClose={this.removePolypro}>
                   <BobineMere
@@ -145,6 +148,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     );
   }
 }
+
+const Padding = styled.div`
+  height: 24px;
+`;
 
 const Wrapper = styled.div`
   width: 100%;

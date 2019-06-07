@@ -132,7 +132,6 @@ const BobineMereContainer = styled.div`
   justify-content: flex-end;
   align-items: center;
   box-sizing: border-box;
-  background-color: #bbbbff;
 `;
 
 const ChildrenWrapper = styled.div`

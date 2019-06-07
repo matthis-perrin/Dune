@@ -89,7 +89,6 @@ export class Refente extends React.Component<RefenteProps> {
 const RefenteContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  background-color: #bbffbb;
 `;
 
 const Laize = styled(AutoFontWeight)`
