@@ -92,8 +92,8 @@ export class BobineMere extends React.Component<BobineMereProps> {
     const {size, pixelPerMM, decalage, children, style} = this.props;
     const fullWidth = CAPACITE_MACHINE * pixelPerMM;
     const width = (size || 0) * pixelPerMM;
-    const height = 80 * pixelPerMM;
-    const strokeWidth = Math.round(pixelPerMM * 1.5);
+    const height = 100 * pixelPerMM;
+    const strokeWidth = Math.max(1, Math.round(pixelPerMM * 1.5));
     const offset = width * offsetRatio;
 
     const restProps = omit(this.props, [

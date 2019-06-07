@@ -107,7 +107,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     pixelPerMM={pixelPerMM}
                     decalage={selectedRefente && selectedRefente.decalage}
                     color={getCouleurByName(selectedPapier.couleurPapier)}
-                  />
+                  >
+                    {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
+                      selectedPapier.laize
+                    } - Grammage ${selectedPapier.grammage}`}
+                  </BobineMere>
                 </Closable>
               ) : (
                 <SelectPapierButton
@@ -132,7 +136,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     pixelPerMM={pixelPerMM}
                     decalage={selectedRefente && selectedRefente.decalage}
                     color="#f0f0f0"
-                  />
+                  >
+                    {`Polypro ${selectedPolypro.ref} - Largeur ${
+                      selectedPolypro.laize
+                    } - Grammage ${selectedPolypro.grammage}`}
+                  </BobineMere>
                 </Closable>
               ) : (
                 <SelectPolyproButton
