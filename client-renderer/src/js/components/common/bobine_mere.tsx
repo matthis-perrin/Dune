@@ -120,7 +120,7 @@ export class BobineMere extends React.Component<BobineMereProps> {
       >
         {this.draw(width, height, strokeWidth)}
         <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-offset - 2, decalage)}</div>
-        <ChildrenWrapper style={{right: decalage ? offset : 0}}>{children}</ChildrenWrapper>
+        <ChildrenWrapper style={{width, right: decalage ? offset : 0}}>{children}</ChildrenWrapper>
       </BobineMereContainer>
     );
   }
@@ -136,7 +136,6 @@ const BobineMereContainer = styled.div`
 
 const ChildrenWrapper = styled.div`
   position: absolute;
-  left: 0;
   top: 0;
   bottom: 0;
   display: flex;
