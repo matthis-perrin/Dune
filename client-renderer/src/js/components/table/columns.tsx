@@ -8,7 +8,12 @@ import {
 } from '@root/components/common/operation_constraint';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 
-import {Stock, Cliche, OperationConstraint as OperationConstraintModel} from '@shared/models';
+import {
+  Stock,
+  Cliche,
+  OperationConstraint as OperationConstraintModel,
+  POSE_NEUTRE,
+} from '@shared/models';
 
 function getStock<T extends {ref: string}>(data: T, stocks: Map<string, Stock[]>): number {
   const stock = stocks.get(data.ref) || [];
@@ -115,6 +120,16 @@ function renderDate(value?: Date): JSX.Element {
 
 function renderBoolean(value?: boolean): JSX.Element {
   return <span>{value === undefined ? '-' : value ? 'OUI' : 'NON'}</span>;
+}
+
+function renderPoses(poses: number[]): JSX.Element {
+  const hasNeutre = poses.indexOf(POSE_NEUTRE) !== -1;
+  const withoutNeutre = poses.filter(p => p !== POSE_NEUTRE);
+  const poseStr = withoutNeutre.map(String);
+  if (hasNeutre) {
+    poseStr.unshift('neutre');
+  }
+  return renderString(poseStr.join(', '));
 }
 
 // tslint:disable:no-magic-numbers
@@ -364,8 +379,14 @@ export const MULTI_POSE_COLUMN: ColumnMetadata<
 > = {
   title: 'Poses',
   width: 200,
-  renderCell: ({availablePoses, allPoses}) =>
-    renderString(`${availablePoses.join(', ')} (${allPoses.join(', ')})`),
+  renderCell: ({availablePoses, allPoses}) => (
+    <React.Fragment>
+      <span>{renderPoses(availablePoses)}</span>
+      <span> (</span>
+      {renderPoses(allPoses)}
+      <span>)</span>
+    </React.Fragment>
+  ),
   sortFunction: (row1, row2) => sortArrayFunction(row1.allPoses, row2.allPoses, true, numberSort),
   // filter: {
   //   getValue: (row: {pose: number}) => row.pose,
