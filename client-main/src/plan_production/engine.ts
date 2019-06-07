@@ -191,7 +191,14 @@ export class PlanProductionEngine {
     return removeUndefined(
       this.planProduction.bobinesFilles.map(b => {
         const bobine = this.originalBobinesFillesByRef.get(b.ref);
-        return bobine && {...bobine, pose: b.pose};
+        return (
+          bobine && {
+            ...bobine,
+            pose: b.pose,
+            couleursImpression: b.couleursImpression,
+            importanceOrdreCouleurs: b.importanceOrdreCouleurs,
+          }
+        );
       })
     );
   }
@@ -239,8 +246,7 @@ export class PlanProductionEngine {
       const bobineMultiPose = omit(bobinesCliche[0], ['pose']);
       const originalBobine = this.originalBobinesFillesByRef.get(ref);
       if (originalBobine) {
-        const rest = pick(originalBobine, ['sommeil', 'localUpdate', 'lastUpdate']);
-        bobinesMultiPose.push({...bobineMultiPose, ...rest, availablePoses, allPoses});
+        bobinesMultiPose.push({...originalBobine, ...bobineMultiPose, availablePoses, allPoses});
       }
     }
 
