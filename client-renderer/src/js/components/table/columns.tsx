@@ -358,6 +358,20 @@ export const POSE_COLUMN: ColumnMetadata<{pose?: number}, number> = {
   },
 };
 
+export const MULTI_POSE_COLUMN: ColumnMetadata<
+  {availablePoses: number[]; allPoses: number[]},
+  string
+> = {
+  title: 'Poses',
+  width: 200,
+  renderCell: ({availablePoses, allPoses}) =>
+    renderString(`${availablePoses.join(', ')} (${allPoses.join(', ')})`),
+  sortFunction: (row1, row2) => sortArrayFunction(row1.allPoses, row2.allPoses, true, numberSort),
+  // filter: {
+  //   getValue: (row: {pose: number}) => row.pose,
+  // },
+};
+
 export const DECALAGE_INITIAL_COLUMN: ColumnMetadata<{decalageInitial?: number}, number> = {
   title: 'Décalage',
   width: 70,

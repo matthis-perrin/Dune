@@ -51,7 +51,8 @@ export class PlanProductionExplorer {
     refentes: RefenteModel[],
     perfos: Perfo[]
   ) {
-    const clichesByRef = keyBy(cliches, 'ref');
+    const clichesByRef = new Map<string, Cliche>();
+    cliches.forEach(c => clichesByRef.set(c.ref, c));
     const bobinesClichesPoses = flatten(
       bobinesFilles.map(b => getBobineFilleClichePose(b, clichesByRef))
     );

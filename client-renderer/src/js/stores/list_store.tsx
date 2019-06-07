@@ -1,10 +1,24 @@
 import {bridge, BridgeListResponse} from '@root/lib/bridge';
 
-import {BobineFille, BobineMere, Cliche, Perfo, Refente, Stock, Operation} from '@shared/models';
+import {
+  getBobineFillePoses,
+  getBobineFilleCouleursImpression,
+  getBobineFilleImportanceOrdreCouleurs,
+} from '@shared/lib/bobines_filles';
+import {
+  BobineFille,
+  BobineMere,
+  Cliche,
+  Perfo,
+  Refente,
+  Stock,
+  Operation,
+  BobineFilleWithMultiPose,
+} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore {
-  private data?: T[] = undefined;
+  protected data?: T[] = undefined;
   private localUpdate: number = 0;
   private lastCheck: number = 0;
 
@@ -170,3 +184,52 @@ class OperationsStore extends ListStore<Operation> {
   }
 }
 export const operationsStore = new OperationsStore();
+
+class BobinesFillesWithMultiPoseStore extends ListStore<BobineFilleWithMultiPose> {
+  constructor(
+    private readonly _bobinesFillesStore: BobinesFillesStore,
+    private readonly _clichesStore: ClichesStore
+  ) {
+    super();
+    _bobinesFillesStore.addListener(this.recompute);
+    _clichesStore.addListener(this.recompute);
+    this.recompute();
+  }
+
+  public async fetch(): Promise<BridgeListResponse<BobineFilleWithMultiPose>> {
+    return Promise.resolve({data: [], localUpdate: 0});
+  }
+  public getId(element: BobineFilleWithMultiPose): string {
+    return element.ref;
+  }
+
+  private readonly recompute = (): void => {
+    const bobinesFilles = this._bobinesFillesStore.getData();
+    const cliches = this._clichesStore.getData();
+    const bobinesFillesWithMultiPose: BobineFilleWithMultiPose[] = [];
+    const clichesByRef = new Map<string, Cliche>();
+    if (cliches) {
+      cliches.forEach(c => clichesByRef.set(c.ref, c));
+    }
+    if (bobinesFilles) {
+      bobinesFilles.forEach(b => {
+        const poses = getBobineFillePoses(b, clichesByRef);
+        const couleursImpression = getBobineFilleCouleursImpression(b, clichesByRef);
+        const importanceOrdreCouleurs = getBobineFilleImportanceOrdreCouleurs(b, clichesByRef);
+        bobinesFillesWithMultiPose.push({
+          ...b,
+          availablePoses: poses,
+          allPoses: poses,
+          couleursImpression,
+          importanceOrdreCouleurs,
+        });
+      });
+    }
+    this.data = bobinesFillesWithMultiPose;
+    this.emit();
+  };
+}
+export const bobinesFillesWithMultiPoseStore = new BobinesFillesWithMultiPoseStore(
+  bobinesFillesStore,
+  clichesStore
+);

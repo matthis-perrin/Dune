@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {BobinesPickerApp} from '@root/components/apps/bobines_picker/app';
 import {ListBobinesFillesApp} from '@root/components/apps/list_bobines_filles/app';
 import {ListBobinesMeresApp} from '@root/components/apps/list_bobines_meres/app';
 import {ListClichesApp} from '@root/components/apps/list_cliches/app';
@@ -25,6 +26,7 @@ import {
   perfosStore,
   refentesStore,
   operationsStore,
+  bobinesFillesWithMultiPoseStore,
 } from '@root/stores/list_store';
 import {AnyListStore, StoreManager} from '@root/stores/store_manager';
 
@@ -87,6 +89,9 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.PlanProductionEditorApp) {
       return [];
     }
+    if (type === ClientAppType.BobinesPickerApp) {
+      return [bobinesFillesStore, clichesStore, bobinesFillesWithMultiPoseStore, stocksStore];
+    }
     if (type === ClientAppType.RefentePickerApp) {
       return [refentesStore];
     }
@@ -134,6 +139,9 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.PlanProductionEditorApp) {
       return <PlanProdEditorApp />;
+    }
+    if (type === ClientAppType.BobinesPickerApp) {
+      return <BobinesPickerApp />;
     }
     if (type === ClientAppType.RefentePickerApp) {
       return <RefentePickerApp />;

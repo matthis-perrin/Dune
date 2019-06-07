@@ -55,6 +55,14 @@ class WindowManager {
     this.windows.delete(windowId);
   }
 
+  public closeWindowOfType(type: ClientAppType): void {
+    for (let w of this.windows.values()) {
+      if (w.appInfo.type === type) {
+        this.closeWindow(w.id);
+      }
+    }
+  }
+
   public getAppInfo(windowId: string): ClientAppInfo | undefined {
     const windowInfo = this.windows.get(windowId);
     if (!windowInfo) {
@@ -101,8 +109,11 @@ class WindowManager {
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
       return {id: 'plan-production-editor-app', size: {width: 1200, height: 900}};
     }
+    if (appInfo.type === ClientAppType.BobinesPickerApp) {
+      return {id: 'bobines-picker-app', size: {width: 1200, height: 800}};
+    }
     if (appInfo.type === ClientAppType.RefentePickerApp) {
-      return {id: 'refente-picker-app', size: {width: 700}};
+      return {id: 'refente-picker-app', size: {width: 700, height: 800}};
     }
     if (appInfo.type === ClientAppType.PerfoPickerApp) {
       return {id: 'perfo-picker-app', size: {width: 1150, height: 750}};

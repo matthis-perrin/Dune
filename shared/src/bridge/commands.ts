@@ -11,6 +11,7 @@ export const ListRefentes = 'list-refentes' as BridgeCommand;
 export const GetAppInfo = 'get-app-info' as BridgeCommand;
 export const OpenApp = 'open-app' as BridgeCommand;
 export const CloseApp = 'close-app' as BridgeCommand;
+export const CloseAppOfType = 'close-app-of-type' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
 export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;

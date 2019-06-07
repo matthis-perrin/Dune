@@ -13,8 +13,20 @@ export interface BobineFille {
   localUpdate: Date;
 }
 
-export interface BobineFilleWithPose extends BobineFille {
+export const POSE_NEUTRE = 0;
+
+export interface BobineFilleWithPoseBase extends BobineFille {
+  couleursImpression: string[];
+  importanceOrdreCouleurs: boolean;
+}
+
+export interface BobineFilleWithPose extends BobineFilleWithPoseBase {
   pose: number;
+}
+
+export interface BobineFilleWithMultiPose extends BobineFilleWithPoseBase {
+  availablePoses: number[];
+  allPoses: number[];
 }
 
 export interface BobineMere {
@@ -128,7 +140,7 @@ export interface PlanProductionState {
   selectablePapiers: BobineMere[];
   selectablePerfos: Perfo[];
   selectableRefentes: Refente[];
-  selectableBobines: BobineFilleWithPose[];
+  selectableBobines: BobineFilleWithMultiPose[];
 }
 
 export interface Operation {
@@ -203,6 +215,7 @@ export enum ClientAppType {
   ListOperationsApp = 'ListOperationsApp',
   ViewOperationApp = 'ViewOperationApp',
   PlanProductionEditorApp = 'PlanProductionEditorApp',
+  BobinesPickerApp = 'BobinesPickerApp',
   RefentePickerApp = 'RefentePickerApp',
   PerfoPickerApp = 'PerfoPickerApp',
   PapierPickerApp = 'PapierPickerApp',

@@ -7,7 +7,53 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
 import {getRefenteSize} from '@shared/lib/refentes';
-import {Refente, ClientAppType, Perfo, BobineMere as BobineMereModel} from '@shared/models';
+import {
+  Refente,
+  ClientAppType,
+  Perfo,
+  BobineMere as BobineMereModel,
+  BobineFilleWithMultiPose,
+} from '@shared/models';
+
+interface SelectBobineButtonProps {
+  selectable: BobineFilleWithMultiPose[];
+  pixelPerMM: number;
+}
+
+export class SelectBobineButton extends React.Component<SelectBobineButtonProps> {
+  public static displayName = 'SelectBobineButton';
+
+  public render(): JSX.Element {
+    const {selectable, pixelPerMM} = this.props;
+    const plural = selectable.length > 1 ? 's' : '';
+
+    return (
+      <SelectBobineButtonWrapper
+        onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp)}
+        style={{width: CAPACITE_MACHINE * pixelPerMM}}
+      >
+        {`Sélectionner des bobines - ${selectable.length} compatible${plural}`}
+      </SelectBobineButtonWrapper>
+    );
+  }
+}
+
+const SelectBobineButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: ${theme.refente.height}px;
+  box-sizing: border-box;
+  border: dashed 2px #888;
+  color: #555;
+  background-color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  :hover {
+    border: dashed 2px #333;
+    color: #111;
+  }
+`;
 
 interface SelectButtonProps<T> {
   title: string;
@@ -25,7 +71,7 @@ class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
 
     return (
       <SelectButtonWrapper onClick={onClick} style={{width: CAPACITE_MACHINE * pixelPerMM}}>
-        {`Sélectionner ${title} - ${selectable.length} compatible${plural}`}
+        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
       </SelectButtonWrapper>
     );
   }
@@ -115,7 +161,7 @@ export class SelectBobineMereButton extends React.Component<
         borderColor={isHovered ? '#333' : '#888'}
         dashed
       >
-        {`Sélectionner ${title} - ${selectable.length} compatible${plural}`}
+        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
       </BobineMereWrapper>
     );
   }

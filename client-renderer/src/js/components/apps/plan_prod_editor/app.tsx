@@ -6,6 +6,7 @@ import {
   SelectPapierButton,
   SelectPerfoButton,
   SelectPolyproButton,
+  SelectBobineButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
 import {BobineMere, CURVE_EXTRA_SPACE} from '@root/components/common/bobine_mere';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
@@ -19,7 +20,7 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, getCouleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {PlanProductionState} from '@shared/models';
+import {PlanProductionState, ClientAppType} from '@shared/models';
 
 interface Props {}
 
@@ -48,7 +49,12 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     document.title = 'Plan de production';
     bridge
       .getPlanProduction()
-      .then(planProduction => this.setState({planProduction}))
+      .then(planProduction => {
+        this.setState({planProduction});
+        if (planProduction.selectableBobines.length === 0) {
+          bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
+        }
+      })
       .catch(err => console.error(err));
   };
 
@@ -126,6 +132,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     }
 
     const {
+      selectableBobines,
       selectedRefente,
       selectableRefentes,
       selectedPapier,
@@ -145,6 +152,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - CURVE_EXTRA_SPACE);
             const availableWidth = width - 2 * theme.page.padding - leftPadding;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+
+            const bobinesBlock = (
+              <SelectBobineButton selectable={selectableBobines} pixelPerMM={pixelPerMM} />
+            );
 
             const refenteBlock = selectedRefente ? (
               <ClosableAlignRight onClose={this.removeRefente}>
@@ -206,6 +217,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             return (
               <Wrapper style={{width: width - 2 * theme.page.padding}}>
+                <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
+                <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{papierBlock}</div>

@@ -90,12 +90,20 @@ export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends Rea
   };
 
   public render(): JSX.Element {
-    const {children, dataFilter, searchColumns} = this.props;
+    const {children, dataFilter, searchColumns, getSelectable, getHash} = this.props;
     const {allElements, planProd, filteredElements = [], filteredSearchedElements} = this.state;
 
     if (!allElements || !planProd) {
       return <LoadingIndicator size="large" />;
     }
+
+    // Replace elements in `allElements` by the one in `selectable`
+    const selectables = getSelectable(planProd);
+    const selectableHashes = selectables.map(getHash);
+    const mappedElements = allElements.map(e => {
+      const index = selectableHashes.indexOf(getHash(e));
+      return index === -1 ? e : selectables[index];
+    });
 
     return (
       <PickerWrapper>
@@ -110,7 +118,7 @@ export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends Rea
         )}
         {children(filteredSearchedElements || filteredElements, this.isSelectionnable)}
         <FilterBar
-          data={allElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
+          data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
           filters={[
             {
               enableByDefault: true,

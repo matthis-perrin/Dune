@@ -24,6 +24,7 @@ import {
   SetPlanPapier,
   SetPlanPolypro,
   AddPlanBobine,
+  CloseAppOfType,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -82,6 +83,11 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     windowManager.closeWindow(asString(windowId, ''));
     return Promise.resolve();
   }
+  if (command === CloseAppOfType) {
+    const {type} = asMap(params);
+    windowManager.closeWindowOfType(asString(type, '') as ClientAppType);
+    return Promise.resolve();
+  }
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
@@ -138,6 +144,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
       return Promise.reject('No plan production in progress');
     }
     engine.addBobine(asString(ref, ''), asNumber(pose, 0));
+
     return Promise.resolve();
   }
 

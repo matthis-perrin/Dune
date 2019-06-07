@@ -1,4 +1,4 @@
-import {flatten, keyBy} from 'lodash';
+import {flatten, omit, pick} from 'lodash';
 
 import {
   getBobineFilleClichePose,
@@ -13,7 +13,7 @@ import {
 import {getPerfos, isValidPerfo} from '@root/plan_production/data_extraction/perfo';
 import {getRefentes, isValidRefente} from '@root/plan_production/data_extraction/refente';
 import {filterAll} from '@root/plan_production/master_filter';
-import {Selectables, PlanProduction} from '@root/plan_production/models';
+import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
 
 import {
   BobineFille,
@@ -23,8 +23,10 @@ import {
   Refente as RefenteModel,
   PlanProductionState,
   BobineFilleWithPose,
+  BobineFilleWithMultiPose,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
+import {getBobineFillePoses} from '@shared/lib/bobines_filles';
 
 export class PlanProductionEngine {
   private readonly planProduction: PlanProduction;
@@ -39,6 +41,10 @@ export class PlanProductionEngine {
   private readonly originalPerfosByRef: Map<string, Perfo>;
   private readonly originalRefentesByRef: Map<string, RefenteModel>;
   private readonly originalBobinesFillesByRef: Map<string, BobineFille>;
+
+  // More useful info for faster lookup
+  private readonly allClicheByRef: Map<string, Cliche>;
+  private readonly allBobinesFillesPosesByRef: Map<string, number[]>;
 
   // All the elements that can be added to the current PlanProduction
   // without violating any contraints.
@@ -55,14 +61,16 @@ export class PlanProductionEngine {
     private readonly changeHandler: () => void
   ) {
     this.planProduction = {bobinesFilles: []};
-    const clichesByRef = keyBy(cliches, 'ref');
+    this.allClicheByRef = new Map<string, Cliche>();
+    cliches.forEach(c => this.allClicheByRef.set(c.ref, c));
+
     this.originalSelectables = {
       selectablePolypros: getBobinesMeresPolypro(bobinesMeres),
       selectablePapiers: getBobinesMeresPapier(bobinesMeres),
       selectablePerfos: getPerfos(perfos),
       selectableRefentes: getRefentes(refentes),
       selectableBobinesFilles: flatten(
-        bobinesFilles.map(b => getBobineFilleClichePose(b, clichesByRef))
+        bobinesFilles.map(b => getBobineFilleClichePose(b, this.allClicheByRef))
       ),
     };
 
@@ -78,6 +86,12 @@ export class PlanProductionEngine {
     bobinesFilles.forEach(
       b => isValidBobineFille(b) && this.originalBobinesFillesByRef.set(b.ref, b)
     );
+
+    this.allBobinesFillesPosesByRef = new Map<string, number[]>();
+    for (let bobineFille of this.originalBobinesFillesByRef.values()) {
+      const poses = getBobineFillePoses(bobineFille, this.allClicheByRef);
+      this.allBobinesFillesPosesByRef.set(bobineFille.ref, poses);
+    }
 
     this.selectables = this.computeSelectables();
   }
@@ -206,13 +220,31 @@ export class PlanProductionEngine {
     );
   }
 
-  private getSelectableBobines(): BobineFilleWithPose[] {
-    return removeUndefined(
-      this.selectables.selectableBobinesFilles.map(b => {
-        const bobine = this.originalBobinesFillesByRef.get(b.ref);
-        return bobine && {...bobine, pose: b.pose};
-      })
-    );
+  private getSelectableBobines(): BobineFilleWithMultiPose[] {
+    const selectableBobinesByRef = new Map<string, BobineFilleClichePose[]>();
+    this.selectables.selectableBobinesFilles.forEach(bobineCliche => {
+      const current = selectableBobinesByRef.get(bobineCliche.ref);
+      if (!current) {
+        selectableBobinesByRef.set(bobineCliche.ref, [bobineCliche]);
+      } else {
+        current.push(bobineCliche);
+      }
+    });
+
+    const bobinesMultiPose: BobineFilleWithMultiPose[] = [];
+    for (let bobinesCliche of selectableBobinesByRef.values()) {
+      const {ref} = bobinesCliche[0];
+      const availablePoses = bobinesCliche.map(bc => bc.pose);
+      const allPoses = this.allBobinesFillesPosesByRef.get(ref) || [];
+      const bobineMultiPose = omit(bobinesCliche[0], ['pose']);
+      const originalBobine = this.originalBobinesFillesByRef.get(ref);
+      if (originalBobine) {
+        const rest = pick(originalBobine, ['sommeil', 'localUpdate', 'lastUpdate']);
+        bobinesMultiPose.push({...bobineMultiPose, ...rest, availablePoses, allPoses});
+      }
+    }
+
+    return bobinesMultiPose;
   }
 
   private computeSelectables(): Selectables {

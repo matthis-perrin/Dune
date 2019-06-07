@@ -8,6 +8,7 @@ import {
 } from '@root/plan_production/colors_compatibility';
 import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
 import {permutations} from '@root/plan_production/utils';
+import {getPoseSize} from '@shared/lib/cliches';
 
 const MAX_COULEURS_IMPRESSIONS = 3;
 
@@ -88,6 +89,7 @@ export function compatibilityExists(
 
 export function refenteHasSpotForBobine(refente: Refente, bobine: BobineFilleClichePose): boolean {
   const {laize, pose} = bobine;
+  const poseSize = getPoseSize(pose);
   let currentPoseCount = 0;
   for (const refenteLaize of refente.laizes) {
     if (refenteLaize !== laize) {
@@ -95,7 +97,7 @@ export function refenteHasSpotForBobine(refente: Refente, bobine: BobineFilleCli
       continue;
     }
     currentPoseCount++;
-    if (currentPoseCount === pose) {
+    if (currentPoseCount === poseSize) {
       return true;
     }
   }
@@ -116,18 +118,19 @@ export function analyseLaizesLeftOnRefente(
   }
   for (const bobine of selectedBobines) {
     const {laize, pose} = bobine;
+    const poseSize = getPoseSize(pose);
     if (!laizesLeft.has(laize)) {
       return undefined;
     }
     const left = laizesLeft.get(laize) || 0;
-    const newLeft = left - pose;
+    const newLeft = left - poseSize;
     if (newLeft < 0) {
       return undefined;
     }
     if (newLeft === 0) {
       laizesLeft.delete(laize);
     } else {
-      laizesLeft.set(laize, left - pose);
+      laizesLeft.set(laize, left - poseSize);
     }
   }
   return laizesLeft;
@@ -151,7 +154,7 @@ function compatibilityExistsForOrderedBobines(
     return undefined;
   }
   const compatibleSelectableBobines = selectableBobines.filter(
-    b => laizesLeft.get(b.laize) || 0 >= b.pose
+    b => laizesLeft.get(b.laize) || 0 >= getPoseSize(b.pose)
   );
 
   // First we check if the selected bobines can be applied on the refente
@@ -219,7 +222,7 @@ export function getSelectedBobinesCombinaison(
   selectedBobines: BobineFilleClichePose[]
 ): BobineFilleClichePose[][] {
   return uniqBy(permutations(selectedBobines), b =>
-    b.map(bb => `${bb.laize}_${bb.pose}`).join('-')
+    b.map(bb => `${bb.laize}_${getPoseSize(bb.pose)}`).join('-')
   );
 }
 
@@ -237,7 +240,7 @@ export function applyBobinesOnRefenteFromIndex(
 ): RefenteStatus {
   let indexInRefente = startIndex;
   for (const bobine of bobines) {
-    for (let i = 0; i < bobine.pose; i++) {
+    for (let i = 0; i < getPoseSize(bobine.pose); i++) {
       const currentRefenteLaize = refente.laizes[indexInRefente];
       if (currentRefenteLaize !== bobine.laize) {
         return RefenteStatus.INCOMPATIBLE;
@@ -255,7 +258,7 @@ export function applyBobinesOnRefente(
   bobines: BobineFilleClichePose[],
   refente: Refente
 ): RefenteStatus {
-  const bobinesLaizesSum = sum(bobines.map(b => b.pose));
+  const bobinesLaizesSum = sum(bobines.map(b => getPoseSize(b.pose)));
   for (let i = 0; i <= refente.laizes.length - bobinesLaizesSum; i++) {
     const res = applyBobinesOnRefenteFromIndex(bobines, refente, i);
     if (res === RefenteStatus.COMPATIBLE) {

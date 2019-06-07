@@ -24,6 +24,7 @@ import {
   SetPlanPapier,
   SetPlanPolypro,
   AddPlanBobine,
+  CloseAppOfType,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -134,6 +135,9 @@ class Bridge {
   // tslint:disable-next-line:no-any
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(OpenApp, {type, data});
+  }
+  public async closeAppOfType(type: ClientAppType): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CloseAppOfType, {type});
   }
   public async closeApp(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(CloseApp, {windowId: getWindowId()});

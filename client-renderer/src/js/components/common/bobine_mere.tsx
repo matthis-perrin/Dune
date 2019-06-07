@@ -49,7 +49,7 @@ export class BobineMere extends React.Component<BobineMereProps> {
     const workingWidth = width - strokeWidth;
     const workingHeight = height - strokeWidth - sheetExtraHeight;
     const halfStrokeWidth = strokeWidth / 2;
-    const strokeDasharray = dashed ? `${strokeWidth * 5} ${strokeWidth * 2}` : '0';
+    const strokeDasharray = dashed ? `${strokeWidth * 5} ${strokeWidth * 5}` : '0';
 
     const leftBottom = [
       halfStrokeWidth + curveOffset,
@@ -106,12 +106,12 @@ export class BobineMere extends React.Component<BobineMereProps> {
       stroke: borderColor,
       strokeWidth,
       strokeDasharray,
-      strokeLineCap: 'square',
+      strokeLinecap: 'square' as 'square',
     };
 
     return (
       <svg width={width * (1 + CURVE_EXTRA_SPACE)} height={height}>
-        {dashed && false ? <React.Fragment /> : <path d={rectanglePath} {...commonDrawingProps} />}
+        <path d={rectanglePath} {...commonDrawingProps} />
         <path d={path1} {...commonDrawingProps} />
         <path d={path2} {...commonDrawingProps} />
       </svg>

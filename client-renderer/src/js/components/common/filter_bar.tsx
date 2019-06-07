@@ -39,6 +39,17 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     this.props.onChange(filteredData);
   }
 
+  public componentDidUpdate(prevProps: FilterBarProps<T>) {
+    if (this.props.data !== prevProps.data) {
+      const {enabledFilters} = this.state;
+      const filteredData = this.filterData(enabledFilters);
+      if (filteredData !== this.state.filteredData) {
+        this.setState({filteredData});
+        this.props.onChange(filteredData);
+      }
+    }
+  }
+
   private toggleFilter(filter: Filter<T>): void {
     const {onChange} = this.props;
     const {enabledFilters} = this.state;
@@ -50,24 +61,26 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     const filteredData = this.filterData(newEnabledFilters);
 
     this.setState({enabledFilters: newEnabledFilters, filteredData});
-
     onChange(filteredData);
   }
 
   private filterData(enabledFilters: FilterFn<T>[]): T[] {
     const {data, filters = []} = this.props;
-    return data.filter(d => {
-      let isFilteredOut = true;
+
+    const newData = data.filter(d => {
       for (const filter of filters) {
         if (filter.shouldShowElement(d, enabledFilters.indexOf(filter.shouldShowElement) !== -1)) {
-          isFilteredOut = false;
+          return true;
         }
       }
-      if (isFilteredOut) {
-        return false;
-      }
-      return true;
+      return false;
     });
+
+    return this.state &&
+      this.state.filteredData &&
+      newData.length === this.state.filteredData.length
+      ? this.state.filteredData
+      : newData;
   }
 
   private renderFilter(filter: Filter<T>): JSX.Element {
