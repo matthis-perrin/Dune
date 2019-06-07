@@ -160,7 +160,7 @@ export const LAIZE_COLUMN: ColumnMetadata<{laize?: number}, number> = {
 
 export const LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
   title: 'Long.',
-  width: 70,
+  width: 80,
   renderCell: ({longueur}) => renderNumber(longueur),
   sortFunction: (row1, row2) => optionalNumberSort(row1.longueur, row2.longueur),
   filter: {
@@ -181,7 +181,7 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
 
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   title: 'Gram.',
-  width: 70,
+  width: 80,
   renderCell: ({grammage}) => renderNumber(grammage),
   sortFunction: (row1, row2) => optionalNumberSort(row1.grammage, row2.grammage),
   filter: {

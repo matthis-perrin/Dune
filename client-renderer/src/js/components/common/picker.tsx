@@ -2,10 +2,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {FilterBar} from '@root/components/common/filter_bar';
+import {SearchBar} from '@root/components/common/search_bar';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {ListStore} from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState} from '@shared/models';
@@ -17,12 +18,15 @@ interface Props<T extends {localUpdate: Date; sommeil: boolean}> {
   store: ListStore<T>;
   dataFilter?(value: T): boolean;
   title: string;
+  // tslint:disable-next-line:no-any;
+  searchColumns?: ColumnMetadata<T, any>[];
 }
 
 interface State<T extends {localUpdate: Date; sommeil: boolean}> {
   allElements?: T[];
   planProd?: PlanProductionState;
   filteredElements?: T[];
+  filteredSearchedElements?: T[];
 }
 
 export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends React.Component<
@@ -81,9 +85,13 @@ export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends Rea
     this.setState({filteredElements});
   };
 
+  private readonly handleElementsFilteredAndSearched = (filteredSearchedElements: T[]): void => {
+    this.setState({filteredSearchedElements});
+  };
+
   public render(): JSX.Element {
-    const {children, dataFilter} = this.props;
-    const {allElements, planProd, filteredElements = []} = this.state;
+    const {children, dataFilter, searchColumns} = this.props;
+    const {allElements, planProd, filteredElements = [], filteredSearchedElements} = this.state;
 
     if (!allElements || !planProd) {
       return <LoadingIndicator size="large" />;
@@ -91,7 +99,16 @@ export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends Rea
 
     return (
       <PickerWrapper>
-        {children(filteredElements, this.isSelectionnable)}
+        {searchColumns ? (
+          <SearchBar
+            data={filteredElements}
+            columns={searchColumns}
+            onChange={this.handleElementsFilteredAndSearched}
+          />
+        ) : (
+          <React.Fragment />
+        )}
+        {children(filteredSearchedElements || filteredElements, this.isSelectionnable)}
         <FilterBar
           data={allElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
           filters={[

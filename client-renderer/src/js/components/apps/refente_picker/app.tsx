@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {Picker} from '@root/components/common/picker';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
-import {SizeMonitor} from '@root/components/core/size_monitor';
+import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {refentesStore} from '@root/stores/list_store';
@@ -39,11 +39,13 @@ export class RefentePickerApp extends React.Component<Props> {
       >
         {(elements, isSelectionnable) => (
           <SizeMonitor>
-            {width => {
-              const availableWidth = width - 2 * theme.page.padding;
+            {(width, height) => {
+              const filterBarHeight = 32;
+              const availableWidth = width - 2 * theme.page.padding - SCROLLBAR_WIDTH;
+              const availableHeight = height - filterBarHeight;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
               return (
-                <RefenteList style={{width}}>
+                <RefenteList style={{height: availableHeight}}>
                   {elements.map(r => {
                     const enabled = isSelectionnable(r);
                     return (
@@ -72,6 +74,9 @@ export class RefentePickerApp extends React.Component<Props> {
 const RefenteList = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow: auto;
 `;
 
 const RefenteWrapper = styled.div`

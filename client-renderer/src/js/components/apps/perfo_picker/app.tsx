@@ -39,11 +39,13 @@ export class PerfoPickerApp extends React.Component<Props> {
       >
         {(elements, isSelectionnable) => (
           <SizeMonitor>
-            {width => {
+            {(width, height) => {
+              const filterBarHeight = 32;
               const availableWidth = width - 2 * theme.page.padding - SCROLLBAR_WIDTH;
+              const availableHeight = height - filterBarHeight;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
               return (
-                <PerfoList style={{width}}>
+                <PerfoList style={{height: availableHeight}}>
                   {elements.map(r => {
                     const enabled = isSelectionnable(r);
                     return (
@@ -72,6 +74,9 @@ export class PerfoPickerApp extends React.Component<Props> {
 const PerfoList = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow: auto;
 `;
 
 const PerfoWrapper = styled.div`

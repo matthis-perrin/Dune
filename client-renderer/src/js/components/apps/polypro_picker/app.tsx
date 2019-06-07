@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
@@ -55,6 +56,16 @@ export class PolyproPickerApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
+    const columns = [
+      REFERENCE_COLUMN(170),
+      DESIGNATION_COLUMN,
+      LAIZE_COLUMN,
+      LONGUEUR_COLUMN,
+      COULEUR_PAPIER_COLUMN,
+      GRAMMAGE_COLUMN,
+      STOCK_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
+      LAST_UPDATE_COLUMN,
+    ];
     return (
       <Picker<BobineMere>
         getHash={r => r.ref}
@@ -62,52 +73,35 @@ export class PolyproPickerApp extends React.Component<Props, State> {
         store={bobinesMeresStore}
         title="Choix du polypro"
         dataFilter={p => p.couleurPapier === 'POLYPRO'}
+        searchColumns={columns}
       >
         {(elements, isSelectionnable) => (
           <SizeMonitor>
             {(width, height) => {
               const filterBarHeight = 32;
+              const searchBarHeight = 32;
               const availableWidth = width;
-              const availableHeight = height - filterBarHeight;
-              // const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+              const availableHeight = height - filterBarHeight - searchBarHeight;
               return (
-                <SortableTable
-                  width={availableWidth}
-                  height={availableHeight}
-                  data={elements}
-                  lastUpdate={0}
-                  columns={[
-                    REFERENCE_COLUMN(170),
-                    DESIGNATION_COLUMN,
-                    LAIZE_COLUMN,
-                    LONGUEUR_COLUMN,
-                    COULEUR_PAPIER_COLUMN,
-                    GRAMMAGE_COLUMN,
-                    STOCK_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
-                    LAST_UPDATE_COLUMN,
-                  ]}
-                  initialSort={{
-                    index: 0,
-                    asc: true,
-                  }}
-                  onRowClick={this.handlePolyproSelected}
-                  rowStyles={polypro => ({
-                    opacity: isSelectionnable(polypro) ? 1 : 0.5,
-                    pointerEvents: isSelectionnable(polypro) ? 'all' : 'none',
-                  })}
-                />
-
-                // <div style={{width}}>
-
-                //   {elements.map(polypro => {
-                //     const enabled = isSelectionnable(polypro);
-                //     return (
-                //       <div
-                //         onClick={() => this.handlePolyproSelected(polypro)}
-                //       >{`${pixelPerMM} / ${enabled} / ${JSON.stringify(polypro)}`}</div>
-                //     );
-                //   })}
-                // </div>
+                <React.Fragment>
+                  <Padding />
+                  <SortableTable
+                    width={availableWidth}
+                    height={availableHeight}
+                    data={elements}
+                    lastUpdate={0}
+                    columns={columns}
+                    initialSort={{
+                      index: 0,
+                      asc: true,
+                    }}
+                    onRowClick={this.handlePolyproSelected}
+                    rowStyles={polypro => ({
+                      opacity: isSelectionnable(polypro) ? 1 : 0.5,
+                      pointerEvents: isSelectionnable(polypro) ? 'all' : 'none',
+                    })}
+                  />
+                </React.Fragment>
               );
             }}
           </SizeMonitor>
@@ -116,3 +110,7 @@ export class PolyproPickerApp extends React.Component<Props, State> {
     );
   }
 }
+
+const Padding = styled.div`
+  height: 32px;
+`;
