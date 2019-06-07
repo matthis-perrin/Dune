@@ -13,32 +13,33 @@ interface SelectButtonProps<T> {
   title: string;
   selectable: T[];
   onClick(): void;
+  pixelPerMM: number;
 }
 
 class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
   public static displayName = 'SelectButton';
 
   public render(): JSX.Element {
-    const {selectable, onClick, title} = this.props;
+    const {selectable, onClick, title, pixelPerMM} = this.props;
     const plural = selectable.length > 1 ? 's' : '';
 
     return (
-      <Wrapper onClick={onClick}>
+      <SelectButtonWrapper onClick={onClick} style={{width: CAPACITE_MACHINE * pixelPerMM}}>
         {`Sélectionner ${title} - ${selectable.length} compatible${plural}`}
-      </Wrapper>
+      </SelectButtonWrapper>
     );
   }
 }
 
-const Wrapper = styled.div`
+const SelectButtonWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(100% - ${theme.page.padding * 2}px);
   height: ${theme.refente.height}px;
   box-sizing: border-box;
   border: dashed 2px #888;
   color: #555;
+  background-color: #fff;
   font-size: 24px;
   cursor: pointer;
   :hover {
@@ -47,19 +48,31 @@ const Wrapper = styled.div`
   }
 `;
 
-export const SelectRefenteButton = (props: {selectable: Refente[]}) => (
+interface SelectRefenteProps {
+  selectable: Refente[];
+  pixelPerMM: number;
+}
+
+export const SelectRefenteButton = (props: SelectRefenteProps) => (
   <SelectButton
     title="une refente"
     selectable={props.selectable}
     onClick={() => bridge.openApp(ClientAppType.RefentePickerApp).catch(console.error)}
+    pixelPerMM={props.pixelPerMM}
   />
 );
 
-export const SelectPerfoButton = (props: {selectable: Perfo[]}) => (
+interface SelectPerfoProps {
+  selectable: Perfo[];
+  pixelPerMM: number;
+}
+
+export const SelectPerfoButton = (props: SelectPerfoProps) => (
   <SelectButton
     title="une perfo"
     selectable={props.selectable}
     onClick={() => bridge.openApp(ClientAppType.PerfoPickerApp).catch(console.error)}
+    pixelPerMM={props.pixelPerMM}
   />
 );
 

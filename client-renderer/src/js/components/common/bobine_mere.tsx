@@ -16,7 +16,7 @@ interface BobineMereProps extends DivProps {
   dashed?: boolean;
 }
 
-const offsetRatio = 0.02;
+export const CURVE_EXTRA_SPACE = 0.02;
 
 export class BobineMere extends React.Component<BobineMereProps> {
   public static displayName = 'BobineMere';
@@ -37,18 +37,38 @@ export class BobineMere extends React.Component<BobineMereProps> {
     );
   }
 
-  private draw(width: number, height: number, strokeWidth: number): JSX.Element {
+  private draw(
+    width: number,
+    height: number,
+    strokeWidth: number,
+    sheetExtraHeight: number
+  ): JSX.Element {
     const {color = 'white', borderColor = 'black', dashed = false} = this.props;
 
-    const curveOffset = width * offsetRatio;
+    const curveOffset = width * CURVE_EXTRA_SPACE;
     const workingWidth = width - strokeWidth;
-    const workingHeight = height - strokeWidth;
+    const workingHeight = height - strokeWidth - sheetExtraHeight;
     const halfStrokeWidth = strokeWidth / 2;
-    const strokeDasharray = dashed ? `${strokeWidth * 5} ${strokeWidth * 5}` : '0';
+    const strokeDasharray = dashed ? `${strokeWidth * 5} ${strokeWidth * 2}` : '0';
 
-    // const leftTop = [halfStrokeWidth + curveOffset, halfStrokeWidth].join(' ');
-    const leftBottom = [halfStrokeWidth + curveOffset, halfStrokeWidth + workingHeight].join(' ');
-    const rightTop = [halfStrokeWidth + curveOffset + workingWidth, halfStrokeWidth].join(' ');
+    const leftBottom = [
+      halfStrokeWidth + curveOffset,
+      halfStrokeWidth + sheetExtraHeight + workingHeight,
+    ].join(' ');
+    const rightTop = [halfStrokeWidth + workingWidth, halfStrokeWidth + sheetExtraHeight].join(' ');
+
+    const leftTopRectangle = [halfStrokeWidth + curveOffset, halfStrokeWidth].join(' ');
+    const leftMiddleRectangle = [
+      halfStrokeWidth + curveOffset,
+      halfStrokeWidth + sheetExtraHeight + workingHeight / 2,
+    ].join(' ');
+    const rightTopRectangle = [halfStrokeWidth + curveOffset + workingWidth, halfStrokeWidth].join(
+      ' '
+    );
+    const rightMiddleRectangle = [
+      halfStrokeWidth + curveOffset + workingWidth,
+      halfStrokeWidth + sheetExtraHeight + workingHeight / 2,
+    ].join(' ');
     // const rightBottom = [
     //   halfStrokeWidth + curveOffset + workingWidth,
     //   halfStrokeWidth + workingHeight,
@@ -68,22 +88,32 @@ export class BobineMere extends React.Component<BobineMereProps> {
 
     const path2 = [startPath2, ellipsePath1, ellipsePath2].join(' ');
 
+    const startRectangle = `M${rightTopRectangle}`;
+    const leftRectangle = `L ${rightMiddleRectangle}`;
+    const bottomRectangle = `L ${leftMiddleRectangle}`;
+    const rightRectangle = `L ${leftTopRectangle}`;
+    const topRectangle = `L ${rightTopRectangle}`;
+    const rectanglePath = [
+      startRectangle,
+      leftRectangle,
+      bottomRectangle,
+      rightRectangle,
+      topRectangle,
+    ].join(' ');
+
+    const commonDrawingProps = {
+      fill: color,
+      stroke: borderColor,
+      strokeWidth,
+      strokeDasharray,
+      strokeLineCap: 'square',
+    };
+
     return (
-      <svg width={width * (1 + 2 * offsetRatio)} height={height}>
-        <path
-          d={path1}
-          fill={color}
-          stroke={borderColor}
-          strokeWidth={strokeWidth}
-          strokeDasharray={strokeDasharray}
-        />
-        <path
-          d={path2}
-          fill={color}
-          stroke={borderColor}
-          strokeWidth={strokeWidth}
-          strokeDasharray={strokeDasharray}
-        />
+      <svg width={width * (1 + CURVE_EXTRA_SPACE)} height={height}>
+        {dashed && false ? <React.Fragment /> : <path d={rectanglePath} {...commonDrawingProps} />}
+        <path d={path1} {...commonDrawingProps} />
+        <path d={path2} {...commonDrawingProps} />
       </svg>
     );
   }
@@ -94,7 +124,9 @@ export class BobineMere extends React.Component<BobineMereProps> {
     const width = (size || 0) * pixelPerMM;
     const height = 100 * pixelPerMM;
     const strokeWidth = Math.max(1, Math.round(pixelPerMM * 1.5));
-    const offset = width * offsetRatio;
+    // const strokeWidth = Math.max(1, Math.round(pixelPerMM * 5));
+    const offset = width * CURVE_EXTRA_SPACE;
+    const sheetExtraHeight = height * 0.2;
 
     const restProps = omit(this.props, [
       'ref',
@@ -113,14 +145,16 @@ export class BobineMere extends React.Component<BobineMereProps> {
         {...restProps}
         style={{
           ...style,
-          width: fullWidth + 2 * offset,
+          width: fullWidth + offset + strokeWidth,
           height,
-          left: strokeWidth + (decalage ? -offset : 0),
+          left: strokeWidth,
         }}
       >
-        {this.draw(width, height, strokeWidth)}
-        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-offset - 2, decalage)}</div>
-        <ChildrenWrapper style={{width, right: decalage ? offset : 0}}>{children}</ChildrenWrapper>
+        {this.draw(width, height, strokeWidth, sheetExtraHeight)}
+        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-2, decalage)}</div>
+        <ChildrenWrapper style={{width, right: decalage ? offset : 0, top: sheetExtraHeight}}>
+          {children}
+        </ChildrenWrapper>
       </BobineMereContainer>
     );
   }
@@ -136,7 +170,6 @@ const BobineMereContainer = styled.div`
 
 const ChildrenWrapper = styled.div`
   position: absolute;
-  top: 0;
   bottom: 0;
   display: flex;
   align-items: center;

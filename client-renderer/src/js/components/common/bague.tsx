@@ -14,7 +14,12 @@ interface BagueProps {
 export class Bague extends React.Component<BagueProps> {
   public static displayName = 'Bague';
 
-  private renderTriangle(width: number, height: number, pointingUp: boolean): JSX.Element {
+  private renderTriangle(
+    key: string,
+    width: number,
+    height: number,
+    pointingUp: boolean
+  ): JSX.Element {
     const base1 = pointingUp ? [0, height] : [0, 0];
     const base2 = pointingUp ? [width, height] : [width, 0];
     const top = pointingUp ? [width / 2, 0] : [width / 2, height];
@@ -39,7 +44,9 @@ export class Bague extends React.Component<BagueProps> {
     return (
       <BagueContainer style={{width}}>
         <TrianglesContainer>
-          {range(triangleCount).map(() => this.renderTriangle(triangleWidth, triangleHeight, true))}
+          {range(triangleCount).map(index =>
+            this.renderTriangle(`tri-${index}`, triangleWidth, triangleHeight, true)
+          )}
         </TrianglesContainer>
         <BagueInner
           fontSize={Math.round(theme.bague.baseFontSize * pixelPerMM)}
@@ -48,8 +55,8 @@ export class Bague extends React.Component<BagueProps> {
           {size}
         </BagueInner>
         <TrianglesContainer>
-          {range(triangleCount).map(() =>
-            this.renderTriangle(triangleWidth, triangleHeight, false)
+          {range(triangleCount).map(index =>
+            this.renderTriangle(`tri-${index}`, triangleWidth, triangleHeight, false)
           )}
         </TrianglesContainer>
       </BagueContainer>

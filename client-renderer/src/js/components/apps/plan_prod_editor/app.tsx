@@ -7,7 +7,7 @@ import {
   SelectPerfoButton,
   SelectPolyproButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
-import {BobineMere} from '@root/components/common/bobine_mere';
+import {BobineMere, CURVE_EXTRA_SPACE} from '@root/components/common/bobine_mere';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Button} from '@root/components/core/button';
@@ -140,67 +140,79 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       <div>
         <SizeMonitor>
           {width => {
-            const availableWidth = width - 4 * theme.page.padding;
+            // Padding for the extra space taken by the bobine offset
+            const leftPadding =
+              (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - CURVE_EXTRA_SPACE);
+            const availableWidth = width - 2 * theme.page.padding - leftPadding;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+
+            const refenteBlock = selectedRefente ? (
+              <ClosableAlignRight onClose={this.removeRefente}>
+                <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
+              </ClosableAlignRight>
+            ) : (
+              <SelectRefenteButton selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
+            );
+
+            const papierBlock = selectedPapier ? (
+              <Closable onClose={this.removePapier}>
+                <BobineMere
+                  size={selectedPapier.laize || 0}
+                  pixelPerMM={pixelPerMM}
+                  decalage={selectedRefente && selectedRefente.decalage}
+                  color={getCouleurByName(selectedPapier.couleurPapier)}
+                >
+                  {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
+                    selectedPapier.laize
+                  } - Grammage ${selectedPapier.grammage}`}
+                </BobineMere>
+              </Closable>
+            ) : (
+              <SelectPapierButton
+                selectedRefente={selectedRefente}
+                selectable={selectablePapiers}
+                pixelPerMM={pixelPerMM}
+              />
+            );
+
+            const perfoBlock = selectedPerfo ? (
+              <Closable onClose={this.removePerfo}>
+                <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
+              </Closable>
+            ) : (
+              <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
+            );
+
+            const polyproBlock = selectedPolypro ? (
+              <Closable onClose={this.removePolypro}>
+                <BobineMere
+                  size={selectedPolypro.laize || 0}
+                  pixelPerMM={pixelPerMM}
+                  decalage={selectedRefente && selectedRefente.decalage}
+                  color="#f0f0f0"
+                >
+                  {`Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - Grammage ${
+                    selectedPolypro.grammage
+                  }`}
+                </BobineMere>
+              </Closable>
+            ) : (
+              <SelectPolyproButton
+                selectedRefente={selectedRefente}
+                selectable={selectablePolypros}
+                pixelPerMM={pixelPerMM}
+              />
+            );
+
             return (
-              <Wrapper>
-                {selectedRefente ? (
-                  <ClosableAlignRight onClose={this.removeRefente}>
-                    <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
-                  </ClosableAlignRight>
-                ) : (
-                  <SelectRefenteButton selectable={selectableRefentes} />
-                )}
+              <Wrapper style={{width: width - 2 * theme.page.padding}}>
+                <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
                 <Padding />
-                {selectedPapier ? (
-                  <Closable onClose={this.removePapier}>
-                    <BobineMere
-                      size={selectedPapier.laize || 0}
-                      pixelPerMM={pixelPerMM}
-                      decalage={selectedRefente && selectedRefente.decalage}
-                      color={getCouleurByName(selectedPapier.couleurPapier)}
-                    >
-                      {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
-                        selectedPapier.laize
-                      } - Grammage ${selectedPapier.grammage}`}
-                    </BobineMere>
-                  </Closable>
-                ) : (
-                  <SelectPapierButton
-                    selectedRefente={selectedRefente}
-                    selectable={selectablePapiers}
-                    pixelPerMM={pixelPerMM}
-                  />
-                )}
+                <div style={{alignSelf: 'flex-end'}}>{papierBlock}</div>
                 <Padding />
-                {selectedPerfo ? (
-                  <Closable onClose={this.removePerfo}>
-                    <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
-                  </Closable>
-                ) : (
-                  <SelectPerfoButton selectable={selectablePerfos} />
-                )}
+                <div style={{alignSelf: 'flex-start', marginLeft: leftPadding}}>{perfoBlock}</div>
                 <Padding />
-                {selectedPolypro ? (
-                  <Closable onClose={this.removePolypro}>
-                    <BobineMere
-                      size={selectedPolypro.laize || 0}
-                      pixelPerMM={pixelPerMM}
-                      decalage={selectedRefente && selectedRefente.decalage}
-                      color="#f0f0f0"
-                    >
-                      {`Polypro ${selectedPolypro.ref} - Largeur ${
-                        selectedPolypro.laize
-                      } - Grammage ${selectedPolypro.grammage}`}
-                    </BobineMere>
-                  </Closable>
-                ) : (
-                  <SelectPolyproButton
-                    selectedRefente={selectedRefente}
-                    selectable={selectablePolypros}
-                    pixelPerMM={pixelPerMM}
-                  />
-                )}
+                <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
               </Wrapper>
             );
           }}
@@ -220,10 +232,11 @@ const Padding = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: ${theme.page.padding}px;
+  background-color: #dedede;
 `;
 
 const ClosableAlignRight = styled(Closable)`
