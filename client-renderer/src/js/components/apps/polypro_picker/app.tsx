@@ -16,7 +16,6 @@ import {
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
 
 import {BobineMere, Stock} from '@shared/models';
 

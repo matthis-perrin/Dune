@@ -1,21 +1,36 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
+import {
+  REFERENCE_COLUMN,
+  DESIGNATION_COLUMN,
+  LAIZE_COLUMN,
+  LONGUEUR_COLUMN,
+  COULEUR_PAPIER_COLUMN,
+  GRAMMAGE_COLUMN,
+  STOCK_COLUMN,
+  LAST_UPDATE_COLUMN,
+} from '@root/components/table/columns';
+import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
-import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {bobinesMeresStore} from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
+import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 
-import {BobineMere} from '@shared/models';
+import {BobineMere, Stock} from '@shared/models';
 
 interface Props {}
 
-export class PapierPickerApp extends React.Component<Props> {
+interface State {
+  stocks?: Map<string, Stock[]>;
+}
+
+export class PapierPickerApp extends React.Component<Props, State> {
   public static displayName = 'PapierPickerApp';
 
   constructor(props: Props) {
     super(props);
+    this.state = {};
   }
 
   private readonly handlePapierSelected = (bobineMere: BobineMere) => {
@@ -27,31 +42,65 @@ export class PapierPickerApp extends React.Component<Props> {
       .catch(console.error);
   };
 
+  public componentDidMount(): void {
+    stocksStore.addListener(this.handleValuesChanged);
+  }
+
+  public componentWillUnmount(): void {
+    stocksStore.removeListener(this.handleValuesChanged);
+  }
+
+  private readonly handleValuesChanged = (): void => {
+    this.setState({stocks: stocksStore.getStockIndex()});
+  };
+
   public render(): JSX.Element {
+    const columns = [
+      REFERENCE_COLUMN(170),
+      DESIGNATION_COLUMN,
+      LAIZE_COLUMN,
+      LONGUEUR_COLUMN,
+      COULEUR_PAPIER_COLUMN,
+      GRAMMAGE_COLUMN,
+      STOCK_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
+      LAST_UPDATE_COLUMN,
+    ];
     return (
       <Picker<BobineMere>
-        getHash={p => p.ref}
+        getHash={r => r.ref}
         getSelectable={p => p.selectablePapiers}
         store={bobinesMeresStore}
         title="Choix du papier"
         dataFilter={p => p.couleurPapier !== 'POLYPRO'}
+        searchColumns={columns}
       >
         {(elements, isSelectionnable) => (
           <SizeMonitor>
-            {width => {
-              const availableWidth = width - 2 * theme.page.padding;
-              const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+            {(width, height) => {
+              const filterBarHeight = 32;
+              const searchBarHeight = 32;
+              const availableWidth = width;
+              const availableHeight = height - filterBarHeight - searchBarHeight;
               return (
-                <div style={{width}}>
-                  {elements.map(papier => {
-                    const enabled = isSelectionnable(papier);
-                    return (
-                      <div
-                        onClick={() => this.handlePapierSelected(papier)}
-                      >{`${pixelPerMM} / ${enabled} / ${JSON.stringify(papier)}`}</div>
-                    );
-                  })}
-                </div>
+                <React.Fragment>
+                  <Padding />
+                  <SortableTable
+                    width={availableWidth}
+                    height={availableHeight}
+                    data={elements}
+                    lastUpdate={0}
+                    columns={columns}
+                    initialSort={{
+                      index: 0,
+                      asc: true,
+                    }}
+                    onRowClick={this.handlePapierSelected}
+                    rowStyles={papier => ({
+                      opacity: isSelectionnable(papier) ? 1 : 0.5,
+                      pointerEvents: isSelectionnable(papier) ? 'all' : 'none',
+                    })}
+                  />
+                </React.Fragment>
               );
             }}
           </SizeMonitor>
@@ -60,3 +109,7 @@ export class PapierPickerApp extends React.Component<Props> {
     );
   }
 }
+
+const Padding = styled.div`
+  height: 32px;
+`;
