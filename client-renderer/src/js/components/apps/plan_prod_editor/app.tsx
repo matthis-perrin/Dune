@@ -156,7 +156,22 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             const availableWidth = width - 2 * theme.page.padding - leftPadding;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
-            const selectedBobinesElements = (
+            const selectedBobinesSize = selectedBobines.reduce(
+              (acc, b) => acc + (b.laize || 0) * getPoseSize(b.pose),
+              0
+            );
+            const selectableBobinesElement =
+              selectableBobines.length > 0 ? (
+                <SelectBobineButton
+                  selectable={selectableBobines}
+                  pixelPerMM={pixelPerMM}
+                  size={CAPACITE_MACHINE - selectedBobinesSize}
+                />
+              ) : (
+                <React.Fragment />
+              );
+
+            const bobinesBlock = (
               <div style={{display: 'flex'}}>
                 {selectedBobines.map((b, i, arr) => (
                   <BobineWithPose
@@ -167,22 +182,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     negativeMargin={i < arr.length - 1}
                   >{`${b.ref}-${b.pose}`}</BobineWithPose>
                 ))}
+                {selectableBobinesElement}
               </div>
-            );
-            const selectedBobinesSize = selectedBobines.reduce(
-              (acc, b) => acc + (b.laize || 0) * getPoseSize(b.pose),
-              0
-            );
-
-            const bobinesBlock = (
-              <React.Fragment>
-                {selectedBobinesElements}
-                <SelectBobineButton
-                  selectable={selectableBobines}
-                  pixelPerMM={pixelPerMM}
-                  size={CAPACITE_MACHINE - selectedBobinesSize}
-                />
-              </React.Fragment>
             );
 
             const refenteBlock = selectedRefente ? (
