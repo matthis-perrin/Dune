@@ -25,7 +25,7 @@ export class Bague extends React.Component<BagueProps> {
     const top = pointingUp ? [width / 2, 0] : [width / 2, height];
 
     return (
-      <svg width={width} height={height}>
+      <svg key={key} width={width} height={height}>
         <polygon
           points={`${base1.join(',')} ${base2.join(',')} ${top.join(',')}`}
           fill={theme.bague.backgroundColor}

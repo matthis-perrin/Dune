@@ -18,7 +18,7 @@ interface Props<T extends {localUpdate: Date; sommeil: boolean}> {
   store: ListStore<T>;
   dataFilter?(value: T): boolean;
   title: string;
-  // tslint:disable-next-line:no-any;
+  // tslint:disable-next-line:no-any
   searchColumns?: ColumnMetadata<T, any>[];
 }
 

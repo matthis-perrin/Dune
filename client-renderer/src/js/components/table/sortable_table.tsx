@@ -7,7 +7,7 @@ import {VirtualizedTable} from '@root/components/table/virtualized_table';
 import {theme} from '@root/theme/default';
 
 // tslint:disable-next-line:no-null-keyword
-const DONT_UPDATE_STATE = null;
+// const DONT_UPDATE_STATE = null;
 
 type SortFunction<T> = (val1: T, val2: T) => number;
 type FilterType = 'group';
@@ -125,21 +125,21 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
   }
 
   private handleCellMouseOver(rowIndex: number): void {
-    this.setState(state => {
-      if (state.hoveredIndex !== rowIndex) {
-        return {...state, hoveredIndex: rowIndex};
-      }
-      return DONT_UPDATE_STATE;
-    });
+    // this.setState(state => {
+    //   if (state.hoveredIndex !== rowIndex) {
+    //     return {...state, hoveredIndex: rowIndex};
+    //   }
+    //   return DONT_UPDATE_STATE;
+    // });
   }
 
   private handleCellMouseOut(rowIndex: number): void {
-    this.setState(state => {
-      if (state.hoveredIndex === rowIndex) {
-        return {...state, hoveredIndex: undefined};
-      }
-      return DONT_UPDATE_STATE;
-    });
+    // this.setState(state => {
+    //   if (state.hoveredIndex === rowIndex) {
+    //     return {...state, hoveredIndex: undefined};
+    //   }
+    //   return DONT_UPDATE_STATE;
+    // });
   }
 
   private readonly renderCell = (props: GridChildComponentProps): JSX.Element => {

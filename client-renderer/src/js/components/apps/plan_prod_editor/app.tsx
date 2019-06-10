@@ -8,7 +8,8 @@ import {
   SelectPolyproButton,
   SelectBobineButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
-import {BobineMere, CURVE_EXTRA_SPACE} from '@root/components/common/bobine_mere';
+import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
+import {BobineWithPose} from '@root/components/common/bobine_with_pose';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Button} from '@root/components/core/button';
@@ -20,6 +21,7 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, getCouleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
+import {getPoseSize} from '@shared/lib/cliches';
 import {PlanProductionState, ClientAppType} from '@shared/models';
 
 interface Props {}
@@ -132,6 +134,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     }
 
     const {
+      selectedBobines,
       selectableBobines,
       selectedRefente,
       selectableRefentes,
@@ -149,12 +152,37 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           {width => {
             // Padding for the extra space taken by the bobine offset
             const leftPadding =
-              (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - CURVE_EXTRA_SPACE);
+              (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
             const availableWidth = width - 2 * theme.page.padding - leftPadding;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
+            const selectedBobinesElements = (
+              <div style={{display: 'flex'}}>
+                {selectedBobines.map((b, i, arr) => (
+                  <BobineWithPose
+                    key={i}
+                    pixelPerMM={pixelPerMM}
+                    bobine={b}
+                    style={{zIndex: i + 1}}
+                    negativeMargin={i < arr.length - 1}
+                  >{`${b.ref}-${b.pose}`}</BobineWithPose>
+                ))}
+              </div>
+            );
+            const selectedBobinesSize = selectedBobines.reduce(
+              (acc, b) => acc + (b.laize || 0) * getPoseSize(b.pose),
+              0
+            );
+
             const bobinesBlock = (
-              <SelectBobineButton selectable={selectableBobines} pixelPerMM={pixelPerMM} />
+              <React.Fragment>
+                {selectedBobinesElements}
+                <SelectBobineButton
+                  selectable={selectableBobines}
+                  pixelPerMM={pixelPerMM}
+                  size={CAPACITE_MACHINE - selectedBobinesSize}
+                />
+              </React.Fragment>
             );
 
             const refenteBlock = selectedRefente ? (
@@ -167,7 +195,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             const papierBlock = selectedPapier ? (
               <Closable onClose={this.removePapier}>
-                <BobineMere
+                <Bobine
                   size={selectedPapier.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
@@ -176,7 +204,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
                     selectedPapier.laize
                   } - Grammage ${selectedPapier.grammage}`}
-                </BobineMere>
+                </Bobine>
               </Closable>
             ) : (
               <SelectPapierButton
@@ -196,7 +224,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             const polyproBlock = selectedPolypro ? (
               <Closable onClose={this.removePolypro}>
-                <BobineMere
+                <Bobine
                   size={selectedPolypro.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
@@ -205,7 +233,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   {`Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - Grammage ${
                     selectedPolypro.grammage
                   }`}
-                </BobineMere>
+                </Bobine>
               </Closable>
             ) : (
               <SelectPolyproButton

@@ -1,22 +1,17 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {BobineMere} from '@root/components/common/bobine_mere';
+import {Bobine} from '@root/components/common/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
 import {getRefenteSize} from '@shared/lib/refentes';
-import {
-  Refente,
-  ClientAppType,
-  Perfo,
-  BobineMere as BobineMereModel,
-  BobineFilleWithMultiPose,
-} from '@shared/models';
+import {Refente, ClientAppType, Perfo, BobineMere, BobineFilleWithMultiPose} from '@shared/models';
 
 interface SelectBobineButtonProps {
   selectable: BobineFilleWithMultiPose[];
+  size: number;
   pixelPerMM: number;
 }
 
@@ -24,13 +19,13 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
   public static displayName = 'SelectBobineButton';
 
   public render(): JSX.Element {
-    const {selectable, pixelPerMM} = this.props;
+    const {selectable, pixelPerMM, size} = this.props;
     const plural = selectable.length > 1 ? 's' : '';
 
     return (
       <SelectBobineButtonWrapper
         onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp)}
-        style={{width: CAPACITE_MACHINE * pixelPerMM}}
+        style={{width: size * pixelPerMM}}
       >
         {`Sélectionner des bobines - ${selectable.length} compatible${plural}`}
       </SelectBobineButtonWrapper>
@@ -122,7 +117,7 @@ export const SelectPerfoButton = (props: SelectPerfoProps) => (
   />
 );
 
-interface SelectBobineMereButtonProps extends SelectButtonProps<BobineMereModel> {
+interface SelectBobineMereButtonProps extends SelectButtonProps<BobineMere> {
   selectedRefente?: Refente;
   pixelPerMM: number;
 }
@@ -167,7 +162,7 @@ export class SelectBobineMereButton extends React.Component<
   }
 }
 
-const BobineMereWrapper = styled(BobineMere)`
+const BobineMereWrapper = styled(Bobine)`
   color: #555;
   font-size: 24px;
   cursor: pointer;
@@ -177,7 +172,7 @@ const BobineMereWrapper = styled(BobineMere)`
 `;
 
 interface SelectPapierPolyproProps {
-  selectable: BobineMereModel[];
+  selectable: BobineMere[];
   selectedRefente?: Refente;
   pixelPerMM: number;
 }

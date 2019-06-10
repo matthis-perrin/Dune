@@ -1,6 +1,7 @@
 import {sum} from 'lodash-es';
 import * as React from 'react';
 
+import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
 import {Duration} from '@root/components/common/duration';
 import {
   OperationConstraint,
@@ -8,11 +9,12 @@ import {
 } from '@root/components/common/operation_constraint';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 
+import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {
   Stock,
   Cliche,
   OperationConstraint as OperationConstraintModel,
-  POSE_NEUTRE,
+  BobineFilleWithMultiPose,
 } from '@shared/models';
 
 function getStock<T extends {ref: string}>(data: T, stocks: Map<string, Stock[]>): number {
@@ -120,16 +122,6 @@ function renderDate(value?: Date): JSX.Element {
 
 function renderBoolean(value?: boolean): JSX.Element {
   return <span>{value === undefined ? '-' : value ? 'OUI' : 'NON'}</span>;
-}
-
-function renderPoses(poses: number[]): JSX.Element {
-  const hasNeutre = poses.indexOf(POSE_NEUTRE) !== -1;
-  const withoutNeutre = poses.filter(p => p !== POSE_NEUTRE);
-  const poseStr = withoutNeutre.map(String);
-  if (hasNeutre) {
-    poseStr.unshift('neutre');
-  }
-  return renderString(poseStr.join(', '));
 }
 
 // tslint:disable:no-magic-numbers
@@ -373,24 +365,17 @@ export const POSE_COLUMN: ColumnMetadata<{pose?: number}, number> = {
   },
 };
 
-export const MULTI_POSE_COLUMN: ColumnMetadata<
-  {availablePoses: number[]; allPoses: number[]},
-  string
-> = {
+export const MULTI_POSE_COLUMN: ColumnMetadata<BobineFilleWithMultiPose, string> = {
   title: 'Poses',
   width: 200,
-  renderCell: ({availablePoses, allPoses}) => (
-    <React.Fragment>
-      <span>{renderPoses(availablePoses)}</span>
-      <span> (</span>
-      {renderPoses(allPoses)}
-      <span>)</span>
-    </React.Fragment>
-  ),
-  sortFunction: (row1, row2) => sortArrayFunction(row1.allPoses, row2.allPoses, true, numberSort),
-  // filter: {
-  //   getValue: (row: {pose: number}) => row.pose,
-  // },
+  renderCell: bobine => <AddPoseButtons bobine={bobine} />,
+  sortFunction: (row1, row2) =>
+    sortArrayFunction(
+      dedupePoseNeutre(row1.availablePoses),
+      dedupePoseNeutre(row2.availablePoses),
+      true,
+      numberSort
+    ),
 };
 
 export const DECALAGE_INITIAL_COLUMN: ColumnMetadata<{decalageInitial?: number}, number> = {

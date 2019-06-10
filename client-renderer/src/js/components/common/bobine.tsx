@@ -7,19 +7,21 @@ import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme/default';
 
-interface BobineMereProps extends DivProps {
+interface BobineProps extends DivProps {
   size: number;
   pixelPerMM: number;
   decalage?: number;
   borderColor?: string;
   color?: string;
   dashed?: boolean;
+  faceDown?: boolean;
 }
 
-export const CURVE_EXTRA_SPACE = 0.02;
+export const CURVE_EXTRA_SPACE = 0.01;
+export const BOBINE_STROKE_WIDTH = 2;
 
-export class BobineMere extends React.Component<BobineMereProps> {
-  public static displayName = 'BobineMere';
+export class Bobine extends React.Component<BobineProps> {
+  public static displayName = 'Bobine';
 
   private renderDecalage(offset: number, decalage?: number): JSX.Element {
     const {pixelPerMM} = this.props;
@@ -40,33 +42,36 @@ export class BobineMere extends React.Component<BobineMereProps> {
   private draw(
     width: number,
     height: number,
-    strokeWidth: number,
-    sheetExtraHeight: number
+    curveOffset: number,
+    sheetExtraHeight: number,
+    faceDown?: boolean
   ): JSX.Element {
     const {color = 'white', borderColor = 'black', dashed = false} = this.props;
-
-    const curveOffset = width * CURVE_EXTRA_SPACE;
-    const workingWidth = width - strokeWidth;
-    const workingHeight = height - strokeWidth - sheetExtraHeight;
-    const halfStrokeWidth = strokeWidth / 2;
-    const strokeDasharray = dashed ? `${strokeWidth * 5} ${strokeWidth * 5}` : '0';
+    const workingWidth = width - BOBINE_STROKE_WIDTH;
+    const workingHeight = height - BOBINE_STROKE_WIDTH - sheetExtraHeight;
+    const halfStrokeWidth = BOBINE_STROKE_WIDTH / 2;
+    const strokeDasharray = dashed ? `${BOBINE_STROKE_WIDTH * 2} ${BOBINE_STROKE_WIDTH * 3}` : '0';
 
     const leftBottom = [
       halfStrokeWidth + curveOffset,
       halfStrokeWidth + sheetExtraHeight + workingHeight,
     ].join(' ');
-    const rightTop = [halfStrokeWidth + workingWidth, halfStrokeWidth + sheetExtraHeight].join(' ');
+    const rightTop = [
+      halfStrokeWidth + workingWidth + curveOffset,
+      halfStrokeWidth + sheetExtraHeight,
+    ].join(' ');
 
-    const leftTopRectangle = [halfStrokeWidth + curveOffset, halfStrokeWidth].join(' ');
+    const leftTopRectangle = [halfStrokeWidth + 2 * curveOffset, halfStrokeWidth].join(' ');
     const leftMiddleRectangle = [
-      halfStrokeWidth + curveOffset,
+      halfStrokeWidth + 2 * curveOffset,
       halfStrokeWidth + sheetExtraHeight + workingHeight / 2,
     ].join(' ');
-    const rightTopRectangle = [halfStrokeWidth + curveOffset + workingWidth, halfStrokeWidth].join(
-      ' '
-    );
+    const rightTopRectangle = [
+      halfStrokeWidth + 2 * curveOffset + workingWidth,
+      halfStrokeWidth,
+    ].join(' ');
     const rightMiddleRectangle = [
-      halfStrokeWidth + curveOffset + workingWidth,
+      halfStrokeWidth + 2 * curveOffset + workingWidth,
       halfStrokeWidth + sheetExtraHeight + workingHeight / 2,
     ].join(' ');
     // const rightBottom = [
@@ -104,13 +109,21 @@ export class BobineMere extends React.Component<BobineMereProps> {
     const commonDrawingProps = {
       fill: color,
       stroke: borderColor,
-      strokeWidth,
+      strokeWidth: BOBINE_STROKE_WIDTH,
       strokeDasharray,
       strokeLinecap: 'square' as 'square',
     };
 
+    const svgProps: React.SVGProps<SVGSVGElement> = {
+      width: width + 2 * curveOffset,
+      height,
+    };
+    if (faceDown) {
+      svgProps.transform = 'scale(1, -1)';
+    }
+
     return (
-      <svg width={width * (1 + CURVE_EXTRA_SPACE)} height={height}>
+      <svg {...svgProps}>
         <path d={rectanglePath} {...commonDrawingProps} />
         <path d={path1} {...commonDrawingProps} />
         <path d={path2} {...commonDrawingProps} />
@@ -119,13 +132,11 @@ export class BobineMere extends React.Component<BobineMereProps> {
   }
 
   public render(): JSX.Element {
-    const {size, pixelPerMM, decalage, children, style} = this.props;
-    const fullWidth = CAPACITE_MACHINE * pixelPerMM;
+    const {size, pixelPerMM, decalage, children, style, faceDown} = this.props;
+    const decalageSize = (decalage || 0) * pixelPerMM;
     const width = (size || 0) * pixelPerMM;
     const height = 100 * pixelPerMM;
-    const strokeWidth = Math.max(1, Math.round(pixelPerMM * 1.5));
-    // const strokeWidth = Math.max(1, Math.round(pixelPerMM * 5));
-    const offset = width * CURVE_EXTRA_SPACE;
+    const offset = CAPACITE_MACHINE * CURVE_EXTRA_SPACE * pixelPerMM;
     const sheetExtraHeight = height * 0.2;
 
     const restProps = omit(this.props, [
@@ -141,26 +152,32 @@ export class BobineMere extends React.Component<BobineMereProps> {
     ]);
 
     return (
-      <BobineMereContainer
+      <BobineContainer
         {...restProps}
         style={{
           ...style,
-          width: fullWidth + offset + strokeWidth,
+          width: width + decalageSize + 2 * offset + BOBINE_STROKE_WIDTH,
           height,
-          left: strokeWidth,
+          left: BOBINE_STROKE_WIDTH,
         }}
       >
-        {this.draw(width, height, strokeWidth, sheetExtraHeight)}
-        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-2, decalage)}</div>
-        <ChildrenWrapper style={{width, right: decalage ? offset : 0, top: sheetExtraHeight}}>
+        {this.draw(width, height, offset, sheetExtraHeight, faceDown)}
+        <div style={{marginRight: BOBINE_STROKE_WIDTH}}>{this.renderDecalage(-2, decalage)}</div>
+        <ChildrenWrapper
+          style={{
+            width,
+            right: decalageSize ? offset : 0,
+            top: faceDown ? -sheetExtraHeight : sheetExtraHeight,
+          }}
+        >
           {children}
         </ChildrenWrapper>
-      </BobineMereContainer>
+      </BobineContainer>
     );
   }
 }
 
-const BobineMereContainer = styled.div`
+const BobineContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: flex-end;

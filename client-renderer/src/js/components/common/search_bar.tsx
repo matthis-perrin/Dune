@@ -26,7 +26,7 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
     this.props.onChange(this.props.data);
   }
 
-  public componentDidUpdate(prevProps: SearchBarProps<T>) {
+  public componentDidUpdate(prevProps: SearchBarProps<T>): void {
     if (this.props.data !== prevProps.data) {
       this.filter(this.state.searchValue);
     }

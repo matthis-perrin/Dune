@@ -1,5 +1,5 @@
 import {getPoses, getCouleurs} from '@shared/lib/cliches';
-import {BobineFille, Cliche} from '@shared/models';
+import {BobineFille, Cliche, POSE_NEUTRE} from '@shared/models';
 
 export function getBobineFillePoses(
   bobine: BobineFille,
@@ -63,4 +63,13 @@ export function getBobineFilleImportanceOrdreCouleurs(
     }
   }
   return false;
+}
+
+export function dedupePoseNeutre(poses: number[]): number[] {
+  const hasNeutre = poses.indexOf(POSE_NEUTRE) !== -1;
+  const filteredPoses = poses.filter(p => p !== POSE_NEUTRE);
+  if (hasNeutre) {
+    filteredPoses.unshift(POSE_NEUTRE);
+  }
+  return filteredPoses;
 }

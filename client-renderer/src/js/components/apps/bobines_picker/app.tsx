@@ -89,7 +89,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     width={availableWidth}
                     height={availableHeight}
                     data={elements}
-                    lastUpdate={0}
+                    lastUpdate={Date.now()}
                     columns={columns}
                     initialSort={{
                       index: 0,

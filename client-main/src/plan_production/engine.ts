@@ -50,6 +50,7 @@ export class PlanProductionEngine {
   // without violating any contraints.
   private selectables: Selectables;
 
+  private isComputing: boolean = false;
   private calculationTime: number = 0;
 
   constructor(
@@ -124,26 +125,41 @@ export class PlanProductionEngine {
   }
 
   public setPerfo(ref?: string): void {
+    if (this.isComputing) {
+      return;
+    }
     this.planProduction.perfo = this.getByRef(this.selectables.selectablePerfos, ref);
     this.recalculate();
   }
 
   public setRefente(ref?: string): void {
+    if (this.isComputing) {
+      return;
+    }
     this.planProduction.refente = this.getByRef(this.selectables.selectableRefentes, ref);
     this.recalculate();
   }
 
   public setPapier(ref?: string): void {
+    if (this.isComputing) {
+      return;
+    }
     this.planProduction.papier = this.getByRef(this.selectables.selectablePapiers, ref);
     this.recalculate();
   }
 
   public setPolypro(ref?: string): void {
+    if (this.isComputing) {
+      return;
+    }
     this.planProduction.polypro = this.getByRef(this.selectables.selectablePolypros, ref);
     this.recalculate();
   }
 
   public addBobine(ref: string, pose: number): void {
+    if (this.isComputing) {
+      return;
+    }
     const firstSelectableBobine = this.selectables.selectableBobinesFilles.filter(
       b => b.ref === ref && b.pose === pose
     )[0];
@@ -254,10 +270,12 @@ export class PlanProductionEngine {
   }
 
   private computeSelectables(): Selectables {
+    this.isComputing = true;
     const startTime = Date.now();
     const res = filterAll(this.planProduction, this.originalSelectables);
     const endTime = Date.now();
     this.calculationTime = endTime - startTime;
+    this.isComputing = false;
     return res;
   }
 }

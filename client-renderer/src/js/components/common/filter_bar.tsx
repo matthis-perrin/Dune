@@ -1,4 +1,4 @@
-import {without} from 'lodash-es';
+import {without, isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -31,7 +31,7 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     const enabledFilters = (props.filters || [])
       .filter(f => f.enableByDefault)
       .map(f => f.shouldShowElement);
-    const filteredData = this.filterData(enabledFilters);
+    const filteredData = this.filterData(enabledFilters, props.data);
     this.state = {
       enabledFilters,
       filteredData,
@@ -39,10 +39,10 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     this.props.onChange(filteredData);
   }
 
-  public componentDidUpdate(prevProps: FilterBarProps<T>) {
+  public componentDidUpdate(prevProps: FilterBarProps<T>): void {
     if (this.props.data !== prevProps.data) {
       const {enabledFilters} = this.state;
-      const filteredData = this.filterData(enabledFilters);
+      const filteredData = this.filterData(enabledFilters, this.state.filteredData);
       if (filteredData !== this.state.filteredData) {
         this.setState({filteredData});
         this.props.onChange(filteredData);
@@ -58,13 +58,13 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     const filterIndex = enabledFilters.indexOf(fn);
     const newEnabledFilters =
       filterIndex === -1 ? enabledFilters.concat([fn]) : without(enabledFilters, fn);
-    const filteredData = this.filterData(newEnabledFilters);
+    const filteredData = this.filterData(newEnabledFilters, this.state.filteredData);
 
     this.setState({enabledFilters: newEnabledFilters, filteredData});
     onChange(filteredData);
   }
 
-  private filterData(enabledFilters: FilterFn<T>[]): T[] {
+  private filterData(enabledFilters: FilterFn<T>[], current: T[]): T[] {
     const {data, filters = []} = this.props;
 
     const newData = data.filter(d => {
@@ -76,11 +76,8 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
       return false;
     });
 
-    return this.state &&
-      this.state.filteredData &&
-      newData.length === this.state.filteredData.length
-      ? this.state.filteredData
-      : newData;
+    const dataIsEqual = isEqual(newData, current);
+    return dataIsEqual ? current : newData;
   }
 
   private renderFilter(filter: Filter<T>): JSX.Element {
