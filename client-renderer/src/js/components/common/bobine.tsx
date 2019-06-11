@@ -166,7 +166,7 @@ export class Bobine extends React.Component<BobineProps> {
         <ChildrenWrapper
           style={{
             width,
-            right: decalageSize ? offset : 0,
+            right: decalageSize + 2 * offset,
             top: faceDown ? -sheetExtraHeight : sheetExtraHeight,
           }}
         >

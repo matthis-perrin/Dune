@@ -20,14 +20,20 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
 
   public render(): JSX.Element {
     const {selectable, pixelPerMM, size} = this.props;
+    const width = size * pixelPerMM;
     const plural = selectable.length > 1 ? 's' : '';
+
+    const smallMode = width < 350;
+    const content = smallMode
+      ? '+'
+      : `Sélectionner des bobines - ${selectable.length} compatible${plural}`;
 
     return (
       <SelectBobineButtonWrapper
         onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp)}
-        style={{width: size * pixelPerMM}}
+        style={{width}}
       >
-        {`Sélectionner des bobines - ${selectable.length} compatible${plural}`}
+        {content}
       </SelectBobineButtonWrapper>
     );
   }

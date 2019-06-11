@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
 import {
   SelectRefenteButton,
   SelectPapierButton,
@@ -156,34 +157,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             const availableWidth = width - 2 * theme.page.padding - leftPadding;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
-            const selectedBobinesSize = selectedBobines.reduce(
-              (acc, b) => acc + (b.laize || 0) * getPoseSize(b.pose),
-              0
-            );
-            const selectableBobinesElement =
-              selectableBobines.length > 0 ? (
-                <SelectBobineButton
-                  selectable={selectableBobines}
-                  pixelPerMM={pixelPerMM}
-                  size={CAPACITE_MACHINE - selectedBobinesSize}
-                />
-              ) : (
-                <React.Fragment />
-              );
-
             const bobinesBlock = (
-              <div style={{display: 'flex'}}>
-                {selectedBobines.map((b, i, arr) => (
-                  <BobineWithPose
-                    key={i}
-                    pixelPerMM={pixelPerMM}
-                    bobine={b}
-                    style={{zIndex: i + 1}}
-                    negativeMargin={i < arr.length - 1}
-                  >{`${b.ref}-${b.pose}`}</BobineWithPose>
-                ))}
-                {selectableBobinesElement}
-              </div>
+              <BobinesForm
+                selectedBobines={selectedBobines}
+                selectableBobines={selectableBobines}
+                selectedRefente={selectedRefente}
+                pixelPerMM={pixelPerMM}
+              />
             );
 
             const refenteBlock = selectedRefente ? (
@@ -246,6 +226,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             return (
               <Wrapper style={{width: width - 2 * theme.page.padding}}>
+                {pixelPerMM}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
