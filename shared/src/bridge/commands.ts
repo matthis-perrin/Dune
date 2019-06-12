@@ -20,6 +20,7 @@ export const SetPlanRefente = 'set-plan-refente' as BridgeCommand;
 export const SetPlanPapier = 'set-plan-papier' as BridgeCommand;
 export const SetPlanPolypro = 'set-plan-polypro' as BridgeCommand;
 export const AddPlanBobine = 'add-plan-bobine' as BridgeCommand;
+export const RemovePlanBobine = 'remove-plan-bobine' as BridgeCommand;
 
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;

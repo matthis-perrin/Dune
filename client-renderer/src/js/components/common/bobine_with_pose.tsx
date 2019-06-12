@@ -4,7 +4,9 @@ import styled from 'styled-components';
 
 import {Bobine, CURVE_EXTRA_SPACE, BOBINE_STROKE_WIDTH} from '@root/components/common/bobine';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
+import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
+import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getCouleurByName} from '@root/theme/default';
 
@@ -20,6 +22,11 @@ interface BobineWithPoseProps extends DivProps {
 export class BobineWithPose extends React.Component<BobineWithPoseProps> {
   public static displayName = 'BobineWithPose';
 
+  private readonly handleClose = (): void => {
+    const {bobine} = this.props;
+    bridge.removePlanBobine(bobine.ref, bobine.pose).catch(console.error);
+  };
+
   public render(): JSX.Element {
     const {bobine, pixelPerMM, negativeMargin} = this.props;
     const poseSize = getPoseSize(bobine.pose);
@@ -30,7 +37,8 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     // bobine stroke width) and have a negative margin of that size. But since the size is expressed
     // in mm, we need to convert it before substracting.
     const size = initialSize + BOBINE_STROKE_WIDTH / pixelPerMM;
-    const offset = pixelPerMM * CAPACITE_MACHINE * CURVE_EXTRA_SPACE * 2 + BOBINE_STROKE_WIDTH * 2;
+    const curveOffset = pixelPerMM * CAPACITE_MACHINE * CURVE_EXTRA_SPACE * 2;
+    const offset = curveOffset + BOBINE_STROKE_WIDTH * 2;
 
     const rest = omit(this.props, ['pixelPerMM', 'bobine', 'negativeMargin', 'style']);
     const style: React.CSSProperties = {
@@ -39,7 +47,12 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     };
 
     return (
-      <div {...rest} style={style}>
+      <Closable
+        onClose={this.handleClose}
+        {...rest}
+        style={style}
+        centeredWithOffset={-curveOffset / 2}
+      >
         {range(poseSize).map((pose, i) => (
           <Bobine
             key={i}
@@ -58,7 +71,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             </AutoFontWeight>
           </Bobine>
         ))}
-      </div>
+      </Closable>
     );
   }
 }

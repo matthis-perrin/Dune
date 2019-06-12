@@ -169,6 +169,21 @@ export class PlanProductionEngine {
     this.recalculate();
   }
 
+  public removeBobine(ref: string, pose: number): void {
+    if (this.isComputing) {
+      return;
+    }
+    const matchingBobines = this.planProduction.bobinesFilles.filter(
+      b => b.ref === ref && b.pose === pose
+    );
+    if (matchingBobines.length > 0) {
+      const toRemove = matchingBobines[matchingBobines.length - 1];
+      const index = this.planProduction.bobinesFilles.indexOf(toRemove);
+      this.planProduction.bobinesFilles.splice(index, 1);
+      this.recalculate();
+    }
+  }
+
   // public removeBobineFille(bobineFille: BobineFilleClichePose): void {
   //   this.planProduction.bobinesFilles = this.planProduction.bobinesFilles.filter(
   //     b => b !== bobineFille
@@ -262,7 +277,7 @@ export class PlanProductionEngine {
       const bobineMultiPose = omit(bobinesCliche[0], ['pose']);
       const originalBobine = this.originalBobinesFillesByRef.get(ref);
       if (originalBobine) {
-        bobinesMultiPose.push({...originalBobine, ...bobineMultiPose, availablePoses, allPoses});
+        bobinesMultiPose.push({...bobineMultiPose, ...originalBobine, availablePoses, allPoses});
       }
     }
 

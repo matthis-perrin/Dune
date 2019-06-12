@@ -25,6 +25,7 @@ import {
   SetPlanPolypro,
   AddPlanBobine,
   CloseAppOfType,
+  RemovePlanBobine,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -120,6 +121,9 @@ class Bridge {
   }
   public async addPlanBobine(ref: string, pose: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {ref, pose});
+  }
+  public async removePlanBobine(ref: string, pose: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {ref, pose});
   }
 
   public async viewOperation(operationId: number | undefined): Promise<void> {

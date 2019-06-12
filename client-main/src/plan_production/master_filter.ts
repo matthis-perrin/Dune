@@ -64,6 +64,10 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
 // }
 
 function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Selectables {
+  console.log(planProd.bobinesFilles.map(b => b.ref));
+  if (planProd.bobinesFilles[0] && planProd.bobinesFilles[0].ref === 'B140098ABPCLBONNEU') {
+    debugger;
+  }
   const filtered = {...selectables};
   const {bobinesFilles, papier, perfo, polypro, refente} = planProd;
 

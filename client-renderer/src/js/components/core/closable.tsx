@@ -9,6 +9,7 @@ interface ClosableProps
   extends ReactProps,
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   onClose?(): void;
+  centeredWithOffset?: number;
 }
 
 interface ClosableState {
@@ -37,15 +38,35 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
     if (!this.state.isHovered) {
       return <React.Fragment />;
     }
+    const {centeredWithOffset} = this.props;
+    return centeredWithOffset !== undefined
+      ? this.renderCenteredCloseButton(centeredWithOffset)
+      : this.renderCornerCloseButton();
+  }
+
+  private renderCornerCloseButton(): JSX.Element {
     return (
-      <CloseButton onClick={this.props.onClose}>
+      <CornerCloseButton onClick={this.props.onClose}>
         <SVGIcon name="cross" width={16} height={16} />
-      </CloseButton>
+      </CornerCloseButton>
+    );
+  }
+
+  private renderCenteredCloseButton(offset: number): JSX.Element {
+    const sign = offset < 0 ? '-' : '+';
+    const offsetAbs = Math.abs(offset);
+    return (
+      <CenteredCloseButton
+        onClick={this.props.onClose}
+        style={{left: `calc(50% - 30px ${sign} ${offsetAbs}px)`}}
+      >
+        Retirer
+      </CenteredCloseButton>
     );
   }
 
   public render(): JSX.Element {
-    const props = omit(this.props, ['onClose', 'ref']);
+    const props = omit(this.props, ['onClose', 'centered', 'ref']);
     return (
       <Wrapper {...props} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         {this.renderCloseButton()}
@@ -61,15 +82,26 @@ const Wrapper = styled.div`
 
 const CloseButton = styled.div`
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 24px;
-  height: 24px;
-  z-index: 10;
+  z-index: 100;
   cursor: pointer;
   opacity: 0.5;
   fill: #888;
   :hover {
     opacity: 1;
   }
+`;
+
+const CornerCloseButton = styled(CloseButton)`
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+`;
+
+const CenteredCloseButton = styled(CloseButton)`
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 24px;
+  text-align: center;
 `;

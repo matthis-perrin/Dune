@@ -25,6 +25,7 @@ import {
   SetPlanPolypro,
   AddPlanBobine,
   CloseAppOfType,
+  RemovePlanBobine,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -144,7 +145,15 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
       return Promise.reject('No plan production in progress');
     }
     engine.addBobine(asString(ref, ''), asNumber(pose, 0));
-
+    return Promise.resolve();
+  }
+  if (command === RemovePlanBobine) {
+    const {ref, pose} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.removeBobine(asString(ref, ''), asNumber(pose, 0));
     return Promise.resolve();
   }
 

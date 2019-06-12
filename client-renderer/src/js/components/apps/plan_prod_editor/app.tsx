@@ -53,6 +53,12 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge
       .getPlanProduction()
       .then(planProduction => {
+        console.log(planProduction);
+        console.log(
+          planProduction.selectableBobines.map(
+            b => `${b.couleurPapier}-${b.laize}${b.availablePoses.join(',')}`
+          )
+        );
         this.setState({planProduction});
         if (planProduction.selectableBobines.length === 0) {
           bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
