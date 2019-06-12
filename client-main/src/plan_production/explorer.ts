@@ -1,7 +1,7 @@
-import {flatten, keyBy, without} from 'lodash';
+import {flatten, without} from 'lodash';
 
 import {
-  applyBobinesOnRefenteFromIndex,
+  applyBobinesOnRefente,
   RefenteStatus,
 } from '@root/plan_production/bobines_refentes_compatibility';
 import {
@@ -192,7 +192,7 @@ export class PlanProductionExplorer {
     let isComplete = false;
     let selectableRefentes = previouslySelectableRefentes;
     const newSelectableRefentes = previouslySelectableRefentes.filter(r => {
-      const status = applyBobinesOnRefenteFromIndex(bobinesFilles, r, 0);
+      const status = applyBobinesOnRefente(bobinesFilles, r);
       if (status === RefenteStatus.INCOMPATIBLE) {
         return false;
       }

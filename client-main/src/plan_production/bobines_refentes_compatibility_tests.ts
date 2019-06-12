@@ -126,7 +126,7 @@ function testApplyBobinesOnRefente(): void {
     {
       bobines: [],
       refente: dummyR([140, 140, 140, 140]),
-      expected: RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION,
+      expected: RefenteStatus.PARTIALLY_COMPATIBLE,
     },
     {
       bobines: [dummyB(150, 1)],
@@ -181,7 +181,7 @@ function testApplyBobinesOnRefente(): void {
     {
       bobines: [dummyB(140, 1), dummyB(150, 1), dummyB(140, 1), dummyB(130, 1)],
       refente: dummyR([140, 150, 140, 130, 130]),
-      expected: RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT,
+      expected: RefenteStatus.PARTIALLY_COMPATIBLE,
     },
   ];
 

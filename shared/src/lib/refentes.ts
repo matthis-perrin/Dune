@@ -56,10 +56,7 @@ function firstBobinePlacementAvailableForLaizes(
   for (let i = 0; i < current.length - getPoseSize(firstBobine.pose) + 1; i++) {
     const newCurrent = applyBobineOnCurrentAtIndex(firstBobine, current, i);
     if (newCurrent !== undefined) {
-      const newRes = firstBobinePlacementAvailableForLaizes(restBobines, newCurrent);
-      if (newRes !== undefined) {
-        return newRes;
-      }
+      return firstBobinePlacementAvailableForLaizes(restBobines, newCurrent);
     }
   }
   throw new Error('No combinaison found');

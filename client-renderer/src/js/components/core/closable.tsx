@@ -66,7 +66,7 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
   }
 
   public render(): JSX.Element {
-    const props = omit(this.props, ['onClose', 'centered', 'ref']);
+    const props = omit(this.props, ['onClose', 'centeredWithOffset', 'ref']);
     return (
       <Wrapper {...props} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         {this.renderCloseButton()}

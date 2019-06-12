@@ -14,6 +14,7 @@ import {
   IMPORTANCE_ORDRE_COULEUR_COLUMN,
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
+  COULEURS_IMPRESSION_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 // import {bridge} from '@root/lib/bridge';
@@ -62,6 +63,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       GRAMMAGE_COLUMN,
       STOCK_COLUMN(stocks),
       MULTI_POSE_COLUMN,
+      COULEURS_IMPRESSION_COLUMN,
       IMPORTANCE_ORDRE_COULEUR_COLUMN,
       TYPE_IMPRESSION_COLUMN,
       LAST_UPDATE_COLUMN,

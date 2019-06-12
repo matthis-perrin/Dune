@@ -1,4 +1,4 @@
-import {uniqBy, without, sum} from 'lodash';
+import {uniqBy, without, sum, findIndex} from 'lodash';
 
 import {BobineHashCombinaison} from '@root/plan_production/bobines_hash_combinaison';
 import {compatibilityCache} from '@root/plan_production/bobines_refentes_compatibility_cache';
@@ -49,13 +49,25 @@ export function compatibilityExists(
   }
 
   // Optimization #2
+  // Ensure that there is at least one selectable bobine for each type of laize of the refente
+  const laizesLeft = analyseLaizesLeftOnRefente(selectedBobines, refente);
+  if (laizesLeft) {
+    const laizeTypes = laizesLeft.keys();
+    for (let laize of laizeTypes) {
+      if (findIndex(selectableBobines, {laize}) === -1) {
+        return undefined;
+      }
+    }
+  }
+
+  // Optimization #3
   // Filter the selectable bobines filles to make sure we only keep the ones that have at least
   // one valid place on the refente
   const compatibleSelectableBobines = selectableBobines.filter(
     b => applyBobinesOnRefente([b], refente) !== RefenteStatus.INCOMPATIBLE
   );
 
-  // Optimization #3
+  // Optimization #4
   // Ensure that the selected bobines filles have compatible colors, otherwise we can already
   // return undefined
   if (
@@ -67,7 +79,7 @@ export function compatibilityExists(
     return undefined;
   }
 
-  // TODO - Optimization #4
+  // TODO - Optimization #5
   // Greedy algorithm before looking for all combinaisons
 
   if (selectedBobines.length === 0) {
@@ -174,40 +186,16 @@ function compatibilityExistsForOrderedBobines(
   }
 
   const uniqSelectables = uniqByLaizePoseAndColor(compatibleSelectableBobines);
-
   for (const selectableBobine of uniqSelectables) {
     const newSelectable = without(compatibleSelectableBobines, selectableBobine);
-    if (status === RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION) {
-      // Test with the selectable bobine before and after the selected ones as well as every position in between
-      for (let i = 0; i < selectedBobines.length + 1; i++) {
-        const newSelected = selectedBobines
-          .slice(0, i)
-          .concat([selectableBobine].concat(selectedBobines.slice(i)));
-        const res = compatibilityExistsForOrderedBobines(newSelected, newSelectable, refente);
-        if (res !== undefined) {
-          return res;
-        }
-      }
-    } else {
-      // Only test with the selectable bobine before and after the selected ones since the selected bobines are not compatible
-      // on the next index.
-      const newSelectedWithSelectableAfter = selectedBobines.concat([selectableBobine]);
-      const resForAfter = compatibilityExistsForOrderedBobines(
-        newSelectedWithSelectableAfter,
-        newSelectable,
-        refente
-      );
-      if (resForAfter !== undefined) {
-        return resForAfter;
-      }
-      const newSelectedWithSelectableBefore = [selectableBobine].concat(selectedBobines);
-      const resForBefore = compatibilityExistsForOrderedBobines(
-        newSelectedWithSelectableBefore,
-        newSelectable,
-        refente
-      );
-      if (resForBefore !== undefined) {
-        return resForBefore;
+    // Test with the selectable bobine before and after the selected ones as well as every position in between
+    for (let i = 0; i < selectedBobines.length + 1; i++) {
+      const newSelected = selectedBobines
+        .slice(0, i)
+        .concat([selectableBobine].concat(selectedBobines.slice(i)));
+      const res = compatibilityExistsForOrderedBobines(newSelected, newSelectable, refente);
+      if (res !== undefined) {
+        return res;
       }
     }
   }
@@ -228,30 +216,39 @@ export function getSelectedBobinesCombinaison(
 
 export enum RefenteStatus {
   INCOMPATIBLE,
-  COMPATIBLE_WITH_SPACE_LEFT,
-  COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION,
+  PARTIALLY_COMPATIBLE,
   COMPATIBLE,
 }
 
-export function applyBobinesOnRefenteFromIndex(
-  bobines: BobineFilleClichePose[],
-  refente: Refente,
-  startIndex: number
-): RefenteStatus {
-  let indexInRefente = startIndex;
-  for (const bobine of bobines) {
-    for (let i = 0; i < getPoseSize(bobine.pose); i++) {
-      const currentRefenteLaize = refente.laizes[indexInRefente];
-      if (currentRefenteLaize !== bobine.laize) {
-        return RefenteStatus.INCOMPATIBLE;
-      }
-      indexInRefente++;
+// Check if we can put the bobine on the laizes at a specific index
+export function bobineFitsLaizesAtIndex(
+  bobine: BobineFilleClichePose,
+  laizes: number[],
+  index: number
+): boolean {
+  const poseSize = getPoseSize(bobine.pose);
+  for (let i = index; i < index + poseSize; i++) {
+    if (laizes[i] !== bobine.laize) {
+      return false;
     }
   }
-  if (indexInRefente === refente.laizes.length && startIndex === 0) {
-    return RefenteStatus.COMPATIBLE;
+  return true;
+}
+
+// Try to apply a bobine on a sequence of laizes trying all position starting from an index.
+// Returns the index of the first spot where the bobine fits or undefined if the bobine does not fit at all
+export function applyBobineOnLaizes(
+  bobine: BobineFilleClichePose,
+  laizes: number[],
+  fromIndex: number
+): number | undefined {
+  const poseSize = getPoseSize(bobine.pose);
+  for (let i = fromIndex; i < laizes.length - poseSize + 1; i++) {
+    if (bobineFitsLaizesAtIndex(bobine, laizes, i)) {
+      return i;
+    }
   }
-  return RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT;
+  return undefined;
 }
 
 export function applyBobinesOnRefente(
@@ -259,20 +256,17 @@ export function applyBobinesOnRefente(
   refente: Refente
 ): RefenteStatus {
   const bobinesLaizesSum = sum(bobines.map(b => getPoseSize(b.pose)));
-  for (let i = 0; i <= refente.laizes.length - bobinesLaizesSum; i++) {
-    const res = applyBobinesOnRefenteFromIndex(bobines, refente, i);
-    if (res === RefenteStatus.COMPATIBLE) {
-      return res;
+  let currentIndex = 0;
+  for (let bobine of bobines) {
+    const firstIndexThatFits = applyBobineOnLaizes(bobine, refente.laizes, currentIndex);
+    if (firstIndexThatFits === undefined) {
+      return RefenteStatus.INCOMPATIBLE;
     }
-    if (res === RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT) {
-      // Check if the bobines can be applied on the next position
-      const resNextSpot = applyBobinesOnRefenteFromIndex(bobines, refente, i + 1);
-      if (resNextSpot !== RefenteStatus.INCOMPATIBLE) {
-        return RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT_AND_ON_NEXT_POSITION;
-      } else {
-        return RefenteStatus.COMPATIBLE_WITH_SPACE_LEFT;
-      }
-    }
+    currentIndex = firstIndexThatFits + bobine.pose;
   }
-  return RefenteStatus.INCOMPATIBLE;
+
+  if (bobinesLaizesSum === refente.laizes.length) {
+    return RefenteStatus.COMPATIBLE;
+  }
+  return RefenteStatus.PARTIALLY_COMPATIBLE;
 }

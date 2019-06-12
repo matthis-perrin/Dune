@@ -186,6 +186,18 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
   },
 };
 
+export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{couleursImpression: string[]}, string> = {
+  title: 'Impression',
+  width: 140,
+  renderCell: ({couleursImpression}) => renderString(couleursImpression.join(', ')),
+  getSearchValue: row => row.couleursImpression.join(', '),
+  sortFunction: (row1, row2) =>
+    sortArrayFunction(row1.couleursImpression, row2.couleursImpression, true, stringSort),
+  filter: {
+    getValue: row => row.couleursImpression.join(', '),
+  },
+};
+
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   title: 'Gram.',
   width: 80,

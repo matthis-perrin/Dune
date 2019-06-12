@@ -7,10 +7,8 @@ import {
   SelectPapierButton,
   SelectPerfoButton,
   SelectPolyproButton,
-  SelectBobineButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
-import {BobineWithPose} from '@root/components/common/bobine_with_pose';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Button} from '@root/components/core/button';
@@ -22,7 +20,6 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, getCouleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {getPoseSize} from '@shared/lib/cliches';
 import {PlanProductionState, ClientAppType} from '@shared/models';
 
 interface Props {}
