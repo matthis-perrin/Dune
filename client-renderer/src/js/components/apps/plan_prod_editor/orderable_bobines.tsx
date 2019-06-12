@@ -1,3 +1,4 @@
+import {range} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -81,6 +82,41 @@ export class OrderableBobines extends React.Component<
     return x;
   }
 
+  private bobinesOrderIsValid(bobines: BobineFilleWithPose[]): boolean {
+    const {refente} = this.props;
+    const laizes = getRefenteLaizes(refente);
+    let laizeIndex = 0;
+    for (const bobine of bobines) {
+      const poseSize = getPoseSize(bobine.pose);
+      for (const poseIndex of range(poseSize)) {
+        if (laizes[laizeIndex] !== bobine.laize) {
+          return false;
+        }
+        laizeIndex++;
+      }
+    }
+    return true;
+  }
+
+  private getClosestValidBobinesOrder(
+    bobines: BobineFilleWithPose[],
+    draggedBobineIndex: number,
+    shift: number
+  ): BobineFilleWithPose[] {
+    let lastValidBobinesOrder = bobines;
+    const shiftSign = shift < 0 ? -1 : 1;
+    range(shift).forEach(s => {
+      const newBobines = [...bobines];
+      const from = draggedBobineIndex;
+      const to = from + s + shiftSign;
+      newBobines.splice(to, 0, newBobines.splice(from, 1)[0]);
+      if (this.bobinesOrderIsValid(newBobines)) {
+        lastValidBobinesOrder = newBobines;
+      }
+    });
+    return lastValidBobinesOrder;
+  }
+
   private getNewBobinesOrder(
     draggedBobineIndex?: number,
     dragStart?: number,
@@ -125,11 +161,7 @@ export class OrderableBobines extends React.Component<
       return bobines;
     }
 
-    const newBobines = [...bobines];
-    const from = draggedBobineIndex;
-    const to = from + shiftCount;
-    newBobines.splice(to, 0, newBobines.splice(from, 1)[0]);
-    return newBobines;
+    return this.getClosestValidBobinesOrder(bobines, draggedBobineIndex, shiftCount);
   }
 
   private getOffsetSize(): number {
@@ -159,9 +191,11 @@ export class OrderableBobines extends React.Component<
   ): JSX.Element {
     const {pixelPerMM} = this.props;
     return (
-      <BobineWithPoseWrapper style={{visibility: invisible ? 'hidden' : 'visible'}}>
+      <BobineWithPoseWrapper
+        key={`${bobine.ref}-${index}`}
+        style={{visibility: invisible ? 'hidden' : 'visible'}}
+      >
         <BobineWithPose
-          key={`${bobine.ref}-${index}`}
           pixelPerMM={pixelPerMM}
           bobine={bobine}
           style={{zIndex: index + 1}}
@@ -184,7 +218,10 @@ export class OrderableBobines extends React.Component<
         bobine,
         index,
         true,
-        draggedBobineIndex !== undefined && bobines[draggedBobineIndex] === bobine
+        dragStart !== undefined &&
+          dragEnd !== undefined &&
+          draggedBobineIndex !== undefined &&
+          bobines[draggedBobineIndex] === bobine
       )
     );
 
