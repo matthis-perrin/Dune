@@ -19,7 +19,7 @@ import {
 
 import {Perfo} from '@shared/models';
 
-const DEBUG = true;
+const DEBUG = false;
 
 export function filterPolyprosForSelectablePapiers(
   selectablePolypros: BobineMerePolypro[],

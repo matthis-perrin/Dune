@@ -229,7 +229,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             return (
               <Wrapper style={{width: width - 2 * theme.page.padding}}>
-                {pixelPerMM}
+                {`Computed in ${planProduction.calculationTime}ms`}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>

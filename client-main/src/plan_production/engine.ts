@@ -114,6 +114,8 @@ export class PlanProductionEngine {
       selectablePerfos: this.getSelectablePerfos(),
       selectableRefentes: this.getSelectableRefentes(),
       selectableBobines: this.getSelectableBobines(),
+
+      calculationTime: this.calculationTime,
     };
   }
 

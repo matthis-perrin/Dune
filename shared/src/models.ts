@@ -141,6 +141,8 @@ export interface PlanProductionState {
   selectablePerfos: Perfo[];
   selectableRefentes: Refente[];
   selectableBobines: BobineFilleWithMultiPose[];
+
+  calculationTime: number;
 }
 
 export interface Operation {

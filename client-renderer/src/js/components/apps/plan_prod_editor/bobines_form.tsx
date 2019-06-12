@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import {OrderableBobines} from '@root/components/apps/plan_prod_editor/orderable_bobines';
 import {SelectBobineButton} from '@root/components/apps/plan_prod_editor/select_buttons';
 import {BobineWithPose} from '@root/components/common/bobine_with_pose';
 import {HorizontalCote} from '@root/components/common/cote';
@@ -53,15 +54,28 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
   }
 
   private renderWithRefente(refente: Refente): JSX.Element {
-    const {pixelPerMM, selectedBobines} = this.props;
+    const {pixelPerMM, selectedBobines, selectableBobines} = this.props;
     const placement = firstBobinePlacementAvailableOnRefente(selectedBobines, refente);
     const elements: JSX.Element[] = [];
-    for (let i = 0; i < placement.length; i++) {
-      const spot = placement[i];
-      if (typeof spot === 'number') {
-        elements.push(this.renderSelectBobineButton(spot, i));
-      } else {
-        elements.push(this.renderBobineWithPose(spot, i, i > 0 - 1));
+
+    if (selectableBobines.length === 0) {
+      elements.push(
+        <OrderableBobines
+          bobines={
+            (placement.filter(p => typeof p !== 'number') as unknown) as BobineFilleWithPose[]
+          }
+          refente={refente}
+          pixelPerMM={pixelPerMM}
+        />
+      );
+    } else {
+      for (let i = 0; i < placement.length; i++) {
+        const spot = placement[i];
+        if (typeof spot === 'number') {
+          elements.push(this.renderSelectBobineButton(spot, i));
+        } else {
+          elements.push(this.renderBobineWithPose(spot, i, i > 0 - 1));
+        }
       }
     }
     if (refente.decalage) {
