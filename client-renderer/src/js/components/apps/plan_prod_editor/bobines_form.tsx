@@ -17,6 +17,7 @@ interface BobinesFormProps extends DivProps {
   selectedBobines: BobineFilleWithPose[];
   selectableBobines: BobineFilleWithMultiPose[];
   selectedRefente?: Refente;
+  onReorder(newOrder: BobineFilleWithPose[]): void;
 }
 
 export class BobinesForm extends React.Component<BobinesFormProps> {
@@ -54,7 +55,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
   }
 
   private renderWithRefente(refente: Refente): JSX.Element {
-    const {pixelPerMM, selectedBobines, selectableBobines} = this.props;
+    const {pixelPerMM, selectedBobines, selectableBobines, onReorder} = this.props;
     const placement = firstBobinePlacementAvailableOnRefente(selectedBobines, refente);
     const elements: JSX.Element[] = [];
 
@@ -66,6 +67,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
           }
           refente={refente}
           pixelPerMM={pixelPerMM}
+          onReorder={onReorder}
         />
       );
     } else {

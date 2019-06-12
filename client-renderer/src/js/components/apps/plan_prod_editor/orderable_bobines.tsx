@@ -15,6 +15,7 @@ interface OrderableBobinesProps extends DivProps {
   pixelPerMM: number;
   bobines: BobineFilleWithPose[];
   refente: Refente;
+  onReorder(newOrder: BobineFilleWithPose[]): void;
 }
 
 interface OrderableBobinesState {
@@ -176,6 +177,11 @@ export class OrderableBobines extends React.Component<
   };
 
   private readonly handleMouseUp = (event: React.MouseEvent): void => {
+    const {bobines, onReorder} = this.props;
+    const {dragStart, dragEnd} = this.state;
+    const draggedBobineIndex = this.getDraggedBobineIndex();
+    const reorderedBobines = this.getNewBobinesOrder(draggedBobineIndex, dragStart, dragEnd);
+    onReorder(reorderedBobines);
     this.setState({dragStart: undefined, dragEnd: undefined});
   };
 

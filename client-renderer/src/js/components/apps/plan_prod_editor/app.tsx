@@ -1,3 +1,4 @@
+import {isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -20,12 +21,13 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, getCouleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {PlanProductionState, ClientAppType} from '@shared/models';
+import {PlanProductionState, ClientAppType, BobineFilleWithPose} from '@shared/models';
 
 interface Props {}
 
 interface State {
   planProduction?: PlanProductionState;
+  reorderedBobines?: BobineFilleWithPose[];
 }
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
@@ -50,18 +52,24 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge
       .getPlanProduction()
       .then(planProduction => {
-        console.log(planProduction);
-        console.log(
-          planProduction.selectableBobines.map(
-            b => `${b.couleurPapier}-${b.laize}${b.availablePoses.join(',')}`
-          )
-        );
-        this.setState({planProduction});
+        const newState: Partial<State> = {planProduction};
+        if (
+          this.state.planProduction &&
+          this.state.reorderedBobines &&
+          !isEqual(planProduction.selectedBobines, this.state.planProduction.selectedBobines)
+        ) {
+          newState.reorderedBobines = undefined;
+        }
+        this.setState(newState);
         if (planProduction.selectableBobines.length === 0) {
           bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
         }
       })
       .catch(err => console.error(err));
+  };
+
+  private readonly handleBobineReorder = (newBobines: BobineFilleWithPose[]): void => {
+    this.setState({reorderedBobines: newBobines});
   };
 
   private removeRefente(): void {
@@ -162,10 +170,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             const bobinesBlock = (
               <BobinesForm
-                selectedBobines={selectedBobines}
+                selectedBobines={this.state.reorderedBobines || selectedBobines}
                 selectableBobines={selectableBobines}
                 selectedRefente={selectedRefente}
                 pixelPerMM={pixelPerMM}
+                onReorder={this.handleBobineReorder}
               />
             );
 
