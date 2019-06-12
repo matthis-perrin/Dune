@@ -18,6 +18,7 @@ interface BobineProps extends DivProps {
 }
 
 export const CURVE_EXTRA_SPACE = 0.01;
+export const SHEET_EXTRA_HEIGHT = 0.2;
 export const BOBINE_STROKE_WIDTH = 2;
 
 export class Bobine extends React.Component<BobineProps> {
@@ -137,7 +138,7 @@ export class Bobine extends React.Component<BobineProps> {
     const width = (size || 0) * pixelPerMM;
     const height = 100 * pixelPerMM;
     const offset = CAPACITE_MACHINE * CURVE_EXTRA_SPACE * pixelPerMM;
-    const sheetExtraHeight = height * 0.2;
+    const sheetExtraHeight = height * SHEET_EXTRA_HEIGHT;
 
     const restProps = omit(this.props, [
       'ref',

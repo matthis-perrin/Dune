@@ -56,10 +56,13 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
   return currentSelectable;
 }
 
+const DEBUG = false;
 let perfTime = Date.now();
 function markPerf(label: string): void {
   const now = Date.now();
-  console.log(label, now - perfTime);
+  if (DEBUG) {
+    console.log(label, now - perfTime);
+  }
   perfTime = now;
 }
 
