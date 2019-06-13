@@ -1,5 +1,5 @@
-import {countBy, differenceBy, uniq, without} from 'lodash';
 import log from 'electron-log';
+import {countBy, differenceBy, uniq, without} from 'lodash';
 
 import {
   getBobineHashCombinaison,

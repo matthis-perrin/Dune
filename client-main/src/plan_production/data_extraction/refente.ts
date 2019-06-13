@@ -1,6 +1,7 @@
 import {Refente as RefenteAlgo} from '@root/plan_production/models';
-import {Refente as RefenteModel} from '@shared/models';
+
 import {getRefenteLaizes, getRefenteSize} from '@shared/lib/refentes';
+import {Refente as RefenteModel} from '@shared/models';
 
 export function getRefentes(refentes: RefenteModel[]): RefenteAlgo[] {
   const refentesAlgo: RefenteAlgo[] = [];

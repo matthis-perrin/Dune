@@ -44,9 +44,13 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
       );
     }
     // const t = Date.now();
-    const newSelectables = filterAllOnce(planProd, currentSelectable);
-    somethingChanged = selectablesAreDifferent(currentSelectable, newSelectables);
-    currentSelectable = newSelectables;
+    try {
+      const newSelectables = filterAllOnce(planProd, currentSelectable);
+      somethingChanged = selectablesAreDifferent(currentSelectable, newSelectables);
+      currentSelectable = newSelectables;
+    } catch (err) {
+      console.error(err);
+    }
     // console.log(`Step ${i} (${Date.now() - t}ms)`);
     i++;
   }

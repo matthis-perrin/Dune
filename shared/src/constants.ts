@@ -1,0 +1,1 @@
+export const MAX_COULEURS_IMPRESSIONS = 3;

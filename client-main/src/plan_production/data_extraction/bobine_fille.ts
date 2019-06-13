@@ -1,12 +1,11 @@
-import {getClichePoses} from '@root/plan_production/data_extraction/cliche';
-import {BobineFilleClichePose, ClichePose} from '@root/plan_production/models';
+import {BobineFilleClichePose} from '@root/plan_production/models';
 
-import {BobineFille, Cliche} from '@shared/models';
 import {
   getBobineFillePoses,
   getBobineFilleImportanceOrdreCouleurs,
   getBobineFilleCouleursImpression,
 } from '@shared/lib/bobines_filles';
+import {BobineFille, Cliche} from '@shared/models';
 
 export function getBobineHash(
   laize: number,

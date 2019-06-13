@@ -56,7 +56,7 @@ class WindowManager {
   }
 
   public closeWindowOfType(type: ClientAppType): void {
-    for (let w of this.windows.values()) {
+    for (const w of this.windows.values()) {
       if (w.appInfo.type === type) {
         this.closeWindow(w.id);
       }
@@ -174,7 +174,7 @@ class WindowManager {
     // tslint:disable-next-line: no-any
     try {
       await setupBrowserWindow(newBrowserWindow, handleCommand, id);
-      if (size === undefined) {
+      if (size.width === undefined && size.height === undefined) {
         newBrowserWindow.maximize();
       }
       newBrowserWindow.show();

@@ -1,5 +1,6 @@
-import {flatten, omit, pick} from 'lodash';
+import {flatten, omit} from 'lodash';
 
+import {getColorsRestrictionsForBobine} from '@root/plan_production/colors_compatibility';
 import {
   getBobineFilleClichePose,
   isValidBobineFille,
@@ -15,6 +16,9 @@ import {getRefentes, isValidRefente} from '@root/plan_production/data_extraction
 import {filterAll} from '@root/plan_production/master_filter';
 import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
 
+import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
+import {getBobineFillePoses} from '@shared/lib/bobines_filles';
+import {generateAllAcceptableColorsOrder} from '@shared/lib/encrier';
 import {
   BobineFille,
   BobineMere,
@@ -26,7 +30,6 @@ import {
   BobineFilleWithMultiPose,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
-import {getBobineFillePoses} from '@shared/lib/bobines_filles';
 
 export class PlanProductionEngine {
   private readonly planProduction: PlanProduction;
@@ -89,7 +92,7 @@ export class PlanProductionEngine {
     );
 
     this.allBobinesFillesPosesByRef = new Map<string, number[]>();
-    for (let bobineFille of this.originalBobinesFillesByRef.values()) {
+    for (const bobineFille of this.originalBobinesFillesByRef.values()) {
       const poses = getBobineFillePoses(bobineFille, this.allClicheByRef);
       this.allBobinesFillesPosesByRef.set(bobineFille.ref, poses);
     }
@@ -115,6 +118,7 @@ export class PlanProductionEngine {
       selectableRefentes: this.getSelectableRefentes(),
       selectableBobines: this.getSelectableBobines(),
 
+      couleursEncrier: this.getValidCouleursEncriers(),
       calculationTime: this.calculationTime,
     };
   }
@@ -185,13 +189,6 @@ export class PlanProductionEngine {
       this.recalculate();
     }
   }
-
-  // public removeBobineFille(bobineFille: BobineFilleClichePose): void {
-  //   this.planProduction.bobinesFilles = this.planProduction.bobinesFilles.filter(
-  //     b => b !== bobineFille
-  //   );
-  //   this.recalculate();
-  // }
 
   public recalculate(): void {
     setTimeout(() => {
@@ -272,7 +269,7 @@ export class PlanProductionEngine {
     });
 
     const bobinesMultiPose: BobineFilleWithMultiPose[] = [];
-    for (let bobinesCliche of selectableBobinesByRef.values()) {
+    for (const bobinesCliche of selectableBobinesByRef.values()) {
       const {ref} = bobinesCliche[0];
       const availablePoses = bobinesCliche.map(bc => bc.pose);
       const allPoses = this.allBobinesFillesPosesByRef.get(ref) || [];
@@ -284,6 +281,13 @@ export class PlanProductionEngine {
     }
 
     return bobinesMultiPose;
+  }
+
+  private getValidCouleursEncriers(): string[][] {
+    return generateAllAcceptableColorsOrder(
+      this.planProduction.bobinesFilles.map(getColorsRestrictionsForBobine),
+      MAX_COULEURS_IMPRESSIONS
+    );
   }
 
   private computeSelectables(): Selectables {

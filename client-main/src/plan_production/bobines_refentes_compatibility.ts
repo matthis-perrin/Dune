@@ -7,10 +7,10 @@ import {
   getColorsRestrictionsForBobine,
 } from '@root/plan_production/colors_compatibility';
 import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
-import {permutations} from '@root/plan_production/utils';
-import {getPoseSize} from '@shared/lib/cliches';
 
-const MAX_COULEURS_IMPRESSIONS = 3;
+import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
+import {getPoseSize} from '@shared/lib/cliches';
+import {permutations} from '@shared/lib/utils';
 
 // This function checks if there is at aleast one combinaison of `BobineFilleClichePose`
 // in `selectableBobines` that fits in `refente` given a list of already selected `BobineFilleClichePose`
@@ -53,7 +53,7 @@ export function compatibilityExists(
   const laizesLeft = analyseLaizesLeftOnRefente(selectedBobines, refente);
   if (laizesLeft) {
     const laizeTypes = laizesLeft.keys();
-    for (let laize of laizeTypes) {
+    for (const laize of laizeTypes) {
       if (findIndex(selectableBobines, {laize}) === -1) {
         return undefined;
       }
@@ -257,7 +257,7 @@ export function applyBobinesOnRefente(
 ): RefenteStatus {
   const bobinesLaizesSum = sum(bobines.map(b => getPoseSize(b.pose)));
   let currentIndex = 0;
-  for (let bobine of bobines) {
+  for (const bobine of bobines) {
     const firstIndexThatFits = applyBobineOnLaizes(bobine, refente.laizes, currentIndex);
     if (firstIndexThatFits === undefined) {
       return RefenteStatus.INCOMPATIBLE;

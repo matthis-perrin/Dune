@@ -142,6 +142,7 @@ export interface PlanProductionState {
   selectableRefentes: Refente[];
   selectableBobines: BobineFilleWithMultiPose[];
 
+  couleursEncrier: string[][];
   calculationTime: number;
 }
 

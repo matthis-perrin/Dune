@@ -239,6 +239,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             return (
               <Wrapper style={{width: width - 2 * theme.page.padding}}>
                 {`Computed in ${planProduction.calculationTime}ms`}
+                {JSON.stringify(planProduction.couleursEncrier)}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>

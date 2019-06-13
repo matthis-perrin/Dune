@@ -5,7 +5,6 @@ import {
   RefenteStatus,
 } from '@root/plan_production/bobines_refentes_compatibility';
 import {
-  ColorRestriction,
   getColorsRestrictionsForBobine,
   checkColorsAreCompatbile,
 } from '@root/plan_production/colors_compatibility';
@@ -22,6 +21,7 @@ import {
   Refente as RefenteAlgo,
 } from '@root/plan_production/models';
 
+import {ColorRestriction} from '@shared/lib/encrier';
 import {BobineFille, BobineMere, Cliche, Perfo, Refente as RefenteModel} from '@shared/models';
 
 export class PlanProductionExplorer {

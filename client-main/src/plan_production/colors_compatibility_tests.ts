@@ -1,7 +1,5 @@
-import {
-  checkColorsAreCompatbile,
-  ColorRestriction,
-} from '@root/plan_production/colors_compatibility';
+import {checkColorsAreCompatbile} from '@root/plan_production/colors_compatibility';
+import {ColorRestriction} from '@shared/lib/encrier';
 
 const tests: {restrictions: ColorRestriction[]; maxColors: number; expected: boolean}[] = [
   {restrictions: [], maxColors: 3, expected: true},

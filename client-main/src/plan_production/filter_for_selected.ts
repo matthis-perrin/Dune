@@ -1,5 +1,5 @@
-import {differenceBy, uniq, without} from 'lodash';
 import log from 'electron-log';
+import {differenceBy, uniq, without} from 'lodash';
 
 import {
   substractCombinaisons,

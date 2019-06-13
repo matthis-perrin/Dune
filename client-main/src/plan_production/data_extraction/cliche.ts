@@ -1,6 +1,7 @@
 import {ClichePose} from '@root/plan_production/models';
-import {Cliche} from '@shared/models';
+
 import {getPoses, getCouleurs} from '@shared/lib/cliches';
+import {Cliche} from '@shared/models';
 
 export function getClichePoses(cliche?: Cliche): ClichePose[] {
   if (cliche && cliche.sommeil) {
