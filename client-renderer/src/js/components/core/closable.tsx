@@ -12,32 +12,10 @@ interface ClosableProps
   centeredWithOffset?: number;
 }
 
-interface ClosableState {
-  isHovered: boolean;
-}
-
-export class Closable extends React.Component<ClosableProps, ClosableState> {
+export class Closable extends React.Component<ClosableProps> {
   public static displayName = 'Closable';
 
-  public constructor(props: ClosableProps) {
-    super(props);
-    this.state = {
-      isHovered: false,
-    };
-  }
-
-  private readonly handleMouseEnter = (): void => {
-    this.setState({isHovered: true});
-  };
-
-  private readonly handleMouseLeave = (): void => {
-    this.setState({isHovered: false});
-  };
-
   private renderCloseButton(): JSX.Element {
-    if (!this.state.isHovered) {
-      return <React.Fragment />;
-    }
     const {centeredWithOffset} = this.props;
     return centeredWithOffset !== undefined
       ? this.renderCenteredCloseButton(centeredWithOffset)
@@ -46,7 +24,7 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
 
   private renderCornerCloseButton(): JSX.Element {
     return (
-      <CornerCloseButton onClick={this.props.onClose}>
+      <CornerCloseButton className="close-button" onClick={this.props.onClose}>
         <SVGIcon name="cross" width={16} height={16} />
       </CornerCloseButton>
     );
@@ -57,6 +35,7 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
     const offsetAbs = Math.abs(offset);
     return (
       <CenteredCloseButton
+        className="close-button"
         onClick={this.props.onClose}
         style={{left: `calc(50% - 30px ${sign} ${offsetAbs}px)`}}
       >
@@ -68,7 +47,7 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
   public render(): JSX.Element {
     const props = omit(this.props, ['onClose', 'centeredWithOffset', 'ref']);
     return (
-      <Wrapper {...props} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+      <Wrapper {...props}>
         {this.renderCloseButton()}
         {this.props.children}
       </Wrapper>
@@ -78,9 +57,15 @@ export class Closable extends React.Component<ClosableProps, ClosableState> {
 
 const Wrapper = styled.div`
   position: relative;
+  &:hover {
+    .close-button {
+      display: block;
+    }
+  }
 `;
 
 const CloseButton = styled.div`
+  display: none;
   position: absolute;
   z-index: 100;
   cursor: pointer;
