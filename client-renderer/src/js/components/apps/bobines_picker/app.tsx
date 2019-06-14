@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
-  REFERENCE_COLUMN,
   DESIGNATION_COLUMN,
   LAIZE_COLUMN,
   COULEUR_PAPIER_COLUMN,
@@ -15,6 +14,7 @@ import {
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
   COULEURS_IMPRESSION_COLUMN,
+  BOBINE_FILLE_REF,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 // import {bridge} from '@root/lib/bridge';
@@ -56,7 +56,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {stocks = new Map<string, Stock[]>()} = this.state;
     const columns = [
-      REFERENCE_COLUMN(170),
+      BOBINE_FILLE_REF,
       DESIGNATION_COLUMN,
       LAIZE_COLUMN,
       COULEUR_PAPIER_COLUMN,

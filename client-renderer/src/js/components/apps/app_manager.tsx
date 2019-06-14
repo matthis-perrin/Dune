@@ -14,6 +14,7 @@ import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
 import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
+import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
 import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
@@ -31,7 +32,7 @@ import {
 import {AnyListStore, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
-import {asMap, asNumber} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -105,6 +106,9 @@ export class AppManager extends React.Component<Props, State> {
       return [bobinesMeresStore, stocksStore];
     }
 
+    if (type === ClientAppType.ViewBobineApp) {
+      return [bobinesFillesStore, clichesStore, stocksStore];
+    }
     if (type === ClientAppType.ViewOperationApp) {
       return [];
     }
@@ -156,10 +160,15 @@ export class AppManager extends React.Component<Props, State> {
       return <PolyproPickerApp />;
     }
 
+    if (type === ClientAppType.ViewBobineApp) {
+      const {bobineRef} = asMap(data);
+      return <ViewBobineApp bobineRef={asString(bobineRef, '')} />;
+    }
     if (type === ClientAppType.ViewOperationApp) {
       const {operationId} = asMap(data);
       return <ViewOperationApp operationId={asNumber(operationId, undefined)} />;
     }
+
     return (
       <TempWrapper>
         <div>Unknown App:</div>

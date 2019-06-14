@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
-import {BobineFilleColumns} from '@root/components/table/columns';
+import {BobineFilleColumns, BOBINE_FILLE_REF} from '@root/components/table/columns';
 import {bobinesFillesStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineFille, Stock} from '@shared/models';
@@ -61,7 +61,7 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
         data={bobinesFilles}
         lastUpdate={lastUpdate}
         columns={[
-          BobineFilleColumns.Ref,
+          BOBINE_FILLE_REF,
           BobineFilleColumns.Designation,
           BobineFilleColumns.Laize,
           BobineFilleColumns.Longueur,

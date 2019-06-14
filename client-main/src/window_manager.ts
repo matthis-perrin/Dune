@@ -105,9 +105,13 @@ class WindowManager {
       const {operationId = 'create'} = asMap(appInfo.data);
       return {id: `view-operation-app--${operationId}`, size: {width: 535, height: 250}};
     }
+    if (appInfo.type === ClientAppType.ViewBobineApp) {
+      const {bobineRef = ''} = asMap(appInfo.data);
+      return {id: `view-bobine-app--${bobineRef}`, size: {width: 900, height: 700}};
+    }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1200, height: 900}};
+      return {id: 'plan-production-editor-app', size: {width: 1250, height: 950}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
       return {id: 'bobines-picker-app', size: {width: 1200, height: 800}};

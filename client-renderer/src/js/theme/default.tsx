@@ -1,4 +1,4 @@
-const Colors = {
+export const Colors = {
   // Brand colors
   primary: '#FFBB10',
   secondary: '#0258AE',
@@ -100,6 +100,13 @@ export function getCouleurByName(name?: string): string {
     return '#2ecc71';
   }
   return 'transparent';
+}
+
+export function textColorByName(name?: string): string {
+  if (name === 'NOIR' || name === 'MARRON') {
+    return '#ffffff';
+  }
+  return '#000000';
 }
 
 export const theme = {

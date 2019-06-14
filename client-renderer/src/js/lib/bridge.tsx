@@ -126,9 +126,13 @@ class Bridge {
     return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {ref, pose});
   }
 
+  public async viewBobine(bobineRef: string): Promise<void> {
+    return this.openApp(ClientAppType.ViewBobineApp, {bobineRef});
+  }
   public async viewOperation(operationId: number | undefined): Promise<void> {
     return this.openApp(ClientAppType.ViewOperationApp, {operationId});
   }
+
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
     return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});
   }

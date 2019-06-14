@@ -1,5 +1,6 @@
 import {sum} from 'lodash-es';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
 import {Duration} from '@root/components/common/duration';
@@ -7,7 +8,10 @@ import {
   OperationConstraint,
   ConstraintDescriptions,
 } from '@root/components/common/operation_constraint';
+import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
+import {bridge} from '@root/lib/bridge';
+import {Colors} from '@root/theme/default';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {
@@ -60,8 +64,18 @@ function optionalSort<T>(
   return cmp(opt1, opt2);
 }
 
-const stringSort = (val1: string, val2: string) =>
-  val1.toLowerCase().localeCompare(val2.toLowerCase());
+const stringSort = (val1: string, val2: string) => {
+  if (val1 === val2) {
+    return 0;
+  }
+  if (val1 === '') {
+    return 1;
+  }
+  if (val2 === '') {
+    return -1;
+  }
+  return val1.toLowerCase().localeCompare(val2.toLowerCase());
+};
 const numberSort = (val1: number, val2: number) => val1 - val2;
 const booleanSort = (val1: boolean, val2: boolean) => (val1 && val2 ? 0 : val1 ? 1 : -1);
 const dateSort = (val1: Date, val2: Date) => val1.getTime() - val2.getTime();
@@ -124,6 +138,36 @@ function renderBoolean(value?: boolean): JSX.Element {
   return <span>{value === undefined ? '-' : value ? 'OUI' : 'NON'}</span>;
 }
 
+function renderRefLink(ref: string, onClick: () => void): JSX.Element {
+  return (
+    <RefLink onClick={onClick}>
+      <RefLinkText>{ref}</RefLinkText>
+      <RefLinkIcon name="new-window" width={12} height={12} />
+    </RefLink>
+  );
+}
+
+const RefLinkText = styled.div`
+  margin-right: 6px;
+`;
+
+const RefLinkIcon = styled(SVGIcon)`
+  display: none;
+`;
+
+const RefLink = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${Colors.secondary};
+  fill: ${Colors.secondary};
+  &:hover {
+    text-decoration: underline;
+    svg {
+      display: block;
+    }
+  }
+`;
+
 // tslint:disable:no-magic-numbers
 export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, string> => ({
   title: 'Reference',
@@ -132,6 +176,14 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
   getSearchValue: row => row.ref,
   sortFunction: (row1, row2) => stringSort(row1.ref, row2.ref),
 });
+
+export const BOBINE_FILLE_REF: ColumnMetadata<{ref: string}, string> = {
+  title: 'Reference',
+  width: 190,
+  renderCell: ({ref}) => renderRefLink(ref, () => bridge.viewBobine(ref).catch(console.error)),
+  getSearchValue: row => row.ref || '',
+  sortFunction: (row1, row2) => optionalStringSort(row1.ref, row2.ref),
+};
 
 export const ID_COLUMN = (width: number): ColumnMetadata<{id: number}, number> => ({
   title: 'Id',
