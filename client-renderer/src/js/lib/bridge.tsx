@@ -26,6 +26,7 @@ import {
   AddPlanBobine,
   CloseAppOfType,
   RemovePlanBobine,
+  ListCadencier,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -38,6 +39,7 @@ import {
   ClientAppInfo,
   ClientAppType,
   PlanProductionState,
+  VenteLight,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -99,6 +101,9 @@ class Bridge {
   }
   public async listOperations(localUpdate: number): Promise<BridgeListResponse<Operation>> {
     return this.listGeneric<Operation>(ListOperations, localUpdate);
+  }
+  public async listCadencier(bobineRef: string): Promise<VenteLight[]> {
+    return this.bridgeTransport.sendBridgeCommand<VenteLight[]>(ListCadencier, {bobineRef});
   }
 
   public async createNewPlanProduction(): Promise<void> {

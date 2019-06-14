@@ -31,7 +31,6 @@ export class ViewerTopBar extends React.Component<Props> {
 
   public render(): JSX.Element {
     const {children, color} = this.props;
-    console.log(color);
     return (
       <ViewerTopBarWrapper
         style={{color: textColorByName(color), backgroundColor: getCouleurByName(color)}}

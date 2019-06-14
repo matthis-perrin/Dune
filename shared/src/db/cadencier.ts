@@ -1,8 +1,8 @@
 import knex from 'knex';
 
 import {CADENCIER_TABLE_NAME} from '@shared/db/table_names';
-import {Vente} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {VenteLight} from '@shared/models';
+import {asDate, asMap, asNumber} from '@shared/type_utils';
 
 export const CadencierColumns = {
   ID_COLUMN: 'id',
@@ -38,19 +38,20 @@ export async function deleteCadencier(db: knex, ids: string[]): Promise<void> {
     .delete();
 }
 
-export async function listCadencier(db: knex, ref: string): Promise<Vente[]> {
+export async function listCadencier(db: knex, ref: string): Promise<VenteLight[]> {
   return db(CADENCIER_TABLE_NAME)
-    .select()
+    .select([
+      CadencierColumns.TYPE_COLUMN,
+      CadencierColumns.VENTE_QUANTITE_COLUMN,
+      CadencierColumns.VENTE_QUANTITE_DATE_COLUMN,
+    ])
+    .where(CadencierColumns.BOBINE_REF_COLUMN, '=', ref)
     .map(cadencierLine => {
       const c = asMap(cadencierLine);
       return {
-        id: asString(c, ''),
-        refBobine: asString(c, ''),
-        type: asNumber(c, -1),
-        quantity: asNumber(c, 0),
-        date: asDate(c),
-        lastUpdate: asDate(c),
-        localUpdate: asDate(c.localUpdate),
+        type: asNumber(c[CadencierColumns.TYPE_COLUMN], -1),
+        quantity: asNumber(c[CadencierColumns.VENTE_QUANTITE_COLUMN], 0),
+        date: asNumber(c[CadencierColumns.VENTE_QUANTITE_DATE_COLUMN], 0),
       };
     });
 }

@@ -82,14 +82,20 @@ export interface Stock {
   localUpdate: Date;
 }
 
-export interface Vente {
-  id: string;
-  refBobine: string;
+// export interface Vente {
+//   id: string;
+//   refBobine: string;
+//   type: number;
+//   quantity: number;
+//   date: Date;
+//   lastUpdate: Date;
+//   localUpdate: Date;
+// }
+
+export interface VenteLight {
   type: number;
   quantity: number;
-  date: Date;
-  lastUpdate: Date;
-  localUpdate: Date;
+  date: number;
 }
 
 export interface Perfo {

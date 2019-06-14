@@ -2,6 +2,7 @@ import {find} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {BobineCadencierChart} from '@root/components/charts/cadencier';
 import {BasicInfo} from '@root/components/common/basic_info';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
@@ -142,7 +143,9 @@ export class ViewBobineApp extends React.Component<Props, State> {
           <GeneralInfoContainer>{this.renderGeneralInfo()}</GeneralInfoContainer>
           <ClichesInfoContainer>{this.renderClichesInfo()}</ClichesInfoContainer>
         </InfoContainer>
-        <CandencierContainer>Coming soon !</CandencierContainer>
+        <CandencierContainer>
+          <BobineCadencierChart bobineRef={bobineRef} />
+        </CandencierContainer>
       </AppWrapper>
     );
   }

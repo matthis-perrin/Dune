@@ -3,32 +3,34 @@ import {planProductionStore} from '@root/store';
 import {windowManager} from '@root/window_manager';
 
 import {
+  AddPlanBobine,
   BridgeCommand,
+  CloseApp,
+  CloseAppOfType,
+  CreateNewPlanProduction,
+  CreateOrUpdateOperateur,
+  CreateOrUpdateOperation,
+  GetAppInfo,
+  GetNewPlanProduction,
   ListBobinesFilles,
   ListBobinesMeres,
+  ListCadencier,
   ListCliches,
+  ListOperateurs,
+  ListOperations,
   ListPerfos,
   ListRefentes,
   ListStocks,
-  GetAppInfo,
   OpenApp,
-  ListOperations,
-  CreateOrUpdateOperation,
-  CloseApp,
-  ListOperateurs,
-  CreateOrUpdateOperateur,
-  CreateNewPlanProduction,
-  GetNewPlanProduction,
-  SetPlanPerfo,
-  SetPlanRefente,
-  SetPlanPapier,
-  SetPlanPolypro,
-  AddPlanBobine,
-  CloseAppOfType,
   RemovePlanBobine,
+  SetPlanPapier,
+  SetPlanPerfo,
+  SetPlanPolypro,
+  SetPlanRefente,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
+import {listCadencier} from '@shared/db/cadencier';
 import {listCliches} from '@shared/db/cliches';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
@@ -63,6 +65,10 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   if (command === ListRefentes) {
     const {localUpdate} = asMap(params);
     return {data: await listRefentes(db, asNumber(localUpdate, 0))};
+  }
+  if (command === ListCadencier) {
+    const {bobineRef} = asMap(params);
+    return listCadencier(db, asString(bobineRef, ''));
   }
 
   // Window Management

@@ -48,7 +48,7 @@ export class BridgeTransport {
   ): Promise<T> {
     console.debug('BRIDGE', command, data);
     return new Promise<T>((resolve, reject) => {
-      const id = uniqueId('command-');
+      const id = uniqueId(`command-${command}`);
       const timeout = (setTimeout(() => {
         this.handleCommandTimingOut(id);
       }, timeoutMs) as unknown) as number;
@@ -80,7 +80,7 @@ export class BridgeTransport {
     }
     const {resolve, timeout} = pendingCommand;
     clearTimeout(timeout);
-    console.debug('BRIDGE', response);
+    console.debug('BRIDGE', id, response);
     resolve(response);
   }
 
