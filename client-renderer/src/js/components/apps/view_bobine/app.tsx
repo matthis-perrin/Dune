@@ -212,7 +212,6 @@ const NoClicheContainer = styled.div`
 `;
 
 const CandencierContainer = styled(ContainerBase)`
-  width: 100%;
   flex-grow: 1;
   display: flex;
   align-items: center;

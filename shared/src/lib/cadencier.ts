@@ -24,7 +24,7 @@ export const CadencierTypeDescription = new Map<CadencierType, string>([
 
 export function roundToMonth(timestamp: number): number {
   const date = new Date(timestamp);
-  return new Date(date.getFullYear(), date.getMonth()).getTime();
+  return new Date(date.getFullYear(), date.getMonth(), 15).getTime();
 }
 
 export function aggregateByMonth(
@@ -56,7 +56,7 @@ export function createMonthsRange(
     const startMonth = year === startYear && !forceFullYear ? startDate.getMonth() : 0;
     const endMonth = year === endYear && !forceFullYear ? endDate.getMonth() : 11;
     for (let month = startMonth; month <= endMonth; month++) {
-      res.push(new Date(year, month).getTime());
+      res.push(new Date(year, month, 15).getTime());
     }
   }
   return res;
