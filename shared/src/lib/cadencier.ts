@@ -27,16 +27,15 @@ export function roundToMonth(timestamp: number): number {
   return new Date(date.getFullYear(), date.getMonth(), 15).getTime();
 }
 
-export function aggregateByMonth(
-  cadencier: VenteLight[],
-  filterType: CadencierType
-): Map<number, number> {
-  const data = new Map<number, number>();
+export function aggregateByMonth(cadencier: VenteLight[]): Map<number, VenteLight[]> {
+  const data = new Map<number, VenteLight[]>();
   cadencier.forEach(v => {
-    if (v.type === filterType) {
-      const ts = roundToMonth(v.date);
-      const current = data.get(ts) || 0;
-      data.set(ts, current + v.quantity);
+    const ts = roundToMonth(v.date);
+    const current = data.get(ts);
+    if (!current) {
+      data.set(ts, [v]);
+    } else {
+      current.push(v);
     }
   });
   return data;

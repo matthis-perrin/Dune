@@ -3,9 +3,11 @@ import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
+import {getCouleurByName} from '@root/theme/default';
 
 import {
   CadencierType,
@@ -13,10 +15,22 @@ import {
   createMonthsRange,
   roundToMonth,
 } from '@shared/lib/cadencier';
-import {VenteLight} from '@shared/models';
+import {MONTHS_STRING} from '@shared/lib/time';
+import {VenteLight, BobineFille} from '@shared/models';
+
+interface VenteDatum {
+  time: Date;
+  value: VenteLight[];
+}
+
+enum DisplayMode {
+  LOADING,
+  LOADED,
+  EMPTY,
+}
 
 interface BobineCadencierChartProps {
-  bobineRef: string;
+  bobine?: BobineFille;
 }
 
 interface BobineCadencierChartState {}
@@ -28,6 +42,7 @@ export class BobineCadencierChart extends React.Component<
   public static displayName = 'BobineCadencierChart';
   private readonly chartRef = React.createRef<HTMLDivElement>();
   private readonly loadingRef = React.createRef<HTMLDivElement>();
+  private readonly emptyRef = React.createRef<HTMLDivElement>();
   private plot: Plottable.Components.Table | undefined = undefined;
 
   public constructor(props: BobineCadencierChartProps) {
@@ -36,12 +51,52 @@ export class BobineCadencierChart extends React.Component<
   }
 
   public componentDidMount(): void {
-    const {bobineRef} = this.props;
-    bridge
-      .listCadencier(bobineRef)
-      .then(this.createPlot)
-      .catch(console.error);
     window.addEventListener('resize', this.handleRise);
+    const {bobine} = this.props;
+    if (!bobine) {
+      return;
+    }
+    this.loadBobine(bobine);
+  }
+
+  public componentDidUpdate(prevProps: BobineCadencierChartProps): void {
+    if (this.props.bobine === undefined) {
+      if (prevProps.bobine === undefined) {
+        return;
+      } else {
+        this.setDisplayMode(DisplayMode.LOADING);
+      }
+    } else {
+      if (prevProps.bobine === undefined) {
+        this.loadBobine(this.props.bobine);
+      } else {
+        if (prevProps.bobine.ref !== this.props.bobine.ref) {
+          this.loadBobine(this.props.bobine);
+        }
+      }
+    }
+  }
+
+  private setDisplayMode(mode: DisplayMode): void {
+    const chartElement = this.chartRef.current;
+    const loadingElement = this.loadingRef.current;
+    const emptyElement = this.emptyRef.current;
+    if (!chartElement || !loadingElement || !emptyElement) {
+      return;
+    }
+    loadingElement.style.display = mode === DisplayMode.LOADING ? 'block' : 'none';
+    chartElement.style.display = mode === DisplayMode.LOADED ? 'block' : 'none';
+    emptyElement.style.display = mode === DisplayMode.EMPTY ? 'block' : 'none';
+  }
+
+  private loadBobine(bobine: BobineFille) {
+    this.setDisplayMode(DisplayMode.LOADING);
+
+    const {ref} = bobine;
+    bridge
+      .listCadencier(ref)
+      .then(cadencier => this.createPlot(bobine, cadencier))
+      .catch(console.error);
   }
 
   private readonly handleRise = (): void => {
@@ -51,16 +106,19 @@ export class BobineCadencierChart extends React.Component<
     this.plot.redraw();
   };
 
-  private readonly createPlot = (cadencier: VenteLight[]): void => {
+  private readonly createPlot = (bobine: BobineFille, cadencier: VenteLight[]): void => {
     // Check this is a good time to render
     const chartElement = this.chartRef.current;
-    const loadingElement = this.loadingRef.current;
-    if (!chartElement || !loadingElement) {
+    if (!chartElement) {
       return;
     }
 
     // Data computation
     const data = this.getVenteData(cadencier);
+    if (data.length === 0) {
+      this.setDisplayMode(DisplayMode.EMPTY);
+      return;
+    }
     const first = data[0];
     const last = data[data.length - 1];
 
@@ -69,11 +127,24 @@ export class BobineCadencierChart extends React.Component<
     const yScale = new Plottable.Scales.Linear();
 
     // Bars
+    const getValue = (datum: VenteDatum) => {
+      return datum.value.reduce(
+        (acc, curr) =>
+          acc + (curr.type === CadencierType.FACTURE_COMPTABILISEE ? curr.quantity : 0),
+        0
+      );
+    };
+    const color = bobine.couleurPapier;
+    const barColor =
+      color === undefined || ['BLANC', 'IVOIRE'].indexOf(color) !== -1
+        ? '#ddd'
+        : getCouleurByName(color);
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
-      .x(d => d.time, xScale)
-      .y(d => d.value, yScale)
-      .animated(true);
+      .x((d: VenteDatum) => d.time, xScale)
+      .y(getValue, yScale)
+      .animated(true)
+      .attr('fill', barColor);
 
     // Axis
     const xAxis = new Plottable.Axes.Time(xScale, 'bottom');
@@ -90,6 +161,23 @@ export class BobineCadencierChart extends React.Component<
     // Final Plot
     this.plot = new Plottable.Components.Table([[yAxis, bars], [null, xAxis]]);
 
+    // Tooltips
+    createChartTooltip<VenteDatum>(bars, 300, datum => {
+      const monthStr = MONTHS_STRING[datum.time.getMonth()];
+      const dateStr = `${monthStr} ${datum.time.getFullYear()}`;
+      const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);
+      const facturesSum = factures.reduce((acc, curr) => acc + curr.quantity, 0);
+      return (
+        <div>
+          {dateStr}
+          <br />
+          {`${factures.length} factures comptabilisées`}
+          <br />
+          {`Total : ${facturesSum}`}
+        </div>
+      );
+    });
+
     // Gesture
     const pziXAxis = new Plottable.Interactions.PanZoom();
     pziXAxis
@@ -100,20 +188,22 @@ export class BobineCadencierChart extends React.Component<
     pziXAxis.attachTo(bars);
 
     // Rendering
-    loadingElement.style.display = 'none';
-    chartElement.style.display = 'block';
+    this.setDisplayMode(DisplayMode.LOADED);
     this.plot.renderTo(chartElement);
   };
 
-  private getVenteData(cadencier: VenteLight[]): {time: Date; value: number}[] {
-    const facturesByMonth = aggregateByMonth(cadencier, CadencierType.FACTURE_COMPTABILISEE);
+  private getVenteData(cadencier: VenteLight[]): VenteDatum[] {
+    const facturesByMonth = aggregateByMonth(cadencier);
     const allTs = Array.from(facturesByMonth.keys());
+    if (allTs.length === 0) {
+      return [];
+    }
     const firstTs = min(allTs) || Date.now();
     const lastTs = max(allTs) || Date.now();
 
     const data = createMonthsRange(firstTs, lastTs, true).map(ts => ({
       time: new Date(ts),
-      value: facturesByMonth.get(ts) || 0,
+      value: facturesByMonth.get(ts) || [],
     }));
     return data;
   }
@@ -123,6 +213,9 @@ export class BobineCadencierChart extends React.Component<
       <React.Fragment>
         <PlottableCSS />
         <ChartContainer style={{display: 'none'}} ref={this.chartRef} />
+        <EmptyChartContainer style={{display: 'none'}} ref={this.emptyRef}>
+          Aucune vente enregistrée
+        </EmptyChartContainer>
         <LoadingContainer ref={this.loadingRef}>
           <LoadingIndicator size="medium" />
         </LoadingContainer>
@@ -143,3 +236,5 @@ const LoadingContainer = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+const EmptyChartContainer = styled.div``;

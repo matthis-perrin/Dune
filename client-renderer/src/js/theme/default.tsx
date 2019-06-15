@@ -99,7 +99,7 @@ export function getCouleurByName(name?: string): string {
   if (name === 'VERT') {
     return '#2ecc71';
   }
-  return 'transparent';
+  return 'white';
 }
 
 export function textColorByName(name?: string): string {

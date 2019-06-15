@@ -1,7 +1,7 @@
 import {createGlobalStyle} from 'styled-components';
 
 export const PlottableCSS = createGlobalStyle`
-    .plottable-colors-0 {
+  .plottable-colors-0 {
     background-color: #5279c7;
   }
 

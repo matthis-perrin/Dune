@@ -144,7 +144,10 @@ export class ViewBobineApp extends React.Component<Props, State> {
           <ClichesInfoContainer>{this.renderClichesInfo()}</ClichesInfoContainer>
         </InfoContainer>
         <CandencierContainer>
-          <BobineCadencierChart bobineRef={bobineRef} />
+          <CardTitle>Historique des ventes</CardTitle>
+          <CadencierChartContainer>
+            <BobineCadencierChart bobine={bobine} />
+          </CadencierChartContainer>
         </CandencierContainer>
       </AppWrapper>
     );
@@ -172,7 +175,7 @@ const ContainerBase = styled(Card1)`
   font-size: 13px;
 `;
 
-const CARD_MARGIN = 8;
+const CARD_MARGIN = 16;
 
 const GeneralInfoContainer = styled(ContainerBase)`
   flex-basis: 1px;
@@ -213,8 +216,12 @@ const NoClicheContainer = styled.div`
 
 const CandencierContainer = styled(ContainerBase)`
   flex-grow: 1;
+  margin: ${CARD_MARGIN / 2}px ${CARD_MARGIN}px ${CARD_MARGIN}px ${CARD_MARGIN}px;
+`;
+
+const CadencierChartContainer = styled.div`
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: ${CARD_MARGIN / 2}px ${CARD_MARGIN}px ${CARD_MARGIN}px ${CARD_MARGIN}px;
 `;
