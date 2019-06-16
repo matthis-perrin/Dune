@@ -60,7 +60,8 @@ export class ViewBobineApp extends React.Component<Props, State> {
     for (const cliche of allCliches || []) {
       if (cliche.ref === bobine.refCliche1) {
         cliche1 = cliche;
-      } else if (cliche.ref === bobine.refCliche2) {
+      }
+      if (cliche.ref === bobine.refCliche2) {
         cliche2 = cliche;
       }
     }
