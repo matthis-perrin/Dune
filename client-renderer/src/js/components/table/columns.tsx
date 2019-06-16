@@ -3,6 +3,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
+import {BobineColors} from '@root/components/common/bobine_colors';
+import {Color} from '@root/components/common/color';
 import {Duration} from '@root/components/common/duration';
 import {
   OperationConstraint,
@@ -14,7 +16,7 @@ import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme/default';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
-import {BobineColors} from '@shared/lib/encrier';
+import {BobineColors as BobineColorsModel} from '@shared/lib/encrier';
 import {
   Stock,
   Cliche,
@@ -230,8 +232,15 @@ export const LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
 
 export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, string> = {
   title: 'Couleur',
-  width: 110,
-  renderCell: ({couleurPapier}) => renderString(couleurPapier),
+  width: 80,
+  renderCell: ({couleurPapier}) =>
+    couleurPapier ? (
+      <div style={{display: 'flex', alignItems: 'center', height: '100%'}}>
+        <Color color={couleurPapier} />
+      </div>
+    ) : (
+      <React.Fragment />
+    ),
   getSearchValue: row => row.couleurPapier || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleurPapier, row2.couleurPapier),
   filter: {
@@ -239,18 +248,22 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
   },
 };
 
-export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColors}, string> = {
+function listBobineColors(colors: BobineColorsModel): string[] {
+  return colors.ordered.map(c => c.color).concat(colors.nonOrdered.map(c => c.color));
+}
+
+export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsModel}, string> = {
   title: 'Impression',
-  width: 140,
-  renderCell: ({colors}) =>
-    renderString(
-      `O(${colors.ordered.map(c => c.color).join(',')}) N(${colors.nonOrdered
-        .map(c => c.color)
-        .join(',')})`
-    ),
+  width: 215,
+  renderCell: ({colors}) => <BobineColors style={{height: '100%'}} bobineColors={colors} />,
   // getSearchValue: row => row.couleursImpression.join(', '),
-  // sortFunction: (row1, row2) =>
-  //   sortArrayFunction(row1.couleursImpression, row2.couleursImpression, true, stringSort),
+  sortFunction: (row1, row2) =>
+    sortArrayFunction(
+      listBobineColors(row1.colors),
+      listBobineColors(row2.colors),
+      true,
+      stringSort
+    ),
   // filter: {
   //   getValue: row => row.couleursImpression.join(', '),
   // },

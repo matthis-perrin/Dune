@@ -68,45 +68,40 @@ const typography = {
   },
 };
 
+const COLOR_INFO = new Map<
+  string,
+  {hex: string; textHex: string; isWhite: boolean; isBlack: boolean}
+>([
+  ['BLANC', {hex: '#f6f6f6', textHex: '#000000', isWhite: true, isBlack: false}],
+  ['ECRU', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['ECRU ENDUIT', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['IVOIRE', {hex: '#f7f1e3', textHex: '#000000', isWhite: true, isBlack: false}],
+  ['JAUNE', {hex: '#f1c40f', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['MARRON', {hex: '#784212', textHex: '#ffffff', isWhite: false, isBlack: false}],
+  ['NOIR', {hex: '#3d3d3d', textHex: '#ffffff', isWhite: false, isBlack: true}],
+  ['ORANGE', {hex: '#e67e22', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['PRUNE', {hex: '#9b59b6', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['ROUGE', {hex: '#e74c3c', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['VERT', {hex: '#2ecc71', textHex: '#ffffff', isWhite: false, isBlack: false}],
+  ['BLEU', {hex: '#2e71cc', textHex: '#ffffff', isWhite: false, isBlack: false}],
+]);
+
+const DEFAULT_COLOR_INFO = {hex: '#ffffff', textHex: '#000000', isWhite: true, isBlack: false};
+
 export function getCouleurByName(name?: string): string {
-  if (name === 'BLANC') {
-    return '#f6f6f6';
-  }
-  if (name === 'ECRU' || name === 'ECRU ENDUIT') {
-    return '#f7d794';
-  }
-  if (name === 'IVOIRE') {
-    return '#f7f1e3';
-  }
-  if (name === 'JAUNE') {
-    return '#f1c40f';
-  }
-  if (name === 'MARRON') {
-    return '#784212';
-  }
-  if (name === 'NOIR') {
-    return '#3d3d3d';
-  }
-  if (name === 'ORANGE') {
-    return '#e67e22';
-  }
-  if (name === 'PRUNE') {
-    return '#9b59b6';
-  }
-  if (name === 'ROUGE') {
-    return '#e74c3c';
-  }
-  if (name === 'VERT') {
-    return '#2ecc71';
-  }
-  return 'white';
+  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).hex;
 }
 
 export function textColorByName(name?: string): string {
-  if (name === 'NOIR' || name === 'MARRON') {
-    return '#ffffff';
-  }
-  return '#000000';
+  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).textHex;
+}
+
+export function isColorWhite(name?: string): boolean {
+  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).isWhite;
+}
+
+export function isColorBlack(name?: string): boolean {
+  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).isBlack;
 }
 
 export const theme = {

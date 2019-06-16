@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import {BobineCadencierChart} from '@root/components/charts/cadencier';
 import {BasicInfo} from '@root/components/common/basic_info';
+import {BobineColors} from '@root/components/common/bobine_colors';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
@@ -124,12 +125,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
             {title: 'Ref', value: cliche.ref},
             {title: 'Désignation', value: cliche.designation},
             {title: 'Poses', value: getPosesForCliche(cliche).join(', ')},
-            {
-              title: 'Couleurs',
-              value: `O(${colors.ordered.map(c => c.color).join(',')}) N(${colors.nonOrdered
-                .map(c => c.color)
-                .join(',')})`,
-            },
+            {title: 'Couleurs', value: <BobineColors bobineColors={colors} />},
           ]}
         />
       </ClicheWrapper>
