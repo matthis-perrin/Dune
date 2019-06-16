@@ -43,11 +43,26 @@ function applyBobineOnCurrentAtIndex(
   return places;
 }
 
+function applyBobinesOnLaizes(
+  bobines: BobineFilleWithPose[],
+  laizes: number[]
+): (BobineFilleWithPose | number)[] | undefined {
+  let current: (BobineFilleWithPose | number)[] | undefined = laizes;
+  let index = 0;
+  for (const bobine of bobines) {
+    if (!current) {
+      return undefined;
+    }
+    current = applyBobineOnCurrentAtIndex(bobine, current, index);
+    index += getPoseSize(bobine.pose);
+  }
+  return current;
+}
+
 function firstBobinePlacementAvailableForLaizes(
   bobines: BobineFilleWithPose[],
   current: (BobineFilleWithPose | number)[]
 ): (BobineFilleWithPose | number)[] {
-  // debugger;
   if (bobines.length === 0) {
     return current;
   }
@@ -62,17 +77,7 @@ function firstBobinePlacementAvailableForLaizes(
   throw new Error('No combinaison found');
 }
 
-export function firstBobinePlacementAvailableOnRefente(
-  bobines: BobineFilleWithPose[],
-  refente: Refente
-): (BobineFilleWithPose | number)[] {
-  // We try all the possible positions but start with the largest poses since they are the most restrictive
-  // and can fit in the least spaces
-  const sortedBobines = [...bobines].sort((b1, b2) => getPoseSize(b2.pose) - getPoseSize(b1.pose));
-  const placement = firstBobinePlacementAvailableForLaizes(
-    sortedBobines,
-    getRefenteLaizes(refente)
-  );
+function dedup(placement: (BobineFilleWithPose | number)[]): (BobineFilleWithPose | number)[] {
   const deduped: (BobineFilleWithPose | number)[] = [];
   for (const spot of placement) {
     if (typeof spot === 'number' || deduped.length === 0 || deduped[deduped.length - 1] !== spot) {
@@ -80,4 +85,22 @@ export function firstBobinePlacementAvailableOnRefente(
     }
   }
   return deduped;
+}
+
+export function firstBobinePlacementAvailableOnRefente(
+  bobines: BobineFilleWithPose[],
+  refente: Refente
+): (BobineFilleWithPose | number)[] {
+  const laizes = getRefenteLaizes(refente);
+  // Check first if the provided order of bobines works
+  const res = applyBobinesOnLaizes(bobines, laizes);
+  if (res) {
+    return dedup(res);
+  }
+
+  // We will try all the possible positions but we start with the largest poses since they are the most restrictive
+  // and can fit in the least spaces (makes the algo faster)
+  const sortedBobines = [...bobines].sort((b1, b2) => getPoseSize(b2.pose) - getPoseSize(b1.pose));
+  const placement = firstBobinePlacementAvailableForLaizes(sortedBobines, laizes);
+  return dedup(placement);
 }

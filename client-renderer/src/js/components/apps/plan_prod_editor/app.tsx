@@ -90,7 +90,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   private canAutoComplete(): boolean {
-    const {planProduction} = this.state;
+    const {planProduction, reorderedBobines} = this.state;
     if (!planProduction) {
       return false;
     }
@@ -140,7 +140,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {planProduction} = this.state;
+    const {planProduction, reorderedBobines} = this.state;
 
     if (!planProduction) {
       return <LoadingIndicator size="large" />;
@@ -172,7 +172,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             const bobinesBlock = (
               <BobinesForm
-                selectedBobines={this.state.reorderedBobines || selectedBobines}
+                selectedBobines={reorderedBobines || selectedBobines}
                 selectableBobines={selectableBobines}
                 selectedRefente={selectedRefente}
                 pixelPerMM={pixelPerMM}
@@ -191,7 +191,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             const encriersBlock = (
               <EncrierForm
                 pixelPerMM={pixelPerMM}
-                selectedBobines={selectedBobines}
+                selectedBobines={reorderedBobines || selectedBobines}
                 selectedRefente={selectedRefente}
                 validEncrierColors={couleursEncrier}
               />

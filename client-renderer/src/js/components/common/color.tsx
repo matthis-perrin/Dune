@@ -26,7 +26,7 @@ export class Color extends React.Component<ColorProps> {
           ...style,
           backgroundColor,
           color: textColor,
-          border: `solid 2px ${isColorWhite(color) ? 'black' : 'transparent'}`,
+          border: `solid 1px ${isColorWhite(color) ? 'black' : 'transparent'}`,
         }}
       >
         {color}

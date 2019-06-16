@@ -112,4 +112,5 @@ export class Encrier extends React.Component<EncrierProps> {
 
 const EncrierWrapper = styled.div`
   display: flex;
+  justify-content: flex-end;
 `;

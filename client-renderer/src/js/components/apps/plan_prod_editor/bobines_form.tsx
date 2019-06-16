@@ -33,7 +33,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
         size={size}
       />
     ) : (
-      <React.Fragment />
+      <div style={{width: size * pixelPerMM}} />
     );
   }
 
