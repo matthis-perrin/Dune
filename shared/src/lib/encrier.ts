@@ -120,7 +120,10 @@ function mergeOverlappingSequences<T>(
   );
 }
 
-function allSmallestArrangementsFromOrderedColors(colors: ClicheColor[][]): EncrierColor[][] {
+function allSmallestArrangementsFromOrderedColors(
+  colors: ClicheColor[][],
+  maxColors?: number
+): EncrierColor[][] {
   const allPermutations = permutations(colors);
   if (allPermutations.length === 0) {
     return [];
@@ -137,17 +140,23 @@ function allSmallestArrangementsFromOrderedColors(colors: ClicheColor[][]): Encr
     return mergedSeq;
   };
   const mergedOrderedColorsSequences: EncrierColor[][] = [];
-  allPermutations.forEach(perm => {
+  for (const perm of allPermutations) {
     const arrangements: EncrierColor[][] = perm.map(clichesColors =>
       clichesColors.map(clicheColor => ({
         color: clicheColor.color,
         refsCliche: [clicheColor.refCliche],
       }))
     );
-    mergedOrderedColorsSequences.push(
-      mergeOverlappingSequences(arrangements, encrierColorsAreEqual, mergeEncrierColorSeq)
+    const mergedOrderedColors = mergeOverlappingSequences(
+      arrangements,
+      encrierColorsAreEqual,
+      mergeEncrierColorSeq
     );
-  });
+    if (maxColors !== undefined && mergedOrderedColors.length <= maxColors) {
+      return [mergedOrderedColors];
+    }
+    mergedOrderedColorsSequences.push(mergedOrderedColors);
+  }
   let smallest = mergedOrderedColorsSequences[0];
   mergedOrderedColorsSequences.forEach(colorSequence => {
     if (colorSequence.length < smallest.length) {
@@ -197,48 +206,53 @@ function integrateNonOrderedInOrdered(
   return {nonOrdered, ordered};
 }
 
-function computeOrderedAndNonOrdered(
-  bobineColors: BobineColors[]
-): {nonOrdered: Map<string, string[]>; ordered: EncrierColor[][]} {
-  const allOrderedClicheColors: ClicheColor[][] = bobineColors.map(c => c.ordered);
-  const allNonOrderedClicheColors: ClicheColor[][] = bobineColors.map(c => c.nonOrdered);
-  const nonOrderedClicheColorsMap = new Map<string, string[]>();
-  allNonOrderedClicheColors.forEach(seq =>
+function clicheColorsToColorMap(clicheColors: ClicheColor[][]): Map<string, string[]> {
+  const colorMap = new Map<string, string[]>();
+  clicheColors.forEach(seq =>
     seq.forEach(c => {
-      const refsCliche = nonOrderedClicheColorsMap.get(c.color);
+      const refsCliche = colorMap.get(c.color);
       if (!refsCliche) {
-        nonOrderedClicheColorsMap.set(c.color, [c.refCliche]);
+        colorMap.set(c.color, [c.refCliche]);
       } else {
         refsCliche.push(c.refCliche);
       }
     })
   );
-
-  const arrangementsFromOrdered = [
-    ...allSmallestArrangementsFromOrderedColors(allOrderedClicheColors),
-  ];
-
-  return {ordered: arrangementsFromOrdered, nonOrdered: nonOrderedClicheColorsMap};
+  return colorMap;
 }
 
 export function validColorCombinaison(bobineColors: BobineColors[], maxColors: number): boolean {
-  // Possible optimisation here if it turns out to be a bottleneck. We could generate less combinaisons in
-  // `computeOrderedAndNonOrdered` by stopping early within the call to `allSmallestArrangementsFromOrderedColors`.
-  const {ordered, nonOrdered} = computeOrderedAndNonOrdered(bobineColors);
-
+  const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
   const nonOrderedCount = Array.from(nonOrdered.keys()).length;
+
+  const ordered: ClicheColor[][] = [];
+  bobineColors.forEach(bc => {
+    if (bc.ordered.length > 0) {
+      ordered.push(bc.ordered);
+    }
+  });
+
   if (ordered.length === 0) {
     return nonOrderedCount <= maxColors;
   }
 
-  return ordered[0].length + nonOrderedCount <= maxColors;
+  const orderedArrangements = allSmallestArrangementsFromOrderedColors(
+    ordered,
+    maxColors - nonOrderedCount
+  );
+  if (orderedArrangements.length === 0) {
+    return nonOrderedCount <= maxColors;
+  }
+
+  return orderedArrangements[0].length + nonOrderedCount <= maxColors;
 }
 
 export function generateAllAcceptableColorsOrder(
   bobineColors: BobineColors[],
   maxColors: number
 ): EncrierColor[][] {
-  const {ordered, nonOrdered} = computeOrderedAndNonOrdered(bobineColors);
+  const ordered = allSmallestArrangementsFromOrderedColors(bobineColors.map(c => c.ordered));
+  const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
 
   let finalArrangements: EncrierColor[][] = [];
   for (const arrangement of ordered) {

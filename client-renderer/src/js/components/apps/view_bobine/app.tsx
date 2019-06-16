@@ -10,7 +10,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bobinesFillesStore, clichesStore} from '@root/stores/list_store';
 import {theme} from '@root/theme/default';
 
-import {getPoses, getCouleurs} from '@shared/lib/cliches';
+import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
 import {BobineFille, Cliche} from '@shared/models';
 
 interface Props {
@@ -113,6 +113,8 @@ export class ViewBobineApp extends React.Component<Props, State> {
   }
 
   private renderCliche(cliche: Cliche, index: number): JSX.Element {
+    const colors = getCouleursForCliche(cliche);
+
     return (
       <ClicheWrapper key={cliche.ref}>
         <CardTitle>{`Cliché ${index}`}</CardTitle>
@@ -120,9 +122,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
           data={[
             {title: 'Ref', value: cliche.ref},
             {title: 'Désignation', value: cliche.designation},
-            {title: 'Poses', value: getPoses(cliche).join(', ')},
-            {title: 'Couleurs', value: getCouleurs(cliche).join(', ')},
-            {title: 'Ordre important', value: cliche.importanceOrdreCouleurs},
+            {title: 'Poses', value: getPosesForCliche(cliche).join(', ')},
+            {
+              title: 'Couleurs',
+              value: `O(${colors.ordered.map(c => c.color).join(',')}) N(${colors.nonOrdered
+                .map(c => c.color)
+                .join(',')})`,
+            },
           ]}
         />
       </ClicheWrapper>

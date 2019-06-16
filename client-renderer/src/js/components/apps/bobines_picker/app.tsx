@@ -96,9 +96,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     onRowClick={this.handleBobinesSelected}
-                    rowStyles={papier => ({
-                      opacity: isSelectionnable(papier) ? 1 : 0.5,
-                      pointerEvents: isSelectionnable(papier) ? 'all' : 'none',
+                    rowStyles={bobine => ({
+                      opacity: isSelectionnable(bobine) ? 1 : 0.5,
                     })}
                   />
                 </React.Fragment>
