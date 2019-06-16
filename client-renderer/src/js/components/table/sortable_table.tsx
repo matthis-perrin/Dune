@@ -40,7 +40,7 @@ interface Props<T> {
   // tslint:disable:no-any
   columns: ColumnMetadata<T, any>[];
   initialSort?: SortInfo;
-  onRowClick(row: T, event: React.MouseEvent): void;
+  onRowClick?(row: T, event: React.MouseEvent): void;
   rowStyles?(element: T): React.CSSProperties;
 }
 
@@ -191,7 +191,7 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
       <div
         onMouseOver={() => this.handleCellMouseOver(rowIndex)}
         onMouseOut={() => this.handleCellMouseOut(rowIndex)}
-        onClick={event => this.props.onRowClick(line, event)}
+        onClick={event => this.props.onRowClick && this.props.onRowClick(line, event)}
         style={transformedStyles}
       >
         {renderCell(line)}

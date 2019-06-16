@@ -35,11 +35,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     this.state = {};
   }
 
-  private readonly handleBobinesSelected = (bobineWithMultiPose: BobineFilleWithMultiPose) => {
-    console.log(bobineWithMultiPose);
-    // bridge.addPlanBobine(bobineWithPose.ref, bobineWithPose.pose).catch(console.error);
-  };
-
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
   }
@@ -95,7 +90,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       index: 0,
                       asc: true,
                     }}
-                    onRowClick={this.handleBobinesSelected}
                     rowStyles={bobine => ({
                       opacity: isSelectionnable(bobine) ? 1 : 0.5,
                     })}
