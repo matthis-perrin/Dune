@@ -1,13 +1,5 @@
 import {BobineFilleClichePose} from '@root/plan_production/models';
-import {ColorRestriction, generateAcceptableColorsOrder} from '@shared/lib/encrier';
-
-export function checkColorsAreCompatbile(
-  restrictions: ColorRestriction[],
-  maxColors: number
-): boolean {
-  const acceptableColorsOrder = generateAcceptableColorsOrder(restrictions);
-  return acceptableColorsOrder.length <= maxColors;
-}
+import {ColorRestriction} from '@shared/lib/encrier';
 
 export function getColorsRestrictionsForBobine(bobine: BobineFilleClichePose): ColorRestriction {
   return {

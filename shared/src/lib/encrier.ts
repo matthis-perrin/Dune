@@ -5,7 +5,22 @@ export interface ColorRestriction {
   importanceOrdre: boolean;
 }
 
-function isEqual<T>(arr1: T[], arr2: T[]): boolean {
+export interface ClicheColor {
+  color: string;
+  refCliche: string;
+}
+
+export interface BobineColors {
+  ordered: ClicheColor[];
+  nonOrdered: ClicheColor[];
+}
+
+export interface EncrierColor {
+  color: string;
+  refsCliche: string[];
+}
+
+function isEqual<T>(arr1: T[], arr2: T[], elementsAreEqual: (t1: T, t2: T) => boolean): boolean {
   if (arr1.length !== arr2.length) {
     return false;
   }
@@ -13,11 +28,11 @@ function isEqual<T>(arr1: T[], arr2: T[]): boolean {
     const v1 = arr1[i];
     const v2 = arr2[i];
     if (Array.isArray(v1) && Array.isArray(v2)) {
-      if (!isEqual(v1, v2)) {
+      if (!isEqual(v1, v2, elementsAreEqual)) {
         return false;
       }
     } else {
-      if (v1 !== v2) {
+      if (!elementsAreEqual(v1, v2)) {
         return false;
       }
     }
@@ -47,7 +62,12 @@ function safeSlice<T>(seq: T[], start: number, end: number): T[] {
   return seq.slice(safeStart, safeEnd);
 }
 
-function mergeTwoOverlappingSequence<T>(sequence1: T[], sequence2: T[]): T[] {
+function mergeTwoOverlappingSequence<T>(
+  sequence1: T[],
+  sequence2: T[],
+  elementsAreEqual: (t1: T, t2: T) => boolean,
+  mergeEqualSequences: (t1: T[], t2: T[]) => T[]
+): T[] {
   const l1 = sequence1.length;
   const l2 = sequence2.length;
   if (l1 === 0) {
@@ -65,14 +85,14 @@ function mergeTwoOverlappingSequence<T>(sequence1: T[], sequence2: T[]): T[] {
     const seq2End = i + 1;
     const seq1Segment = safeSlice(sequence1, seq1Start, seq1End);
     const seq2Segment = safeSlice(sequence2, seq2Start, seq2End);
-    if (isEqual(seq1Segment, seq2Segment)) {
+    if (isEqual(seq1Segment, seq2Segment, elementsAreEqual)) {
       const seq1LeftSide = safeSlice(sequence1, 0, seq1Start);
       const seq1RightSide = safeSlice(sequence1, seq1End, l1);
       const seq2LeftSide = safeSlice(sequence2, 0, seq2Start);
       const seq2RightSide = safeSlice(sequence2, seq2End, l2);
       const overlap = seq1LeftSide
         .concat(seq2LeftSide)
-        .concat(seq1Segment)
+        .concat(mergeEqualSequences(seq1Segment, seq2Segment))
         .concat(seq1RightSide)
         .concat(seq2RightSide);
       allOverlaps.push(overlap);
@@ -84,22 +104,55 @@ function mergeTwoOverlappingSequence<T>(sequence1: T[], sequence2: T[]): T[] {
   return minBy(allOverlaps, overlap => overlap.length) || sequence1.concat(sequence2);
 }
 
-function mergeOverlappingSequences<T>(sequences: T[][]): T[] {
+function mergeOverlappingSequences<T>(
+  sequences: T[][],
+  elementsAreEqual: (t1: T, t2: T) => boolean,
+  mergeEqualSequences: (t1: T[], t2: T[]) => T[]
+): T[] {
   let merged: T[] = [];
   sequences.forEach(seq => {
-    const newMerged = mergeTwoOverlappingSequence(merged, seq);
+    const newMerged = mergeTwoOverlappingSequence(
+      merged,
+      seq,
+      elementsAreEqual,
+      mergeEqualSequences
+    );
     merged = newMerged;
   });
-  return sequences.reduce(mergeTwoOverlappingSequence, []);
+  return sequences.reduce(
+    (acc, curr) => mergeTwoOverlappingSequence(acc, curr, elementsAreEqual, mergeEqualSequences),
+    []
+  );
 }
 
-function allSmallestMergedOrderedColorsSequences(colors: string[][]): string[][] {
+function allSmallestArrangementsFromOrderedColors(colors: ClicheColor[][]): EncrierColor[][] {
   const allPermutations = permutations(colors);
   if (allPermutations.length === 0) {
     return [];
   }
-  const mergedOrderedColorsSequences: string[][] = [];
-  allPermutations.forEach(p => mergedOrderedColorsSequences.push(mergeOverlappingSequences(p)));
+  const encrierColorsAreEqual = (ec1: EncrierColor, ec2: EncrierColor) => ec1.color === ec2.color;
+  const mergeEncrierColorSeq = (ec1Seq: EncrierColor[], ec2Seq: EncrierColor[]) => {
+    const mergedSeq: EncrierColor[] = [];
+    for (let i = 0; i < ec1Seq.length; i++) {
+      mergedSeq.push({
+        color: ec1Seq[i].color,
+        refsCliche: ec1Seq[i].refsCliche.concat(ec2Seq[i].refsCliche),
+      });
+    }
+    return mergedSeq;
+  };
+  const mergedOrderedColorsSequences: EncrierColor[][] = [];
+  allPermutations.forEach(perm => {
+    const arrangements: EncrierColor[][] = perm.map(clichesColors =>
+      clichesColors.map(clicheColor => ({
+        color: clicheColor.color,
+        refsCliche: [clicheColor.refCliche],
+      }))
+    );
+    mergedOrderedColorsSequences.push(
+      mergeOverlappingSequences(arrangements, encrierColorsAreEqual, mergeEncrierColorSeq)
+    );
+  });
   let smallest = mergedOrderedColorsSequences[0];
   mergedOrderedColorsSequences.forEach(colorSequence => {
     if (colorSequence.length < smallest.length) {
@@ -109,88 +162,117 @@ function allSmallestMergedOrderedColorsSequences(colors: string[][]): string[][]
   const allSmallest = mergedOrderedColorsSequences.filter(
     colorSequence => colorSequence.length === smallest.length
   );
-  const dedupingMap = new Map<string, string[]>();
-  allSmallest.forEach(seq => dedupingMap.set(seq.join(','), seq));
+  const dedupingMap = new Map<string, EncrierColor[]>();
+  allSmallest.forEach(seq => dedupingMap.set(seq.map(v => v.color).join(','), seq));
   return Array.from(dedupingMap.values());
 }
 
-export function generateAcceptableColorsOrder(restrictions: ColorRestriction[]): string[] {
-  const orderImportantColorsSequences = restrictions
-    .filter(r => r.importanceOrdre)
-    .map(r => r.couleurs);
-  const orderNotImportantColorsSequences = restrictions
-    .filter(r => !r.importanceOrdre)
-    .map(r => r.couleurs);
-
-  const allSmallest = allSmallestMergedOrderedColorsSequences(orderImportantColorsSequences);
-  const mergedOrderedColors = [...(allSmallest.length > 0 ? allSmallest[0] : [])];
-  orderNotImportantColorsSequences.forEach(colors => {
-    colors.forEach(c => {
-      if (mergedOrderedColors.indexOf(c) === -1) {
-        mergedOrderedColors.push(c);
-      }
-    });
-  });
-
-  return mergedOrderedColors;
+function hashArrangement(arrangement: EncrierColor[]): string {
+  return arrangement
+    .map(encrierColor => `${encrierColor.color}-${[...encrierColor.refsCliche].sort().join(',')}`)
+    .join('_');
 }
 
-function dedup(colors: string[][]): string[][] {
-  const dedupMap = new Map<string, string[]>();
-  colors.forEach(arr => dedupMap.set(arr.join(','), arr));
+function dedup(arrangements: EncrierColor[][]): EncrierColor[][] {
+  const dedupMap = new Map<string, EncrierColor[]>();
+  arrangements.forEach(arr => dedupMap.set(hashArrangement(arr), arr));
   return Array.from(dedupMap.values());
 }
 
-export function generateAllAcceptableColorsOrder(
-  restrictions: ColorRestriction[],
-  maxColors: number
-): string[][] {
-  const orderImportantColorsSequences = restrictions
-    .filter(r => r.importanceOrdre)
-    .map(r => r.couleurs);
-  const orderNotImportantColorsSequences = restrictions
-    .filter(r => !r.importanceOrdre)
-    .map(r => r.couleurs);
-  const notImportantColorsMap = new Map<string, void>();
-  orderNotImportantColorsSequences.forEach(seq => seq.forEach(c => notImportantColorsMap.set(c)));
-  const uniqNotImportantColors = Array.from(notImportantColorsMap.keys());
+function integrateNonOrderedInOrdered(
+  orderedArrangements: EncrierColor[],
+  nonOrderedClicheColorsMap: Map<string, string[]>
+): {nonOrdered: Map<string, string[]>; ordered: EncrierColor[][]} {
+  const nonOrdered = new Map<string, string[]>();
+  let ordered: EncrierColor[][] = [];
 
-  const mergedOrderedColors = [
-    ...allSmallestMergedOrderedColorsSequences(orderImportantColorsSequences),
+  for (let [color, refsCliche] of nonOrderedClicheColorsMap.entries()) {
+    const index = orderedArrangements.map(a => a.color).indexOf(color);
+    if (index !== -1) {
+      const newOrdered = [...orderedArrangements];
+      newOrdered[index].refsCliche = newOrdered[index].refsCliche.concat(refsCliche);
+      ordered.push(newOrdered);
+      nonOrderedClicheColorsMap.delete(color);
+    }
+  }
+
+  if (ordered.length === 0) {
+    return {nonOrdered, ordered: [orderedArrangements]};
+  }
+  return {nonOrdered, ordered};
+}
+
+function computeOrderedAndNonOrdered(
+  bobineColors: BobineColors[]
+): {nonOrdered: Map<string, string[]>; ordered: EncrierColor[][]} {
+  const allOrderedClicheColors: ClicheColor[][] = bobineColors.map(c => c.ordered);
+  const allNonOrderedClicheColors: ClicheColor[][] = bobineColors.map(c => c.nonOrdered);
+  const nonOrderedClicheColorsMap = new Map<string, string[]>();
+  allNonOrderedClicheColors.forEach(seq =>
+    seq.forEach(c => {
+      const refsCliche = nonOrderedClicheColorsMap.get(c.color);
+      if (!refsCliche) {
+        nonOrderedClicheColorsMap.set(c.color, [c.refCliche]);
+      } else {
+        refsCliche.push(c.refCliche);
+      }
+    })
+  );
+
+  const arrangementsFromOrdered = [
+    ...allSmallestArrangementsFromOrderedColors(allOrderedClicheColors),
   ];
 
-  const orderedColorsSize = mergedOrderedColors.length === 0 ? 0 : mergedOrderedColors[0].length;
-  const notOrderedColorsSize = uniqNotImportantColors.length;
-  for (let i = 0; i < maxColors - orderedColorsSize - notOrderedColorsSize; i++) {
-    uniqNotImportantColors.push('');
+  return {ordered: arrangementsFromOrdered, nonOrdered: nonOrderedClicheColorsMap};
+}
+
+export function validColorCombinaison(bobineColors: BobineColors[], maxColors: number): boolean {
+  // Possible optimisation here if it turns out to be a bottleneck. We could generate less combinaisons in
+  // `computeOrderedAndNonOrdered` by stopping early within the call to `allSmallestArrangementsFromOrderedColors`.
+  const {ordered, nonOrdered} = computeOrderedAndNonOrdered(bobineColors);
+
+  const nonOrderedCount = Array.from(nonOrdered.keys()).length;
+  if (ordered.length === 0) {
+    return nonOrderedCount <= maxColors;
   }
 
-  if (mergedOrderedColors.length === 0) {
-    return dedup(permutations(uniqNotImportantColors));
-  }
+  return ordered[0].length + nonOrderedCount <= maxColors;
+}
 
-  if (uniqNotImportantColors.length === 0) {
-    return mergedOrderedColors;
-  }
+export function generateAllAcceptableColorsOrder(
+  bobineColors: BobineColors[],
+  maxColors: number
+): EncrierColor[][] {
+  const {ordered, nonOrdered} = computeOrderedAndNonOrdered(bobineColors);
 
-  const orderNotImportantColorsSequencesNotInResult: string[] = [];
-  uniqNotImportantColors.forEach(c => {
-    if (
-      mergedOrderedColors[0].indexOf(c) === -1 &&
-      orderNotImportantColorsSequencesNotInResult.indexOf(c) === -1
-    ) {
-      orderNotImportantColorsSequencesNotInResult.push(c);
-    }
-  });
-
-  let finalPermutations: string[][] = [];
-  mergedOrderedColors.forEach(orderedColors => {
-    const perms = permutations(
-      orderNotImportantColorsSequencesNotInResult.map(c => [c]).concat([orderedColors])
+  let finalArrangements: EncrierColor[][] = [];
+  for (let arrangement of ordered) {
+    const res = integrateNonOrderedInOrdered(arrangement, nonOrdered);
+    const reminaingNonOrdered = res.nonOrdered;
+    const allOrdered = res.ordered;
+    const nonOrderedAsArrangements: EncrierColor[] = Array.from(reminaingNonOrdered.entries()).map(
+      entry => ({
+        color: entry[0],
+        refsCliche: entry[1],
+      })
     );
-    const flattened = perms.map(p => p.reduce((acc, curr) => acc.concat(curr), []));
-    finalPermutations = finalPermutations.concat(flattened);
-  });
 
-  return dedup(finalPermutations);
+    const emptyEncrierCount =
+      maxColors -
+      (allOrdered.length === 0 ? 0 : allOrdered[0].length) -
+      Array.from(reminaingNonOrdered.keys()).length;
+    for (let i = 0; i < emptyEncrierCount; i++) {
+      nonOrderedAsArrangements.push({color: '', refsCliche: []});
+    }
+
+    allOrdered.forEach(orderedArrangement => {
+      const perms = permutations(
+        nonOrderedAsArrangements.map(c => [c]).concat([orderedArrangement])
+      );
+      const flattened = perms.map(p => p.reduce((acc, curr) => acc.concat(curr), []));
+      finalArrangements = finalArrangements.concat(flattened);
+    });
+  }
+
+  return dedup(finalArrangements);
 }
