@@ -4,41 +4,42 @@ import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
 import {
+  AddPlanBobine,
   BridgeCommand,
+  BridgeEvent,
+  ClearPlan,
+  CloseApp,
+  CloseAppOfType,
+  CreateNewPlanProduction,
+  CreateOrUpdateOperation,
+  GetAppInfo,
+  GetNewPlanProduction,
   ListBobinesFilles,
   ListBobinesMeres,
+  ListCadencier,
   ListCliches,
+  ListOperations,
   ListPerfos,
   ListRefentes,
-  ListOperations,
   ListStocks,
-  GetAppInfo,
   OpenApp,
-  CreateOrUpdateOperation,
-  CloseApp,
-  BridgeEvent,
-  CreateNewPlanProduction,
-  GetNewPlanProduction,
-  SetPlanPerfo,
-  SetPlanRefente,
-  SetPlanPapier,
-  SetPlanPolypro,
-  AddPlanBobine,
-  CloseAppOfType,
   RemovePlanBobine,
-  ListCadencier,
+  SetPlanPapier,
+  SetPlanPerfo,
+  SetPlanPolypro,
+  SetPlanRefente,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
   BobineMere,
   Cliche,
-  Perfo,
-  Refente,
-  Operation,
-  Stock,
   ClientAppInfo,
   ClientAppType,
+  Operation,
+  Perfo,
   PlanProductionState,
+  Refente,
+  Stock,
   VenteLight,
 } from '@shared/models';
 
@@ -129,6 +130,9 @@ class Bridge {
   }
   public async removePlanBobine(ref: string, pose: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {ref, pose});
+  }
+  public async clearPlan(): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(ClearPlan);
   }
 
   public async viewBobine(bobineRef: string): Promise<void> {

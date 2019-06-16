@@ -89,8 +89,35 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanPolypro(undefined).catch(console.error);
   }
 
+  private canClear(): boolean {
+    const {planProduction} = this.state;
+    if (!planProduction) {
+      return false;
+    }
+
+    const {
+      selectedRefente,
+      selectedPapier,
+      selectedPerfo,
+      selectedPolypro,
+      selectedBobines,
+    } = planProduction;
+
+    return (
+      selectedRefente !== undefined ||
+      selectedPapier !== undefined ||
+      selectedPerfo !== undefined ||
+      selectedPolypro !== undefined ||
+      selectedBobines.length > 0
+    );
+  }
+
+  private clear(): void {
+    bridge.clearPlan().catch(console.error);
+  }
+
   private canAutoComplete(): boolean {
-    const {planProduction, reorderedBobines} = this.state;
+    const {planProduction} = this.state;
     if (!planProduction) {
       return false;
     }
@@ -271,6 +298,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         ) : (
           <React.Fragment />
         )}
+        {this.canClear() ? <Button onClick={this.clear}>Effacer</Button> : <React.Fragment />}
       </div>
     );
   }

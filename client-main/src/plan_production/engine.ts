@@ -197,6 +197,18 @@ export class PlanProductionEngine {
     }
   }
 
+  public clearPlan(): void {
+    if (this.isComputing) {
+      return;
+    }
+    this.planProduction.bobinesFilles = [];
+    this.planProduction.papier = undefined;
+    this.planProduction.perfo = undefined;
+    this.planProduction.polypro = undefined;
+    this.planProduction.refente = undefined;
+    this.recalculate();
+  }
+
   public recalculate(): void {
     setTimeout(() => {
       this.selectables = this.computeSelectables();

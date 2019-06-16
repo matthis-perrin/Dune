@@ -5,6 +5,7 @@ import {windowManager} from '@root/window_manager';
 import {
   AddPlanBobine,
   BridgeCommand,
+  ClearPlan,
   CloseApp,
   CloseAppOfType,
   CreateNewPlanProduction,
@@ -160,6 +161,14 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
       return Promise.reject('No plan production in progress');
     }
     engine.removeBobine(asString(ref, ''), asNumber(pose, 0));
+    return Promise.resolve();
+  }
+  if (command === ClearPlan) {
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.clearPlan();
     return Promise.resolve();
   }
 
