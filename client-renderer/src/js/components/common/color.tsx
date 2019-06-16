@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReactProps, DivProps} from '@root/components/core/common';
-import {getCouleurByName, textColorByName, isColorWhite} from '@root/theme/default';
+import {couleurByName, textColorByName, isColorWhite} from '@root/theme/default';
 
 interface ColorProps extends ReactProps, DivProps {
   color: string;
@@ -14,7 +14,7 @@ export class Color extends React.Component<ColorProps> {
 
   public render(): JSX.Element {
     const {color, style} = this.props;
-    const backgroundColor = getCouleurByName(color);
+    const backgroundColor = couleurByName(color);
     const textColor = textColorByName(color);
 
     const rest = omit(this.props, ['color', 'style']);

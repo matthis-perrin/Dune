@@ -88,7 +88,7 @@ const COLOR_INFO = new Map<
 
 const DEFAULT_COLOR_INFO = {hex: '#ffffff', textHex: '#000000', isWhite: true, isBlack: false};
 
-export function getCouleurByName(name?: string): string {
+export function couleurByName(name?: string): string {
   return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).hex;
 }
 

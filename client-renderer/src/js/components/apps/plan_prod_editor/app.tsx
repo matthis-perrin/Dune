@@ -3,6 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
+import {EncrierForm} from '@root/components/apps/plan_prod_editor/encriers_form';
 import {
   SelectRefenteButton,
   SelectPapierButton,
@@ -18,7 +19,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, getCouleurByName} from '@root/theme/default';
+import {theme, couleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState, ClientAppType, BobineFilleWithPose} from '@shared/models';
@@ -156,6 +157,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       selectablePerfos,
       selectedPolypro,
       selectablePolypros,
+      couleursEncrier,
     } = planProduction;
 
     return (
@@ -186,13 +188,22 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <SelectRefenteButton selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
             );
 
+            const encriersBlock = (
+              <EncrierForm
+                pixelPerMM={pixelPerMM}
+                selectedBobines={selectedBobines}
+                selectedRefente={selectedRefente}
+                validEncrierColors={couleursEncrier}
+              />
+            );
+
             const papierBlock = selectedPapier ? (
               <Closable onClose={this.removePapier}>
                 <Bobine
                   size={selectedPapier.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
-                  color={getCouleurByName(selectedPapier.couleurPapier)}
+                  color={couleurByName(selectedPapier.couleurPapier)}
                 >
                   {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
                     selectedPapier.laize
@@ -243,6 +254,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
+                <Padding />
+                <div style={{alignSelf: 'flex-end'}}>{encriersBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{papierBlock}</div>
                 <Padding />

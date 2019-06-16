@@ -8,7 +8,7 @@ import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {getBobineFilleClichePoseColumns} from '@root/components/table/table_columns';
 import {appStore} from '@root/stores/app_store';
-import {theme, getCouleurByName} from '@root/theme/default';
+import {theme, couleurByName} from '@root/theme/default';
 
 import {Stock} from '@shared/models';
 
@@ -104,7 +104,7 @@ export class PlanProductionBobineFilleClichePose extends React.Component<Props> 
       <Button onClick={() => this.handleRemoveBobineFille(bobineFille)}>Enlever</Button>
     );
     return (
-      <BobineFilleWrapper style={{backgroundColor: getCouleurByName(bobineFille.couleurPapier)}}>
+      <BobineFilleWrapper style={{backgroundColor: couleurByName(bobineFille.couleurPapier)}}>
         {elements}
       </BobineFilleWrapper>
     );

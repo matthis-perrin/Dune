@@ -7,7 +7,7 @@ import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
-import {getCouleurByName} from '@root/theme/default';
+import {couleurByName} from '@root/theme/default';
 
 import {
   CadencierType,
@@ -138,7 +138,7 @@ export class BobineCadencierChart extends React.Component<
     const barColor =
       color === undefined || ['BLANC', 'IVOIRE'].indexOf(color) !== -1
         ? '#ddd'
-        : getCouleurByName(color);
+        : couleurByName(color);
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
       .x((d: VenteDatum) => d.time, xScale)

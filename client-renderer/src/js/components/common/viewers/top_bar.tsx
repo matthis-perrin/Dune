@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Card2} from '@root/components/core/card';
 import {ReactProps, DivProps} from '@root/components/core/common';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {textColorByName, getCouleurByName} from '@root/theme/default';
+import {textColorByName, couleurByName} from '@root/theme/default';
 
 interface Props extends ReactProps, DivProps {
   sommeil?: boolean;
@@ -33,7 +33,7 @@ export class ViewerTopBar extends React.Component<Props> {
     const {children, color} = this.props;
     return (
       <ViewerTopBarWrapper
-        style={{color: textColorByName(color), backgroundColor: getCouleurByName(color)}}
+        style={{color: textColorByName(color), backgroundColor: couleurByName(color)}}
       >
         {this.renderSommeilIndicator()}
         {children}

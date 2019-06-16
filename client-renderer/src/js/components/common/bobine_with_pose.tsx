@@ -8,7 +8,7 @@ import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getCouleurByName} from '@root/theme/default';
+import {couleurByName} from '@root/theme/default';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
@@ -30,7 +30,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
   public render(): JSX.Element {
     const {bobine, pixelPerMM, negativeMargin} = this.props;
     const poseSize = getPoseSize(bobine.pose);
-    const color = getCouleurByName(bobine.couleurPapier);
+    const color = couleurByName(bobine.couleurPapier);
 
     const initialSize = bobine.laize || 0;
     // In order to have overlapping bobines we need make them slightly larger (by the size of the
