@@ -1,10 +1,6 @@
 import {bridge, BridgeListResponse} from '@root/lib/bridge';
 
-import {
-  getBobineFillePoses,
-  getBobineFilleCouleursImpression,
-  getBobineFilleImportanceOrdreCouleurs,
-} from '@shared/lib/bobines_filles';
+import {getPosesForCliches, getCouleursForCliches} from '@shared/lib/cliches';
 import {
   BobineFille,
   BobineMere,
@@ -213,15 +209,15 @@ class BobinesFillesWithMultiPoseStore extends ListStore<BobineFilleWithMultiPose
     }
     if (bobinesFilles) {
       bobinesFilles.forEach(b => {
-        const poses = getBobineFillePoses(b, clichesByRef);
-        const couleursImpression = getBobineFilleCouleursImpression(b, clichesByRef);
-        const importanceOrdreCouleurs = getBobineFilleImportanceOrdreCouleurs(b, clichesByRef);
+        const cliche1 = b.refCliche1 === undefined ? undefined : clichesByRef.get(b.refCliche1);
+        const cliche2 = b.refCliche2 === undefined ? undefined : clichesByRef.get(b.refCliche2);
+        const poses = getPosesForCliches(cliche1, cliche2);
+        const colors = getCouleursForCliches(cliche1, cliche2);
         bobinesFillesWithMultiPose.push({
           ...b,
           availablePoses: poses,
           allPoses: poses,
-          couleursImpression,
-          importanceOrdreCouleurs,
+          colors,
         });
       });
     }

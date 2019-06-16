@@ -1,21 +1,17 @@
 import {BobineFilleClichePose} from '@root/plan_production/models';
 
-import {
-  getBobineFillePoses,
-  getBobineFilleImportanceOrdreCouleurs,
-  getBobineFilleCouleursImpression,
-} from '@shared/lib/bobines_filles';
+import {getCouleursForCliches, getPosesForCliches} from '@shared/lib/cliches';
 import {BobineFille, Cliche} from '@shared/models';
+import {BobineColors} from '@shared/lib/encrier';
 
 export function getBobineHash(
   laize: number,
   pose: number,
-  importanceOrdreCouleurs: boolean,
-  couleursImpression: string[]
+  couleursImpression: BobineColors
 ): string {
-  return `${laize}_${pose}_${
-    importanceOrdreCouleurs ? couleursImpression.join(',') : couleursImpression.sort().join(',')
-  }_${importanceOrdreCouleurs && couleursImpression.length > 1 ? 'Y' : 'N'}`;
+  const orderedHash = couleursImpression.ordered.map(c => c.color).join(',');
+  const nonOrderedHash = couleursImpression.nonOrdered.map(c => c.color).join(',');
+  return `${laize}_${pose}_O:${orderedHash}_N:${nonOrderedHash}`;
 }
 
 export function getBobineFilleClichePose(
@@ -24,11 +20,12 @@ export function getBobineFilleClichePose(
 ): BobineFilleClichePose[] {
   if (isValidBobineFille(bobine)) {
     const {ref, laize = 0, couleurPapier = '', grammage = 0} = bobine;
-    const poses = getBobineFillePoses(bobine, allCliches);
-    const couleursImpression = getBobineFilleCouleursImpression(bobine, allCliches);
-    const importanceOrdreCouleurs = getBobineFilleImportanceOrdreCouleurs(bobine, allCliches);
+    const cliche1 = bobine.refCliche1 === undefined ? undefined : allCliches.get(bobine.refCliche1);
+    const cliche2 = bobine.refCliche2 === undefined ? undefined : allCliches.get(bobine.refCliche2);
+    const poses = getPosesForCliches(cliche1, cliche2);
+    const couleursImpression = getCouleursForCliches(cliche1, cliche2);
     return poses.map(pose => {
-      const hash = getBobineHash(laize, pose, importanceOrdreCouleurs, couleursImpression);
+      const hash = getBobineHash(laize, pose, couleursImpression);
       const transformedCouleurPapier = couleurPapier === 'ECRU ENDUIT' ? 'ECRU' : couleurPapier;
       return {
         ref,
@@ -38,7 +35,6 @@ export function getBobineFilleClichePose(
         hash,
         pose,
         couleursImpression,
-        importanceOrdreCouleurs,
       };
     });
   }

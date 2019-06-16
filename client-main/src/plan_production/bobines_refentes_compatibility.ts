@@ -2,15 +2,12 @@ import {uniqBy, without, sum, findIndex} from 'lodash';
 
 import {BobineHashCombinaison} from '@root/plan_production/bobines_hash_combinaison';
 import {compatibilityCache} from '@root/plan_production/bobines_refentes_compatibility_cache';
-import {
-  checkColorsAreCompatbile,
-  getColorsRestrictionsForBobine,
-} from '@root/plan_production/colors_compatibility';
 import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
 
 import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
 import {getPoseSize} from '@shared/lib/cliches';
 import {permutations} from '@shared/lib/utils';
+import {validColorCombinaison} from '@shared/lib/encrier';
 
 // This function checks if there is at aleast one combinaison of `BobineFilleClichePose`
 // in `selectableBobines` that fits in `refente` given a list of already selected `BobineFilleClichePose`
@@ -70,12 +67,7 @@ export function compatibilityExists(
   // Optimization #4
   // Ensure that the selected bobines filles have compatible colors, otherwise we can already
   // return undefined
-  if (
-    !checkColorsAreCompatbile(
-      selectedBobines.map(getColorsRestrictionsForBobine),
-      MAX_COULEURS_IMPRESSIONS
-    )
-  ) {
+  if (!bobinesColorsAreCompatbile(selectedBobines)) {
     return undefined;
   }
 
@@ -149,10 +141,7 @@ export function analyseLaizesLeftOnRefente(
 }
 
 function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[]): boolean {
-  return checkColorsAreCompatbile(
-    bobines.map(getColorsRestrictionsForBobine),
-    MAX_COULEURS_IMPRESSIONS
-  );
+  return validColorCombinaison(bobines.map(b => b.couleursImpression), MAX_COULEURS_IMPRESSIONS);
 }
 
 // Same as `compatibilityExists` but without trying all permutation of `selectedBobines`

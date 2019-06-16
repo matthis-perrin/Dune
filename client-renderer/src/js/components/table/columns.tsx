@@ -14,6 +14,7 @@ import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme/default';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
+import {BobineColors} from '@shared/lib/encrier';
 import {
   Stock,
   Cliche,
@@ -238,16 +239,21 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
   },
 };
 
-export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{couleursImpression: string[]}, string> = {
+export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColors}, string> = {
   title: 'Impression',
   width: 140,
-  renderCell: ({couleursImpression}) => renderString(couleursImpression.join(', ')),
-  getSearchValue: row => row.couleursImpression.join(', '),
-  sortFunction: (row1, row2) =>
-    sortArrayFunction(row1.couleursImpression, row2.couleursImpression, true, stringSort),
-  filter: {
-    getValue: row => row.couleursImpression.join(', '),
-  },
+  renderCell: ({colors}) =>
+    renderString(
+      `O(${colors.ordered.map(c => c.color).join(',')}) N(${colors.nonOrdered
+        .map(c => c.color)
+        .join(',')})`
+    ),
+  // getSearchValue: row => row.couleursImpression.join(', '),
+  // sortFunction: (row1, row2) =>
+  //   sortArrayFunction(row1.couleursImpression, row2.couleursImpression, true, stringSort),
+  // filter: {
+  //   getValue: row => row.couleursImpression.join(', '),
+  // },
 };
 
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {

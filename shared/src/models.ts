@@ -1,3 +1,5 @@
+import {BobineColors, EncrierColor} from '@shared/lib/encrier';
+
 export interface BobineFille {
   ref: string;
   designation?: string;
@@ -15,16 +17,15 @@ export interface BobineFille {
 
 export const POSE_NEUTRE = 0;
 
-export interface BobineFilleWithPoseBase extends BobineFille {
-  couleursImpression: string[];
-  importanceOrdreCouleurs: boolean;
+export interface BobineFilleWithColor extends BobineFille {
+  colors: BobineColors;
 }
 
-export interface BobineFilleWithPose extends BobineFilleWithPoseBase {
+export interface BobineFilleWithPose extends BobineFilleWithColor {
   pose: number;
 }
 
-export interface BobineFilleWithMultiPose extends BobineFilleWithPoseBase {
+export interface BobineFilleWithMultiPose extends BobineFilleWithColor {
   availablePoses: number[];
   allPoses: number[];
 }
@@ -148,7 +149,7 @@ export interface PlanProductionState {
   selectableRefentes: Refente[];
   selectableBobines: BobineFilleWithMultiPose[];
 
-  couleursEncrier: string[][];
+  couleursEncrier: EncrierColor[][];
   calculationTime: number;
 }
 

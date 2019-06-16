@@ -1,5 +1,6 @@
 import {Refente as RefenteAlgo} from '@root/plan_production/models';
 import {Perfo} from '@shared/models';
+import {BobineColors} from '@shared/lib/encrier';
 
 export interface PlanProduction {
   polypro?: BobineMerePolypro;
@@ -18,10 +19,8 @@ export interface Selectables {
 }
 
 export interface ClichePose {
-  refCliche?: string;
   pose: number;
-  couleursImpression: string[];
-  importanceOrdreCouleurs: boolean;
+  couleursImpression: BobineColors;
 }
 
 export interface BobineFilleClichePose extends ClichePose {

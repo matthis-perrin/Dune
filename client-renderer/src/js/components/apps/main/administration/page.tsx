@@ -116,6 +116,7 @@ export class AdministrationPage extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {bobinesFilles, bobinesMeres, cliches, refentes, perfos, operations} = this.state;
+
     return (
       <Page>
         <Title>GESCOM</Title>

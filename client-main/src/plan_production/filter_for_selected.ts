@@ -7,10 +7,6 @@ import {
 } from '@root/plan_production/bobines_hash_combinaison';
 import {compatibilityExists} from '@root/plan_production/bobines_refentes_compatibility';
 import {
-  getColorsRestrictionsForBobine,
-  checkColorsAreCompatbile,
-} from '@root/plan_production/colors_compatibility';
-import {
   BobineFilleClichePose,
   BobineMerePapier,
   BobineMerePolypro,
@@ -18,6 +14,7 @@ import {
 } from '@root/plan_production/models';
 
 import {Perfo} from '@shared/models';
+import {validColorCombinaison} from '@shared/lib/encrier';
 
 const DEBUG = false;
 
@@ -213,13 +210,9 @@ export function filterBobinesFillesForSelectedBobinesFilles(
   selectableBobinesFilles: BobineFilleClichePose[],
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineFilleClichePose[] {
-  const selectedBobinesFillesColorsRestrictions = selectedBobinesFilles.map(
-    getColorsRestrictionsForBobine
-  );
   const newBobinesFilles = selectableBobinesFilles.filter((b, i) => {
-    const bobineColorsRestrictions = getColorsRestrictionsForBobine(b);
-    return checkColorsAreCompatbile(
-      selectedBobinesFillesColorsRestrictions.concat([bobineColorsRestrictions]),
+    return validColorCombinaison(
+      selectedBobinesFilles.concat([b]).map(bb => bb.couleursImpression),
       MAX_COULEURS_IMPRESSIONS
     );
   });

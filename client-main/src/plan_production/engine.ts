@@ -1,6 +1,5 @@
 import {flatten, omit} from 'lodash';
 
-import {getColorsRestrictionsForBobine} from '@root/plan_production/colors_compatibility';
 import {
   getBobineFilleClichePose,
   isValidBobineFille,
@@ -17,8 +16,7 @@ import {filterAll} from '@root/plan_production/master_filter';
 import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
 
 import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
-import {getBobineFillePoses} from '@shared/lib/bobines_filles';
-import {generateAllAcceptableColorsOrder} from '@shared/lib/encrier';
+import {generateAllAcceptableColorsOrder, EncrierColor} from '@shared/lib/encrier';
 import {
   BobineFille,
   BobineMere,
@@ -30,6 +28,7 @@ import {
   BobineFilleWithMultiPose,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
+import {getPosesForCliches} from '@shared/lib/cliches';
 
 export class PlanProductionEngine {
   private readonly planProduction: PlanProduction;
@@ -93,7 +92,15 @@ export class PlanProductionEngine {
 
     this.allBobinesFillesPosesByRef = new Map<string, number[]>();
     for (const bobineFille of this.originalBobinesFillesByRef.values()) {
-      const poses = getBobineFillePoses(bobineFille, this.allClicheByRef);
+      const cliche1 =
+        bobineFille.refCliche1 === undefined
+          ? undefined
+          : this.allClicheByRef.get(bobineFille.refCliche1);
+      const cliche2 =
+        bobineFille.refCliche2 === undefined
+          ? undefined
+          : this.allClicheByRef.get(bobineFille.refCliche2);
+      const poses = getPosesForCliches(cliche1, cliche2);
       this.allBobinesFillesPosesByRef.set(bobineFille.ref, poses);
     }
 
@@ -225,8 +232,7 @@ export class PlanProductionEngine {
           bobine && {
             ...bobine,
             pose: b.pose,
-            couleursImpression: b.couleursImpression,
-            importanceOrdreCouleurs: b.importanceOrdreCouleurs,
+            colors: b.couleursImpression,
           }
         );
       })
@@ -273,19 +279,25 @@ export class PlanProductionEngine {
       const {ref} = bobinesCliche[0];
       const availablePoses = bobinesCliche.map(bc => bc.pose);
       const allPoses = this.allBobinesFillesPosesByRef.get(ref) || [];
-      const bobineMultiPose = omit(bobinesCliche[0], ['pose']);
+      const bobineMultiPose = omit(bobinesCliche[0], ['pose', 'couleursImpression']);
       const originalBobine = this.originalBobinesFillesByRef.get(ref);
       if (originalBobine) {
-        bobinesMultiPose.push({...bobineMultiPose, ...originalBobine, availablePoses, allPoses});
+        bobinesMultiPose.push({
+          ...bobineMultiPose,
+          ...originalBobine,
+          availablePoses,
+          allPoses,
+          colors: bobinesCliche[0].couleursImpression,
+        });
       }
     }
 
     return bobinesMultiPose;
   }
 
-  private getValidCouleursEncriers(): string[][] {
+  private getValidCouleursEncriers(): EncrierColor[][] {
     return generateAllAcceptableColorsOrder(
-      this.planProduction.bobinesFilles.map(getColorsRestrictionsForBobine),
+      this.planProduction.bobinesFilles.map(b => b.couleursImpression),
       MAX_COULEURS_IMPRESSIONS
     );
   }

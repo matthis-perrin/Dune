@@ -1,10 +1,5 @@
 import {permutations} from '@shared/lib/utils';
 
-export interface ColorRestriction {
-  couleurs: string[];
-  importanceOrdre: boolean;
-}
-
 export interface ClicheColor {
   color: string;
   refCliche: string;
@@ -184,9 +179,9 @@ function integrateNonOrderedInOrdered(
   nonOrderedClicheColorsMap: Map<string, string[]>
 ): {nonOrdered: Map<string, string[]>; ordered: EncrierColor[][]} {
   const nonOrdered = new Map<string, string[]>();
-  let ordered: EncrierColor[][] = [];
+  const ordered: EncrierColor[][] = [];
 
-  for (let [color, refsCliche] of nonOrderedClicheColorsMap.entries()) {
+  for (const [color, refsCliche] of nonOrderedClicheColorsMap.entries()) {
     const index = orderedArrangements.map(a => a.color).indexOf(color);
     if (index !== -1) {
       const newOrdered = [...orderedArrangements];
@@ -246,7 +241,7 @@ export function generateAllAcceptableColorsOrder(
   const {ordered, nonOrdered} = computeOrderedAndNonOrdered(bobineColors);
 
   let finalArrangements: EncrierColor[][] = [];
-  for (let arrangement of ordered) {
+  for (const arrangement of ordered) {
     const res = integrateNonOrderedInOrdered(arrangement, nonOrdered);
     const reminaingNonOrdered = res.nonOrdered;
     const allOrdered = res.ordered;
