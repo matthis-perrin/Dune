@@ -196,7 +196,9 @@ function integrateNonOrderedInOrdered(
       const newOrdered = [...orderedArrangements];
       newOrdered[index].refsCliche = newOrdered[index].refsCliche.concat(refsCliche);
       ordered.push(newOrdered);
-      nonOrderedClicheColorsMap.delete(color);
+    } else {
+      const value = nonOrdered.get(color) || [];
+      nonOrdered.set(color, value.concat(refsCliche));
     }
   }
 
@@ -253,6 +255,10 @@ export function generateAllAcceptableColorsOrder(
 ): EncrierColor[][] {
   const ordered = allSmallestArrangementsFromOrderedColors(bobineColors.map(c => c.ordered));
   const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
+
+  if (bobineColors.length > 0 && bobineColors[0].nonOrdered.length > 0) {
+    debugger;
+  }
 
   let finalArrangements: EncrierColor[][] = [];
   for (const arrangement of ordered.length === 0 ? [[]] : ordered) {

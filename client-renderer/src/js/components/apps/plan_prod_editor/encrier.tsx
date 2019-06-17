@@ -26,11 +26,22 @@ export class Encrier extends React.Component<EncrierProps> {
   private renderEmptySpot(size: number, index: number): JSX.Element {
     const {pixelPerMM} = this.props;
     return (
-      <div
+      <EncrierEmptySpot
         key={`empty-spot-${index}`}
-        style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT, backgroundColor: 'white'}}
+        style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT}}
       />
     );
+  }
+
+  private getRefClicheInEncrierForBobine(bobine: BobineFilleWithPose): string | undefined {
+    const {encrierColor} = this.props;
+    if (bobine.refCliche1 && encrierColor.refsCliche.indexOf(bobine.refCliche1) !== -1) {
+      return bobine.refCliche1;
+    }
+    if (bobine.refCliche2 && encrierColor.refsCliche.indexOf(bobine.refCliche2) !== -1) {
+      return bobine.refCliche2;
+    }
+    return undefined;
   }
 
   private renderForBobineWithPose(bobine: BobineFilleWithPose, index: number): JSX.Element {
@@ -38,12 +49,12 @@ export class Encrier extends React.Component<EncrierProps> {
     const {laize, pose} = bobine;
     const poseSize = getPoseSize(pose);
     const size = (laize || 0) * poseSize;
-    const refCliche = bobine.refCliche1 || bobine.refCliche2;
-    if (!refCliche || encrierColor.refsCliche.indexOf(refCliche) === -1) {
+    const refCliche = this.getRefClicheInEncrierForBobine(bobine);
+    if (!refCliche) {
       return this.renderEmptySpot(size, index);
     }
     return (
-      <div
+      <EncrierClicheSpot
         key={`cliche-${refCliche}-${pose}-${index}`}
         style={{
           width: size * pixelPerMM,
@@ -51,7 +62,7 @@ export class Encrier extends React.Component<EncrierProps> {
           backgroundColor: couleurByName(encrierColor.color),
           color: textColorByName(encrierColor.color),
         }}
-      >{`${refCliche} (${poseSize} poses)`}</div>
+      >{`${refCliche} (${poseSize} poses)`}</EncrierClicheSpot>
     );
   }
 
@@ -113,3 +124,16 @@ export class Encrier extends React.Component<EncrierProps> {
 const EncrierWrapper = styled.div`
   display: flex;
 `;
+
+const EncrierSpot = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const EncrierEmptySpot = styled(EncrierSpot)`
+  backgroundcolor: white;
+  border: solid 1px black;
+`;
+
+const EncrierClicheSpot = styled(EncrierSpot)``;

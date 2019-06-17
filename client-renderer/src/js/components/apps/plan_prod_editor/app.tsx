@@ -62,6 +62,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           newState.reorderedBobines = undefined;
         }
         this.setState(newState);
+        console.log(planProduction.couleursEncrier);
         if (planProduction.selectableBobines.length === 0) {
           bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
         }

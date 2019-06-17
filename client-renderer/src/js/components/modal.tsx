@@ -116,4 +116,5 @@ const ModalWrapper = styled.div`
   transition: opacity ease-in-out 300ms;
   background-color: ${theme.modal.backgroundColor};
   border: solid ${theme.modal.borderWidth}px ${theme.modal.borderColor};
+  z-index: 1000;
 `;
