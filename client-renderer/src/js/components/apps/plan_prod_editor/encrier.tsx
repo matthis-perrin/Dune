@@ -8,7 +8,7 @@ import {theme, couleurByName, textColorByName} from '@root/theme/default';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
-import {firstBobinePlacementAvailableOnRefente} from '@shared/lib/refentes';
+import {firstBobinePlacementAvailableOnRefente, getRefenteSize} from '@shared/lib/refentes';
 import {BobineFilleWithPose, Refente} from '@shared/models';
 
 interface EncrierProps extends DivProps {
@@ -23,7 +23,7 @@ const ENCRIER_HEIGHT = 40;
 export class Encrier extends React.Component<EncrierProps> {
   public static displayName = 'Encrier';
 
-  private renderEmptySpot(size: number, index: number): JSX.Element {
+  private renderEmptySpot(size: number, index: number = -1): JSX.Element {
     const {pixelPerMM} = this.props;
     return (
       <EncrierEmptySpot
@@ -31,6 +31,33 @@ export class Encrier extends React.Component<EncrierProps> {
         style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT}}
       />
     );
+  }
+
+  private renderEmptyEncrier(): JSX.Element {
+    const {pixelPerMM, selectedRefente} = this.props;
+
+    const size = selectedRefente ? getRefenteSize(selectedRefente) : CAPACITE_MACHINE;
+    const elements: JSX.Element[] = [
+      <EmptyEncrier
+        key={'empty-encrier'}
+        style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT}}
+      >
+        Encrier vide
+      </EmptyEncrier>,
+    ];
+
+    if (selectedRefente && selectedRefente.decalage) {
+      elements.push(
+        <HorizontalCote
+          key="decalage"
+          fontSize={theme.refente.baseFontSize * pixelPerMM}
+          size={selectedRefente.decalage}
+          pixelPerMM={pixelPerMM}
+        />
+      );
+    }
+
+    return <React.Fragment>{elements}</React.Fragment>;
   }
 
   private getRefClicheInEncrierForBobine(bobine: BobineFilleWithPose): string | undefined {
@@ -68,15 +95,19 @@ export class Encrier extends React.Component<EncrierProps> {
 
   private renderWithRefente(refente: Refente): JSX.Element {
     const {pixelPerMM, selectedBobines} = this.props;
-    const placement = firstBobinePlacementAvailableOnRefente(selectedBobines, refente);
     const elements: JSX.Element[] = [];
 
-    for (let i = 0; i < placement.length; i++) {
-      const spot = placement[i];
-      if (typeof spot === 'number') {
-        elements.push(this.renderEmptySpot(spot, i));
-      } else {
-        elements.push(this.renderForBobineWithPose(spot, i));
+    if (selectedBobines.length === 0) {
+      elements.push(this.renderEmptySpot(CAPACITE_MACHINE));
+    } else {
+      const placement = firstBobinePlacementAvailableOnRefente(selectedBobines, refente);
+      for (let i = 0; i < placement.length; i++) {
+        const spot = placement[i];
+        if (typeof spot === 'number') {
+          elements.push(this.renderEmptySpot(spot, i));
+        } else {
+          elements.push(this.renderForBobineWithPose(spot, i));
+        }
       }
     }
 
@@ -103,16 +134,19 @@ export class Encrier extends React.Component<EncrierProps> {
     return (
       <React.Fragment>
         {selectedBobines.map((b, i) => this.renderForBobineWithPose(b, i))}
-        {this.renderEmptySpot(CAPACITE_MACHINE - selectedBobinesSize, -1)}
+        {this.renderEmptySpot(CAPACITE_MACHINE - selectedBobinesSize)}
       </React.Fragment>
     );
   }
 
   public render(): JSX.Element {
     const {selectedRefente, encrierColor} = this.props;
-    const content = selectedRefente
-      ? this.renderWithRefente(selectedRefente)
-      : this.renderWithoutRefente();
+    const content =
+      encrierColor.color === ''
+        ? this.renderEmptyEncrier()
+        : selectedRefente
+        ? this.renderWithRefente(selectedRefente)
+        : this.renderWithoutRefente();
     return (
       <EncrierWrapper key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}>
         {content}
@@ -125,25 +159,30 @@ const EncrierWrapper = styled.div`
   display: flex;
   background-color: white;
   border: solid 1px black;
-  border-bottom: none;
-  &:last-of-type {
-    border-bottom: solid 1px black;
+  margin-top: -1px;
+  &:first-of-type {
+    margin-top: 0;
   }
 `;
 
-const EncrierSpot = styled.div`
+const EncrierContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const EmptyEncrier = styled(EncrierContent)`
+  font-style: italic;
+`;
+
+const EncrierEmptySpot = styled(EncrierContent)`
+  border-left: solid 1px transparent;
+  border-right: solid 1px transparent;
   margin-left: -1px;
 `;
 
-const EncrierEmptySpot = styled(EncrierSpot)`
-  border-left: solid 1px transparent;
-  border-right: solid 1px transparent;
-`;
-
-const EncrierClicheSpot = styled(EncrierSpot)`
+const EncrierClicheSpot = styled(EncrierContent)`
   border-left: solid 1px black;
   border-right: solid 1px black;
+  margin-left: -1px;
 `;
