@@ -246,7 +246,15 @@ export function validColorCombinaison(bobineColors: BobineColors[], maxColors: n
     return nonOrderedCount <= maxColors;
   }
 
-  return orderedArrangements[0].length + nonOrderedCount <= maxColors;
+  const arrangementColors = orderedArrangements[0].map(encrier => encrier.color);
+  let nonOrderedNotInArrangementCount = 0;
+  Array.from(nonOrdered.keys()).forEach(c => {
+    if (arrangementColors.indexOf(c) === -1) {
+      nonOrderedNotInArrangementCount++;
+    }
+  });
+
+  return orderedArrangements[0].length + nonOrderedNotInArrangementCount <= maxColors;
 }
 
 export function generateAllAcceptableColorsOrder(

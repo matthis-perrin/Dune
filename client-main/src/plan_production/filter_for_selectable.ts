@@ -20,6 +20,20 @@ import {
 import {Perfo} from '@shared/models';
 
 const DEBUG = false;
+const DEBUG_BOBINE: string | undefined = undefined;
+
+function printDebugBobine(dropped: BobineFilleClichePose[]): void {
+  if (DEBUG_BOBINE) {
+    const debugBobineDropped = dropped.filter(d => d.ref === DEBUG_BOBINE);
+    if (debugBobineDropped.length > 0) {
+      log.debug(
+        `including dropping bobine ${DEBUG_BOBINE} for poses: ${debugBobineDropped
+          .map(b => b.pose)
+          .join(', ')}`
+      );
+    }
+  }
+}
 
 export function filterPolyprosForSelectablePapiers(
   selectablePolypros: BobineMerePolypro[],
@@ -164,7 +178,8 @@ export function filterBobinesFillesForSelectablePapiers(
   }
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
-    console.log(`filterBobinesFillesForSelectablePapiers dropping ${dropped.length} BobinesFilles`);
+    log.debug(`filterBobinesFillesForSelectablePapiers dropping ${dropped.length} BobinesFilles`);
+    printDebugBobine(dropped);
   }
   return newBobinesFilles;
 }
@@ -211,11 +226,12 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   }
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
-    console.log(
+    log.debug(
       `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
         dropped.length
       } BobinesFilles`
     );
+    printDebugBobine(dropped);
   }
   return compatibleSelectableBobines;
 }
@@ -233,7 +249,7 @@ export function filterRefentesForSelectableBobinesAndSelectedBobines(
   }
   if (DEBUG) {
     const dropped = differenceBy(selectableRefentes, newRefentes, 'ref');
-    console.log(
+    log.debug(
       `filterRefentesForSelectableBobinesAndSelectedBobines dropping ${dropped.length} Refente`
     );
   }
@@ -277,7 +293,7 @@ export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
         firstBobine.couleurPapier !== papier.couleurPapier ||
         firstBobine.grammage !== papier.grammage
       ) {
-        // console.log(
+        // log.debug(
         //   'Passing this papier because the selected bobines does not match the couleurPapier or grammage!',
         //   papier,
         //   bobinesFilles
@@ -306,7 +322,7 @@ export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
   }
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
-    console.log(
+    log.debug(
       `filterPapierForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
         dropped.length
       } Papier`

@@ -17,6 +17,20 @@ import {Perfo} from '@shared/models';
 import {validColorCombinaison} from '@shared/lib/encrier';
 
 const DEBUG = false;
+const DEBUG_BOBINE: string | undefined = undefined;
+
+function printDebugBobine(dropped: BobineFilleClichePose[]): void {
+  if (DEBUG_BOBINE) {
+    const debugBobineDropped = dropped.filter(d => d.ref === DEBUG_BOBINE);
+    if (debugBobineDropped.length > 0) {
+      log.debug(
+        `including dropping bobine ${DEBUG_BOBINE} for poses: ${debugBobineDropped
+          .map(b => b.pose)
+          .join(', ')}`
+      );
+    }
+  }
+}
 
 export function filterPolyprosForSelectedPapier(
   selectablePolypros: BobineMerePolypro[],
@@ -162,6 +176,7 @@ export function filterBobinesFillesForSelectedPapier(
   if (debug && DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
     log.debug(`filterBobinesFillesForSelectedPapier dropping ${dropped.length} BobinesFilles`);
+    printDebugBobine(dropped);
   }
   return newBobinesFilles;
 }
@@ -224,6 +239,7 @@ export function filterBobinesFillesForSelectedBobinesFilles(
     log.debug(
       `filterBobinesFillesForSelectedBobinesFilles dropping ${dropped.length} BobinesFilles`
     );
+    printDebugBobine(dropped);
   }
   return newBobinesFilles;
 }
@@ -281,6 +297,7 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
     log.debug(
       `filterBobinesFillesForSelectedRefenteAndBobines dropping ${dropped.length} BobinesFilles`
     );
+    printDebugBobine(dropped);
   }
   return compatibleBobinesFilles;
 }
