@@ -37,7 +37,9 @@ export class Encrier extends React.Component<EncrierProps> {
   private renderEmptyEncrier(): JSX.Element {
     const {pixelPerMM, selectedRefente} = this.props;
 
-    const size = selectedRefente ? getRefenteSize(selectedRefente) : CAPACITE_MACHINE;
+    const size = selectedRefente
+      ? getRefenteSize(selectedRefente) - (selectedRefente.chute || 0)
+      : CAPACITE_MACHINE;
     const elements: JSX.Element[] = [
       <EmptyEncrier
         key={'empty-encrier'}
@@ -46,17 +48,6 @@ export class Encrier extends React.Component<EncrierProps> {
         Encrier vide
       </EmptyEncrier>,
     ];
-
-    if (selectedRefente && selectedRefente.decalage) {
-      elements.push(
-        <HorizontalCote
-          key="decalage"
-          fontSize={theme.refente.baseFontSize * pixelPerMM}
-          size={selectedRefente.decalage}
-          pixelPerMM={pixelPerMM}
-        />
-      );
-    }
 
     return <React.Fragment>{elements}</React.Fragment>;
   }
@@ -112,17 +103,6 @@ export class Encrier extends React.Component<EncrierProps> {
       }
     }
 
-    if (refente.decalage) {
-      elements.push(
-        <HorizontalCote
-          key="decalage"
-          fontSize={theme.refente.baseFontSize * pixelPerMM}
-          size={refente.decalage}
-          pixelPerMM={pixelPerMM}
-        />
-      );
-    }
-
     return <React.Fragment>{elements}</React.Fragment>;
   }
 
@@ -141,7 +121,7 @@ export class Encrier extends React.Component<EncrierProps> {
   }
 
   public render(): JSX.Element {
-    const {selectedRefente, encrierColor} = this.props;
+    const {selectedRefente, encrierColor, pixelPerMM} = this.props;
     const content =
       encrierColor.color === ''
         ? this.renderEmptyEncrier()
@@ -154,23 +134,45 @@ export class Encrier extends React.Component<EncrierProps> {
       'selectedRefente',
       'encrierColor',
     ]);
+    const decalage =
+      selectedRefente && selectedRefente.decalage ? (
+        <HorizontalCote
+          key="decalage"
+          fontSize={theme.refente.baseFontSize * pixelPerMM}
+          size={selectedRefente.decalage}
+          pixelPerMM={pixelPerMM}
+        />
+      ) : (
+        <React.Fragment />
+      );
     return (
-      <EncrierWrapper {...rest} key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}>
-        {content}
-      </EncrierWrapper>
+      <Container>
+        <EncrierWrapper
+          {...rest}
+          key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
+        >
+          {content}
+        </EncrierWrapper>
+        {decalage}
+      </Container>
     );
   }
 }
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: -1px;
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
 
 const EncrierWrapper = styled.div`
   display: flex;
   background-color: white;
   border: solid 1px black;
   box-sizing: border-box;
-  margin-top: -1px;
-  &:first-of-type {
-    margin-top: 0;
-  }
 `;
 
 const EncrierContent = styled.div`
