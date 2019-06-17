@@ -162,7 +162,7 @@ export const theme = {
     baseHeight: 30,
   },
   refente: {
-    height: 80,
+    height: 100,
     borderColor: Colors.black,
     backgroundColor: '#F2F2F2',
     baseFontSize: 22,

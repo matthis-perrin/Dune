@@ -111,7 +111,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1250, height: 950}};
+      return {id: 'plan-production-editor-app', size: {width: 1250, height: 932}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
       return {id: 'bobines-picker-app', size: {width: 1500, height: 800}};

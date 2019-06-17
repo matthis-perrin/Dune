@@ -16,7 +16,7 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {SizeMonitor} from '@root/components/core/size_monitor';
+import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, couleurByName} from '@root/theme/default';
@@ -195,13 +195,23 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = planProduction;
 
     return (
-      <div>
+      <div style={{margin: 'auto'}}>
+        <ButtonContainer>
+          {this.canAutoComplete() ? (
+            <Button onClick={this.autoComplete}>Auto complète</Button>
+          ) : (
+            <React.Fragment />
+          )}
+          {this.canClear() ? <Button onClick={this.clear}>Effacer</Button> : <React.Fragment />}
+          {`Computed in ${planProduction.calculationTime}ms`}
+        </ButtonContainer>
         <SizeMonitor>
           {width => {
             // Padding for the extra space taken by the bobine offset
             const leftPadding =
               (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
-            const availableWidth = width - 2 * theme.page.padding - leftPadding;
+            const availableWidth =
+              width - 2 * theme.page.padding - leftPadding - SCROLLBAR_WIDTH - 4;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
             const bobinesBlock = (
@@ -285,7 +295,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
             return (
               <Wrapper style={{width: width - 2 * theme.page.padding}}>
-                {`Computed in ${planProduction.calculationTime}ms`}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
@@ -301,12 +310,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
           }}
         </SizeMonitor>
-        {this.canAutoComplete() ? (
-          <Button onClick={this.autoComplete}>Auto complète</Button>
-        ) : (
-          <React.Fragment />
-        )}
-        {this.canClear() ? <Button onClick={this.clear}>Effacer</Button> : <React.Fragment />}
       </div>
     );
   }
@@ -322,9 +325,19 @@ const Wrapper = styled.div`
   align-items: center;
   padding: ${theme.page.padding}px;
   background-color: #dedede;
+  border-bottom: solid 2px black;
 `;
 
 const ClosableAlignRight = styled(Closable)`
   display: flex;
   justify-content: flex-end;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 60px;
+  justify-content: center;
+  border-top: solid 2px black;
+  border-bottom: solid 2px black;
 `;
