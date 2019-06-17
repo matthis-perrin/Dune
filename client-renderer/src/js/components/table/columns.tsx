@@ -1,6 +1,5 @@
 import {sum} from 'lodash-es';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
 import {BobineColors} from '@root/components/common/bobine_colors';
@@ -10,7 +9,7 @@ import {
   OperationConstraint,
   ConstraintDescriptions,
 } from '@root/components/common/operation_constraint';
-import {SVGIcon} from '@root/components/core/svg_icon';
+import {RefLink} from '@root/components/common/ref_link';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme/default';
@@ -141,36 +140,6 @@ function renderBoolean(value?: boolean): JSX.Element {
   return <span>{value === undefined ? '-' : value ? 'OUI' : 'NON'}</span>;
 }
 
-function renderRefLink(ref: string, onClick: () => void): JSX.Element {
-  return (
-    <RefLink onClick={onClick}>
-      <RefLinkText>{ref}</RefLinkText>
-      <RefLinkIcon name="new-window" width={12} height={12} />
-    </RefLink>
-  );
-}
-
-const RefLinkText = styled.div`
-  margin-right: 6px;
-`;
-
-const RefLinkIcon = styled(SVGIcon)`
-  display: none;
-`;
-
-const RefLink = styled.div`
-  display: flex;
-  align-items: center;
-  color: ${Colors.secondary};
-  fill: ${Colors.secondary};
-  &:hover {
-    text-decoration: underline;
-    svg {
-      display: block;
-    }
-  }
-`;
-
 // tslint:disable:no-magic-numbers
 export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, string> => ({
   title: 'Reference',
@@ -183,7 +152,11 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
 export const BOBINE_FILLE_REF: ColumnMetadata<{ref: string}, string> = {
   title: 'Reference',
   width: 190,
-  renderCell: ({ref}) => renderRefLink(ref, () => bridge.viewBobine(ref).catch(console.error)),
+  renderCell: ({ref}) => (
+    <RefLink onClick={() => bridge.viewBobine(ref).catch(console.error)} color={Colors.secondary}>
+      {ref}
+    </RefLink>
+  ),
   getSearchValue: row => row.ref || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.ref, row2.ref),
 };

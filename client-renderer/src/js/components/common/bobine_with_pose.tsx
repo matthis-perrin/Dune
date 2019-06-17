@@ -3,12 +3,13 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Bobine, CURVE_EXTRA_SPACE, BOBINE_STROKE_WIDTH} from '@root/components/common/bobine';
+import {RefLink} from '@root/components/common/ref_link';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {couleurByName} from '@root/theme/default';
+import {couleurByName, textColorByName} from '@root/theme/default';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
@@ -31,6 +32,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     const {bobine, pixelPerMM, negativeMargin} = this.props;
     const poseSize = getPoseSize(bobine.pose);
     const color = couleurByName(bobine.couleurPapier);
+    const textColor = textColorByName(bobine.couleurPapier);
 
     const initialSize = bobine.laize || 0;
     // In order to have overlapping bobines we need make them slightly larger (by the size of the
@@ -60,11 +62,17 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             pixelPerMM={pixelPerMM}
             size={size}
             color={color}
+            borderColor={textColor}
             faceDown
           >
             <AutoFontWeight fontSize={12 * pixelPerMM}>
-              <BobineDescription>
-                {bobine.ref}
+              <BobineDescription style={{color: textColor}}>
+                <RefLink
+                  color={textColor}
+                  onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
+                >
+                  {bobine.ref}
+                </RefLink>
                 <br />
                 {`${bobine.couleurPapier} - ${bobine.laize}`}
               </BobineDescription>
