@@ -123,17 +123,27 @@ export class Encrier extends React.Component<EncrierProps> {
 
 const EncrierWrapper = styled.div`
   display: flex;
+  background-color: white;
+  border: solid 1px black;
+  border-bottom: none;
+  &:last-of-type {
+    border-bottom: solid 1px black;
+  }
 `;
 
 const EncrierSpot = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: -1px;
 `;
 
 const EncrierEmptySpot = styled(EncrierSpot)`
-  backgroundcolor: white;
-  border: solid 1px black;
+  border-left: solid 1px transparent;
+  border-right: solid 1px transparent;
 `;
 
-const EncrierClicheSpot = styled(EncrierSpot)``;
+const EncrierClicheSpot = styled(EncrierSpot)`
+  border-left: solid 1px black;
+  border-right: solid 1px black;
+`;
