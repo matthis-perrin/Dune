@@ -1,3 +1,4 @@
+import {omit} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -18,7 +19,7 @@ interface EncrierProps extends DivProps {
   encrierColor: EncrierColor;
 }
 
-const ENCRIER_HEIGHT = 40;
+export const ENCRIER_HEIGHT = 40;
 
 export class Encrier extends React.Component<EncrierProps> {
   public static displayName = 'Encrier';
@@ -147,8 +148,14 @@ export class Encrier extends React.Component<EncrierProps> {
         : selectedRefente
         ? this.renderWithRefente(selectedRefente)
         : this.renderWithoutRefente();
+    const rest = omit(this.props, [
+      'pixelPerMM',
+      'selectedBobines',
+      'selectedRefente',
+      'encrierColor',
+    ]);
     return (
-      <EncrierWrapper key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}>
+      <EncrierWrapper {...rest} key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}>
         {content}
       </EncrierWrapper>
     );
@@ -159,6 +166,7 @@ const EncrierWrapper = styled.div`
   display: flex;
   background-color: white;
   border: solid 1px black;
+  box-sizing: border-box;
   margin-top: -1px;
   &:first-of-type {
     margin-top: 0;
@@ -178,11 +186,13 @@ const EmptyEncrier = styled(EncrierContent)`
 const EncrierEmptySpot = styled(EncrierContent)`
   border-left: solid 1px transparent;
   border-right: solid 1px transparent;
+  box-sizing: border-box;
   margin-left: -1px;
 `;
 
 const EncrierClicheSpot = styled(EncrierContent)`
   border-left: solid 1px black;
   border-right: solid 1px black;
+  box-sizing: border-box;
   margin-left: -1px;
 `;

@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
-import {EncrierForm} from '@root/components/apps/plan_prod_editor/encriers_form';
+import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable_encrier';
 import {
   SelectRefenteButton,
   SelectPapierButton,
@@ -22,6 +22,7 @@ import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, couleurByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
+import {EncrierColor} from '@shared/lib/encrier';
 import {PlanProductionState, ClientAppType, BobineFilleWithPose} from '@shared/models';
 
 interface Props {}
@@ -29,6 +30,7 @@ interface Props {}
 interface State {
   planProduction?: PlanProductionState;
   reorderedBobines?: BobineFilleWithPose[];
+  reorderedEncriers?: EncrierColor[];
 }
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
@@ -56,13 +58,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         const newState: Partial<State> = {planProduction};
         if (
           this.state.planProduction &&
-          this.state.reorderedBobines &&
+          (this.state.reorderedBobines || this.state.reorderedEncriers) &&
           !isEqual(planProduction.selectedBobines, this.state.planProduction.selectedBobines)
         ) {
           newState.reorderedBobines = undefined;
+          newState.reorderedEncriers = undefined;
         }
         this.setState(newState);
-        console.log(planProduction.couleursEncrier);
         if (planProduction.selectableBobines.length === 0) {
           bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
         }
@@ -72,6 +74,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
   private readonly handleBobineReorder = (newBobines: BobineFilleWithPose[]): void => {
     this.setState({reorderedBobines: newBobines});
+  };
+
+  private readonly handleEncrierReorder = (newEncriers: EncrierColor[]): void => {
+    this.setState({reorderedEncriers: newEncriers});
   };
 
   private removeRefente(): void {
@@ -168,7 +174,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {planProduction, reorderedBobines} = this.state;
+    const {planProduction, reorderedBobines, reorderedEncriers} = this.state;
 
     if (!planProduction) {
       return <LoadingIndicator size="large" />;
@@ -217,11 +223,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const encriersBlock = (
-              <EncrierForm
+              <OrderableEncrier
                 pixelPerMM={pixelPerMM}
                 selectedBobines={reorderedBobines || selectedBobines}
                 selectedRefente={selectedRefente}
-                validEncrierColors={couleursEncrier}
+                allValidEncrierColors={couleursEncrier}
+                encrierColors={reorderedEncriers || couleursEncrier[0] || []}
+                onReorder={this.handleEncrierReorder}
               />
             );
 

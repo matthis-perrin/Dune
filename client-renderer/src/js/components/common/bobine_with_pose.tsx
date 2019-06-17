@@ -62,7 +62,6 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             pixelPerMM={pixelPerMM}
             size={size}
             color={color}
-            borderColor={textColor}
             faceDown
           >
             <AutoFontWeight fontSize={12 * pixelPerMM}>
