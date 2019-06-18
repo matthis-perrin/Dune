@@ -1,37 +1,43 @@
 import {analyseLaizesLeftOnRefente} from '@root/plan_production/bobines_refentes_compatibility';
 import {
-  filterPolyprosForSelectablePapiers,
-  filterPolyprosForSelectableRefentes,
-  filterPapiersForSelectablePolypros,
-  filterPapiersForSelectableRefentes,
-  filterRefentesForSelectablePerfos,
-  filterRefentesForSelectablePapiers,
-  filterRefentesForSelectablePolypros,
-  filterPerfosForSelectableRefentes,
   filterBobinesFillesForSelectablePapiers,
   filterBobinesFillesForSelectableRefentesAndSelectedBobines,
-  filterRefentesForSelectableBobinesAndSelectedBobines,
   filterPapierForRefentesAndSelectableBobinesAndSelectedBobines,
+  filterPapiersForSelectablePolypros,
+  filterPapiersForSelectableRefentes,
+  filterPerfosForSelectableRefentes,
+  filterPolyprosForSelectablePapiers,
+  filterPolyprosForSelectableRefentes,
+  filterRefentesForSelectableBobinesAndSelectedBobines,
+  filterRefentesForSelectablePapiers,
+  filterRefentesForSelectablePerfos,
+  filterRefentesForSelectablePolypros,
 } from '@root/plan_production/filter_for_selectable';
 import {
-  filterPolyprosForSelectedPapier,
-  filterPolyprosForSelectedRefente,
+  filterBobinesFillesForSelectedBobinesFilles,
+  filterBobinesFillesForSelectedBobinesFillesAndCliches,
+  filterBobinesFillesForSelectedPapier,
+  filterBobinesFillesForSelectedRefenteAndBobines,
+  filterPapiersForSelectedBobinesFilles,
   filterPapiersForSelectedPolypro,
   filterPapiersForSelectedRefente,
-  filterRefentesForSelectedPerfo,
-  filterRefentesForSelectedPapier,
-  filterRefentesForSelectedPolypro,
   filterPerfosForSelectedRefente,
-  filterBobinesFillesForSelectedPapier,
-  filterBobinesFillesForSelectedBobinesFilles,
-  filterPapiersForSelectedBobinesFilles,
-  filterBobinesFillesForSelectedRefenteAndBobines,
+  filterPolyprosForSelectedPapier,
+  filterPolyprosForSelectedRefente,
+  filterRefentesForSelectedPapier,
+  filterRefentesForSelectedPerfo,
+  filterRefentesForSelectedPolypro,
 } from '@root/plan_production/filter_for_selected';
 import {PlanProduction, Selectables} from '@root/plan_production/models';
+import {Cliche} from '@shared/models';
 
 // Given a PlanProduction with some things selected and a bunch of Selectables things that can be selected,
 // filter the Selectables to only leave the one that can lead to a valid PlanProduction.
-export function filterAll(planProd: PlanProduction, selectables: Selectables): Selectables {
+export function filterAll(
+  planProd: PlanProduction,
+  selectables: Selectables,
+  cliches: Map<string, Cliche>
+): Selectables {
   let i = 0;
   const MAX_STEP = 20;
   let somethingChanged = true;
@@ -45,7 +51,7 @@ export function filterAll(planProd: PlanProduction, selectables: Selectables): S
     }
     // const t = Date.now();
     try {
-      const newSelectables = filterAllOnce(planProd, currentSelectable);
+      const newSelectables = filterAllOnce(planProd, currentSelectable, cliches);
       somethingChanged = selectablesAreDifferent(currentSelectable, newSelectables);
       currentSelectable = newSelectables;
     } catch (err) {
@@ -70,7 +76,11 @@ function markPerf(label: string): void {
   perfTime = now;
 }
 
-function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Selectables {
+function filterAllOnce(
+  planProd: PlanProduction,
+  selectables: Selectables,
+  cliches: Map<string, Cliche>
+): Selectables {
   const filtered = {...selectables};
   const {bobinesFilles, papier, perfo, polypro, refente} = planProd;
 
@@ -204,9 +214,21 @@ function filterAllOnce(planProd: PlanProduction, selectables: Selectables): Sele
     papier ? 'filterBobinesFillesForSelectedPapier' : 'filterBobinesFillesForSelectablePapiers'
   );
 
+  // Filtering of BobineFilleClichePose against already selected BobineFilleClichePose cliches
+  if (bobinesFilles.length > 0) {
+    filtered.selectableBobinesFilles = filterBobinesFillesForSelectedBobinesFillesAndCliches(
+      filtered.selectableBobinesFilles,
+      bobinesFilles,
+      cliches
+    );
+    markPerf('filterBobinesFillesForSelectedBobinesFillesAndCliches');
+  }
+
+  //
   // The following processing is costly, so if something has changed during the previous filtering,
   // we stop there and wait for the next cycle in case more filtering can be done (which would make things
   // faster here).
+  //
 
   if (selectablesAreDifferent(selectables, filtered)) {
     return filtered;

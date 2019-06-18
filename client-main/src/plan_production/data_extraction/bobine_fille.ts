@@ -22,6 +22,13 @@ export function getBobineFilleClichePose(
     const {ref, laize = 0, couleurPapier = '', grammage = 0} = bobine;
     const cliche1 = bobine.refCliche1 === undefined ? undefined : allCliches.get(bobine.refCliche1);
     const cliche2 = bobine.refCliche2 === undefined ? undefined : allCliches.get(bobine.refCliche2);
+    const refsCliches: string[] = [];
+    if (bobine.refCliche1) {
+      refsCliches.push(bobine.refCliche1);
+    }
+    if (bobine.refCliche2) {
+      refsCliches.push(bobine.refCliche2);
+    }
     const poses = getPosesForCliches(cliche1, cliche2);
     const couleursImpression = getCouleursForCliches(cliche1, cliche2);
     return poses.map(pose => {
@@ -35,6 +42,7 @@ export function getBobineFilleClichePose(
         hash,
         pose,
         couleursImpression,
+        refsCliches,
       };
     });
   }

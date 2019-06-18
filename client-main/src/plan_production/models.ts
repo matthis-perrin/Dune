@@ -30,6 +30,7 @@ export interface BobineFilleClichePose extends ClichePose {
   couleurPapier: string;
   grammage: number;
   hash: string;
+  refsCliches: string[];
 }
 
 export interface BobineMerePapier {

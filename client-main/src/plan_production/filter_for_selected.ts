@@ -14,7 +14,9 @@ import {
 } from '@root/plan_production/models';
 
 import {validColorCombinaison} from '@shared/lib/encrier';
-import {Perfo} from '@shared/models';
+import {Perfo, Cliche, POSE_NEUTRE} from '@shared/models';
+import {stringify} from 'querystring';
+import {getPosesForCliche, arePosesAvailable} from '@shared/lib/cliches';
 
 const DEBUG = false;
 const DEBUG_BOBINE: string | undefined = undefined;
@@ -217,6 +219,59 @@ export function filterPapiersForSelectedBobinesFilles(
     log.debug(`filterPapiersForSelectedBobinesFilles dropping ${dropped.length} Papiers`);
   }
   return newPapiers;
+}
+
+function addBobineToPosesByCliche(
+  bobine: BobineFilleClichePose,
+  posesByCliche: Map<string, number[]>
+) {
+  if (bobine.pose !== POSE_NEUTRE) {
+    bobine.refsCliches.forEach(refCliche => {
+      const poses = posesByCliche.get(refCliche) || [];
+      posesByCliche.set(refCliche, poses.concat([bobine.pose]));
+    });
+  }
+}
+
+export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
+  selectableBobinesFilles: BobineFilleClichePose[],
+  selectedBobinesFilles: BobineFilleClichePose[],
+  cliches: Map<string, Cliche>
+): BobineFilleClichePose[] {
+  const selectedPosesByCliche = new Map<string, number[]>();
+  selectedBobinesFilles.forEach(b => {
+    addBobineToPosesByCliche(b, selectedPosesByCliche);
+  });
+
+  const newBobinesFilles = selectableBobinesFilles.filter(b => {
+    const usedPosesByCliche = new Map<string, number[]>(selectedPosesByCliche.entries());
+    addBobineToPosesByCliche(b, usedPosesByCliche);
+    for (let [ref, poses] of Array.from(usedPosesByCliche.entries())) {
+      const cliche = cliches.get(ref);
+      if (!cliche) {
+        return false;
+      }
+      const availablePoses = getPosesForCliche(cliche);
+      if (!arePosesAvailable(poses, availablePoses)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  if (newBobinesFilles.length === selectableBobinesFilles.length) {
+    return selectableBobinesFilles;
+  }
+  if (DEBUG) {
+    const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
+    log.debug(
+      `filterBobinesFillesForSelectedBobinesFillesAndCliches dropping ${
+        dropped.length
+      } BobinesFilles`
+    );
+    printDebugBobine(dropped);
+  }
+  return newBobinesFilles;
 }
 
 const MAX_COULEURS_IMPRESSIONS = 3;

@@ -317,7 +317,7 @@ export class PlanProductionEngine {
   private computeSelectables(): Selectables {
     this.isComputing = true;
     const startTime = Date.now();
-    const res = filterAll(this.planProduction, this.originalSelectables);
+    const res = filterAll(this.planProduction, this.originalSelectables, this.allClicheByRef);
     const endTime = Date.now();
     this.calculationTime = endTime - startTime;
     this.isComputing = false;

@@ -125,6 +125,44 @@ export function getPosesForCliches(cliche1?: Cliche, cliche2?: Cliche): number[]
   }
 }
 
+export function arePosesAvailable(poses: number[], availablePoses: number[]): boolean {
+  const availablePosesMap = posesAsMap(availablePoses);
+  const remainingPosesToCheck: number[] = [];
+
+  for (let i = 0; i < poses.length; i++) {
+    const pose = poses[i];
+    const poseCount = availablePosesMap.get(pose);
+    if (poseCount === 0 || poseCount === undefined) {
+      remainingPosesToCheck.push(pose);
+    } else {
+      availablePosesMap.set(pose, poseCount - 1);
+    }
+  }
+
+  if (remainingPosesToCheck.length === 0) {
+    return true;
+  }
+  let remainingAvailablePoses: number[] = [];
+  availablePosesMap.forEach((pose, count) => {
+    for (let i = 0; i < count; i++) {
+      remainingAvailablePoses.push(pose);
+    }
+  });
+  if (remainingAvailablePoses.length === 0) {
+    return false;
+  }
+  remainingAvailablePoses.sort();
+
+  for (const poseToCheck of remainingPosesToCheck) {
+    const {hit, newAvailablePoses} = removeMatchingPoseCombi(poseToCheck, remainingAvailablePoses);
+    if (!hit) {
+      return false;
+    }
+    remainingAvailablePoses = newAvailablePoses;
+  }
+  return true;
+}
+
 //
 // CLICHE COLORS
 //
