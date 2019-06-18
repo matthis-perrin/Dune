@@ -1,9 +1,8 @@
 import * as React from 'react';
-import {GridChildComponentProps} from 'react-window';
 
 import {ColumnHeader, ColumnSortMode} from '@root/components/table/column';
 import {FilterState} from '@root/components/table/column_filters';
-import {VirtualizedTable} from '@root/components/table/virtualized_table';
+import {FastTable} from '@root/components/table/fast_table';
 import {theme} from '@root/theme/default';
 
 // tslint:disable-next-line:no-null-keyword
@@ -25,6 +24,7 @@ export interface ColumnMetadata<T, U> {
   filter?: ColumnFilter<T, U>;
   renderCell(element: T): JSX.Element | string;
   getSearchValue?(element: T): string;
+  shouldRerender(prev: T, next: T): boolean;
 }
 
 export interface SortInfo {
@@ -51,7 +51,12 @@ interface State<T> {
   hoveredIndex?: number;
 }
 
-export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
+const TABLE_STYLES = {
+  borderTop: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
+  borderBottom: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
+};
+
+export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
   public static displayName = 'SortableTable';
 
   private readonly columnFilters = new Map<number, FilterState<T>>();
@@ -123,81 +128,6 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
       filteredData,
     });
   }
-
-  private handleCellMouseOver(rowIndex: number): void {
-    // this.setState(state => {
-    //   if (state.hoveredIndex !== rowIndex) {
-    //     return {...state, hoveredIndex: rowIndex};
-    //   }
-    //   return DONT_UPDATE_STATE;
-    // });
-  }
-
-  private handleCellMouseOut(rowIndex: number): void {
-    // this.setState(state => {
-    //   if (state.hoveredIndex === rowIndex) {
-    //     return {...state, hoveredIndex: undefined};
-    //   }
-    //   return DONT_UPDATE_STATE;
-    // });
-  }
-
-  private readonly renderCell = (props: GridChildComponentProps): JSX.Element => {
-    const {rowIndex, columnIndex, style} = props;
-    const {columns, rowStyles} = this.props;
-    const isHovered = this.state.hoveredIndex === rowIndex;
-
-    const line = this.state.filteredData[rowIndex];
-    const {renderCell} = columns[columnIndex];
-    const isFirst = columnIndex === 0;
-    const isLast = columnIndex === columns.length - 1;
-    const paddingLeft = isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2;
-    const paddingRight = isLast ? theme.table.headerPadding : theme.table.headerPadding / 2;
-    const backgroundColor = isHovered
-      ? theme.table.rowBackgroundColorHovered
-      : theme.table.rowBackgroundColor;
-    const additionalStyles: React.CSSProperties = rowStyles ? rowStyles(line) : {};
-
-    const transformedStyles: React.CSSProperties = {
-      ...style,
-      paddingLeft,
-      paddingRight,
-      backgroundColor,
-      lineHeight: `${style.height}px`,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      boxSizing: 'border-box',
-      fontSize: theme.table.rowFontSize,
-      fontWeight: theme.table.rowFontWeight,
-      cursor: 'pointer',
-      userSelect: 'auto',
-      ...additionalStyles,
-    };
-
-    // if (!cell) {
-    //   // tslint:disable-next-line:no-any
-    //   const unknownValue = (line as any)[name] as unknown;
-    //   if (type === ColumnType.Date) {
-    //     cell = <span>{(unknownValue as Date).toLocaleString('fr')}</span>;
-    //   } else if (type === ColumnType.Boolean) {
-    //     cell = <span>{(unknownValue as boolean) ? 'OUI' : 'NON'}</span>;
-    //   } else {
-    //     cell = <span>{(unknownValue as string) || '-'}</span>;
-    //   }
-    // }
-
-    return (
-      <div
-        onMouseOver={() => this.handleCellMouseOver(rowIndex)}
-        onMouseOut={() => this.handleCellMouseOut(rowIndex)}
-        onClick={event => this.props.onRowClick && this.props.onRowClick(line, event)}
-        style={transformedStyles}
-      >
-        {renderCell(line)}
-      </div>
-    );
-  };
 
   private readonly handleColumnFilterChange = (
     index: number,
@@ -271,23 +201,23 @@ export class SortableTable<T> extends React.Component<Props<T>, State<T>> {
   };
 
   public render(): JSX.Element {
-    const {width, height} = this.props;
+    const {width, height, columns, rowStyles, data, onRowClick} = this.props;
     const {filteredData} = this.state;
 
     return (
-      <VirtualizedTable
+      <FastTable<T>
         width={width}
         height={height - theme.table.headerHeight}
         columnCount={this.props.columns.length}
         rowCount={filteredData.length}
         getColumnWidth={this.getColumnWidth}
         rowHeight={theme.table.rowHeight}
-        renderCell={this.renderCell}
         renderColumn={this.renderColumn}
-        style={{
-          borderTop: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
-          borderBottom: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
-        }}
+        style={TABLE_STYLES}
+        columns={columns}
+        rowStyles={rowStyles}
+        data={data}
+        onRowClick={onRowClick}
       />
     );
   }

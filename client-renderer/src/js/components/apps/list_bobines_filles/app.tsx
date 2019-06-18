@@ -71,7 +71,6 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
           BobineFilleColumns.RefCliche1,
           BobineFilleColumns.RefCliche2,
           BobineFilleColumns.Stock(stocks),
-          BobineFilleColumns.LastUpdate,
         ]}
       />
     );

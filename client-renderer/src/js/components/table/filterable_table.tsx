@@ -67,6 +67,15 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
     this.setState({searchValue});
   };
 
+  private readonly rowStyles = (row: T): React.CSSProperties => {
+    if (this.props.isRowDisabled && this.props.isRowDisabled(row)) {
+      return {
+        opacity: 0.5,
+      };
+    }
+    return {};
+  };
+
   private renderFilter(filter: TableFilter<T>): JSX.Element {
     const {shouldShowRow, title} = filter;
     return (
@@ -152,14 +161,7 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
             tableBorderCount * theme.table.borderThickness -
             searchInputHeight
           }
-          rowStyles={row => {
-            if (this.props.isRowDisabled && this.props.isRowDisabled(row)) {
-              return {
-                opacity: 0.5,
-              };
-            }
-            return {};
-          }}
+          rowStyles={this.rowStyles}
         />
         {this.renderFooter(filteredData)}
       </TableContainer>
