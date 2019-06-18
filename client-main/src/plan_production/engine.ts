@@ -16,6 +16,7 @@ import {filterAll} from '@root/plan_production/master_filter';
 import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
 
 import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
+import {getPosesForCliches} from '@shared/lib/cliches';
 import {generateAllAcceptableColorsOrder, EncrierColor} from '@shared/lib/encrier';
 import {
   BobineFille,
@@ -28,7 +29,6 @@ import {
   BobineFilleWithMultiPose,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
-import {getPosesForCliches} from '@shared/lib/cliches';
 
 export class PlanProductionEngine {
   private readonly planProduction: PlanProduction;

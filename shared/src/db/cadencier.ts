@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {CADENCIER_TABLE_NAME} from '@shared/db/table_names';
 import {VenteLight} from '@shared/models';
-import {asDate, asMap, asNumber} from '@shared/type_utils';
+import {asMap, asNumber} from '@shared/type_utils';
 
 export const CadencierColumns = {
   ID_COLUMN: 'id',

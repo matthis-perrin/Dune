@@ -264,10 +264,6 @@ export function generateAllAcceptableColorsOrder(
   const ordered = allSmallestArrangementsFromOrderedColors(bobineColors.map(c => c.ordered));
   const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
 
-  if (bobineColors.length > 0 && bobineColors[0].nonOrdered.length > 0) {
-    debugger;
-  }
-
   let finalArrangements: EncrierColor[][] = [];
   for (const arrangement of ordered.length === 0 ? [[]] : ordered) {
     const res = integrateNonOrderedInOrdered(arrangement, nonOrdered);

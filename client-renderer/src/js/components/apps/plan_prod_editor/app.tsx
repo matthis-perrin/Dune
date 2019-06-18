@@ -294,7 +294,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             return (
-              <Wrapper style={{width: width - 2 * theme.page.padding}}>
+              <Wrapper style={{width: availableWidth + leftPadding}}>
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
@@ -303,7 +303,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{papierBlock}</div>
                 <Padding />
-                <div style={{alignSelf: 'flex-start', marginLeft: leftPadding}}>{perfoBlock}</div>
+                <div style={{alignSelf: 'flex-start', paddingLeft: leftPadding}}>{perfoBlock}</div>
                 <Padding />
                 <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
               </Wrapper>

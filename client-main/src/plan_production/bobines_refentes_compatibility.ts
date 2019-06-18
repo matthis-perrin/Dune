@@ -6,8 +6,8 @@ import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
 
 import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
 import {getPoseSize} from '@shared/lib/cliches';
-import {permutations} from '@shared/lib/utils';
 import {validColorCombinaison} from '@shared/lib/encrier';
+import {permutations} from '@shared/lib/utils';
 
 // This function checks if there is at aleast one combinaison of `BobineFilleClichePose`
 // in `selectableBobines` that fits in `refente` given a list of already selected `BobineFilleClichePose`

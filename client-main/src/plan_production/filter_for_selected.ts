@@ -13,8 +13,8 @@ import {
   Refente,
 } from '@root/plan_production/models';
 
-import {Perfo} from '@shared/models';
 import {validColorCombinaison} from '@shared/lib/encrier';
+import {Perfo} from '@shared/models';
 
 const DEBUG = false;
 const DEBUG_BOBINE: string | undefined = undefined;

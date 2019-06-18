@@ -1,8 +1,8 @@
 import {BobineFilleClichePose} from '@root/plan_production/models';
 
 import {getCouleursForCliches, getPosesForCliches} from '@shared/lib/cliches';
-import {BobineFille, Cliche} from '@shared/models';
 import {BobineColors} from '@shared/lib/encrier';
+import {BobineFille, Cliche} from '@shared/models';
 
 export function getBobineHash(
   laize: number,

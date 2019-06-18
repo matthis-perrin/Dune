@@ -1,6 +1,7 @@
 import {Refente as RefenteAlgo} from '@root/plan_production/models';
-import {Perfo} from '@shared/models';
+
 import {BobineColors} from '@shared/lib/encrier';
+import {Perfo} from '@shared/models';
 
 export interface PlanProduction {
   polypro?: BobineMerePolypro;
