@@ -156,7 +156,6 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
           width={width}
           height={
             height -
-            theme.table.headerHeight -
             theme.table.footerHeight -
             tableBorderCount * theme.table.borderThickness -
             searchInputHeight

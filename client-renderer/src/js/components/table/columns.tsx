@@ -358,7 +358,9 @@ export const LAST_UPDATE_COLUMN: ColumnMetadata<{localUpdate: Date}, Date> = {
   width: 170,
   renderCell: ({localUpdate}) => renderDate(localUpdate),
   sortFunction: (row1, row2) => dateSort(row1.localUpdate, row2.localUpdate),
-  shouldRerender: (row1, row2) => row1.localUpdate.getTime() !== row2.localUpdate.getTime(),
+  shouldRerender: (row1, row2) => {
+    return row1.localUpdate.getTime() !== row2.localUpdate.getTime();
+  },
 };
 
 export const LAIZE1_REFENTE_COLUMN: ColumnMetadata<{laize1?: number}, number> = {

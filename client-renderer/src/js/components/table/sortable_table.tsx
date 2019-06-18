@@ -207,7 +207,7 @@ export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
     return (
       <FastTable<T>
         width={width}
-        height={height - theme.table.headerHeight}
+        height={height}
         columnCount={this.props.columns.length}
         rowCount={filteredData.length}
         getColumnWidth={this.getColumnWidth}
