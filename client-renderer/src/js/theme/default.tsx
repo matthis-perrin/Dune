@@ -76,7 +76,7 @@ const COLOR_INFO = new Map<
   ['ECRU', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
   ['ECRU ENDUIT', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
   ['IVOIRE', {hex: '#f7f1e3', textHex: '#000000', isWhite: true, isBlack: false}],
-  ['JAUNE', {hex: '#f1c40f', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['JAUNE', {hex: '#ffc700', textHex: '#000000', isWhite: false, isBlack: false}],
   ['MARRON', {hex: '#784212', textHex: '#000000', isWhite: false, isBlack: false}],
   ['NOIR', {hex: '#3d3d3d', textHex: '#ffffff', isWhite: false, isBlack: true}],
   ['ORANGE', {hex: '#e67e22', textHex: '#000000', isWhite: false, isBlack: false}],
@@ -84,6 +84,8 @@ const COLOR_INFO = new Map<
   ['ROUGE', {hex: '#e74c3c', textHex: '#000000', isWhite: false, isBlack: false}],
   ['VERT', {hex: '#2ecc71', textHex: '#000000', isWhite: false, isBlack: false}],
   ['BLEU', {hex: '#2e71cc', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['BISTRE', {hex: '#856d4d', textHex: '#000000', isWhite: false, isBlack: false}],
+  ['OR', {hex: '#eed807', textHex: '#000000', isWhite: false, isBlack: false}],
 ]);
 
 const DEFAULT_COLOR_INFO = {hex: '#ffffff', textHex: '#000000', isWhite: true, isBlack: false};
