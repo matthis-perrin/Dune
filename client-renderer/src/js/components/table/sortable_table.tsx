@@ -98,7 +98,7 @@ export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
       return data;
     }
 
-    return data.sort((b1: T, b2: T) => {
+    return [...data].sort((b1: T, b2: T) => {
       if (!column.sortFunction) {
         return 0;
       }
@@ -201,7 +201,7 @@ export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
   };
 
   public render(): JSX.Element {
-    const {width, height, columns, rowStyles, data, onRowClick} = this.props;
+    const {width, height, columns, rowStyles, onRowClick} = this.props;
     const {filteredData} = this.state;
 
     return (
@@ -216,7 +216,7 @@ export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
         style={TABLE_STYLES}
         columns={columns}
         rowStyles={rowStyles}
-        data={data}
+        data={filteredData}
         onRowClick={onRowClick}
       />
     );

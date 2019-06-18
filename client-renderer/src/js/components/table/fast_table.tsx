@@ -1,4 +1,4 @@
-import {range, isEqual, isEqualWith} from 'lodash-es';
+import {range, isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -59,7 +59,7 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
       this.props.rowHeight !== nextProps.rowHeight ||
       this.props.renderColumn !== nextProps.renderColumn ||
       this.props.style !== nextProps.style ||
-      this.props.columns !== nextProps.columns ||
+      !isEqual(this.props.columns, nextProps.columns) ||
       this.props.rowStyles !== nextProps.rowStyles ||
       this.props.onRowClick !== nextProps.onRowClick ||
       !this.dataIsEqual(this.props.data, nextProps.data);
@@ -127,6 +127,7 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
       rowHeight,
       renderColumn,
       style,
+      data,
     } = this.props;
 
     let rowToRender = this.hasRenderedPreview ? rowCount : Math.ceil(height / rowHeight);
@@ -148,7 +149,9 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
           <Table>
             {range(rowToRender).map(rowIndex => (
               <Row
-                onClick={event => this.props.onRowClick && this.props.onRowClick(line, event)}
+                onClick={event =>
+                  this.props.onRowClick && this.props.onRowClick(data[rowIndex], event)
+                }
                 style={{height: rowHeight}}
               >
                 {range(columnCount).map(columnIndex => (
