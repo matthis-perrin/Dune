@@ -254,9 +254,6 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
 
   // Check each bobine to see if a compatibility exists
   for (const bobine of selectableBobinesFilles) {
-    // if (bobine.laize === 150) {
-    //   debugger;
-    // }
     // No need to check a bobine if it is already in the compatibile (or not compatible) array
     if (
       compatibleBobinesFillesHashes.has(bobine.hash) ||

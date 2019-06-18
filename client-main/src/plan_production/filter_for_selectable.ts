@@ -190,11 +190,15 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineFilleClichePose[] {
   const compatibleBobinesFillesHashes = new Map<string, void>();
+  // No need to check the refente that are fully filled.
+  const refenteToCheck = selectableRefentes.filter(
+    refente => compatibilityExists(selectedBobinesFilles, [], refente) === undefined
+  );
   for (const bobine of selectableBobinesFilles) {
     if (compatibleBobinesFillesHashes.has(bobine.hash)) {
       continue;
     }
-    for (const refente of selectableRefentes) {
+    for (const refente of refenteToCheck) {
       if (!refenteHasSpotForBobine(refente, bobine)) {
         continue;
       }

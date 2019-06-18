@@ -18,13 +18,6 @@ export function compatibilityExists(
   selectableBobines: BobineFilleClichePose[],
   refente: Refente
 ): BobineHashCombinaison | undefined {
-  // if (
-  //   selectedBobines.length >= 2 &&
-  //   selectedBobines[0].hash === '173_2_BLEU,ORANGE,NOIR_Y' &&
-  //   selectedBobines[1].hash === '173_2_BLEU,ORANGE,NOIR_Y'
-  // ) {
-  //   debugger;
-  // }
   // Check in the cache if we've already found a valid combinaison
   const cachedCombi = compatibilityCache.compatibilityInCache(
     refente,
@@ -46,7 +39,8 @@ export function compatibilityExists(
   }
 
   // Optimization #2
-  // Ensure that there is at least one selectable bobine for each type of laize of the refente
+  // Ensure that there is at least one selectable bobine for each type of laize of the refente.
+  // Also ensure that the laize of the selected bobines are available on the refente.
   const laizesLeft = analyseLaizesLeftOnRefente(selectedBobines, refente);
   if (laizesLeft) {
     const laizeTypes = laizesLeft.keys();
@@ -55,6 +49,8 @@ export function compatibilityExists(
         return undefined;
       }
     }
+  } else {
+    return undefined;
   }
 
   // Optimization #3
