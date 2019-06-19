@@ -165,7 +165,7 @@ class WindowManager {
       width,
       height,
       show: false,
-      skipTaskbar: id !== MAIN_APP_ID,
+      // skipTaskbar: id !== MAIN_APP_ID,
     });
     if (process.env.MODE === 'development') {
       newBrowserWindow.webContents.openDevTools({mode: 'detach'});

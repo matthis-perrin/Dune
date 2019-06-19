@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReactProps, DivProps} from '@root/components/core/common';
-import {couleurByName, textColorByName, isColorWhite} from '@root/theme/default';
+import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme/default';
 
 interface ColorProps extends ReactProps, DivProps {
   color: string;
@@ -26,7 +26,7 @@ export class Color extends React.Component<ColorProps> {
           ...style,
           backgroundColor,
           color: textColor,
-          border: `solid 1px ${isColorWhite(color) ? 'black' : 'transparent'}`,
+          border: `solid 1px ${getColorInfoByName(color).hasBorder ? 'black' : 'transparent'}`,
         }}
       >
         {color}

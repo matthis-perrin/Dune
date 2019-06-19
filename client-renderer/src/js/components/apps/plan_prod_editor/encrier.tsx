@@ -19,7 +19,9 @@ interface EncrierProps extends DivProps {
   encrierColor: EncrierColor;
 }
 
-export const ENCRIER_HEIGHT = 60;
+const ENCRIER_CONTENT_HEIGHT = 100;
+const ENCRIER_MARGIN = 20;
+export const ENCRIER_HEIGHT = ENCRIER_CONTENT_HEIGHT + ENCRIER_MARGIN;
 
 export class Encrier extends React.Component<EncrierProps> {
   public static displayName = 'Encrier';
@@ -29,7 +31,7 @@ export class Encrier extends React.Component<EncrierProps> {
     return (
       <EncrierEmptySpot
         key={`empty-spot-${index}`}
-        style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT}}
+        style={{width: size * pixelPerMM, height: ENCRIER_CONTENT_HEIGHT}}
       />
     );
   }
@@ -43,7 +45,7 @@ export class Encrier extends React.Component<EncrierProps> {
     const elements: JSX.Element[] = [
       <EmptyEncrier
         key={'empty-encrier'}
-        style={{width: size * pixelPerMM, height: ENCRIER_HEIGHT}}
+        style={{width: size * pixelPerMM, height: ENCRIER_CONTENT_HEIGHT}}
       >
         Encrier vide
       </EmptyEncrier>,
@@ -77,7 +79,7 @@ export class Encrier extends React.Component<EncrierProps> {
         key={`cliche-${refCliche}-${pose}-${index}`}
         style={{
           width: size * pixelPerMM,
-          height: ENCRIER_HEIGHT,
+          height: ENCRIER_CONTENT_HEIGHT,
           backgroundColor: couleurByName(encrierColor.color),
           color: textColorByName(encrierColor.color),
         }}
@@ -146,15 +148,19 @@ export class Encrier extends React.Component<EncrierProps> {
         <React.Fragment />
       );
     return (
-      <Container>
-        <EncrierWrapper
-          {...rest}
-          key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
-        >
-          {content}
-        </EncrierWrapper>
-        {decalage}
-      </Container>
+      <div style={{display: 'flex', flexDirection: 'column'}}>
+        <div style={{height: ENCRIER_MARGIN / 2}} />
+        <Container>
+          <EncrierWrapper
+            {...rest}
+            key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
+          >
+            {content}
+          </EncrierWrapper>
+          {decalage}
+        </Container>
+        <div style={{height: ENCRIER_MARGIN / 2}} />
+      </div>
     );
   }
 }

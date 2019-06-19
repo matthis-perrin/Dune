@@ -75,19 +75,27 @@ export class OrderableEncrier extends React.Component<
     return false;
   };
 
-  private readonly handleMouseMove = (event: React.MouseEvent): void => {
-    if (this.state.dragStart !== undefined) {
-      this.setState({dragEnd: this.convertPosY(event.clientY)});
-    }
-  };
-
-  private readonly handleMouseUp = (event: React.MouseEvent): void => {
+  private commitReorder(): void {
     const {onReorder} = this.props;
     const {dragStart, dragEnd} = this.state;
     const draggedEncrierIndex = this.getDraggedEncrierIndex();
     const newEncriersOrder = this.getNewEncriersOrder(draggedEncrierIndex, dragStart, dragEnd);
     onReorder(newEncriersOrder.reverse());
     this.setState({dragStart: undefined, dragEnd: undefined});
+  }
+
+  private readonly handleMouseMove = (event: React.MouseEvent): void => {
+    if (this.state.dragStart !== undefined) {
+      this.setState({dragEnd: this.convertPosY(event.clientY)});
+    }
+  };
+
+  private readonly handleMouseLeave = (event: React.MouseEvent): void => {
+    this.commitReorder();
+  };
+
+  private readonly handleMouseUp = (event: React.MouseEvent): void => {
+    this.commitReorder();
   };
 
   private readonly handleMouseDown = (event: React.MouseEvent): void => {
@@ -190,6 +198,7 @@ export class OrderableEncrier extends React.Component<
           onMouseDown={(event: React.MouseEvent) => this.handleMouseDown(event)}
           onMouseMove={(event: React.MouseEvent) => this.handleMouseMove(event)}
           onMouseUp={(event: React.MouseEvent) => this.handleMouseUp(event)}
+          onMouseLeave={(event: React.MouseEvent) => this.handleMouseLeave(event)}
         >
           {orderedEncriers.map(encrierColor => {
             return (

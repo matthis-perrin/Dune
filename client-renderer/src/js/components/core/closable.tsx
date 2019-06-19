@@ -9,43 +9,32 @@ interface ClosableProps
   extends ReactProps,
     React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   onClose?(): void;
-  centeredWithOffset?: number;
+  offset?: number;
+  color: string;
 }
 
 export class Closable extends React.Component<ClosableProps> {
   public static displayName = 'Closable';
 
   private renderCloseButton(): JSX.Element {
-    const {centeredWithOffset} = this.props;
-    return centeredWithOffset !== undefined
-      ? this.renderCenteredCloseButton(centeredWithOffset)
-      : this.renderCornerCloseButton();
+    return this.renderCornerCloseButton();
   }
 
   private renderCornerCloseButton(): JSX.Element {
+    const {offset = 0, color} = this.props;
     return (
-      <CornerCloseButton className="close-button" onClick={this.props.onClose}>
-        <SVGIcon name="cross" width={16} height={16} />
+      <CornerCloseButton
+        style={{right: offset, fill: color}}
+        className="close-button"
+        onClick={this.props.onClose}
+      >
+        <SVGIcon name="cross" width={12} height={12} />
       </CornerCloseButton>
     );
   }
 
-  private renderCenteredCloseButton(offset: number): JSX.Element {
-    const sign = offset < 0 ? '-' : '+';
-    const offsetAbs = Math.abs(offset);
-    return (
-      <CenteredCloseButton
-        className="close-button"
-        onClick={this.props.onClose}
-        style={{left: `calc(50% - 30px ${sign} ${offsetAbs}px)`}}
-      >
-        Retirer
-      </CenteredCloseButton>
-    );
-  }
-
   public render(): JSX.Element {
-    const props = omit(this.props, ['onClose', 'centeredWithOffset', 'ref']);
+    const props = omit(this.props, ['onClose', 'centeredWithOffset', 'ref', 'color', 'offset']);
     return (
       <Wrapper {...props}>
         {this.renderCloseButton()}
@@ -59,18 +48,19 @@ const Wrapper = styled.div`
   position: relative;
   &:hover {
     .close-button {
-      display: block;
+      display: flex;
     }
   }
 `;
 
 const CloseButton = styled.div`
   display: none;
+  align-items: center;
+  justify-content: center;
   position: absolute;
   z-index: 100;
   cursor: pointer;
   opacity: 0.5;
-  fill: #888;
   :hover {
     opacity: 1;
   }
@@ -78,15 +68,6 @@ const CloseButton = styled.div`
 
 const CornerCloseButton = styled(CloseButton)`
   top: 0;
-  right: 0;
-  width: 24px;
-  height: 24px;
-`;
-
-const CenteredCloseButton = styled(CloseButton)`
-  top: 0;
-  right: 0;
-  width: 60px;
-  height: 24px;
-  text-align: center;
+  width: 32px;
+  height: 32px;
 `;

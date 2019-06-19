@@ -9,7 +9,7 @@ import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {couleurByName, textColorByName} from '@root/theme/default';
+import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme/default';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
@@ -49,11 +49,13 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     };
 
     return (
-      <Closable
+      <ClosableWithHover
+        color={getColorInfoByName(bobine.couleurPapier).dangerHex}
         onClose={this.handleClose}
         {...rest}
         style={style}
-        centeredWithOffset={-curveOffset / 2}
+        offset={curveOffset}
+        size={size * poseSize + offset}
       >
         {range(poseSize).map((pose, i) => (
           <Bobine
@@ -64,10 +66,11 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             color={color}
             faceDown
           >
-            <AutoFontWeight fontSize={12 * pixelPerMM}>
+            <AutoFontWeight fontSize={12 * pixelPerMM} style={{userSelect: 'none'}}>
               <BobineDescription style={{color: textColor}}>
                 <RefLink
                   color={textColor}
+                  noIcon
                   onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
                 >
                   {bobine.ref}
@@ -78,11 +81,19 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             </AutoFontWeight>
           </Bobine>
         ))}
-      </Closable>
+      </ClosableWithHover>
     );
   }
 }
 
 const BobineDescription = styled.div`
   text-align: center;
+`;
+
+const ClosableWithHover = styled(Closable)`
+  position: relative;
+  transition: all 100ms ease-in-out;
+  &:hover {
+    transform: scale(1.05) translate(${props => `${(-(props.size || 0) * 0.05) / 2}px`}, 0);
+  }
 `;

@@ -70,27 +70,40 @@ const typography = {
   },
 };
 
-const COLOR_INFO = new Map<
-  string,
-  {hex: string; textHex: string; isWhite: boolean; isBlack: boolean}
->([
-  ['BLANC', {hex: '#f6f6f6', textHex: '#000000', isWhite: true, isBlack: false}],
-  ['ECRU', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['ECRU ENDUIT', {hex: '#f7d794', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['IVOIRE', {hex: '#f7f1e3', textHex: '#000000', isWhite: true, isBlack: false}],
-  ['JAUNE', {hex: '#ffc700', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['MARRON', {hex: '#784212', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['NOIR', {hex: '#3d3d3d', textHex: '#ffffff', isWhite: false, isBlack: true}],
-  ['ORANGE', {hex: '#e67e22', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['PRUNE', {hex: '#9b59b6', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['ROUGE', {hex: '#e74c3c', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['VERT', {hex: '#2ecc71', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['BLEU', {hex: '#2e71cc', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['BISTRE', {hex: '#856d4d', textHex: '#000000', isWhite: false, isBlack: false}],
-  ['OR', {hex: '#eed807', textHex: '#000000', isWhite: false, isBlack: false}],
+interface ColorInfo {
+  hex: string;
+  textHex: string;
+  dangerHex: string;
+  hasBorder: boolean;
+}
+
+const COLOR_INFO = new Map<string, ColorInfo>([
+  ['BLANC', {hex: '#f6f6f6', textHex: '#000000', dangerHex: '#ff0000', hasBorder: true}],
+  ['ECRU', {hex: '#f7d794', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['ECRU ENDUIT', {hex: '#f7d794', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['IVOIRE', {hex: '#f7f1e3', textHex: '#000000', dangerHex: '#ff0000', hasBorder: true}],
+  ['JAUNE', {hex: '#ffc700', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['MARRON', {hex: '#784212', textHex: '#ffffff', dangerHex: '#ff0000', hasBorder: false}],
+  ['NOIR', {hex: '#3d3d3d', textHex: '#ffffff', dangerHex: '#ff0000', hasBorder: false}],
+  ['ORANGE', {hex: '#e67e22', textHex: '#000000', dangerHex: '#000000', hasBorder: false}],
+  ['PRUNE', {hex: '#9b59b6', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['ROUGE', {hex: '#e74c3c', textHex: '#000000', dangerHex: '#000000', hasBorder: false}],
+  ['VERT', {hex: '#2ecc71', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['BLEU', {hex: '#2e71cc', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
+  ['BISTRE', {hex: '#856d4d', textHex: '#ffffff', dangerHex: '#ff0000', hasBorder: false}],
+  ['OR', {hex: '#eed807', textHex: '#000000', dangerHex: '#ff0000', hasBorder: false}],
 ]);
 
-const DEFAULT_COLOR_INFO = {hex: '#ffffff', textHex: '#000000', isWhite: true, isBlack: false};
+const DEFAULT_COLOR_INFO = {
+  hex: '#ffffff',
+  textHex: '#000000',
+  dangerHex: '#ff0000',
+  hasBorder: true,
+};
+
+export function getColorInfoByName(name?: string): ColorInfo {
+  return COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO;
+}
 
 export function couleurByName(name?: string): string {
   return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).hex;
@@ -98,14 +111,6 @@ export function couleurByName(name?: string): string {
 
 export function textColorByName(name?: string): string {
   return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).textHex;
-}
-
-export function isColorWhite(name?: string): boolean {
-  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).isWhite;
-}
-
-export function isColorBlack(name?: string): boolean {
-  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).isBlack;
 }
 
 export const theme = {

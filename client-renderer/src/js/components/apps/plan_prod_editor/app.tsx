@@ -19,7 +19,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, couleurByName} from '@root/theme/default';
+import {theme, couleurByName, getColorInfoByName} from '@root/theme/default';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {EncrierColor} from '@shared/lib/encrier';
@@ -64,7 +64,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           newState.reorderedBobines = undefined;
           newState.reorderedEncriers = undefined;
         }
-        this.setState(newState);
+        this.setState(newState, () => {
+          if (this.canAutoComplete()) {
+            this.autoComplete();
+          }
+        });
         if (planProduction.selectableBobines.length === 0) {
           bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
         }
@@ -225,7 +229,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const refenteBlock = selectedRefente ? (
-              <ClosableAlignRight onClose={this.removeRefente}>
+              <ClosableAlignRight color={'#e74c3c'} onClose={this.removeRefente}>
                 <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
               </ClosableAlignRight>
             ) : (
@@ -244,16 +248,19 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const papierBlock = selectedPapier ? (
-              <Closable onClose={this.removePapier}>
+              <Closable
+                color={getColorInfoByName(selectedPapier.couleurPapier).dangerHex}
+                onClose={this.removePapier}
+              >
                 <Bobine
                   size={selectedPapier.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
                   color={couleurByName(selectedPapier.couleurPapier)}
                 >
-                  {`Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
+                  {`Bobine Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
                     selectedPapier.laize
-                  } - Grammage ${selectedPapier.grammage}`}
+                  } - ${selectedPapier.grammage}g`}
                 </Bobine>
               </Closable>
             ) : (
@@ -265,7 +272,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const perfoBlock = selectedPerfo ? (
-              <Closable onClose={this.removePerfo}>
+              <Closable color={'#e74c3c'} onClose={this.removePerfo}>
                 <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
               </Closable>
             ) : (
@@ -273,16 +280,16 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const polyproBlock = selectedPolypro ? (
-              <Closable onClose={this.removePolypro}>
+              <Closable color={'#e74c3c'} onClose={this.removePolypro}>
                 <Bobine
                   size={selectedPolypro.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
                   color="#f0f0f0"
                 >
-                  {`Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - Grammage ${
+                  {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
                     selectedPolypro.grammage
-                  }`}
+                  }g`}
                 </Bobine>
               </Closable>
             ) : (

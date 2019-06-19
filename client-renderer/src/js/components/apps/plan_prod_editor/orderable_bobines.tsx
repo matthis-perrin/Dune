@@ -170,19 +170,27 @@ export class OrderableBobines extends React.Component<
     return pixelPerMM * CAPACITE_MACHINE * 2 * CURVE_EXTRA_SPACE;
   }
 
+  private commitReorder(): void {
+    const {onReorder} = this.props;
+    const {dragStart, dragEnd} = this.state;
+    const draggedBobineIndex = this.getDraggedBobineIndex();
+    const reorderedBobines = this.getNewBobinesOrder(draggedBobineIndex, dragStart, dragEnd);
+    onReorder(reorderedBobines);
+    this.setState({dragStart: undefined, dragEnd: undefined});
+  }
+
   private readonly handleMouseMove = (event: React.MouseEvent): void => {
     if (this.state.dragStart !== undefined) {
       this.setState({dragEnd: this.convertPosX(event.clientX)});
     }
   };
 
+  private readonly handleMouseLeave = (event: React.MouseEvent): void => {
+    this.commitReorder();
+  };
+
   private readonly handleMouseUp = (event: React.MouseEvent): void => {
-    const {bobines, onReorder} = this.props;
-    const {dragStart, dragEnd} = this.state;
-    const draggedBobineIndex = this.getDraggedBobineIndex();
-    const reorderedBobines = this.getNewBobinesOrder(draggedBobineIndex, dragStart, dragEnd);
-    onReorder(reorderedBobines);
-    this.setState({dragStart: undefined, dragEnd: undefined});
+    this.commitReorder();
   };
 
   private readonly handleMouseDown = (event: React.MouseEvent): void => {
@@ -262,6 +270,7 @@ export class OrderableBobines extends React.Component<
           onMouseDown={(event: React.MouseEvent) => this.handleMouseDown(event)}
           onMouseMove={(event: React.MouseEvent) => this.handleMouseMove(event)}
           onMouseUp={(event: React.MouseEvent) => this.handleMouseUp(event)}
+          onMouseLeave={(event: React.MouseEvent) => this.handleMouseLeave(event)}
         >
           {elements}
         </OrderableBobinesWrapper>
