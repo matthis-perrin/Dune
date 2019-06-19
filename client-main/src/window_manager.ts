@@ -167,9 +167,9 @@ class WindowManager {
       show: false,
       skipTaskbar: id !== MAIN_APP_ID,
     });
-    // if (process.env.MODE === 'development') {
-    //   newBrowserWindow.webContents.openDevTools({mode: 'detach'});
-    // }
+    if (process.env.MODE === 'development') {
+      newBrowserWindow.webContents.openDevTools({mode: 'detach'});
+    }
 
     // Save the window in the manager
     windowInfo = {browserWindow: newBrowserWindow, appInfo, id};

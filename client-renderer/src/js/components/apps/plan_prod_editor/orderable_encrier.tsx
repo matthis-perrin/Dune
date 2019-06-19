@@ -1,12 +1,9 @@
-import {thresholdFreedmanDiaconis} from 'd3';
 import {isEqual, range} from 'lodash-es';
-import {number} from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import {Encrier, ENCRIER_HEIGHT} from '@root/components/apps/plan_prod_editor/encrier';
 import {DivProps} from '@root/components/core/common';
-import {appStore} from '@root/stores/app_store';
 
 import {EncrierColor} from '@shared/lib/encrier';
 import {BobineFilleWithPose, Refente} from '@shared/models';
@@ -60,17 +57,22 @@ export class OrderableEncrier extends React.Component<
 
   private readonly isTargettingMovableEncrier = (event: React.MouseEvent): boolean => {
     const {encrierColors, allValidEncrierColors} = this.props;
+    if (allValidEncrierColors.length === 1) {
+      return false;
+    }
     const posY = this.convertPosY(event.clientY);
-    const encrierColor = encrierColors[this.getEncrierIndexAtPos(posY)];
-    const encrierPossiblePositions = new Map<number, void>();
-    allValidEncrierColors.forEach(validEncrierColors => {
-      for (let i = 0; i < validEncrierColors.length; i++) {
-        if (isEqual(validEncrierColors[i], encrierColor)) {
-          encrierPossiblePositions.set(i);
+    const encrierIndex = this.getEncrierIndexAtPos(posY);
+
+    for (const index of range(encrierColors.length)) {
+      if (index !== encrierIndex) {
+        const newEncriersOrder = [...encrierColors];
+        newEncriersOrder.splice(index, 0, newEncriersOrder.splice(encrierIndex, 1)[0]);
+        if (this.isValidEncrierColors(newEncriersOrder)) {
+          return true;
         }
       }
-    });
-    return encrierPossiblePositions.size > 1;
+    }
+    return false;
   };
 
   private readonly handleMouseMove = (event: React.MouseEvent): void => {
@@ -182,7 +184,7 @@ export class OrderableEncrier extends React.Component<
       <div style={{position: 'relative'}}>
         <OrderableEncrierWrapper
           style={{
-            userSelect: dragStart !== undefined ? 'none' : 'all',
+            userSelect: 'none',
           }}
           ref={this.wrapperRef}
           onMouseDown={(event: React.MouseEvent) => this.handleMouseDown(event)}

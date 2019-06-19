@@ -266,6 +266,27 @@ function indexFirstEmptyEncrier(encrierColors: EncrierColor[]): number {
   return encrierColors.length;
 }
 
+function getCombiWithOrderedAndNonOrdered(
+  ordered: EncrierColor[][],
+  nonOrdered: EncrierColor[]
+): EncrierColor[][] {
+  if (nonOrdered.length === 0) {
+    return ordered;
+  }
+  if (ordered.length === 0) {
+    return permutations(nonOrdered);
+  }
+  const combi: EncrierColor[][] = [];
+  ordered.forEach(arrangement => {
+    for (let i = 0; i <= arrangement.length; i++) {
+      const newArrangement = [...arrangement];
+      newArrangement.splice(i, 0, nonOrdered[0]);
+      combi.push(newArrangement);
+    }
+  });
+  return getCombiWithOrderedAndNonOrdered(combi, nonOrdered.slice(1));
+}
+
 export function generateAllAcceptableColorsOrder(
   bobineColors: BobineColors[],
   maxColors: number
@@ -294,11 +315,9 @@ export function generateAllAcceptableColorsOrder(
     }
 
     allOrdered.forEach(orderedArrangement => {
-      const perms = permutations(
-        nonOrderedAsArrangements.map(c => [c]).concat([orderedArrangement])
+      finalArrangements = finalArrangements.concat(
+        getCombiWithOrderedAndNonOrdered([orderedArrangement], nonOrderedAsArrangements)
       );
-      const flattened = perms.map(p => p.reduce((acc, curr) => acc.concat(curr), []));
-      finalArrangements = finalArrangements.concat(flattened);
     });
   }
 
