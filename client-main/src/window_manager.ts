@@ -111,7 +111,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1250, height: 932}};
+      return {id: 'plan-production-editor-app', size: {width: 1250, height: 950}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
       return {id: 'bobines-picker-app', size: {width: 1500, height: 800}};
@@ -165,10 +165,11 @@ class WindowManager {
       width,
       height,
       show: false,
+      skipTaskbar: id !== MAIN_APP_ID,
     });
-    if (process.env.MODE === 'development') {
-      newBrowserWindow.webContents.openDevTools({mode: 'detach'});
-    }
+    // if (process.env.MODE === 'development') {
+    //   newBrowserWindow.webContents.openDevTools({mode: 'detach'});
+    // }
 
     // Save the window in the manager
     windowInfo = {browserWindow: newBrowserWindow, appInfo, id};
