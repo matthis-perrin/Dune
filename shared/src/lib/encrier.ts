@@ -257,6 +257,15 @@ export function validColorCombinaison(bobineColors: BobineColors[], maxColors: n
   return orderedArrangements[0].length + nonOrderedNotInArrangementCount <= maxColors;
 }
 
+function indexFirstEmptyEncrier(encrierColors: EncrierColor[]): number {
+  for (let i = 0; i < encrierColors.length; i++) {
+    if (encrierColors[i].color === '') {
+      return i;
+    }
+  }
+  return encrierColors.length;
+}
+
 export function generateAllAcceptableColorsOrder(
   bobineColors: BobineColors[],
   maxColors: number
@@ -293,5 +302,13 @@ export function generateAllAcceptableColorsOrder(
     });
   }
 
-  return dedup(finalArrangements);
+  const deduped = dedup(finalArrangements);
+  const sorted = deduped.sort((a1, a2) => {
+    // Prefer arrangements with the first empty encrier as high as possible
+    // (i.e. as close as possible to the end of the array).
+    const firstEmptyIndex1 = indexFirstEmptyEncrier(a1);
+    const firstEmptyIndex2 = indexFirstEmptyEncrier(a2);
+    return firstEmptyIndex1 - firstEmptyIndex2;
+  });
+  return sorted;
 }

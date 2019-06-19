@@ -19,7 +19,7 @@ interface EncrierProps extends DivProps {
   encrierColor: EncrierColor;
 }
 
-export const ENCRIER_HEIGHT = 40;
+export const ENCRIER_HEIGHT = 60;
 
 export class Encrier extends React.Component<EncrierProps> {
   public static displayName = 'Encrier';
