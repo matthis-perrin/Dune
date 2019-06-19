@@ -17,9 +17,9 @@ interface BobineProps extends DivProps {
   faceDown?: boolean;
 }
 
-export const CURVE_EXTRA_SPACE = 0.01;
+export const CURVE_EXTRA_SPACE = 0.005;
 export const SHEET_EXTRA_HEIGHT = 0.2;
-export const BOBINE_STROKE_WIDTH = 2;
+export const BOBINE_STROKE_WIDTH = 1;
 
 export class Bobine extends React.Component<BobineProps> {
   public static displayName = 'Bobine';

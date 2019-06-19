@@ -1,7 +1,9 @@
 export const Colors = {
   // Brand colors
-  primary: '#FFBB10',
-  secondary: '#0258AE',
+  // primary: '#FFBB10',
+  primary: '#16a085',
+  // secondary: '#0258AE',
+  secondary: '#2c3e50',
   // Basic colors
   white: '#FFFFFF',
   lightGray: '#E6E6E6',

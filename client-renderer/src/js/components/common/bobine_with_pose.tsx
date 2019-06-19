@@ -73,7 +73,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
                   {bobine.ref}
                 </RefLink>
                 <br />
-                {`${bobine.couleurPapier} - ${bobine.laize}`}
+                {`${bobine.laize} - ${bobine.grammage}g`}
               </BobineDescription>
             </AutoFontWeight>
           </Bobine>

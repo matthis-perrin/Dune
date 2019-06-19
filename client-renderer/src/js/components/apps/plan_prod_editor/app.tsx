@@ -211,7 +211,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             const leftPadding =
               (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
             const availableWidth =
-              width - 2 * theme.page.padding - leftPadding - SCROLLBAR_WIDTH - 4;
+              width - 2 * theme.page.padding - leftPadding - SCROLLBAR_WIDTH - 20;
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
             const bobinesBlock = (
