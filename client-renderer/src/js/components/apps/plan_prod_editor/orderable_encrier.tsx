@@ -1,4 +1,6 @@
+import {thresholdFreedmanDiaconis} from 'd3';
 import {isEqual, range} from 'lodash-es';
+import {number} from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -40,7 +42,11 @@ export class OrderableEncrier extends React.Component<
     if (!dragStart) {
       return undefined;
     }
-    return Math.floor(dragStart / ENCRIER_HEIGHT);
+    return this.getEncrierIndexAtPos(dragStart);
+  }
+
+  private getEncrierIndexAtPos(posY: number): number {
+    return Math.floor(posY / ENCRIER_HEIGHT);
   }
 
   private convertPosY(y: number): number {
@@ -51,6 +57,21 @@ export class OrderableEncrier extends React.Component<
     }
     return y;
   }
+
+  private readonly isTargettingMovableEncrier = (event: React.MouseEvent): boolean => {
+    const {encrierColors, allValidEncrierColors} = this.props;
+    const posY = this.convertPosY(event.clientY);
+    const encrierColor = encrierColors[this.getEncrierIndexAtPos(posY)];
+    const encrierPossiblePositions = new Map<number, void>();
+    allValidEncrierColors.forEach(validEncrierColors => {
+      for (let i = 0; i < validEncrierColors.length; i++) {
+        if (isEqual(validEncrierColors[i], encrierColor)) {
+          encrierPossiblePositions.set(i);
+        }
+      }
+    });
+    return encrierPossiblePositions.size > 1;
+  };
 
   private readonly handleMouseMove = (event: React.MouseEvent): void => {
     if (this.state.dragStart !== undefined) {
@@ -68,7 +89,11 @@ export class OrderableEncrier extends React.Component<
   };
 
   private readonly handleMouseDown = (event: React.MouseEvent): void => {
-    this.setState({dragStart: this.convertPosY(event.clientY), dragEnd: undefined});
+    if (this.isTargettingMovableEncrier(event)) {
+      this.setState({dragStart: this.convertPosY(event.clientY), dragEnd: undefined});
+    } else {
+      this.setState({dragStart: undefined, dragEnd: undefined});
+    }
   };
 
   private isValidEncrierColors(encrierColors: EncrierColor[]): boolean {
