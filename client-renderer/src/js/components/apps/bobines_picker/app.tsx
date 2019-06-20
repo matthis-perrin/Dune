@@ -9,14 +9,13 @@ import {
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
   STOCK_COLUMN,
-  LAST_UPDATE_COLUMN,
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
   COULEURS_IMPRESSION_COLUMN,
   BOBINE_FILLE_REF,
+  LAST_YEAR_SELLING,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
-// import {bridge} from '@root/lib/bridge';
 import {
   bobinesFillesWithMultiPoseStore,
   stocksStore,
@@ -58,7 +57,10 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {stocks = new Map<string, Stock[]>(), cadencier} = this.state;
+    const {
+      stocks = new Map<string, Stock[]>(),
+      cadencier = new Map<string, Map<number, number>>(),
+    } = this.state;
     const columns = [
       BOBINE_FILLE_REF,
       DESIGNATION_COLUMN,
@@ -69,7 +71,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       MULTI_POSE_COLUMN,
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
-      LAST_UPDATE_COLUMN,
+      LAST_YEAR_SELLING(cadencier),
     ];
     console.log(cadencier);
     return (

@@ -30,6 +30,16 @@ export function roundToMonth(timestamp: number): number {
   return new Date(date.getFullYear(), date.getMonth(), MIDDLE_OF_MONTH).getTime();
 }
 
+export function getLastYear(): number {
+  const date = new Date();
+  return new Date(date.getFullYear() - 1, date.getMonth() - 1, MIDDLE_OF_MONTH).getTime();
+}
+
+export function getLastMonth(): number {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth() - 1, MIDDLE_OF_MONTH).getTime();
+}
+
 export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
   const data = new Map<number, Vente[]>();
   cadencier.forEach(v => {

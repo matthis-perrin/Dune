@@ -30,6 +30,13 @@ export interface BobineFilleWithMultiPose extends BobineFilleWithColor {
   allPoses: number[];
 }
 
+export enum BobineState {
+  Sommeil,
+  Surstock,
+  Rupture,
+  Alert,
+}
+
 export interface BobineMere {
   ref: string;
   designation?: string;

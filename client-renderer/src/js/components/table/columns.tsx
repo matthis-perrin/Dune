@@ -11,8 +11,8 @@ import {
 } from '@root/components/common/operation_constraint';
 import {RefLink} from '@root/components/common/ref_link';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
+import {getStock, getBobineSellingPastYear} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
-import {getStock} from '@root/lib/stock';
 import {Colors} from '@root/theme/default';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
@@ -674,6 +674,22 @@ export const DURATION_SECONDS_COLUMN: ColumnMetadata<{duration: number}, string>
   sortFunction: (row1, row2) => numberSort(row1.duration, row2.duration),
   shouldRerender: (row1, row2) => row1.duration !== row2.duration,
 };
+
+export const LAST_YEAR_SELLING = (
+  cadencier: Map<string, Map<number, number>>
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'Vente',
+  width: 90,
+  renderCell: ({ref}) => renderNumber(getBobineSellingPastYear(cadencier.get(ref))),
+  sortFunction: (row1, row2) =>
+    numberSort(
+      getBobineSellingPastYear(cadencier.get(row1.ref)),
+      getBobineSellingPastYear(cadencier.get(row2.ref))
+    ),
+  shouldRerender: (row1, row2) =>
+    getBobineSellingPastYear(cadencier.get(row1.ref)) !==
+    getBobineSellingPastYear(cadencier.get(row2.ref)),
+});
 
 export const BobineFilleColumns = {
   Ref: REFERENCE_COLUMN(170),
