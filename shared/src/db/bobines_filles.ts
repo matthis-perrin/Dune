@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {BOBINES_FILLES_TABLE_NAME} from '@shared/db/table_names';
 import {BobineFille} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const BobineFilleColumns = {
   REF_COLUMN: 'ref',
@@ -68,8 +68,8 @@ export async function listBobinesFilles(
         refCliche2: asString(b.refCliche2, undefined),
         typeImpression: asString(b.typeImpression, undefined),
         sommeil: asNumber(b.sommeil, 0) === 1,
-        lastUpdate: asDate(b.lastUpdate),
-        localUpdate: asDate(b.localUpdate),
+        lastUpdate: asNumber(b.lastUpdate, 0),
+        localUpdate: asNumber(b.localUpdate, 0),
       };
     });
 }

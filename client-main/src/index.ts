@@ -4,7 +4,6 @@ import log from 'electron-log';
 import {windowManager} from '@root/window_manager';
 
 import {ClientAppType} from '@shared/models';
-import {generateAllAcceptableColorsOrder} from '@shared/lib/encrier';
 
 app.on('ready', () => {
   if (session.defaultSession) {

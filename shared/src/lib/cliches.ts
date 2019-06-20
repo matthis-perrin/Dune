@@ -129,8 +129,7 @@ export function arePosesAvailable(poses: number[], availablePoses: number[]): bo
   const availablePosesMap = posesAsMap(availablePoses);
   const remainingPosesToCheck: number[] = [];
 
-  for (let i = 0; i < poses.length; i++) {
-    const pose = poses[i];
+  for (const pose of poses) {
     const poseCount = availablePosesMap.get(pose);
     if (poseCount === 0 || poseCount === undefined) {
       remainingPosesToCheck.push(pose);

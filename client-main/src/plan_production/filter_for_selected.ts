@@ -13,10 +13,9 @@ import {
   Refente,
 } from '@root/plan_production/models';
 
+import {getPosesForCliche, arePosesAvailable} from '@shared/lib/cliches';
 import {validColorCombinaison} from '@shared/lib/encrier';
 import {Perfo, Cliche, POSE_NEUTRE} from '@shared/models';
-import {stringify} from 'querystring';
-import {getPosesForCliche, arePosesAvailable} from '@shared/lib/cliches';
 
 const DEBUG = false;
 const DEBUG_BOBINE: string | undefined = undefined;
@@ -224,7 +223,7 @@ export function filterPapiersForSelectedBobinesFilles(
 function addBobineToPosesByCliche(
   bobine: BobineFilleClichePose,
   posesByCliche: Map<string, number[]>
-) {
+): void {
   if (bobine.pose !== POSE_NEUTRE) {
     bobine.refsCliches.forEach(refCliche => {
       const poses = posesByCliche.get(refCliche) || [];
@@ -246,7 +245,7 @@ export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
   const newBobinesFilles = selectableBobinesFilles.filter(b => {
     const usedPosesByCliche = new Map<string, number[]>(selectedPosesByCliche.entries());
     addBobineToPosesByCliche(b, usedPosesByCliche);
-    for (let [ref, poses] of Array.from(usedPosesByCliche.entries())) {
+    for (const [ref, poses] of Array.from(usedPosesByCliche.entries())) {
       const cliche = cliches.get(ref);
       if (!cliche) {
         return false;

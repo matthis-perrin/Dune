@@ -102,8 +102,8 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.ViewOperationApp) {
-      const {operationId = 'create'} = asMap(appInfo.data);
-      return {id: `view-operation-app--${operationId}`, size: {width: 535, height: 250}};
+      const {operationRef = 'create'} = asMap(appInfo.data);
+      return {id: `view-operation-app--${operationRef}`, size: {width: 535, height: 250}};
     }
     if (appInfo.type === ClientAppType.ViewBobineApp) {
       const {bobineRef = ''} = asMap(appInfo.data);

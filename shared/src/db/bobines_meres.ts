@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {BOBINES_MERES_TABLE_NAME} from '@shared/db/table_names';
 import {BobineMere} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const BobineMereColumns = {
   REF_COLUMN: 'ref',
@@ -56,8 +56,8 @@ export async function listBobinesMeres(db: knex, sinceLocalUpdate: number): Prom
         couleurPapier: asString(b.couleurPapier, undefined),
         grammage: asNumber(b.grammage, undefined),
         sommeil: asNumber(b.sommeil, 0) === 1,
-        lastUpdate: asDate(b.lastUpdate),
-        localUpdate: asDate(b.localUpdate),
+        lastUpdate: asNumber(b.lastUpdate, 0),
+        localUpdate: asNumber(b.localUpdate, 0),
       };
     });
 }

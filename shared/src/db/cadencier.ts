@@ -1,8 +1,8 @@
 import knex from 'knex';
 
 import {CADENCIER_TABLE_NAME} from '@shared/db/table_names';
-import {VenteLight} from '@shared/models';
-import {asMap, asNumber} from '@shared/type_utils';
+import {Vente} from '@shared/models';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const CadencierColumns = {
   ID_COLUMN: 'id',
@@ -38,20 +38,23 @@ export async function deleteCadencier(db: knex, ids: string[]): Promise<void> {
     .delete();
 }
 
-export async function listCadencier(db: knex, ref: string): Promise<VenteLight[]> {
-  return db(CADENCIER_TABLE_NAME)
-    .select([
-      CadencierColumns.TYPE_COLUMN,
-      CadencierColumns.VENTE_QUANTITE_COLUMN,
-      CadencierColumns.VENTE_QUANTITE_DATE_COLUMN,
-    ])
-    .where(CadencierColumns.BOBINE_REF_COLUMN, '=', ref)
-    .map(cadencierLine => {
-      const c = asMap(cadencierLine);
-      return {
-        type: asNumber(c[CadencierColumns.TYPE_COLUMN], -1),
-        quantity: asNumber(c[CadencierColumns.VENTE_QUANTITE_COLUMN], 0),
-        date: asNumber(c[CadencierColumns.VENTE_QUANTITE_DATE_COLUMN], 0),
-      };
-    });
+export async function listCadencier(db: knex, sinceLocalUpdate: number): Promise<Vente[]> {
+  return (
+    db(CADENCIER_TABLE_NAME)
+      .select()
+      .where(CadencierColumns.LOCAL_UPDATE_COLUMN, '>', new Date(sinceLocalUpdate))
+      // tslint:disable-next-line:no-any
+      .map((cadencierLine: any) => {
+        const c = asMap(cadencierLine);
+        return {
+          id: asString(c[CadencierColumns.ID_COLUMN], ''),
+          bobineRef: asString(c[CadencierColumns.BOBINE_REF_COLUMN], ''),
+          type: asNumber(c[CadencierColumns.TYPE_COLUMN], -1),
+          quantity: asNumber(c[CadencierColumns.VENTE_QUANTITE_COLUMN], 0),
+          date: asNumber(c[CadencierColumns.VENTE_QUANTITE_DATE_COLUMN], 0),
+          lastUpdate: asNumber(c[CadencierColumns.LAST_UPDATE_COLUMN], 0),
+          localUpdate: asNumber(c[CadencierColumns.LOCAL_UPDATE_COLUMN], 0),
+        };
+      })
+  );
 }

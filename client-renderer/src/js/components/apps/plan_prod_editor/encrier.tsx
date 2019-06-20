@@ -88,7 +88,7 @@ export class Encrier extends React.Component<EncrierProps> {
   }
 
   private renderWithRefente(refente: Refente): JSX.Element {
-    const {pixelPerMM, selectedBobines} = this.props;
+    const {selectedBobines} = this.props;
     const elements: JSX.Element[] = [];
 
     if (selectedBobines.length === 0) {

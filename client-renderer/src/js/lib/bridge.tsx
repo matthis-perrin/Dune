@@ -16,7 +16,6 @@ import {
   GetNewPlanProduction,
   ListBobinesFilles,
   ListBobinesMeres,
-  ListCadencier,
   ListCliches,
   ListOperations,
   ListPerfos,
@@ -28,6 +27,8 @@ import {
   SetPlanPerfo,
   SetPlanPolypro,
   SetPlanRefente,
+  ListCadencier,
+  ListCadencierForBobine,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -40,7 +41,8 @@ import {
   PlanProductionState,
   Refente,
   Stock,
-  VenteLight,
+  Vente,
+  Cadencier,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -103,8 +105,12 @@ class Bridge {
   public async listOperations(localUpdate: number): Promise<BridgeListResponse<Operation>> {
     return this.listGeneric<Operation>(ListOperations, localUpdate);
   }
-  public async listCadencier(bobineRef: string): Promise<VenteLight[]> {
-    return this.bridgeTransport.sendBridgeCommand<VenteLight[]>(ListCadencier, {bobineRef});
+  public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
+    return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
+  }
+
+  public async listCadencierForBobine(): Promise<Vente[]> {
+    return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine);
   }
 
   public async createNewPlanProduction(): Promise<void> {
@@ -138,8 +144,8 @@ class Bridge {
   public async viewBobine(bobineRef: string): Promise<void> {
     return this.openApp(ClientAppType.ViewBobineApp, {bobineRef});
   }
-  public async viewOperation(operationId: number | undefined): Promise<void> {
-    return this.openApp(ClientAppType.ViewOperationApp, {operationId});
+  public async viewOperation(ref: string | undefined): Promise<void> {
+    return this.openApp(ClientAppType.ViewOperationApp, {ref});
   }
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {

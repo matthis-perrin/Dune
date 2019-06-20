@@ -11,7 +11,7 @@ import {ListStore} from '@root/stores/list_store';
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState} from '@shared/models';
 
-interface Props<T extends {localUpdate: Date; sommeil: boolean}> {
+interface Props<T extends {localUpdate: number; sommeil: boolean}> {
   getSelectable(planProd: PlanProductionState): T[];
   getHash(value: T): string;
   children(elements: T[], isSelectionnable: (element: T) => boolean): JSX.Element;
@@ -22,14 +22,14 @@ interface Props<T extends {localUpdate: Date; sommeil: boolean}> {
   searchColumns?: ColumnMetadata<T, any>[];
 }
 
-interface State<T extends {localUpdate: Date; sommeil: boolean}> {
+interface State<T extends {localUpdate: number; sommeil: boolean}> {
   allElements?: T[];
   planProd?: PlanProductionState;
   filteredElements?: T[];
   filteredSearchedElements?: T[];
 }
 
-export class Picker<T extends {localUpdate: Date; sommeil: boolean}> extends React.Component<
+export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends React.Component<
   Props<T>,
   State<T>
 > {

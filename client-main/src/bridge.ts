@@ -1,3 +1,4 @@
+import {cadencier} from '@root/cadencier';
 import {db} from '@root/db';
 import {planProductionStore} from '@root/store';
 import {windowManager} from '@root/window_manager';
@@ -31,7 +32,6 @@ import {
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
-import {listCadencier} from '@shared/db/cadencier';
 import {listCliches} from '@shared/db/cliches';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
@@ -39,6 +39,8 @@ import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType} from '@shared/models';
 import {asMap, asNumber, asString} from '@shared/type_utils';
+
+let c = cadencier;
 
 // tslint:disable-next-line:no-any
 export async function handleCommand(command: BridgeCommand, params: any): Promise<any> {
@@ -68,8 +70,8 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     return {data: await listRefentes(db, asNumber(localUpdate, 0))};
   }
   if (command === ListCadencier) {
-    const {bobineRef} = asMap(params);
-    return listCadencier(db, asString(bobineRef, ''));
+    const {localUpdate} = asMap(params);
+    return {data: await cadencier.list(asNumber(localUpdate, 0))};
   }
 
   // Window Management

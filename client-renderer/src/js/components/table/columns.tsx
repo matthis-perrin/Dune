@@ -1,4 +1,4 @@
-import {sum, isEqual} from 'lodash-es';
+import {isEqual} from 'lodash-es';
 import * as React from 'react';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
@@ -76,7 +76,6 @@ const stringSort = (val1: string, val2: string) => {
 };
 const numberSort = (val1: number, val2: number) => val1 - val2;
 const booleanSort = (val1: boolean, val2: boolean) => (val1 && val2 ? 0 : val1 ? 1 : -1);
-const dateSort = (val1: Date, val2: Date) => val1.getTime() - val2.getTime();
 
 const optionalStringSort = (opt1?: string, opt2?: string) => optionalSort(opt1, opt2, stringSort);
 const optionalNumberSort = (opt1?: number, opt2?: number) => optionalSort(opt1, opt2, numberSort);
@@ -128,8 +127,8 @@ function renderNumber(value?: number): JSX.Element {
   return <div style={{textAlign: 'center'}}>{value === undefined ? '-' : value}</div>;
 }
 
-function renderDate(value?: Date): JSX.Element {
-  return <span>{value ? value.toLocaleString('fr') : '-'}</span>;
+function renderDate(value?: number): JSX.Element {
+  return <span>{value ? new Date(value).toLocaleString('fr') : '-'}</span>;
 }
 
 function renderBoolean(value?: boolean): JSX.Element {
@@ -349,13 +348,13 @@ export const IS_REQUIRED_COLUMN: ColumnMetadata<{required?: boolean}, boolean> =
   shouldRerender: (row1, row2) => row1.required !== row2.required,
 };
 
-export const LAST_UPDATE_COLUMN: ColumnMetadata<{localUpdate: Date}, Date> = {
+export const LAST_UPDATE_COLUMN: ColumnMetadata<{localUpdate: number}, number> = {
   title: 'Date Modification',
   width: 170,
   renderCell: ({localUpdate}) => renderDate(localUpdate),
-  sortFunction: (row1, row2) => dateSort(row1.localUpdate, row2.localUpdate),
+  sortFunction: (row1, row2) => numberSort(row1.localUpdate, row2.localUpdate),
   shouldRerender: (row1, row2) => {
-    return row1.localUpdate.getTime() !== row2.localUpdate.getTime();
+    return row1.localUpdate !== row2.localUpdate;
   },
 };
 
@@ -760,7 +759,7 @@ export const RefenteColumns = {
 };
 
 export const OperationColumns = {
-  Id: ID_COLUMN(30),
+  Ref: REFERENCE_COLUMN(40),
   Description: DESCRIPTION_COLUMN,
   Required: IS_REQUIRED_COLUMN,
   Constraint: OPERATION_CONSTRAINT_COLUMN,

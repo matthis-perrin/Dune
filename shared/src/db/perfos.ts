@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {PERFOS_TABLE_NAME} from '@shared/db/table_names';
 import {Perfo} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const PerfosColumn = {
   REF_COLUMN: 'ref',
@@ -84,7 +84,7 @@ export async function listPerfos(db: knex, sinceLocalUpdate: number): Promise<Pe
         cale7: asNumber(p[PerfosColumn.CALE_7_COLUMN], undefined),
         bague7: asNumber(p[PerfosColumn.BAGUE_7_COLUMN], undefined),
         sommeil: asNumber(p[PerfosColumn.SOMMEIL_COLUMN], 0) === 1,
-        localUpdate: asDate(p[PerfosColumn.LOCAL_UPDATE_COLUMN]),
+        localUpdate: asNumber(p[PerfosColumn.LOCAL_UPDATE_COLUMN], 0),
       };
     });
 }

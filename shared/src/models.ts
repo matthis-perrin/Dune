@@ -11,8 +11,8 @@ export interface BobineFille {
   refCliche2?: string;
   typeImpression?: string;
   sommeil: boolean;
-  lastUpdate: Date;
-  localUpdate: Date;
+  lastUpdate: number;
+  localUpdate: number;
 }
 
 export const POSE_NEUTRE = 0;
@@ -38,8 +38,8 @@ export interface BobineMere {
   couleurPapier?: string;
   grammage?: number;
   sommeil: boolean;
-  lastUpdate: Date;
-  localUpdate: Date;
+  lastUpdate: number;
+  localUpdate: number;
 }
 
 export interface ClicheBase {
@@ -57,8 +57,8 @@ export interface ClicheBase {
   couleur6?: string;
   importanceOrdreCouleurs: boolean;
   sommeil: boolean;
-  lastUpdate: Date;
-  localUpdate: Date;
+  lastUpdate: number;
+  localUpdate: number;
 }
 
 export interface Cliche extends ClicheBase {
@@ -79,24 +79,24 @@ export interface Stock {
   reel: number;
   commande: number;
   reserve: number;
-  lastUpdate: Date;
-  localUpdate: Date;
+  lastUpdate: number;
+  localUpdate: number;
 }
 
-// export interface Vente {
-//   id: string;
-//   refBobine: string;
-//   type: number;
-//   quantity: number;
-//   date: Date;
-//   lastUpdate: Date;
-//   localUpdate: Date;
-// }
-
-export interface VenteLight {
+export interface Vente {
+  id: string;
+  bobineRef: string;
   type: number;
   quantity: number;
   date: number;
+  lastUpdate: number;
+  localUpdate: number;
+}
+
+export interface Cadencier {
+  localUpdate: number;
+  bobineRef: string;
+  ventes: {[key: number]: number};
 }
 
 export interface Perfo {
@@ -117,7 +117,7 @@ export interface Perfo {
   cale7?: number;
   bague7?: number;
   sommeil: boolean;
-  localUpdate: Date;
+  localUpdate: number;
 }
 
 export interface Refente {
@@ -133,7 +133,7 @@ export interface Refente {
   laize7?: number;
   chute?: number;
   sommeil: boolean;
-  localUpdate: Date;
+  localUpdate: number;
 }
 
 export interface PlanProductionState {
@@ -154,13 +154,13 @@ export interface PlanProductionState {
 }
 
 export interface Operation {
-  id: number;
+  ref: string;
   description: string;
   required: boolean;
   constraint: OperationConstraint;
   duration: number;
   sommeil: boolean;
-  localUpdate: Date;
+  localUpdate: number;
 }
 
 export enum OperationConstraint {
@@ -180,8 +180,8 @@ export interface Operateur {
   id: number;
   name: string;
   sommeil: boolean;
-  localUpdate: Date;
-  operationIds: string[];
+  localUpdate: number;
+  operationRefs: string[];
 }
 
 // export interface User {

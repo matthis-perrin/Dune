@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {OPERATIONS_TABLE_NAME} from '@shared/db/table_names';
 import {Operation, OperationConstraint} from '@shared/models';
-import {asDate, asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
+import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export const OperationsColumn = {
   ID_COLUMN: 'id',
@@ -42,7 +42,7 @@ function rowToOperation(operationLine: any): Operation {
     ) as OperationConstraint,
     duration: asNumber(o[OperationsColumn.DURATION_COLUMN], 0),
     sommeil: asBoolean(o[OperationsColumn.SOMMEIL_COLUMN]),
-    localUpdate: asDate(o[OperationsColumn.LOCAL_UPDATE_COLUMN]),
+    localUpdate: asNumber(o[OperationsColumn.LOCAL_UPDATE_COLUMN], 0),
   };
 }
 
@@ -60,7 +60,7 @@ export async function createOrUpdateOperation(db: knex, operation: Operation): P
   } else {
     // Update mode
     const operationFields = {...operation};
-    operationFields.localUpdate = new Date();
+    operationFields.localUpdate = new Date().getTime();
     return rowToOperation(
       await db(OPERATIONS_TABLE_NAME)
         .where('id', operationFields.id)

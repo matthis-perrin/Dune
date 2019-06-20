@@ -38,7 +38,7 @@ export class ListOperationsApp extends React.Component<Props, State> {
   };
 
   private readonly handleOperationSelected = (operation: Operation): void => {
-    bridge.viewOperation(operation.id).catch(err => console.error(err));
+    bridge.viewOperation(operation.ref).catch(err => console.error(err));
   };
 
   public render(): JSX.Element {
@@ -47,6 +47,7 @@ export class ListOperationsApp extends React.Component<Props, State> {
     if (!operations) {
       return <LoadingTable>Loading...</LoadingTable>;
     }
+
     return (
       <React.Fragment>
         <Button onClick={() => bridge.viewOperation(undefined)}>Créer</Button>
@@ -55,7 +56,7 @@ export class ListOperationsApp extends React.Component<Props, State> {
           data={operations}
           lastUpdate={lastUpdate}
           columns={[
-            OperationColumns.Id,
+            OperationColumns.Ref,
             OperationColumns.Description,
             OperationColumns.Required,
             OperationColumns.Constraint,

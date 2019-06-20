@@ -1,8 +1,8 @@
 import knex from 'knex';
 
 import {OPERATEURS_TABLE_NAME} from '@shared/db/table_names';
-import {Operateur} from '@shared/models';
-import {asDate, asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
+// import {Operateur} from '@shared/models';
+// import {asDate, asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export const OperateursColumn = {
   ID_COLUMN: 'id',

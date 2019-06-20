@@ -6,7 +6,7 @@ import {FilterableTable} from '@root/components/table/filterable_table';
 import {ColumnMetadata, SortInfo} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
 
-interface Props<T extends {sommeil: boolean}, U> {
+interface Props<T extends {sommeil: boolean; ref: string}> {
   data: T[];
   lastUpdate: number;
   //tslint:disable-next-line:no-any
@@ -17,7 +17,9 @@ interface Props<T extends {sommeil: boolean}, U> {
   onSelected?(row: T): void;
 }
 
-export class AdminTable<T extends {sommeil: boolean}, U> extends React.Component<Props<T, U>> {
+export class AdminTable<T extends {sommeil: boolean; ref: string}> extends React.Component<
+  Props<T>
+> {
   public static displayName = 'AdminTable';
 
   private shouldShowRow(row: T, filterEnabled: boolean): boolean {

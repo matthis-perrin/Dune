@@ -10,10 +10,11 @@ import {
   Stock,
   Operation,
   BobineFilleWithMultiPose,
+  Cadencier,
 } from '@shared/models';
 import {BaseStore} from '@shared/store';
 
-export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore {
+export abstract class ListStore<T extends {localUpdate: number}> extends BaseStore {
   protected data?: T[] = undefined;
   private localUpdate: number = 0;
   private lastCheck: number = 0;
@@ -28,8 +29,8 @@ export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore
       const newData = new Map<string, T>();
       let latestLocalUpdate = 0;
       data.forEach(element => {
-        element.localUpdate = new Date(element.localUpdate);
-        const localUpdateTimestamp = element.localUpdate.getTime();
+        element.localUpdate = element.localUpdate;
+        const localUpdateTimestamp = element.localUpdate;
         if (localUpdateTimestamp > latestLocalUpdate) {
           latestLocalUpdate = localUpdateTimestamp;
         }
@@ -75,17 +76,9 @@ export abstract class ListStore<T extends {localUpdate: Date}> extends BaseStore
   }
 }
 
-function convertLastUpdateDates<T extends {lastUpdate?: Date; localUpdate: Date}>(data: T[]): void {
-  data.forEach(val => {
-    val.lastUpdate = val.lastUpdate && new Date(val.lastUpdate);
-  });
-}
-
 class BobinesFillesStore extends ListStore<BobineFille> {
   public async fetch(): Promise<BridgeListResponse<BobineFille>> {
-    const res = await bridge.listBobineFilles(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listBobineFilles(this.getLastUpdate());
   }
   public getId(element: BobineFille): string {
     return element.ref;
@@ -95,9 +88,7 @@ export const bobinesFillesStore = new BobinesFillesStore();
 
 class BobinesMeresStore extends ListStore<BobineMere> {
   public async fetch(): Promise<BridgeListResponse<BobineMere>> {
-    const res = await bridge.listBobineMeres(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listBobineMeres(this.getLastUpdate());
   }
   public getId(element: BobineMere): string {
     return element.ref;
@@ -107,9 +98,7 @@ export const bobinesMeresStore = new BobinesMeresStore();
 
 class ClichesStore extends ListStore<Cliche> {
   public async fetch(): Promise<BridgeListResponse<Cliche>> {
-    const res = await bridge.listCliches(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listCliches(this.getLastUpdate());
   }
   public getId(element: Cliche): string {
     return element.ref;
@@ -117,11 +106,38 @@ class ClichesStore extends ListStore<Cliche> {
 }
 export const clichesStore = new ClichesStore();
 
+class CadencierStore extends ListStore<Cadencier> {
+  public async fetch(): Promise<BridgeListResponse<Cadencier>> {
+    return bridge.listCadencier(this.getLastUpdate());
+  }
+  public getId(element: Cadencier): string {
+    return element.bobineRef;
+  }
+  public getCadencierIndex(): Map<string, Map<number, number>> | undefined {
+    const cadenciers = this.getData();
+    if (cadenciers === undefined) {
+      return undefined;
+    }
+    const cadencierIndex = new Map<string, Map<number, number>>();
+    for (const cadencier of cadenciers) {
+      let currentCadencier = cadencierIndex.get(cadencier.bobineRef);
+      if (!currentCadencier) {
+        currentCadencier = new Map<number, number>();
+        cadencierIndex.set(cadencier.bobineRef, currentCadencier);
+      }
+      for (const monthStr of Object.keys(cadencier.ventes)) {
+        const month = parseFloat(monthStr);
+        currentCadencier.set(month, (currentCadencier.get(month) || 0) + cadencier.ventes[month]);
+      }
+    }
+    return cadencierIndex;
+  }
+}
+export const cadencierStore = new CadencierStore();
+
 class StocksStore extends ListStore<Stock> {
   public async fetch(): Promise<BridgeListResponse<Stock>> {
-    const res = await bridge.listStocks(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listStocks(this.getLastUpdate());
   }
   public getId(element: Stock): string {
     return element.ref;
@@ -147,9 +163,7 @@ export const stocksStore = new StocksStore();
 
 class PerfosStore extends ListStore<Perfo> {
   public async fetch(): Promise<BridgeListResponse<Perfo>> {
-    const res = await bridge.listPerfos(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listPerfos(this.getLastUpdate());
   }
   public getId(element: Perfo): string {
     return element.ref;
@@ -159,9 +173,7 @@ export const perfosStore = new PerfosStore();
 
 class RefentesStore extends ListStore<Refente> {
   public async fetch(): Promise<BridgeListResponse<Refente>> {
-    const res = await bridge.listRefentes(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listRefentes(this.getLastUpdate());
   }
   public getId(element: Refente): string {
     return element.ref;
@@ -171,12 +183,10 @@ export const refentesStore = new RefentesStore();
 
 class OperationsStore extends ListStore<Operation> {
   public async fetch(): Promise<BridgeListResponse<Operation>> {
-    const res = await bridge.listOperations(this.getLastUpdate());
-    convertLastUpdateDates(res.data);
-    return res;
+    return bridge.listOperations(this.getLastUpdate());
   }
   public getId(element: Operation): string {
-    return String(element.id);
+    return element.ref;
   }
 }
 export const operationsStore = new OperationsStore();

@@ -10,7 +10,7 @@ import {operationsStore} from '@root/stores/list_store';
 import {Operation, OperationConstraint} from '@shared/models';
 
 interface Props {
-  operationId?: number;
+  operationRef?: string;
 }
 
 interface State {
@@ -35,9 +35,9 @@ export class ViewOperationApp extends React.Component<Props, State> {
   }
 
   private readonly handleOperationsChange = (): void => {
-    const {operationId} = this.props;
+    const {operationRef} = this.props;
     const operations = operationsStore.getData() || [];
-    const operation = operations.filter(o => o.id === operationId)[0];
+    const operation = operations.filter(o => o.ref === operationRef)[0];
     this.setState({operation, originalOperation: operation}, this.updateTitle);
   };
 
@@ -46,9 +46,9 @@ export class ViewOperationApp extends React.Component<Props, State> {
   };
 
   private updateTitle(): void {
-    const {operationId} = this.props;
+    const {operationRef} = this.props;
     const {operation} = this.state;
-    if (operationId && !operation) {
+    if (operationRef && !operation) {
       document.title = "Chargement de l'opération...";
       return;
     }
@@ -57,19 +57,19 @@ export class ViewOperationApp extends React.Component<Props, State> {
 
   private getDefaultOperation(): Operation {
     return {
-      id: -1,
+      ref: '-1',
       description: '',
       required: false,
       constraint: OperationConstraint.None,
       duration: 0,
       sommeil: false,
-      localUpdate: new Date(),
+      localUpdate: new Date().getTime(),
     };
   }
 
   private operationsAreEqual(o1: Operation, o2: Operation): boolean {
     const properties: (keyof Operation)[] = [
-      'id',
+      'ref',
       'description',
       'constraint',
       'duration',
@@ -107,9 +107,9 @@ export class ViewOperationApp extends React.Component<Props, State> {
   };
 
   private renderControls(): JSX.Element {
-    const {operationId} = this.props;
+    const {operationRef} = this.props;
     const {operation, originalOperation} = this.state;
-    if (operationId === undefined) {
+    if (operationRef === undefined) {
       return (
         <Controls>
           <Button onClick={this.createOrUpdateOperation}>Créer</Button>
@@ -137,10 +137,10 @@ export class ViewOperationApp extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const {operationId} = this.props;
+    const {operationRef} = this.props;
     const {operation = this.getDefaultOperation()} = this.state;
 
-    if (operationId && !operation) {
+    if (operationRef && !operation) {
       return <LoadingTable>Chargement...</LoadingTable>;
     }
 

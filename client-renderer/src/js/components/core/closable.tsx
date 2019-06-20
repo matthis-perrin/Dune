@@ -11,6 +11,7 @@ interface ClosableProps
   onClose?(): void;
   offset?: number;
   color: string;
+  size?: number; // Dont worry about it
 }
 
 export class Closable extends React.Component<ClosableProps> {
@@ -34,7 +35,7 @@ export class Closable extends React.Component<ClosableProps> {
   }
 
   public render(): JSX.Element {
-    const props = omit(this.props, ['onClose', 'centeredWithOffset', 'ref', 'color', 'offset']);
+    const props = omit(this.props, ['onClose', 'ref', 'color', 'offset', 'size']);
     return (
       <Wrapper {...props}>
         {this.renderCloseButton()}

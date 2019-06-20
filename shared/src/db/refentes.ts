@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {REFENTES_TABLE_NAME} from '@shared/db/table_names';
 import {Refente} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const RefentesColumn = {
   REF_COLUMN: 'ref',
@@ -69,7 +69,7 @@ export async function listRefentes(db: knex, sinceLocalUpdate: number): Promise<
         laize7: asNumber(r[RefentesColumn.LAIZE_7_COLUMN], undefined),
         chute: asNumber(r[RefentesColumn.CHUTE_COLUMN], undefined),
         sommeil: asNumber(r[RefentesColumn.SOMMEIL_COLUMN], 0) === 1,
-        localUpdate: asDate(r[RefentesColumn.LOCAL_UPDATE_COLUMN]),
+        localUpdate: asNumber(r[RefentesColumn.LOCAL_UPDATE_COLUMN], 0),
       };
     });
 }

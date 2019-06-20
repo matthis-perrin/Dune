@@ -89,7 +89,7 @@ export class OrderableBobines extends React.Component<
     let laizeIndex = 0;
     for (const bobine of bobines) {
       const poseSize = getPoseSize(bobine.pose);
-      for (const poseIndex of range(poseSize)) {
+      for (const _ of range(poseSize)) {
         if (laizes[laizeIndex] !== bobine.laize) {
           return false;
         }

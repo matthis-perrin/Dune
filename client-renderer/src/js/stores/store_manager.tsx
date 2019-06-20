@@ -9,7 +9,7 @@ import {
   operationsStore,
 } from '@root/stores/list_store';
 
-export type AnyListStore = ListStore<{localUpdate: Date}>;
+export type AnyListStore = ListStore<{localUpdate: number}>;
 
 export class StoreManager {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;

@@ -6,17 +6,17 @@ import styled from 'styled-components';
 import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {bridge} from '@root/lib/bridge';
+// import {bridge} from '@root/lib/bridge';
 import {couleurByName} from '@root/theme/default';
 
 import {
   CadencierType,
   aggregateByMonth,
   createMonthsRange,
-  roundToMonth,
+  // roundToMonth,
 } from '@shared/lib/cadencier';
 import {MONTHS_STRING} from '@shared/lib/time';
-import {VenteLight, BobineFille} from '@shared/models';
+import {BobineFille} from '@shared/models';
 
 interface VenteDatum {
   time: Date;
@@ -93,10 +93,10 @@ export class BobineCadencierChart extends React.Component<
     this.setDisplayMode(DisplayMode.LOADING);
 
     const {ref} = bobine;
-    bridge
-      .listCadencier(ref)
-      .then(cadencier => this.createPlot(bobine, cadencier))
-      .catch(console.error);
+    // bridge
+    //   .listCadencier(ref)
+    //   .then(cadencier => this.createPlot(bobine, cadencier))
+    //   .catch(console.error);
   }
 
   private readonly handleRise = (): void => {

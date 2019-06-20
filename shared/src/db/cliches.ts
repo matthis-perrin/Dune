@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {CLICHES_TABLE_NAME} from '@shared/db/table_names';
 import {Cliche} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const ClichesColumn = {
   REF_COLUMN: 'ref',
@@ -77,8 +77,8 @@ export async function listCliches(db: knex, sinceLocalUpdate: number): Promise<C
         couleur6: asString(c.couleur6, undefined),
         importanceOrdreCouleurs: asNumber(c.importanceOrdreCouleurs, 0) === 1,
         sommeil: asNumber(c.sommeil, 0) === 1,
-        lastUpdate: asDate(c.lastUpdate),
-        localUpdate: asDate(c.localUpdate),
+        lastUpdate: asNumber(c.lastUpdate, 0),
+        localUpdate: asNumber(c.localUpdate, 0),
       };
     });
 }

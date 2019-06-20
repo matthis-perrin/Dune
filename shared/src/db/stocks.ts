@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {STOCKS_TABLE_NAME} from '@shared/db/table_names';
 import {Stock} from '@shared/models';
-import {asDate, asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const StockColumns = {
   ID_COLUMN: 'id',
@@ -53,8 +53,8 @@ export async function listStocks(db: knex, sinceLocalUpdate: number): Promise<St
         reel: asNumber(s.reel, 0),
         commande: asNumber(s.commande, 0),
         reserve: asNumber(s.reserve, 0),
-        lastUpdate: asDate(s.lastUpdate),
-        localUpdate: asDate(s.localUpdate),
+        lastUpdate: asNumber(s.lastUpdate, 0),
+        localUpdate: asNumber(s.localUpdate, 0),
       };
     });
 }

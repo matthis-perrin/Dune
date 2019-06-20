@@ -28,11 +28,12 @@ import {
   refentesStore,
   operationsStore,
   bobinesFillesWithMultiPoseStore,
+  cadencierStore,
 } from '@root/stores/list_store';
 import {AnyListStore, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
-import {asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asString} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -91,7 +92,13 @@ export class AppManager extends React.Component<Props, State> {
       return [];
     }
     if (type === ClientAppType.BobinesPickerApp) {
-      return [bobinesFillesStore, clichesStore, bobinesFillesWithMultiPoseStore, stocksStore];
+      return [
+        bobinesFillesStore,
+        clichesStore,
+        bobinesFillesWithMultiPoseStore,
+        stocksStore,
+        cadencierStore,
+      ];
     }
     if (type === ClientAppType.RefentePickerApp) {
       return [refentesStore];
@@ -165,8 +172,8 @@ export class AppManager extends React.Component<Props, State> {
       return <ViewBobineApp bobineRef={asString(bobineRef, '')} />;
     }
     if (type === ClientAppType.ViewOperationApp) {
-      const {operationId} = asMap(data);
-      return <ViewOperationApp operationId={asNumber(operationId, undefined)} />;
+      const {operationRef} = asMap(data);
+      return <ViewOperationApp operationRef={asString(operationRef, undefined)} />;
     }
 
     return (

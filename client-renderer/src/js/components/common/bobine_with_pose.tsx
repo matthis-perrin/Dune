@@ -94,6 +94,7 @@ const ClosableWithHover = styled(Closable)`
   position: relative;
   transition: all 100ms ease-in-out;
   &:hover {
-    transform: scale(1.05) translate(${props => `${(-(props.size || 0) * 0.05) / 2}px`}, 0);
+    transform: scale(1.05)
+      translate(${props => `${(-((props.size as number) || 0) * 0.05) / 2}px`}, 0);
   }
 `;

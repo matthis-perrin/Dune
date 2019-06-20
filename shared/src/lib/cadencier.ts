@@ -1,4 +1,4 @@
-import {VenteLight} from '@shared/models';
+import {Vente} from '@shared/models';
 
 export enum CadencierType {
   DEVIS = 0,
@@ -22,13 +22,16 @@ export const CadencierTypeDescription = new Map<CadencierType, string>([
   [CadencierType.FACTURE_COMPTABILISEE, 'Facture comptabilisée'],
 ]);
 
+const MIDDLE_OF_MONTH = 15;
+const LAST_MONTH = 11;
+
 export function roundToMonth(timestamp: number): number {
   const date = new Date(timestamp);
-  return new Date(date.getFullYear(), date.getMonth(), 15).getTime();
+  return new Date(date.getFullYear(), date.getMonth(), MIDDLE_OF_MONTH).getTime();
 }
 
-export function aggregateByMonth(cadencier: VenteLight[]): Map<number, VenteLight[]> {
-  const data = new Map<number, VenteLight[]>();
+export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
+  const data = new Map<number, Vente[]>();
   cadencier.forEach(v => {
     const ts = roundToMonth(v.date);
     const current = data.get(ts);
@@ -53,9 +56,9 @@ export function createMonthsRange(
   const endYear = endDate.getFullYear();
   for (let year = startYear; year <= endYear; year++) {
     const startMonth = year === startYear && !forceFullYear ? startDate.getMonth() : 0;
-    const endMonth = year === endYear && !forceFullYear ? endDate.getMonth() : 11;
+    const endMonth = year === endYear && !forceFullYear ? endDate.getMonth() : LAST_MONTH;
     for (let month = startMonth; month <= endMonth; month++) {
-      res.push(new Date(year, month, 15).getTime());
+      res.push(new Date(year, month, MIDDLE_OF_MONTH).getTime());
     }
   }
   return res;
