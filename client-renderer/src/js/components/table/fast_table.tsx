@@ -40,29 +40,15 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   public static displayName = 'FastTable';
   //   private readonly updateIndexTimeout: number | undefined;
   private readonly tableContainerRef = React.createRef<HTMLDivElement>();
-
-  private readonly rows = new Map<
-    string,
-    {
-      data: T;
-      rowIndex?: number;
-    }
-  >();
+  private readonly rows = new Map<string, {data: T; rowIndex?: number}>();
 
   private dataIsEqual(data1: T[], data2: T[]): boolean {
     if (data1.length !== data2.length) {
       return false;
     }
     for (let i = 0; i < data1.length; i++) {
-      for (const column of this.props.columns) {
-        const row1 = data1[i];
-        const row2 = data2[i];
-        if (!row1 || !row2) {
-          return true;
-        }
-        if (column.shouldRerender(row1, row2)) {
-          return false;
-        }
+      if (data1[i] !== data2[i]) {
+        return false;
       }
     }
     return true;
@@ -147,19 +133,19 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
               .map(([ref, rowData]) => {
                 const {rowIndex, data} = rowData;
                 const styles: React.CSSProperties = {};
-                if (rowIndex) {
+                if (rowIndex !== undefined) {
                   styles.top = rowIndex * rowHeight;
                   styles.visibility = 'visible';
                 }
                 return (
                   <RowContainer
                     key={ref}
-                    style={styles}
+                    style={{...styles, ...rowStyles(data)}}
                     onClick={this.getRowClickHandlerForRef(ref)}
                   >
                     <FastTableRow
                       isVisible={
-                        rowIndex &&
+                        rowIndex !== undefined &&
                         rowIndex >= firstVisibleRowIndex &&
                         rowIndex <= lastVisibleRowIndex
                       }
@@ -210,14 +196,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
     if (!isEqual(this.props.columnWidths, nextProps.columnWidths)) {
       shouldUpdate = true;
     }
-    if (!shouldUpdate) {
-      for (const column of this.props.columns) {
-        if (column.shouldRerender(this.props.data, nextProps.data)) {
-          return true;
-        }
-      }
-    }
-
+    shouldUpdate = shouldUpdate || this.props.data !== nextProps.data;
     if (!shouldUpdate) {
       return false;
     }
@@ -257,7 +236,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
           const cellStyles: React.CSSProperties = {
             paddingLeft,
             paddingRight,
-            backgroundColor: isVisible ? 'red' : theme.table.rowBackgroundColor,
+            backgroundColor: theme.table.rowBackgroundColor,
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',

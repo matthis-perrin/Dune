@@ -32,7 +32,7 @@ export interface SortInfo {
   index: number;
 }
 
-interface Props<T> {
+interface Props<T extends {ref: string}> {
   width: number;
   height: number;
   data: T[];
@@ -44,7 +44,7 @@ interface Props<T> {
   rowStyles?(element: T): React.CSSProperties;
 }
 
-interface State<T> {
+interface State<T extends {ref: string}> {
   sortedData: T[];
   filteredData: T[];
   sort?: SortInfo;
@@ -56,7 +56,10 @@ const TABLE_STYLES = {
   borderBottom: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
 };
 
-export class SortableTable<T> extends React.PureComponent<Props<T>, State<T>> {
+export class SortableTable<T extends {ref: string}> extends React.PureComponent<
+  Props<T>,
+  State<T>
+> {
   public static displayName = 'SortableTable';
 
   private readonly columnFilters = new Map<number, FilterState<T>>();

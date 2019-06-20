@@ -12,7 +12,7 @@ export interface TableFilter<T> {
   enableByDefault: boolean;
 }
 
-interface Props<T, U> {
+interface Props<T extends {ref: string}, U> {
   data: T[];
   lastUpdate: number;
   columns: ColumnMetadata<T, U>[];
@@ -25,12 +25,15 @@ interface Props<T, U> {
   height: number;
 }
 
-interface State<T> {
+interface State<T extends {ref: string}> {
   enabledFilters: ((row: T, filterEnabled: boolean) => boolean)[];
   searchValue: string;
 }
 
-export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>> {
+export class FilterableTable<T extends {ref: string}, U> extends React.Component<
+  Props<T, U>,
+  State<T>
+> {
   public static displayName = 'FilterableTable';
 
   public constructor(props: Props<T, U>) {
@@ -144,7 +147,7 @@ export class FilterableTable<T, U> extends React.Component<Props<T, U>, State<T>
           value={this.state.searchValue}
           onChange={this.handleSearchChange}
         />
-        <SortableTable
+        <SortableTable<T>
           data={filteredData}
           lastUpdate={lastUpdate}
           columns={columns}
