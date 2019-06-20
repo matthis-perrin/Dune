@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
 import {BobineColors} from '@root/components/common/bobine_colors';
+import {BobineState} from '@root/components/common/bobine_state';
 import {Color} from '@root/components/common/color';
 import {Duration} from '@root/components/common/duration';
 import {
@@ -11,7 +12,7 @@ import {
 } from '@root/components/common/operation_constraint';
 import {RefLink} from '@root/components/common/ref_link';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {getStock, getBobineSellingPastYear} from '@root/lib/bobine';
+import {getStock, getBobineSellingPastYear, getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme/default';
 
@@ -22,6 +23,7 @@ import {
   Cliche,
   OperationConstraint as OperationConstraintModel,
   BobineFilleWithMultiPose,
+  BobineQuantities,
 } from '@shared/models';
 
 function getStocksSortFunction<T extends {ref: string}>(
@@ -689,6 +691,26 @@ export const LAST_YEAR_SELLING = (
   shouldRerender: (row1, row2) =>
     getBobineSellingPastYear(cadencier.get(row1.ref)) !==
     getBobineSellingPastYear(cadencier.get(row2.ref)),
+});
+
+export const STOCK_STATE_COLUMN = (
+  stocks: Map<string, Stock[]>,
+  cadencier: Map<string, Map<number, number>>,
+  bobineQuantities: BobineQuantities[]
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'Etat',
+  width: 90,
+  renderCell: ({ref}) => (
+    <BobineState state={getBobineState(ref, stocks, cadencier, bobineQuantities).state} />
+  ),
+  sortFunction: (row1, row2) =>
+    numberSort(
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities).state,
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state
+    ),
+  shouldRerender: (row1, row2) =>
+    getBobineState(row1.ref, stocks, cadencier, bobineQuantities).state !==
+    getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state,
 });
 
 export const BobineFilleColumns = {

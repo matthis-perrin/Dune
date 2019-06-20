@@ -26,7 +26,6 @@ interface State {
   cliche1?: Cliche;
   cliche2?: Cliche;
   clicheLoaded: boolean;
-  cadencier?: Vente[];
 }
 
 export class ViewBobineApp extends React.Component<Props, State> {
@@ -42,10 +41,6 @@ export class ViewBobineApp extends React.Component<Props, State> {
     bobinesFillesStore.addListener(this.refreshBobineInfo);
     clichesStore.addListener(this.refreshBobineInfo);
     stocksStore.addListener(this.refreshBobineInfo);
-    bridge
-      .listCadencierForBobine(this.props.bobineRef)
-      .then(cadencier => this.setState({cadencier}))
-      .catch(console.error);
   }
 
   public componentWillUnmount(): void {

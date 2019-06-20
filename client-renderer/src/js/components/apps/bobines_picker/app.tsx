@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {LoadingTable} from '@root/components/apps/main/administration/admin_table';
 import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
@@ -13,7 +14,7 @@ import {
   MULTI_POSE_COLUMN,
   COULEURS_IMPRESSION_COLUMN,
   BOBINE_FILLE_REF,
-  LAST_YEAR_SELLING,
+  STOCK_STATE_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -62,11 +63,12 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {
-      stocks = new Map<string, Stock[]>(),
-      cadencier = new Map<string, Map<number, number>>(),
-      bobineQuantities,
-    } = this.state;
+    const {stocks, cadencier, bobineQuantities} = this.state;
+
+    if (!stocks || !cadencier || !bobineQuantities) {
+      return <LoadingTable />;
+    }
+
     const columns = [
       BOBINE_FILLE_REF,
       DESIGNATION_COLUMN,
@@ -77,7 +79,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       MULTI_POSE_COLUMN,
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
-      LAST_YEAR_SELLING(cadencier),
+      STOCK_COLUMN(stocks),
+      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
     ];
     console.log(bobineQuantities);
     return (
@@ -105,7 +108,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     lastUpdate={Date.now()}
                     columns={columns}
                     initialSort={{
-                      index: 0,
+                      index: columns.length - 1,
                       asc: true,
                     }}
                     rowStyles={bobine => ({
