@@ -1,16 +1,11 @@
-import {range, isEqual} from 'lodash-es';
+import {range, isEqual, memoize} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme/default';
 
-interface CellProps {
-  rowIndex: number;
-  columnIndex: number;
-}
-
-interface FastTableProps<T> {
+interface FastTableProps<T extends {ref: string}> {
   width: number;
   height: number;
   columnCount: number;
@@ -25,10 +20,33 @@ interface FastTableProps<T> {
   onRowClick?(row: T, event: React.MouseEvent): void;
 }
 
-export class FastTable<T> extends React.Component<FastTableProps<T>> {
+const getStringHash = memoize(
+  (value: string): number => {
+    let hash = 0;
+    const l = value.length;
+    if (l === 0) {
+      return hash;
+    }
+    for (let i = 0; i < l; i++) {
+      const char = value.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+  }
+);
+
+export class FastTable<T extends {ref: string}> extends React.Component<FastTableProps<T>> {
   public static displayName = 'FastTable';
-  private hasRenderedPreview = false;
-  private forceUpdateTimeout: number | undefined;
+  private readonly updateIndexTimeout: number | undefined;
+
+  private readonly rows = new Map<
+    string,
+    {
+      data: T;
+      rowIndex?: number;
+    }
+  >();
 
   private dataIsEqual(data1: T[], data2: T[]): boolean {
     if (data1.length !== data2.length) {
@@ -49,6 +67,19 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
     return true;
   }
 
+  private readonly getRowClickHandlerForRef = memoize(
+    (ref: string) => (event: React.MouseEvent<HTMLDivElement>) => {
+      const {onRowClick} = this.props;
+      if (!onRowClick) {
+        return;
+      }
+      const row = this.rows.get(ref);
+      if (row) {
+        onRowClick(row.data, event);
+      }
+    }
+  );
+
   public shouldComponentUpdate(nextProps: FastTableProps<T>): boolean {
     const hasChanged =
       this.props.width !== nextProps.width ||
@@ -61,80 +92,34 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
       this.props.style !== nextProps.style ||
       !isEqual(this.props.columns, nextProps.columns) ||
       this.props.rowStyles !== nextProps.rowStyles ||
-      this.props.onRowClick !== nextProps.onRowClick ||
-      !this.dataIsEqual(this.props.data, nextProps.data);
-    if (hasChanged) {
-      this.hasRenderedPreview = false;
-      clearTimeout(this.forceUpdateTimeout);
+      this.props.onRowClick !== nextProps.onRowClick;
+
+    const hasDataChanged = !this.dataIsEqual(this.props.data, nextProps.data);
+
+    if (hasChanged || hasDataChanged) {
+      for (const row of this.rows.values()) {
+        row.rowIndex = undefined;
+      }
+      nextProps.data.forEach((data, rowIndex) => this.rows.set(data.ref, {data, rowIndex}));
     }
-    return hasChanged;
+    return hasChanged || hasDataChanged;
   }
-
-  public componentDidUpdate() {
-    this.triggerRerenderIfNeeded();
-  }
-
-  public componentDidMount() {
-    this.triggerRerenderIfNeeded();
-  }
-
-  private triggerRerenderIfNeeded() {
-    if (!this.hasRenderedPreview) {
-      this.hasRenderedPreview = true;
-      this.forceUpdateTimeout = setTimeout(() => this.forceUpdate(), 100);
-    }
-  }
-
-  private readonly renderCell = (props: CellProps): JSX.Element => {
-    const {rowIndex, columnIndex} = props;
-    const {columns, rowStyles, data, rowHeight} = this.props;
-
-    const line = data[rowIndex];
-    const {renderCell} = columns[columnIndex];
-    const isFirst = columnIndex === 0;
-    const isLast = columnIndex === columns.length - 1;
-    const paddingLeft = isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2;
-    const paddingRight = isLast ? theme.table.headerPadding : theme.table.headerPadding / 2;
-
-    const cellStyles: React.CSSProperties = {
-      paddingLeft,
-      paddingRight,
-      backgroundColor: theme.table.rowBackgroundColor,
-      lineHeight: `${rowHeight}px`,
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      boxSizing: 'border-box',
-      fontSize: theme.table.rowFontSize,
-      fontWeight: theme.table.rowFontWeight,
-      cursor: 'pointer',
-      userSelect: 'auto',
-    };
-    if (line === undefined) {
-      return <div style={{...cellStyles}} />;
-    }
-    const additionalStyles: React.CSSProperties = rowStyles ? rowStyles(line) : {};
-    return <div style={{...cellStyles, ...additionalStyles}}>{renderCell(line)}</div>;
-  };
 
   public render(): JSX.Element {
     const {
-      width,
-      height,
       columnCount,
-      rowCount,
+      columns,
       getColumnWidth,
-      rowHeight,
+      height,
       renderColumn,
+      rowCount,
+      rowHeight,
+      rowStyles,
       style,
-      data,
+      width,
     } = this.props;
 
-    let rowToRender = this.hasRenderedPreview ? rowCount : Math.ceil(height / rowHeight);
-    if (rowToRender >= rowCount) {
-      rowToRender = rowCount;
-      this.hasRenderedPreview = true;
-    }
+    const columnWidths = range(columnCount).map(index => getColumnWidth(index, width));
 
     return (
       <div>
@@ -146,29 +131,27 @@ export class FastTable<T> extends React.Component<FastTableProps<T>> {
           ))}
         </ColumnContainer>
         <div style={{...style, width, height: height - theme.table.headerHeight, overflow: 'auto'}}>
-          <Table>
-            {range(rowToRender).map(rowIndex => (
-              <Row
-                onClick={event =>
-                  this.props.onRowClick && this.props.onRowClick(data[rowIndex], event)
+          <Table style={{height: rowCount * rowHeight}}>
+            {Array.from(this.rows.entries())
+              .sort((e1, e2) => getStringHash(e1[0]) - getStringHash(e2[0]))
+              .map(([ref, rowData]) => {
+                const {rowIndex, data} = rowData;
+                const styles: React.CSSProperties = {};
+                if (rowIndex) {
+                  styles.top = rowIndex * rowHeight;
+                  styles.visibility = 'visible';
                 }
-                style={{height: rowHeight}}
-              >
-                {range(columnCount).map(columnIndex => (
-                  <Cell style={{width: getColumnWidth(columnIndex, width), height: rowHeight}}>
-                    {this.renderCell({columnIndex, rowIndex})}
-                  </Cell>
-                ))}
-              </Row>
-            ))}
+                return (
+                  <RowContainer
+                    key={ref}
+                    style={styles}
+                    onClick={this.getRowClickHandlerForRef(ref)}
+                  >
+                    <FastTableRow columns={columns} columnWidths={columnWidths} data={data} />
+                  </RowContainer>
+                );
+              })}
           </Table>
-          {this.hasRenderedPreview ? (
-            <React.Fragment />
-          ) : (
-            <div style={{height: (rowCount - rowToRender) * rowHeight, textAlign: 'center'}}>
-              Chargement des lignes suivantes
-            </div>
-          )}
         </div>
       </div>
     );
@@ -181,8 +164,83 @@ const ColumnContainer = styled.div<{width: number}>`
   background-color: ${theme.table.headerBackgroundColor};
 `;
 
-const Table = styled.div``;
-const Row = styled.div``;
-const Cell = styled.div`
-  display: inline-block;
+const RowContainer = styled.div`
+  display: flex;
+  position: absolute;
+  top: -1000px;
 `;
+
+const Table = styled.div`
+  position: relative;
+`;
+
+interface FastTableRowProps<T extends {ref: string}> {
+  columns: ColumnMetadata<T, any>[];
+  columnWidths: number[];
+  data: T;
+}
+
+export class FastTableRow<T extends {ref: string}> extends React.Component<FastTableRowProps<T>> {
+  public shouldComponentUpdate(nextProps: FastTableRowProps<T>): boolean {
+    if (!isEqual(this.props.columnWidths, nextProps.columnWidths)) {
+      return true;
+    }
+    for (const column of this.props.columns) {
+      if (column.shouldRerender(this.props.data, nextProps.data)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public render() {
+    const {columns, data, columnWidths} = this.props;
+    return (
+      <React.Fragment>
+        {range(columns.length).map(columnIndex => {
+          const columnWidth = columnWidths[columnIndex];
+          const isFirst = columnIndex === 0;
+          const isLast = columnIndex === columns.length - 1;
+          const paddingLeft = isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2;
+          const paddingRight = isLast ? theme.table.headerPadding : theme.table.headerPadding / 2;
+
+          const cellStyles: React.CSSProperties = {
+            paddingLeft,
+            paddingRight,
+            backgroundColor: theme.table.rowBackgroundColor,
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            boxSizing: 'border-box',
+            fontSize: theme.table.rowFontSize,
+            fontWeight: theme.table.rowFontWeight,
+            cursor: 'pointer',
+            userSelect: 'auto',
+            width: columnWidth,
+          };
+          return (
+            <div key={columnIndex} style={cellStyles}>
+              <FastTableCell column={columns[columnIndex]} data={data} />
+            </div>
+          );
+        })}
+      </React.Fragment>
+    );
+  }
+}
+
+interface FastTableCellProps<T extends {ref: string}> {
+  column: ColumnMetadata<T, any>;
+  data: T;
+}
+
+export class FastTableCell<T extends {ref: string}> extends React.Component<FastTableCellProps<T>> {
+  public shouldComponentUpdate(nextProps: FastTableCellProps<T>): boolean {
+    return this.props.column.shouldRerender(this.props.data, nextProps.data);
+  }
+
+  public render() {
+    const {column, data} = this.props;
+    return column.renderCell(data);
+  }
+}
