@@ -9,11 +9,12 @@ import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {getStock} from '@root/lib/bobine';
+import {bridge} from '@root/lib/bridge';
 import {bobinesFillesStore, clichesStore, stocksStore} from '@root/stores/list_store';
 import {theme} from '@root/theme/default';
 
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
-import {BobineFille, Cliche, Stock} from '@shared/models';
+import {BobineFille, Cliche, Stock, Vente} from '@shared/models';
 
 interface Props {
   bobineRef: string;
@@ -25,6 +26,7 @@ interface State {
   cliche1?: Cliche;
   cliche2?: Cliche;
   clicheLoaded: boolean;
+  cadencier?: Vente[];
 }
 
 export class ViewBobineApp extends React.Component<Props, State> {
@@ -40,6 +42,10 @@ export class ViewBobineApp extends React.Component<Props, State> {
     bobinesFillesStore.addListener(this.refreshBobineInfo);
     clichesStore.addListener(this.refreshBobineInfo);
     stocksStore.addListener(this.refreshBobineInfo);
+    bridge
+      .listCadencierForBobine(this.props.bobineRef)
+      .then(cadencier => this.setState({cadencier}))
+      .catch(console.error);
   }
 
   public componentWillUnmount(): void {

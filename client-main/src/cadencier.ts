@@ -41,6 +41,10 @@ class Cadencier {
     return res;
   }
 
+  public listAllForBobine(ref: string): Vente[] {
+    return this.cadencierByBobines.get(ref) || [];
+  }
+
   private reload(): void {
     listCadencier(db, this.localUpdate)
       .then(data => {

@@ -8,8 +8,6 @@ export const ListStocks = 'list-stocks' as BridgeCommand;
 export const ListPerfos = 'list-perfos' as BridgeCommand;
 export const ListRefentes = 'list-refentes' as BridgeCommand;
 export const ListCadencier = 'list-cadencier' as BridgeCommand;
-
-export const ListAggregatedCadencier = 'list-aggregated-cadencier' as BridgeCommand;
 export const ListCadencierForBobine = 'list-cadencier-for-bobine' as BridgeCommand;
 
 export const GetAppInfo = 'get-app-info' as BridgeCommand;

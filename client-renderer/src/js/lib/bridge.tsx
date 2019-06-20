@@ -108,9 +108,8 @@ class Bridge {
   public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
     return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
   }
-
-  public async listCadencierForBobine(): Promise<Vente[]> {
-    return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine);
+  public async listCadencierForBobine(bobineRef: string): Promise<Vente[]> {
+    return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine, {bobineRef});
   }
 
   public async createNewPlanProduction(): Promise<void> {

@@ -6,21 +6,16 @@ import styled from 'styled-components';
 import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-// import {bridge} from '@root/lib/bridge';
+import {bridge} from '@root/lib/bridge';
 import {couleurByName} from '@root/theme/default';
 
-import {
-  CadencierType,
-  aggregateByMonth,
-  createMonthsRange,
-  // roundToMonth,
-} from '@shared/lib/cadencier';
+import {CadencierType, aggregateByMonth, createMonthsRange} from '@shared/lib/cadencier';
 import {MONTHS_STRING} from '@shared/lib/time';
-import {BobineFille} from '@shared/models';
+import {BobineFille, Vente} from '@shared/models';
 
 interface VenteDatum {
   time: Date;
-  value: VenteLight[];
+  value: Vente[];
 }
 
 enum DisplayMode {
@@ -93,10 +88,10 @@ export class BobineCadencierChart extends React.Component<
     this.setDisplayMode(DisplayMode.LOADING);
 
     const {ref} = bobine;
-    // bridge
-    //   .listCadencier(ref)
-    //   .then(cadencier => this.createPlot(bobine, cadencier))
-    //   .catch(console.error);
+    bridge
+      .listCadencierForBobine(ref)
+      .then(cadencier => this.createPlot(bobine, cadencier))
+      .catch(console.error);
   }
 
   private readonly handleRise = (): void => {
@@ -106,7 +101,7 @@ export class BobineCadencierChart extends React.Component<
     this.plot.redraw();
   };
 
-  private readonly createPlot = (bobine: BobineFille, cadencier: VenteLight[]): void => {
+  private readonly createPlot = (bobine: BobineFille, cadencier: Vente[]): void => {
     // Check this is a good time to render
     const chartElement = this.chartRef.current;
     if (!chartElement) {
@@ -192,7 +187,7 @@ export class BobineCadencierChart extends React.Component<
     this.plot.renderTo(chartElement);
   };
 
-  private getVenteData(cadencier: VenteLight[]): VenteDatum[] {
+  private getVenteData(cadencier: Vente[]): VenteDatum[] {
     const facturesByMonth = aggregateByMonth(cadencier);
     const allTs = Array.from(facturesByMonth.keys());
     if (allTs.length === 0) {
