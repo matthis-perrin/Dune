@@ -680,7 +680,7 @@ export const DURATION_SECONDS_COLUMN: ColumnMetadata<{duration: number}, string>
 export const LAST_YEAR_SELLING = (
   cadencier: Map<string, Map<number, number>>
 ): ColumnMetadata<{ref: string}, number> => ({
-  title: 'Vente',
+  title: 'Ventes Ann.',
   width: 90,
   renderCell: ({ref}) => renderNumber(getBobineSellingPastYear(cadencier.get(ref))),
   sortFunction: (row1, row2) =>

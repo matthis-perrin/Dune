@@ -15,6 +15,7 @@ import {
   COULEURS_IMPRESSION_COLUMN,
   BOBINE_FILLE_REF,
   STOCK_STATE_COLUMN,
+  LAST_YEAR_SELLING,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -79,6 +80,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       MULTI_POSE_COLUMN,
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
+      LAST_YEAR_SELLING(cadencier),
       STOCK_COLUMN(stocks),
       STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
     ];
