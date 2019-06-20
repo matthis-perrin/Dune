@@ -66,7 +66,7 @@ export class GescomWatcherStocks extends GescomWatcher {
       [StockColumns.NUM_DEPOT]: asNumber(gescomLine[STOCK_NUM_DEPOT], undefined),
       [StockColumns.REEL_COLUMN]: asNumber(gescomLine[STOCK_REEL], 0),
       [StockColumns.RESERVE_COLUMN]: asNumber(gescomLine[STOCK_RESERVE], 0),
-      [StockColumns.COMMANDE_COLUMN]: asNumber(gescomLine[STOCK_REEL], 0),
+      [StockColumns.COMMANDE_COLUMN]: asNumber(gescomLine[STOCK_COMMANDE], 0),
       [StockColumns.LAST_UPDATE_COLUMN]: asDate(gescomLine[LAST_UPDATE_COLUMN]),
       [StockColumns.LOCAL_UPDATE_COLUMN]: localDate,
     };

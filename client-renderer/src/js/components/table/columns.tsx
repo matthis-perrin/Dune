@@ -12,6 +12,7 @@ import {
 import {RefLink} from '@root/components/common/ref_link';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
+import {getStock} from '@root/lib/stock';
 import {Colors} from '@root/theme/default';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
@@ -23,17 +24,12 @@ import {
   BobineFilleWithMultiPose,
 } from '@shared/models';
 
-function getStock<T extends {ref: string}>(data: T, stocks: Map<string, Stock[]>): number {
-  const stock = stocks.get(data.ref) || [];
-  return sum(stock.map(s => s.reel + s.reserve - s.commande));
-}
-
 function getStocksSortFunction<T extends {ref: string}>(
   stocks: Map<string, Stock[]>
 ): (d1: T, d2: T) => number {
   return function(data1: T, data2: T): number {
-    const s1 = getStock(data1, stocks);
-    const s2 = getStock(data2, stocks);
+    const s1 = getStock(data1.ref, stocks);
+    const s2 = getStock(data2.ref, stocks);
     return s1 - s2;
   };
 }
@@ -267,7 +263,7 @@ export const STOCK_COLUMN = (
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'Stocks',
   width: 80,
-  renderCell: row => renderNumber(getStock(row, stocks)),
+  renderCell: row => renderNumber(getStock(row.ref, stocks)),
   getSearchValue: row => row.ref,
   sortFunction: getStocksSortFunction(stocks),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,

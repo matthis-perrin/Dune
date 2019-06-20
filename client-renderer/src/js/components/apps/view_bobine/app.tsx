@@ -8,11 +8,12 @@ import {BobineColors} from '@root/components/common/bobine_colors';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {bobinesFillesStore, clichesStore} from '@root/stores/list_store';
+import {getStock} from '@root/lib/stock';
+import {bobinesFillesStore, clichesStore, stocksStore} from '@root/stores/list_store';
 import {theme} from '@root/theme/default';
 
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
-import {BobineFille, Cliche} from '@shared/models';
+import {BobineFille, Cliche, Stock} from '@shared/models';
 
 interface Props {
   bobineRef: string;
@@ -20,6 +21,7 @@ interface Props {
 
 interface State {
   bobine?: BobineFille;
+  stocks?: Map<string, Stock[]>;
   cliche1?: Cliche;
   cliche2?: Cliche;
   clicheLoaded: boolean;
@@ -37,11 +39,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
   public componentDidMount(): void {
     bobinesFillesStore.addListener(this.refreshBobineInfo);
     clichesStore.addListener(this.refreshBobineInfo);
+    stocksStore.addListener(this.refreshBobineInfo);
   }
 
   public componentWillUnmount(): void {
     bobinesFillesStore.removeListener(this.refreshBobineInfo);
     clichesStore.removeListener(this.refreshBobineInfo);
+    stocksStore.removeListener(this.refreshBobineInfo);
   }
 
   private readonly refreshBobineInfo = (): void => {
@@ -66,12 +70,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
         cliche2 = cliche;
       }
     }
-    this.setState({bobine, cliche1, cliche2, clicheLoaded});
+    const stocks = stocksStore.getStockIndex();
+    this.setState({bobine, cliche1, cliche2, clicheLoaded, stocks});
   };
 
   private renderGeneralInfo(): JSX.Element {
-    const {bobine} = this.state;
-    if (!bobine) {
+    const {bobine, stocks} = this.state;
+    if (!bobine || !stocks) {
       return <LoadingIndicator size="medium" />;
     }
     return (
@@ -85,6 +90,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
             {title: 'Grammage', value: bobine.grammage},
             {title: 'Longueur', value: bobine.longueur},
             {title: "Type d'impression", value: bobine.typeImpression},
+            {title: 'Stocks', value: getStock(bobine.ref, stocks)},
           ]}
         />
       </React.Fragment>
