@@ -29,6 +29,7 @@ import {
   SetPlanRefente,
   ListCadencier,
   ListCadencierForBobine,
+  ListBobinesQuantities,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -43,6 +44,7 @@ import {
   Stock,
   Vente,
   Cadencier,
+  BobineQuantities,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -110,6 +112,9 @@ class Bridge {
   }
   public async listCadencierForBobine(bobineRef: string): Promise<Vente[]> {
     return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine, {bobineRef});
+  }
+  public async listBobinesQuantities(): Promise<BobineQuantities[]> {
+    return this.bridgeTransport.sendBridgeCommand<BobineQuantities[]>(ListBobinesQuantities);
   }
 
   public async createNewPlanProduction(): Promise<void> {

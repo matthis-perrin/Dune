@@ -37,6 +37,13 @@ export enum BobineState {
   Alert,
 }
 
+export interface BobineQuantities {
+  soldMin: number;
+  soldMax: number;
+  threshold: number;
+  qtyToProduce: number;
+}
+
 export interface BobineMere {
   ref: string;
   designation?: string;

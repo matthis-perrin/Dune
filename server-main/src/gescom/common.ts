@@ -4,6 +4,7 @@ import {addError} from '@root/state';
 
 import {createBobinesFillesTable} from '@shared/db/bobines_filles';
 import {createBobinesMeresTable} from '@shared/db/bobines_meres';
+import {createBobinesQuantitiesTable} from '@shared/db/bobines_quantities';
 import {createCadencierTable} from '@shared/db/cadencier';
 import {createClichesTable} from '@shared/db/cliches';
 import {
@@ -27,6 +28,7 @@ export async function setupSqliteDB(db: knex): Promise<void> {
     createRefentesTable(db),
     createCadencierTable(db),
     createOperationsTable(db),
+    createBobinesQuantitiesTable(db),
   ]);
 }
 

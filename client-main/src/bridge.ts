@@ -30,8 +30,10 @@ import {
   SetPlanPolypro,
   SetPlanRefente,
   ListCadencierForBobine,
+  ListBobinesQuantities,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
+import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listCliches} from '@shared/db/cliches';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
@@ -77,6 +79,9 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   if (command === ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
     return await cadencier.listAllForBobine(asString(bobineRef, ''));
+  }
+  if (command === ListBobinesQuantities) {
+    return await listBobinesQuantities(db);
   }
 
   // Window Management

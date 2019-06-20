@@ -19,6 +19,7 @@ import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
   bobinesFillesStore,
   bobinesMeresStore,
@@ -30,7 +31,7 @@ import {
   bobinesFillesWithMultiPoseStore,
   cadencierStore,
 } from '@root/stores/list_store';
-import {AnyListStore, StoreManager} from '@root/stores/store_manager';
+import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
 import {asMap, asString} from '@shared/type_utils';
@@ -64,7 +65,7 @@ export class AppManager extends React.Component<Props, State> {
       .catch(err => this.setState({error: err as string}));
   }
 
-  private getStoresForApp(appInfo: ClientAppInfo): AnyListStore[] {
+  private getStoresForApp(appInfo: ClientAppInfo): Refreshable[] {
     const {type} = appInfo;
     if (type === ClientAppType.MainApp) {
       return StoreManager.AllStores;
@@ -98,6 +99,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesFillesWithMultiPoseStore,
         stocksStore,
         cadencierStore,
+        bobinesQuantitiesStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {

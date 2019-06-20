@@ -16,19 +16,21 @@ import {
   LAST_YEAR_SELLING,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
   bobinesFillesWithMultiPoseStore,
   stocksStore,
   cadencierStore,
 } from '@root/stores/list_store';
 
-import {Stock, BobineFilleWithMultiPose} from '@shared/models';
+import {Stock, BobineFilleWithMultiPose, BobineQuantities} from '@shared/models';
 
 interface Props {}
 
 interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
 }
 
 export class BobinesPickerApp extends React.Component<Props, State> {
@@ -42,17 +44,20 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
     cadencierStore.addListener(this.handleValuesChanged);
+    bobinesQuantitiesStore.addListener(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
     cadencierStore.removeListener(this.handleValuesChanged);
+    bobinesQuantitiesStore.removeListener(this.handleValuesChanged);
   }
 
   private readonly handleValuesChanged = (): void => {
     this.setState({
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
+      bobineQuantities: bobinesQuantitiesStore.getData(),
     });
   };
 
@@ -60,6 +65,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     const {
       stocks = new Map<string, Stock[]>(),
       cadencier = new Map<string, Map<number, number>>(),
+      bobineQuantities,
     } = this.state;
     const columns = [
       BOBINE_FILLE_REF,
@@ -73,7 +79,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       TYPE_IMPRESSION_COLUMN,
       LAST_YEAR_SELLING(cadencier),
     ];
-    console.log(cadencier);
+    console.log(bobineQuantities);
     return (
       <Picker<BobineFilleWithMultiPose>
         getHash={r => r.ref}

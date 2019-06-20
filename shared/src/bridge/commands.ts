@@ -9,6 +9,7 @@ export const ListPerfos = 'list-perfos' as BridgeCommand;
 export const ListRefentes = 'list-refentes' as BridgeCommand;
 export const ListCadencier = 'list-cadencier' as BridgeCommand;
 export const ListCadencierForBobine = 'list-cadencier-for-bobine' as BridgeCommand;
+export const ListBobinesQuantities = 'list-bobines-quantities' as BridgeCommand;
 
 export const GetAppInfo = 'get-app-info' as BridgeCommand;
 export const OpenApp = 'open-app' as BridgeCommand;

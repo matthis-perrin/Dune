@@ -1,3 +1,4 @@
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
   bobinesFillesStore,
   bobinesMeresStore,
@@ -9,11 +10,13 @@ import {
   operationsStore,
 } from '@root/stores/list_store';
 
-export type AnyListStore = ListStore<{localUpdate: number}>;
+export interface Refreshable {
+  refresh(): Promise<void>;
+}
 
 export class StoreManager {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
-  public static AllStores: AnyListStore[] = [
+  public static AllStores: Refreshable[] = [
     bobinesFillesStore,
     bobinesMeresStore,
     clichesStore,
@@ -21,9 +24,10 @@ export class StoreManager {
     perfosStore,
     refentesStore,
     operationsStore,
+    bobinesQuantitiesStore,
   ];
 
-  constructor(private readonly stores: AnyListStore[]) {}
+  constructor(private readonly stores: Refreshable[]) {}
 
   public start(): void {
     this.stores.forEach(store => {
@@ -31,7 +35,7 @@ export class StoreManager {
     });
   }
 
-  private refreshStore(store: AnyListStore): void {
+  private refreshStore(store: Refreshable): void {
     store
       .refresh()
       .finally(() => {
