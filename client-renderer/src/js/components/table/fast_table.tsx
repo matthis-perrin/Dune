@@ -38,7 +38,8 @@ const getStringHash = memoize(
 
 export class FastTable<T extends {ref: string}> extends React.Component<FastTableProps<T>> {
   public static displayName = 'FastTable';
-  private readonly updateIndexTimeout: number | undefined;
+  //   private readonly updateIndexTimeout: number | undefined;
+  private readonly tableContainerRef = React.createRef<HTMLDivElement>();
 
   private readonly rows = new Map<
     string,
@@ -120,6 +121,12 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     } = this.props;
 
     const columnWidths = range(columnCount).map(index => getColumnWidth(index, width));
+    let scrollOffset = 0;
+    if (this.tableContainerRef.current) {
+      scrollOffset = this.tableContainerRef.current.scrollTop;
+    }
+    const firstVisibleRowIndex = Math.floor(scrollOffset / rowHeight);
+    const lastVisibleRowIndex = firstVisibleRowIndex + Math.ceil(height / rowHeight);
 
     return (
       <div>
@@ -130,7 +137,10 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
             </div>
           ))}
         </ColumnContainer>
-        <div style={{...style, width, height: height - theme.table.headerHeight, overflow: 'auto'}}>
+        <div
+          ref={this.tableContainerRef}
+          style={{...style, width, height: height - theme.table.headerHeight, overflow: 'auto'}}
+        >
           <Table style={{height: rowCount * rowHeight}}>
             {Array.from(this.rows.entries())
               .sort((e1, e2) => getStringHash(e1[0]) - getStringHash(e2[0]))
@@ -147,7 +157,16 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                     style={styles}
                     onClick={this.getRowClickHandlerForRef(ref)}
                   >
-                    <FastTableRow columns={columns} columnWidths={columnWidths} data={data} />
+                    <FastTableRow
+                      isVisible={
+                        rowIndex &&
+                        rowIndex >= firstVisibleRowIndex &&
+                        rowIndex <= lastVisibleRowIndex
+                      }
+                      columns={columns}
+                      columnWidths={columnWidths}
+                      data={data}
+                    />
                   </RowContainer>
                 );
               })}
@@ -178,23 +197,54 @@ interface FastTableRowProps<T extends {ref: string}> {
   columns: ColumnMetadata<T, any>[];
   columnWidths: number[];
   data: T;
+  isVisible: boolean;
 }
 
+const WAIT_BEFORE_RENDER_WHEN_NOT_VISIBLE = 100;
+
 export class FastTableRow<T extends {ref: string}> extends React.Component<FastTableRowProps<T>> {
+  private forceRerenderTimeout: number | undefined;
+
   public shouldComponentUpdate(nextProps: FastTableRowProps<T>): boolean {
+    let shouldUpdate = false;
     if (!isEqual(this.props.columnWidths, nextProps.columnWidths)) {
-      return true;
+      shouldUpdate = true;
     }
-    for (const column of this.props.columns) {
-      if (column.shouldRerender(this.props.data, nextProps.data)) {
-        return true;
+    if (!shouldUpdate) {
+      for (const column of this.props.columns) {
+        if (column.shouldRerender(this.props.data, nextProps.data)) {
+          return true;
+        }
       }
     }
-    return false;
+
+    if (!shouldUpdate) {
+      return false;
+    }
+
+    // If a re-render is scheduled, we cancel it because we will either schedule a new one, or directly render.
+    if (this.forceRerenderTimeout) {
+      clearTimeout(this.forceRerenderTimeout);
+      this.forceRerenderTimeout = undefined;
+    }
+
+    // If the row is not visible, bypass the React lifecycle by returning false and schedule a re-render for later.
+    // This improve performance greatly when resizing that table because a lot of render are triggered on rows that
+    // are not visible.
+    if (!nextProps.isVisible) {
+      this.forceRerenderTimeout = setTimeout(
+        () => this.forceUpdate(),
+        WAIT_BEFORE_RENDER_WHEN_NOT_VISIBLE
+      );
+      return false;
+    }
+
+    // If the row is visible and has updated, render immediately
+    return true;
   }
 
   public render() {
-    const {columns, data, columnWidths} = this.props;
+    const {columns, data, columnWidths, isVisible} = this.props;
     return (
       <React.Fragment>
         {range(columns.length).map(columnIndex => {
@@ -207,7 +257,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
           const cellStyles: React.CSSProperties = {
             paddingLeft,
             paddingRight,
-            backgroundColor: theme.table.rowBackgroundColor,
+            backgroundColor: isVisible ? 'red' : theme.table.rowBackgroundColor,
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
