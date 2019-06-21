@@ -143,6 +143,13 @@ export const theme = {
     filterIconSelectedOpacity: 1,
   },
   planProd: {
+    topBarHeight: 96,
+    topBarBackgroundColor: Colors.PrimaryDark,
+    topBarTitleColor: Colors.TextOnPrimary,
+    topBarTextColor: Colors.TextOnPrimary,
+    topBarTitleFontSize: 24,
+    topBarTitleFontWeight: 400,
+    contentBackgroundColor: Colors.PrimaryLight,
     selectableBorderColor: '#888',
     selectableHoverBorderColor: '#333',
     selectableTextColor: '#555',

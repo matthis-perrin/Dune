@@ -10,6 +10,7 @@ import {
   SelectPerfoButton,
   SelectPolyproButton,
 } from '@root/components/apps/plan_prod_editor/select_buttons';
+import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
@@ -199,8 +200,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = planProduction;
 
     return (
-      <div style={{margin: 'auto'}}>
-        <ButtonContainer>
+      <PlanProdEditorContainer style={{margin: 'auto'}}>
+        <TopBar planProdRef="19062101" />
+        {/* <ButtonContainer>
           {this.canAutoComplete() ? (
             <Button onClick={this.autoComplete}>Auto complète</Button>
           ) : (
@@ -208,7 +210,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           )}
           {this.canClear() ? <Button onClick={this.clear}>Effacer</Button> : <React.Fragment />}
           {`Computed in ${planProduction.calculationTime}ms`}
-        </ButtonContainer>
+        </ButtonContainer> */}
         <SizeMonitor>
           {width => {
             // Padding for the extra space taken by the bobine offset
@@ -320,10 +322,16 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
           }}
         </SizeMonitor>
-      </div>
+      </PlanProdEditorContainer>
     );
   }
 }
+
+const PlanProdEditorContainer = styled.div`
+  width: 100%;
+  padding-top: ${theme.planProd.topBarHeight}px;
+  background-color: ${theme.planProd.contentBackgroundColor};
+`;
 
 const Padding = styled.div`
   height: 24px;
@@ -334,7 +342,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: ${theme.page.padding}px;
-  background-color: ${theme.page.backgroundColor};
   border-bottom: solid 2px black;
 `;
 
