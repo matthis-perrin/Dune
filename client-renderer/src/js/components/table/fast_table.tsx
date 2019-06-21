@@ -157,6 +157,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                       }
                       columns={columns}
                       columnWidths={columnWidths}
+                      rowHeight={rowHeight}
                       data={data}
                     />
                   </RowContainer>
@@ -189,6 +190,7 @@ interface FastTableRowProps<T extends {ref: string}> {
   // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
   columnWidths: number[];
+  rowHeight: number;
   data: T;
   isVisible: boolean;
 }
@@ -230,7 +232,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
   }
 
   public render(): JSX.Element {
-    const {columns, data, columnWidths} = this.props;
+    const {columns, data, columnWidths, rowHeight} = this.props;
     return (
       <React.Fragment>
         {range(columns.length).map(columnIndex => {
@@ -243,27 +245,34 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
           const cellStyles: React.CSSProperties = {
             paddingLeft,
             paddingRight,
-            backgroundColor: theme.table.rowBackgroundColor,
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            boxSizing: 'border-box',
-            fontSize: theme.table.rowFontSize,
-            fontWeight: theme.table.rowFontWeight,
-            cursor: 'pointer',
-            userSelect: 'auto',
             width: columnWidth,
+            height: rowHeight,
           };
           return (
-            <div key={columnIndex} style={cellStyles}>
+            <CellWrapper key={columnIndex} style={cellStyles}>
               <FastTableCell column={columns[columnIndex]} data={data} />
-            </div>
+            </CellWrapper>
           );
         })}
       </React.Fragment>
     );
   }
 }
+
+const CellWrapper = styled.div`
+  box-sizing: border-box;
+  font-size: ${theme.table.rowFontSize}px;
+  font-weight: ${theme.table.rowFontWeight};
+  cursor: pointer;
+  user-select: auto;
+  display: flex;
+  align-items: center;
+  & > * {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+`;
 
 interface FastTableCellProps<T extends {ref: string}> {
   // tslint:disable-next-line:no-any

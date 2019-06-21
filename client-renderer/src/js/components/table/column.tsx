@@ -138,7 +138,7 @@ export class ColumnHeader<T, U> extends React.Component<
 
 const FilteringIcon = styled.div<{minOpacity: number}>`
   padding: 9px 8px 6px 8px;
-  fill: ${theme.table.headerColor};
+  fill: ${theme.table.headerIconColor};
   ${props => `opacity: ${props.minOpacity}`}
   :hover {
     ${props => `opacity: ${Math.max(props.minOpacity, filterIconHoverOpacity)}`}
@@ -162,6 +162,7 @@ const ColumnHeaderWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   height: ${theme.table.headerHeight}px;
+  line-height: ${theme.table.headerHeight}px;
   color: ${theme.table.headerColor};
   box-sizing: border-box;
   ${(props: {isFirst: boolean; isLast: boolean}) => `

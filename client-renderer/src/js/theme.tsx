@@ -121,18 +121,22 @@ export const theme = {
   },
   table: {
     padding: 8,
+    borderRadius: 2,
+    borderThickness: 2,
     // borderColor: Palette.primary,
     // backgroundColor: Palette.white,
-    borderThickness: 2,
-    headerHeight: 32,
-    borderRadius: 2,
+
+    headerHeight: 42,
     headerPadding: 8,
     headerFontSize: 13,
-    headerFontWeight: FontWeight.Bold,
-    // headerColor: Palette.secondary,
-    // headerBackgroundColor: Palette.primary,
+    headerFontWeight: FontWeight.SemiBold,
+    headerColor: Colors.TextOnPrimary,
+    headerBackgroundColor: Colors.PrimaryDark,
+
     headerIconSize: 8,
     headerIconSpacing: 4,
+    headerIconColor: Colors.SecondaryDark,
+
     footerHeight: 32,
     footerFontWeight: FontWeight.SemiBold,
     footerFontSize: 13,
