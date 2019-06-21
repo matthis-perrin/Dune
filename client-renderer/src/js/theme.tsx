@@ -170,7 +170,7 @@ export const theme = {
     basePadding: 24,
     elementsBaseSmallFontSize: 12,
     elementsBaseMediumFontSize: 20,
-    elementsBaseLargeFontSize: 32,
+    elementsBaseLargeFontSize: 28,
   },
   perfo: {
     hoverBackgroundColor: '#eeeeee',

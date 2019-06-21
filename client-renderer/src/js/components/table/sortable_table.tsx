@@ -36,7 +36,6 @@ interface Props<T extends {ref: string}> {
   width: number;
   height: number;
   data: T[];
-  lastUpdate: number;
   // tslint:disable:no-any
   columns: ColumnMetadata<T, any>[];
   initialSort?: SortInfo;
@@ -76,10 +75,16 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
   }
 
   public componentDidUpdate(prevProps: Props<T>): void {
-    if (
-      prevProps.lastUpdate !== this.props.lastUpdate ||
-      prevProps.data.length !== this.props.data.length
-    ) {
+    let hasChanged = prevProps.data.length !== this.props.data.length;
+    if (!hasChanged) {
+      for (let i = 0; i < this.props.data.length; i++) {
+        if (this.props.data[i] !== prevProps.data[i]) {
+          hasChanged = true;
+          break;
+        }
+      }
+    }
+    if (hasChanged) {
       this.recomputeData(this.state.sort);
     }
   }

@@ -90,7 +90,9 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       for (const row of this.rows.values()) {
         row.rowIndex = undefined;
       }
-      nextProps.data.forEach((data, rowIndex) => this.rows.set(data.ref, {data, rowIndex}));
+      nextProps.data.forEach((data, rowIndex) =>
+        this.rows.set(data.ref, {data: {...data}, rowIndex})
+      );
     }
     return hasChanged || hasDataChanged;
   }

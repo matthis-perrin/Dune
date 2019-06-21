@@ -84,7 +84,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       STOCK_COLUMN(stocks),
       STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
     ];
-    console.log(bobineQuantities);
+
     return (
       <Picker<BobineFilleWithMultiPose>
         getHash={r => r.ref}
@@ -107,7 +107,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     width={availableWidth}
                     height={availableHeight}
                     data={elements}
-                    lastUpdate={Date.now()}
                     columns={columns}
                     initialSort={{
                       index: columns.length - 1,
