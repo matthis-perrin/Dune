@@ -1,9 +1,11 @@
+import {omit} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
+import {DivProps} from '@root/components/core/common';
 
-interface HorizontalCoteProps {
+interface HorizontalCoteProps extends DivProps {
   size: number; // Actual size of the cote
   pixelPerMM: number;
   fontSize: number;
@@ -40,7 +42,22 @@ export class HorizontalCote extends React.Component<HorizontalCoteProps> {
   }
 
   public render(): JSX.Element {
-    const {size, pixelPerMM, fontSize, arrowColor = 'black', textColor = 'black'} = this.props;
+    const {
+      size,
+      pixelPerMM,
+      fontSize,
+      arrowColor = 'black',
+      textColor = 'black',
+      style,
+    } = this.props;
+    const rest = omit(this.props, [
+      'size',
+      'pixelPerMM',
+      'fontSize',
+      'arrowColor',
+      'textColor',
+      'style',
+    ]);
     const width = size * pixelPerMM;
 
     let triangleBase = Math.max(
@@ -61,7 +78,7 @@ export class HorizontalCote extends React.Component<HorizontalCoteProps> {
     }
 
     return (
-      <CoteWrapper style={{width, color: textColor}}>
+      <CoteWrapper {...rest} style={{...style, width, color: textColor}}>
         <AutoFontWeight fontSize={fontSize}>{size}</AutoFontWeight>
         <ArrowWrapper>
           {this.renderTriangle(triangleBase, triangleHeight, arrowColor, true)}

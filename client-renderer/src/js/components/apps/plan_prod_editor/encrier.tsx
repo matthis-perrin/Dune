@@ -142,6 +142,7 @@ export class Encrier extends React.Component<EncrierProps> {
     const decalage =
       selectedRefente && selectedRefente.decalage ? (
         <HorizontalCote
+          style={this.props.style}
           key="decalage"
           fontSize={theme.refente.baseFontSize * pixelPerMM}
           size={selectedRefente.decalage}
