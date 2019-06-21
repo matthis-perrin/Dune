@@ -14,7 +14,7 @@ import {
   refentesStore,
   stocksStore,
 } from '@root/stores/list_store';
-import {theme} from '@root/theme';
+import {theme, FontWeight} from '@root/theme';
 
 import {
   BobineFille,
@@ -119,7 +119,7 @@ export class AdministrationPage extends React.Component<Props, State> {
 
     return (
       <Page>
-        <Title>GESCOM</Title>
+        <Title style={{marginTop: 0}}>GESCOM</Title>
         {this.renderListAppButton(
           'Bobines Filles',
           ClientAppType.ListBobinesFillesApp,
@@ -143,8 +143,6 @@ const AdminButton = styled(Button)`
 const Title = styled.div`
   color: ${theme.administration.titleColor};
   font-size: 24px;
-  padding-bottom: 16px;
-  width: 100%;
-  margin: 16px 0;
-  border-bottom: solid 1px ${theme.administration.titleColor};
+  font-weight: ${FontWeight.SemiLight};
+  margin: 32px 0 16px 0;
 `;

@@ -31,6 +31,4 @@ const PageWrapper = styled.div`
   background: ${theme.page.backgroundColor};
 `;
 
-const PageContent = styled.div`
-  height: 100%;
-`;
+const PageContent = styled.div``;

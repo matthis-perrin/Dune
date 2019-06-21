@@ -37,7 +37,7 @@ export const Colors = {
   TextOnSecondary: Palette.White,
 };
 
-const FontWeight = {
+export const FontWeight = {
   Light: 200,
   SemiLight: 300,
   Regular: 400,
@@ -100,6 +100,8 @@ export const theme = {
     logoBackgroundColor: Colors.SecondaryDark,
     logoColor: Colors.TextOnSecondary,
     itemHeight: 48,
+    itemFontWeight: FontWeight.SemiLight,
+    itemFontSize: 20,
     itemColor: Colors.TextOnPrimary,
     indicatorWidth: 4,
     indicatorHeight: 24,
@@ -108,11 +110,11 @@ export const theme = {
     selectedColor: Colors.SecondaryDark,
   },
   page: {
-    padding: 24,
+    padding: 50,
     backgroundColor: Colors.PrimaryLight,
   },
   administration: {
-    // titleColor: Palette.secondary,
+    titleColor: Colors.TextOnPrimary,
   },
   table: {
     padding: 8,
@@ -190,12 +192,12 @@ export const theme = {
   },
   button: {
     fontSize: 15,
-    fontWeight: FontWeight.SemiBold,
-    padding: '4px 8px',
-    // backgroundColor: Palette.primary,
-    // color: Palette.secondary,
+    fontWeight: FontWeight.Regular,
+    padding: '8px 16px',
+    defaultBackgroundColor: Colors.SecondaryDark,
+    defaultBackgroundColorHover: Colors.SecondaryLight,
+    color: Colors.TextOnPrimary,
     borderRadius: 3,
-    height: 32,
     disabledOpacity: 0.5,
   },
   modal: {
