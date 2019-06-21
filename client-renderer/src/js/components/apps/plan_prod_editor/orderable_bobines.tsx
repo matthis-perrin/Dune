@@ -248,7 +248,7 @@ export class OrderableBobines extends React.Component<
         dragEnd -
         dragStart -
         this.getOffsetSize() -
-        2 * theme.encrier.strokeWidth;
+        2 * theme.planProd.selectedStrokeWidth;
       draggedElement = (
         <div
           style={{

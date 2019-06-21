@@ -3,6 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {HorizontalCote} from '@root/components/common/cote';
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme, couleurByName, textColorByName} from '@root/theme';
@@ -19,10 +20,6 @@ interface EncrierProps extends DivProps {
   encrierColor: EncrierColor;
 }
 
-const ENCRIER_CONTENT_HEIGHT = 100;
-const ENCRIER_MARGIN = 20;
-export const ENCRIER_HEIGHT = ENCRIER_CONTENT_HEIGHT + ENCRIER_MARGIN;
-
 export class Encrier extends React.Component<EncrierProps> {
   public static displayName = 'Encrier';
 
@@ -31,7 +28,7 @@ export class Encrier extends React.Component<EncrierProps> {
     return (
       <EncrierEmptySpot
         key={`empty-spot-${index}`}
-        style={{width: size * pixelPerMM, height: ENCRIER_CONTENT_HEIGHT}}
+        style={{width: size * pixelPerMM, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
       />
     );
   }
@@ -42,16 +39,16 @@ export class Encrier extends React.Component<EncrierProps> {
     const size = selectedRefente
       ? getRefenteSize(selectedRefente) - (selectedRefente.chute || 0)
       : CAPACITE_MACHINE;
-    const elements: JSX.Element[] = [
+    return (
       <EmptyEncrier
         key={'empty-encrier'}
-        style={{width: size * pixelPerMM, height: ENCRIER_CONTENT_HEIGHT}}
+        style={{width: size * pixelPerMM, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
       >
-        Encrier vide
-      </EmptyEncrier>,
-    ];
-
-    return <React.Fragment>{elements}</React.Fragment>;
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
+          Encrier vide
+        </AutoFontWeight>
+      </EmptyEncrier>
+    );
   }
 
   private getRefClicheInEncrierForBobine(bobine: BobineFilleWithPose): string | undefined {
@@ -79,11 +76,15 @@ export class Encrier extends React.Component<EncrierProps> {
         key={`cliche-${refCliche}-${pose}-${index}`}
         style={{
           width: size * pixelPerMM,
-          height: ENCRIER_CONTENT_HEIGHT,
+          height: theme.planProd.elementsBaseHeight * pixelPerMM,
           backgroundColor: couleurByName(encrierColor.color),
           color: textColorByName(encrierColor.color),
         }}
-      >{`${refCliche} (${poseSize} poses)`}</EncrierClicheSpot>
+      >
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}>
+          {`${refCliche} (${poseSize} poses)`}
+        </AutoFontWeight>
+      </EncrierClicheSpot>
     );
   }
 
@@ -149,12 +150,12 @@ export class Encrier extends React.Component<EncrierProps> {
       );
     return (
       <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div style={{height: ENCRIER_MARGIN / 2}} />
+        <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
         <Container>
           <EncrierWrapper {...rest}>{content}</EncrierWrapper>
           {decalage}
         </Container>
-        <div style={{height: ENCRIER_MARGIN / 2}} />
+        <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
       </div>
     );
   }
@@ -163,7 +164,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-top: -1px;
+  margin-top: -${theme.planProd.selectedStrokeWidth}px;
   &:first-of-type {
     margin-top: 0;
   }
@@ -187,15 +188,15 @@ const EmptyEncrier = styled(EncrierContent)`
 `;
 
 const EncrierEmptySpot = styled(EncrierContent)`
-  border-left: solid 1px transparent;
-  border-right: solid 1px transparent;
+  border-left: solid ${theme.planProd.selectedStrokeWidth}px transparent;
+  border-right: solid ${theme.planProd.selectedStrokeWidth}px transparent;
   box-sizing: border-box;
-  margin-left: -1px;
+  margin-left: -${theme.planProd.selectedStrokeWidth}px;
 `;
 
 const EncrierClicheSpot = styled(EncrierContent)`
-  border-left: solid 1px black;
-  border-right: solid 1px black;
+  border-left: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
+  border-right: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
   box-sizing: border-box;
-  margin-left: -1px;
+  margin-left: -${theme.planProd.selectedStrokeWidth}px;
 `;

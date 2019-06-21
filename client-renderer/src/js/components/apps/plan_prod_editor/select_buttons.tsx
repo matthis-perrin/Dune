@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Bobine} from '@root/components/common/bobine';
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme';
@@ -24,8 +25,16 @@ class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
     const plural = selectable.length > 1 ? 's' : '';
 
     return (
-      <SelectButtonWrapper onClick={onClick} style={{width: CAPACITE_MACHINE * pixelPerMM}}>
-        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
+      <SelectButtonWrapper
+        style={{
+          width: CAPACITE_MACHINE * pixelPerMM,
+          height: theme.planProd.elementsBaseHeight * pixelPerMM,
+        }}
+        onClick={onClick}
+      >
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
+          {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
+        </AutoFontWeight>
       </SelectButtonWrapper>
     );
   }
@@ -35,12 +44,10 @@ const SelectButtonWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: ${theme.refente.height}px;
   box-sizing: border-box;
   border: dashed 2px ${theme.planProd.selectableBorderColor};
   color: ${theme.planProd.selectableTextColor};
   background-color: ${theme.planProd.contentBackgroundColor};
-  font-size: 24px;
   cursor: pointer;
   :hover {
     border: dashed ${theme.planProd.selectableStrokeWidth}px
@@ -71,9 +78,11 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
     return (
       <SelectBobineButtonWrapper
         onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp)}
-        style={{width}}
+        style={{width, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
       >
-        {content}
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
+          {content}
+        </AutoFontWeight>
       </SelectBobineButtonWrapper>
     );
   }
@@ -137,7 +146,6 @@ export class SelectBobineMereButton extends React.Component<
 
     return (
       <BobineMereWrapper
-        style={{cursor: 'pointer'}}
         pixelPerMM={pixelPerMM}
         size={size}
         decalage={decalage}
@@ -153,16 +161,17 @@ export class SelectBobineMereButton extends React.Component<
         strokeWidth={theme.planProd.selectableStrokeWidth}
         dashed
       >
-        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
+          {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
+        </AutoFontWeight>
       </BobineMereWrapper>
     );
   }
 }
 
 const BobineMereWrapper = styled(Bobine)`
-  color: ${theme.planProd.selectableTextColor};
-  font-size: 24px;
   cursor: pointer;
+  color: ${theme.planProd.selectableTextColor};
   :hover {
     color: ${theme.planProd.selectableHoverTextColor};
   }

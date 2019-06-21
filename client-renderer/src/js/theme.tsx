@@ -155,6 +155,7 @@ export const theme = {
     topBarDetailsFontSize: 14,
 
     contentBackgroundColor: Palette.White,
+    closeDefaultColor: Colors.Danger,
 
     selectableBorderColor: Colors.PrimaryDark,
     selectableHoverBorderColor: Colors.SecondaryDark,
@@ -162,9 +163,13 @@ export const theme = {
     selectableHoverTextColor: Colors.SecondaryDark,
     selectableStrokeWidth: 2,
 
-    selectedStrokeWidth: 1,
     selectedBorderColor: Colors.PrimaryDark,
-    closeDefaultColor: Colors.Danger,
+    selectedStrokeWidth: 1,
+
+    elementsBaseHeight: 100,
+    basePadding: 24,
+    elementsBaseSmallFontSize: 12,
+    elementsBaseLargeFontSize: 24,
   },
   perfo: {
     hoverBackgroundColor: '#eeeeee',

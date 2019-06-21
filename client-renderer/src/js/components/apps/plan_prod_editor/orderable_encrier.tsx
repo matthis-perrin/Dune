@@ -2,8 +2,9 @@ import {isEqual, range} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {Encrier, ENCRIER_HEIGHT} from '@root/components/apps/plan_prod_editor/encrier';
+import {Encrier} from '@root/components/apps/plan_prod_editor/encrier';
 import {DivProps} from '@root/components/core/common';
+import {theme} from '@root/theme';
 
 import {EncrierColor} from '@shared/lib/encrier';
 import {BobineFilleWithPose, Refente} from '@shared/models';
@@ -42,8 +43,13 @@ export class OrderableEncrier extends React.Component<
     return this.getEncrierIndexAtPos(dragStart);
   }
 
+  private getEncrierHeight(): number {
+    const {pixelPerMM} = this.props;
+    return (theme.planProd.elementsBaseHeight + theme.planProd.basePadding) * pixelPerMM;
+  }
+
   private getEncrierIndexAtPos(posY: number): number {
-    return Math.floor(posY / ENCRIER_HEIGHT);
+    return Math.floor(posY / this.getEncrierHeight());
   }
 
   private convertPosY(y: number): number {
@@ -129,7 +135,7 @@ export class OrderableEncrier extends React.Component<
     }
     const offsetInPx = dragEnd - dragStart;
     const offsetSign = offsetInPx > 0 ? 1 : -1;
-    const offsetInEncrier = Math.round((dragEnd - dragStart) / ENCRIER_HEIGHT);
+    const offsetInEncrier = Math.round((dragEnd - dragStart) / this.getEncrierHeight());
     const newIndex = Math.min(
       encrierOrder.length - 1,
       Math.max(0, draggedEncrierIndex + offsetInEncrier)
@@ -167,7 +173,7 @@ export class OrderableEncrier extends React.Component<
     let draggedElement = <React.Fragment />;
     if (dragStart !== undefined && dragEnd !== undefined && draggedEncrierIndex !== undefined) {
       const encrier = reversedEncrierColors[draggedEncrierIndex];
-      const topPos = draggedEncrierIndex * ENCRIER_HEIGHT + dragEnd - dragStart;
+      const topPos = draggedEncrierIndex * this.getEncrierHeight() + dragEnd - dragStart;
       draggedElement = (
         <div
           style={{

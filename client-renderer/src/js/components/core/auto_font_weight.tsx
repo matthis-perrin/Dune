@@ -2,6 +2,7 @@ import {omit} from 'lodash-es';
 import * as React from 'react';
 
 import {ReactProps} from '@root/components/core/common';
+import {FontWeight} from '@root/theme';
 
 interface AutoFontWeightProps
   extends ReactProps,
@@ -17,15 +18,18 @@ export class AutoFontWeight extends React.Component<AutoFontWeightProps> {
   private getFontWeight(fontSize: number): number {
     // tslint:disable:no-magic-numbers
     if (fontSize <= 10) {
-      return 700;
+      return FontWeight.Black;
     }
-    if (fontSize <= 16) {
-      return 600;
+    if (fontSize <= 12) {
+      return FontWeight.Bold;
     }
-    if (fontSize <= 28) {
-      return 400;
+    if (fontSize <= 21) {
+      return FontWeight.SemiBold;
     }
-    return 300;
+    if (fontSize <= 150) {
+      return FontWeight.Regular;
+    }
+    return FontWeight.SemiLight;
     // tslint:enable:no-magic-numbers
   }
 

@@ -137,9 +137,9 @@ export class Bobine extends React.Component<BobineProps> {
     const {size, pixelPerMM, decalage, children, style, faceDown, strokeWidth} = this.props;
     const decalageSize = (decalage || 0) * pixelPerMM;
     const width = (size || 0) * pixelPerMM;
-    const height = 100 * pixelPerMM;
+    const height = theme.planProd.elementsBaseHeight * (1 + SHEET_EXTRA_HEIGHT) * pixelPerMM;
     const offset = CAPACITE_MACHINE * CURVE_EXTRA_SPACE * pixelPerMM;
-    const sheetExtraHeight = height * SHEET_EXTRA_HEIGHT;
+    const sheetExtraHeight = theme.planProd.elementsBaseHeight * SHEET_EXTRA_HEIGHT * pixelPerMM;
 
     const restProps = omit(this.props, [
       'ref',

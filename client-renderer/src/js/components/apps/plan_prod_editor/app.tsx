@@ -1,4 +1,4 @@
-import {isEqual} from 'lodash-es';
+import {isEqual, range} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -14,6 +14,7 @@ import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
+import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
@@ -307,18 +308,23 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               />
             );
 
+            const padding = <div style={{height: theme.planProd.basePadding * pixelPerMM}} />;
+            const halfPadding = (
+              <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
+            );
+
             return (
               <Wrapper style={{width: availableWidth + leftPadding}}>
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
-                <Padding />
+                {padding}
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
-                <Padding />
+                {halfPadding}
                 <div style={{alignSelf: 'flex-end'}}>{encriersBlock}</div>
-                <Padding />
+                {halfPadding}
                 <div style={{alignSelf: 'flex-end'}}>{papierBlock}</div>
-                <Padding />
+                {padding}
                 <div style={{alignSelf: 'flex-start', paddingLeft: leftPadding}}>{perfoBlock}</div>
-                <Padding />
+                {padding}
                 <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
               </Wrapper>
             );
@@ -335,10 +341,6 @@ const PlanProdEditorContainer = styled.div`
   background-color: ${theme.planProd.contentBackgroundColor};
 `;
 
-const Padding = styled.div`
-  height: 24px;
-`;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -350,13 +352,4 @@ const Wrapper = styled.div`
 const ClosableAlignRight = styled(Closable)`
   display: flex;
   justify-content: flex-end;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-  height: 60px;
-  justify-content: center;
-  border-top: solid 2px black;
-  border-bottom: solid 2px black;
 `;
