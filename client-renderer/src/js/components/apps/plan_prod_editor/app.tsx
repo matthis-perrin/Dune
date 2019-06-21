@@ -21,7 +21,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, couleurByName, getColorInfoByName} from '@root/theme';
+import {theme, getColorInfoByName} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {EncrierColor} from '@shared/lib/encrier';
@@ -262,12 +262,17 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   size={selectedPapier.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
-                  color={couleurByName(selectedPapier.couleurPapier)}
+                  color={getColorInfoByName(selectedPapier.couleurPapier).hex}
                   strokeWidth={theme.planProd.selectedStrokeWidth}
                 >
-                  {`Bobine Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
-                    selectedPapier.laize
-                  } - ${selectedPapier.grammage}g`}
+                  <AutoFontWeight
+                    style={{color: getColorInfoByName(selectedPapier.couleurPapier).textHex}}
+                    fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
+                  >
+                    {`Bobine Papier ${selectedPapier.couleurPapier} ${
+                      selectedPapier.ref
+                    } - Largeur ${selectedPapier.laize} - ${selectedPapier.grammage}g`}
+                  </AutoFontWeight>
                 </Bobine>
               </Closable>
             ) : (
@@ -295,9 +300,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   color={getColorInfoByName(selectedPolypro.couleurPapier).hex}
                   strokeWidth={theme.planProd.selectedStrokeWidth}
                 >
-                  {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
-                    selectedPolypro.grammage
-                  }g`}
+                  <AutoFontWeight
+                    style={{color: getColorInfoByName(selectedPolypro.couleurPapier).textHex}}
+                    fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
+                  >
+                    {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
+                      selectedPolypro.grammage
+                    }g`}
+                  </AutoFontWeight>
                 </Bobine>
               </Closable>
             ) : (

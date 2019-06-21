@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import {Bague} from '@root/components/common/bague';
 import {Cale} from '@root/components/common/cale';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme';
 
 import {Perfo as PerfoModel} from '@shared/models';
 
@@ -21,14 +20,7 @@ export class Perfo extends React.Component<PerfoProps> {
     if (!cale) {
       return <React.Fragment />;
     }
-    return (
-      <Cale
-        pixelPerMM={pixelPerMM}
-        height={theme.cale.baseHeight}
-        size={cale}
-        leftBorder={isFirst}
-      />
-    );
+    return <Cale pixelPerMM={pixelPerMM} size={cale} leftBorder={isFirst} />;
   }
 
   private renderBague(bague?: number): JSX.Element {
@@ -36,7 +28,7 @@ export class Perfo extends React.Component<PerfoProps> {
     if (!bague) {
       return <React.Fragment />;
     }
-    return <Bague pixelPerMM={pixelPerMM} height={theme.bague.baseHeight} size={bague} />;
+    return <Bague pixelPerMM={pixelPerMM} size={bague} />;
   }
 
   public render(): JSX.Element {

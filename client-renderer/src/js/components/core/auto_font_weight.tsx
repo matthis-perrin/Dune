@@ -23,7 +23,7 @@ export class AutoFontWeight extends React.Component<AutoFontWeightProps> {
     if (fontSize <= 12) {
       return FontWeight.Bold;
     }
-    if (fontSize <= 21) {
+    if (fontSize <= 23) {
       return FontWeight.SemiBold;
     }
     if (fontSize <= 150) {

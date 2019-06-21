@@ -67,9 +67,13 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             strokeWidth={1}
             faceDown
           >
-            <AutoFontWeight fontSize={12 * pixelPerMM} style={{userSelect: 'none'}}>
+            <AutoFontWeight
+              fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}
+              style={{userSelect: 'none'}}
+            >
               <BobineDescription style={{color: textColor}}>
                 <RefLink
+                  style={{width: size * pixelPerMM}}
                   color={textColor}
                   noIcon
                   onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}

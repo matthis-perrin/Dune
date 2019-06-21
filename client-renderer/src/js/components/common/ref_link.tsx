@@ -34,6 +34,9 @@ export class RefLink extends React.Component<RefLinkProps> {
 
 const RefLinkText = styled.div`
   margin-right: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const RefLinkIcon = styled(SVGIcon)`
@@ -43,6 +46,7 @@ const RefLinkIcon = styled(SVGIcon)`
 const RefLinkWrapper = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   &:hover {
     text-decoration: underline;

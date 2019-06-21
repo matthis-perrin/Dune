@@ -55,11 +55,13 @@ export class Refente extends React.Component<RefenteProps> {
     }
     return (
       <Laize
-        fontSize={theme.refente.baseFontSize * pixelPerMM}
+        fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
         style={{
           width: laize * pixelPerMM,
-          height: theme.refente.height * pixelPerMM,
-          borderLeft: `solid ${leftBorder ? 1 : 0}px ${theme.refente.borderColor}`,
+          height: theme.planProd.elementsBaseHeight * pixelPerMM,
+          borderLeft: `solid ${leftBorder ? theme.planProd.selectedStrokeWidth : 0}px ${
+            theme.planProd.selectedBorderColor
+          }`,
         }}
       >
         {laize}
@@ -97,7 +99,7 @@ const Laize = styled(AutoFontWeight)`
   justify-content: center;
   box-sizing: border-box;
   background-color: ${theme.refente.backgroundColor};
-  border: solid 1px ${theme.refente.borderColor};
+  border: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
 `;
 
 const Chute = styled.div`
@@ -115,7 +117,7 @@ const Chute = styled.div`
     ${theme.refente.chuteBackgroundColor}
       ${theme.refente.chuteStripeSpacing + 1 + theme.refente.chuteStripeSize + 1}px
   );
-  border: solid 1px ${theme.refente.borderColor};
+  border: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
 `;
 
 const ChuteInner = styled(AutoFontWeight)`

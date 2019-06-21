@@ -169,23 +169,19 @@ export const theme = {
     elementsBaseHeight: 100,
     basePadding: 24,
     elementsBaseSmallFontSize: 12,
-    elementsBaseLargeFontSize: 24,
+    elementsBaseMediumFontSize: 20,
+    elementsBaseLargeFontSize: 32,
   },
   perfo: {
     hoverBackgroundColor: '#eeeeee',
   },
   bague: {
-    // borderColor: Palette.black,
+    borderColor: Palette.Black,
     backgroundColor: '#DDD9C3',
-    baseFontSize: 15,
-    baseTriangleHeight: 6,
-    baseHeight: 50,
   },
   cale: {
-    // borderColor: Palette.black,
-    backgroundColor: '#F2F2F2',
-    baseFontSize: 15,
-    baseHeight: 30,
+    borderColor: Palette.Black,
+    backgroundColor: Palette.Clouds,
   },
   refente: {
     height: 100,

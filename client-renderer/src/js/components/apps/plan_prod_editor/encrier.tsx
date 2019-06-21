@@ -81,8 +81,10 @@ export class Encrier extends React.Component<EncrierProps> {
           color: textColorByName(encrierColor.color),
         }}
       >
-        <AutoFontWeight fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}>
-          {`${refCliche} (${poseSize} poses)`}
+        <AutoFontWeight fontSize={theme.planProd.elementsBaseMediumFontSize * pixelPerMM}>
+          {refCliche}
+          <br />
+          {`${poseSize} poses`}
         </AutoFontWeight>
       </EncrierClicheSpot>
     );
@@ -195,6 +197,7 @@ const EncrierEmptySpot = styled(EncrierContent)`
 `;
 
 const EncrierClicheSpot = styled(EncrierContent)`
+  text-align: center;
   border-left: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
   border-right: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
   box-sizing: border-box;
