@@ -2,10 +2,11 @@ import {range} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {CURVE_EXTRA_SPACE, BOBINE_STROKE_WIDTH} from '@root/components/common/bobine';
+import {CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {BobineWithPose} from '@root/components/common/bobine_with_pose';
 import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {getRefenteLaizes} from '@shared/lib/refentes';
@@ -247,7 +248,7 @@ export class OrderableBobines extends React.Component<
         dragEnd -
         dragStart -
         this.getOffsetSize() -
-        2 * BOBINE_STROKE_WIDTH;
+        2 * theme.encrier.strokeWidth;
       draggedElement = (
         <div
           style={{

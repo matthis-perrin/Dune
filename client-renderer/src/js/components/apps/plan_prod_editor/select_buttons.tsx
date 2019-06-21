@@ -39,11 +39,12 @@ const SelectButtonWrapper = styled.div`
   box-sizing: border-box;
   border: dashed 2px ${theme.planProd.selectableBorderColor};
   color: ${theme.planProd.selectableTextColor};
-  background-color: ${theme.planProd.selectableBackgroundColor};
+  background-color: ${theme.planProd.contentBackgroundColor};
   font-size: 24px;
   cursor: pointer;
   :hover {
-    border: dashed 2px ${theme.planProd.selectableHoverBorderColor};
+    border: dashed ${theme.planProd.selectableStrokeWidth}px
+      ${theme.planProd.selectableHoverBorderColor};
     color: ${theme.planProd.selectableHoverTextColor};
   }
 `;
@@ -148,6 +149,8 @@ export class SelectBobineMereButton extends React.Component<
             ? theme.planProd.selectableHoverBorderColor
             : theme.planProd.selectableBorderColor
         }
+        color={theme.planProd.contentBackgroundColor}
+        strokeWidth={theme.planProd.selectableStrokeWidth}
         dashed
       >
         {`Sélectionner ${title} (${selectable.length} compatible${plural})`}

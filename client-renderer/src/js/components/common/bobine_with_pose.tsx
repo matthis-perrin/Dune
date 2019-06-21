@@ -2,14 +2,14 @@ import {range, omit} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {Bobine, CURVE_EXTRA_SPACE, BOBINE_STROKE_WIDTH} from '@root/components/common/bobine';
+import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {RefLink} from '@root/components/common/ref_link';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme';
+import {couleurByName, textColorByName, getColorInfoByName, theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
@@ -38,9 +38,9 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     // In order to have overlapping bobines we need make them slightly larger (by the size of the
     // bobine stroke width) and have a negative margin of that size. But since the size is expressed
     // in mm, we need to convert it before substracting.
-    const size = initialSize + BOBINE_STROKE_WIDTH / pixelPerMM;
+    const size = initialSize + theme.planProd.selectedStrokeWidth / pixelPerMM;
     const curveOffset = pixelPerMM * CAPACITE_MACHINE * CURVE_EXTRA_SPACE * 2;
-    const offset = curveOffset + BOBINE_STROKE_WIDTH * 2;
+    const offset = curveOffset + theme.planProd.selectedStrokeWidth * 2;
 
     const rest = omit(this.props, ['pixelPerMM', 'bobine', 'negativeMargin', 'style']);
     const style: React.CSSProperties = {
@@ -64,6 +64,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
             pixelPerMM={pixelPerMM}
             size={size}
             color={color}
+            strokeWidth={1}
             faceDown
           >
             <AutoFontWeight fontSize={12 * pixelPerMM} style={{userSelect: 'none'}}>

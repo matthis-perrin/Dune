@@ -15,11 +15,11 @@ interface BobineProps extends DivProps {
   color?: string;
   dashed?: boolean;
   faceDown?: boolean;
+  strokeWidth: number;
 }
 
 export const CURVE_EXTRA_SPACE = 0.005;
 export const SHEET_EXTRA_HEIGHT = 0.2;
-export const BOBINE_STROKE_WIDTH = 1;
 
 export class Bobine extends React.Component<BobineProps> {
   public static displayName = 'Bobine';
@@ -45,13 +45,14 @@ export class Bobine extends React.Component<BobineProps> {
     height: number,
     curveOffset: number,
     sheetExtraHeight: number,
+    strokeWidth: number,
     faceDown?: boolean
   ): JSX.Element {
     const {color = 'white', borderColor = 'black', dashed = false} = this.props;
-    const workingWidth = width - BOBINE_STROKE_WIDTH;
-    const workingHeight = height - BOBINE_STROKE_WIDTH - sheetExtraHeight;
-    const halfStrokeWidth = BOBINE_STROKE_WIDTH / 2;
-    const strokeDasharray = dashed ? `${BOBINE_STROKE_WIDTH * 2} ${BOBINE_STROKE_WIDTH * 3}` : '0';
+    const workingWidth = width - strokeWidth;
+    const workingHeight = height - strokeWidth - sheetExtraHeight;
+    const halfStrokeWidth = strokeWidth / 2;
+    const strokeDasharray = dashed ? `${strokeWidth * 2} ${strokeWidth * 3}` : '0';
 
     const leftBottom = [
       halfStrokeWidth + curveOffset,
@@ -110,7 +111,7 @@ export class Bobine extends React.Component<BobineProps> {
     const commonDrawingProps = {
       fill: color,
       stroke: borderColor,
-      strokeWidth: BOBINE_STROKE_WIDTH,
+      strokeWidth,
       strokeDasharray,
       strokeLinecap: 'square' as 'square',
     };
@@ -133,7 +134,7 @@ export class Bobine extends React.Component<BobineProps> {
   }
 
   public render(): JSX.Element {
-    const {size, pixelPerMM, decalage, children, style, faceDown} = this.props;
+    const {size, pixelPerMM, decalage, children, style, faceDown, strokeWidth} = this.props;
     const decalageSize = (decalage || 0) * pixelPerMM;
     const width = (size || 0) * pixelPerMM;
     const height = 100 * pixelPerMM;
@@ -157,13 +158,13 @@ export class Bobine extends React.Component<BobineProps> {
         {...restProps}
         style={{
           ...style,
-          width: width + decalageSize + 2 * offset + BOBINE_STROKE_WIDTH,
+          width: width + decalageSize + 2 * offset + strokeWidth,
           height,
-          left: BOBINE_STROKE_WIDTH,
+          left: strokeWidth,
         }}
       >
-        {this.draw(width, height, offset, sheetExtraHeight, faceDown)}
-        <div style={{marginRight: BOBINE_STROKE_WIDTH}}>{this.renderDecalage(-2, decalage)}</div>
+        {this.draw(width, height, offset, sheetExtraHeight, strokeWidth, faceDown)}
+        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-2, decalage)}</div>
         <ChildrenWrapper
           style={{
             width,

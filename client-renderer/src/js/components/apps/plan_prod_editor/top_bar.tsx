@@ -49,6 +49,7 @@ const TopBarWrapper = styled.div`
   background-color: ${theme.planProd.topBarBackgroundColor};
   color: ${theme.planProd.topBarTextColor}
   padding: 0 32px;
+  z-index: 100;
 `;
 
 const ContainerBase = styled.div`
@@ -76,7 +77,7 @@ const CenterContainer = styled(ContainerBase)`
 const TopBarTitle = styled.div`
   color: ${theme.planProd.topBarTitleColor};
   font-size: ${theme.planProd.topBarTitleFontSize}px;
-  font-size: ${theme.planProd.topBarTitleFontWeight};
+  font-weight: ${theme.planProd.topBarTitleFontWeight};
 `;
 
 const TopBarInput = styled(Input)`

@@ -171,8 +171,7 @@ const Container = styled.div`
 
 const EncrierWrapper = styled.div`
   display: flex;
-  background-color: white;
-  border: solid 1px black;
+  border: solid ${theme.planProd.selectedStrokeWidth}px ${theme.planProd.selectedBorderColor};
   box-sizing: border-box;
 `;
 
@@ -184,6 +183,7 @@ const EncrierContent = styled.div`
 
 const EmptyEncrier = styled(EncrierContent)`
   font-style: italic;
+  color: ${theme.planProd.selectedBorderColor};
 `;
 
 const EncrierEmptySpot = styled(EncrierContent)`

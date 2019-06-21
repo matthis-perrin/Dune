@@ -262,6 +262,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
                   color={couleurByName(selectedPapier.couleurPapier)}
+                  strokeWidth={theme.planProd.selectedStrokeWidth}
                 >
                   {`Bobine Papier ${selectedPapier.couleurPapier} ${selectedPapier.ref} - Largeur ${
                     selectedPapier.laize
@@ -291,6 +292,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
                   color={getColorInfoByName(selectedPolypro.couleurPapier).hex}
+                  strokeWidth={theme.planProd.selectedStrokeWidth}
                 >
                   {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
                     selectedPolypro.grammage

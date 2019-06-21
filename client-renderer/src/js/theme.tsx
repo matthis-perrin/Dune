@@ -1,3 +1,5 @@
+import {Color} from 'plottable/build/src/utils';
+
 export const Palette = {
   Turquoise: '#1ABC9C',
   GreenSea: '#16A085',
@@ -21,6 +23,7 @@ export const Palette = {
   Asbestos: '#7F8C8D',
   White: '#FFFFFF',
   Black: '#000000',
+  Transparent: 'transparent',
 };
 
 export const Colors = {
@@ -150,12 +153,17 @@ export const theme = {
     topBarTitleFontSize: 24,
     topBarTitleFontWeight: 400,
     topBarDetailsFontSize: 14,
-    contentBackgroundColor: Colors.PrimaryLight,
-    selectableBorderColor: '#888',
-    selectableHoverBorderColor: '#333',
-    selectableTextColor: '#555',
-    selectableHoverTextColor: '#111',
-    selectableBackgroundColor: '#fff',
+
+    contentBackgroundColor: Palette.White,
+
+    selectableBorderColor: Colors.PrimaryDark,
+    selectableHoverBorderColor: Colors.SecondaryDark,
+    selectableTextColor: Colors.PrimaryDark,
+    selectableHoverTextColor: Colors.SecondaryDark,
+    selectableStrokeWidth: 2,
+
+    selectedStrokeWidth: 1,
+    selectedBorderColor: Colors.PrimaryDark,
     closeDefaultColor: Colors.Danger,
   },
   perfo: {

@@ -200,10 +200,10 @@ export class OrderableEncrier extends React.Component<
           onMouseUp={(event: React.MouseEvent) => this.handleMouseUp(event)}
           onMouseLeave={(event: React.MouseEvent) => this.handleMouseLeave(event)}
         >
-          {orderedEncriers.map(encrierColor => {
+          {orderedEncriers.map((encrierColor, index) => {
             return (
               <Encrier
-                key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
+                key={index}
                 style={{
                   visibility:
                     dragStart !== undefined &&
