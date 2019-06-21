@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import {Input} from '@root/components/core/input';
 import {ColumnMetadata, SortableTable, SortInfo} from '@root/components/table/sortable_table';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 export interface TableFilter<T> {
   title: string;

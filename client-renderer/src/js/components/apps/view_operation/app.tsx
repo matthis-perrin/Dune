@@ -6,6 +6,7 @@ import {OperationForm} from '@root/components/apps/view_operation/operation_form
 import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
 import {operationsStore} from '@root/stores/list_store';
+import {theme} from '@root/theme';
 
 import {Operation, OperationConstraint} from '@shared/models';
 
@@ -162,5 +163,5 @@ const App = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: #eee;
+  background-color: ${theme.operation.backgroundColor};
 `;

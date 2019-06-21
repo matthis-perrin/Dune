@@ -2,7 +2,7 @@ import {without, isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 type FilterFn<T> = (row: T, filterEnabled: boolean) => boolean;
 

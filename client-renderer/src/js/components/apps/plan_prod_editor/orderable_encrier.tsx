@@ -203,6 +203,7 @@ export class OrderableEncrier extends React.Component<
           {orderedEncriers.map(encrierColor => {
             return (
               <Encrier
+                key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
                 style={{
                   visibility:
                     dragStart !== undefined &&

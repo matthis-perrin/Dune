@@ -19,7 +19,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, couleurByName, getColorInfoByName} from '@root/theme/default';
+import {theme, couleurByName, getColorInfoByName} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {EncrierColor} from '@shared/lib/encrier';
@@ -229,7 +229,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const refenteBlock = selectedRefente ? (
-              <ClosableAlignRight color={'#e74c3c'} onClose={this.removeRefente}>
+              <ClosableAlignRight
+                color={theme.planProd.closeDefaultColor}
+                onClose={this.removeRefente}
+              >
                 <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
               </ClosableAlignRight>
             ) : (
@@ -272,7 +275,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const perfoBlock = selectedPerfo ? (
-              <Closable color={'#e74c3c'} onClose={this.removePerfo}>
+              <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePerfo}>
                 <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
               </Closable>
             ) : (
@@ -280,12 +283,12 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const polyproBlock = selectedPolypro ? (
-              <Closable color={'#e74c3c'} onClose={this.removePolypro}>
+              <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePolypro}>
                 <Bobine
                   size={selectedPolypro.laize || 0}
                   pixelPerMM={pixelPerMM}
                   decalage={selectedRefente && selectedRefente.decalage}
-                  color="#f0f0f0"
+                  color={getColorInfoByName(selectedPolypro.couleurPapier).hex}
                 >
                   {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
                     selectedPolypro.grammage
@@ -331,7 +334,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: ${theme.page.padding}px;
-  background-color: #dedede;
+  background-color: ${theme.page.backgroundColor};
   border-bottom: solid 2px black;
 `;
 

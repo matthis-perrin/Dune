@@ -3,7 +3,7 @@ import * as React from 'react';
 import {ColumnHeader, ColumnSortMode} from '@root/components/table/column';
 import {FilterState} from '@root/components/table/column_filters';
 import {FastTable} from '@root/components/table/fast_table';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 // tslint:disable-next-line:no-null-keyword
 // const DONT_UPDATE_STATE = null;
@@ -22,7 +22,7 @@ export interface ColumnMetadata<T, U> {
   sortFunction?: SortFunction<T>;
   width?: number;
   filter?: ColumnFilter<T, U>;
-  renderCell(element: T): JSX.Element | string;
+  renderCell(element: T): JSX.Element;
   getSearchValue?(element: T): string;
   shouldRerender(prev: T, next: T): boolean;
 }

@@ -9,7 +9,7 @@ import {
   FilterStateData,
 } from '@root/components/table/column_filters';
 import {ColumnFilter} from '@root/components/table/sortable_table';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 const {filterIconOpacity, filterIconHoverOpacity, filterIconSelectedOpacity} = theme.table;
 

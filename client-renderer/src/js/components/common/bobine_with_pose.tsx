@@ -9,7 +9,7 @@ import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme/default';
+import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';

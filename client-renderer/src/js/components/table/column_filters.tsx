@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ColumnFilter} from '@root/components/table/sortable_table';
+import {Colors} from '@root/theme';
 
 // tslint:disable-next-line:no-any
 export type FilterStateData = any;
@@ -230,7 +231,7 @@ const FilterLabel = styled.label`
 
 const CheckboxSeparator = styled.div`
   height: 1px;
-  background-color: #aaa;
+  background-color: ${Colors.secondaryDark};
   margin: 8px 0;
 `;
 

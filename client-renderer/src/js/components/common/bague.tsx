@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface BagueProps {
   size: number; // Actual size of the physical bague

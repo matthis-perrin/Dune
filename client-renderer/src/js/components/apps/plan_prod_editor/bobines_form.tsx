@@ -6,7 +6,7 @@ import {BobineWithPose} from '@root/components/common/bobine_with_pose';
 import {HorizontalCote} from '@root/components/common/cote';
 import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {firstBobinePlacementAvailableOnRefente} from '@shared/lib/refentes';

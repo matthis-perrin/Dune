@@ -3,7 +3,7 @@ import * as React from 'react';
 import {GridChildComponentProps, VariableSizeGrid} from 'react-window';
 import styled from 'styled-components';
 
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface Props {
   width: number;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {FilterableTable} from '@root/components/table/filterable_table';
 import {ColumnMetadata, SortInfo} from '@root/components/table/sortable_table';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface Props<T extends {sommeil: boolean; ref: string}> {
   data: T[];

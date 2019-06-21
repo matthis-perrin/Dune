@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Input} from '@root/components/core/input';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface EditableTextfieldProps {
   value: string;

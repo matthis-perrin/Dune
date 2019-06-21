@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {BOBINES_QUANTITIES_TABLE_NAME} from '@shared/db/table_names';
 import {BobineQuantities} from '@shared/models';
-import {asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber} from '@shared/type_utils';
 
 export const BobinesQuantitiesColumns = {
   SOLD_MIN: 'sold_min',

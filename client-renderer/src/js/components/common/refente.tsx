@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {HorizontalCote} from '@root/components/common/cote';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {Refente as RefenteModel} from '@shared/models';
 

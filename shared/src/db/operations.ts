@@ -5,7 +5,7 @@ import {Operation, OperationConstraint} from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export const OperationsColumn = {
-  ID_COLUMN: 'id',
+  REF_COLUMN: 'ref',
   DESCRIPTION_COLUMN: 'description',
   REQUIRED_COLUMN: 'required',
   CONSTRAINT_COLUMN: 'constraint',
@@ -18,7 +18,7 @@ export async function createOperationsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(OPERATIONS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(OPERATIONS_TABLE_NAME, table => {
-      table.increments(OperationsColumn.ID_COLUMN);
+      table.increments(OperationsColumn.REF_COLUMN);
       table.string(OperationsColumn.DESCRIPTION_COLUMN);
       table.boolean(OperationsColumn.REQUIRED_COLUMN);
       table.string(OperationsColumn.CONSTRAINT_COLUMN);
@@ -33,7 +33,7 @@ export async function createOperationsTable(db: knex): Promise<void> {
 function rowToOperation(operationLine: any): Operation {
   const o = asMap(operationLine);
   return {
-    id: asNumber(o[OperationsColumn.ID_COLUMN], 0),
+    ref: asString(o[OperationsColumn.REF_COLUMN], ''),
     description: asString(o[OperationsColumn.DESCRIPTION_COLUMN], ''),
     required: asBoolean(o[OperationsColumn.REQUIRED_COLUMN]),
     constraint: asString(
@@ -48,11 +48,11 @@ function rowToOperation(operationLine: any): Operation {
 
 export async function createOrUpdateOperation(db: knex, operation: Operation): Promise<Operation> {
   const localUpdate = new Date();
-  const id = operation.id;
-  if (id === -1) {
+  const ref = operation.ref;
+  if (ref === '-1') {
     // Creation mode
     const operationFields = {...operation};
-    delete operationFields.id;
+    delete operationFields.ref;
     delete operationFields.localUpdate;
     return rowToOperation(
       await db(OPERATIONS_TABLE_NAME).insert({...operationFields, localUpdate})
@@ -63,7 +63,7 @@ export async function createOrUpdateOperation(db: knex, operation: Operation): P
     operationFields.localUpdate = new Date().getTime();
     return rowToOperation(
       await db(OPERATIONS_TABLE_NAME)
-        .where('id', operationFields.id)
+        .where(OperationsColumn.REF_COLUMN, operationFields.ref)
         .update(operationFields)
     );
   }

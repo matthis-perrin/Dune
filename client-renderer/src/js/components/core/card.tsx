@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const CardBase = styled.div`
-  background: #fff;
+  background: white;
   border-radius: 2px;
 `;
 

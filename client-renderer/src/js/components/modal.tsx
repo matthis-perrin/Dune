@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {appStore, ModalModel} from '@root/stores/app_store';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface Props {}
 

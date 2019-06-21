@@ -3,7 +3,6 @@ import {
   bobinesFillesStore,
   bobinesMeresStore,
   clichesStore,
-  ListStore,
   perfosStore,
   refentesStore,
   stocksStore,

@@ -14,7 +14,7 @@ import {
   refentesStore,
   stocksStore,
 } from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {
   BobineFille,
@@ -146,5 +146,5 @@ const Title = styled.div`
   padding-bottom: 16px;
   width: 100%;
   margin: 16px 0;
-  border-bottom: solid 1px #bbb;
+  border-bottom: solid 1px ${theme.administration.titleColor};
 `;

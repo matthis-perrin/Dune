@@ -13,15 +13,15 @@ export function getBobineSellingPastYear(cadencier?: Map<number, number>): numbe
   if (!cadencier) {
     return 0;
   }
-  let sum = 0;
+  let total = 0;
   const lastYear = getLastYear();
   const lastMonth = getLastMonth();
   cadencier.forEach((count, date) => {
     if (date > lastYear && date <= lastMonth) {
-      sum += count;
+      total += count;
     }
   });
-  return sum;
+  return total;
 }
 
 function getDistanceToQuantityRange(value: number, quantity: BobineQuantities): number {

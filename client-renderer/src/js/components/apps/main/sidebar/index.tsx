@@ -6,7 +6,7 @@ import {FlexParent} from '@root/components/core/flex';
 import {Image} from '@root/components/core/image';
 import {SVGIconName} from '@root/components/core/svg_icon';
 import {AppPage, appStore} from '@root/stores/app_store';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface Props {}
 
@@ -54,12 +54,7 @@ export class Sidebar extends React.Component<Props, State> {
     const pageIndex = SidebarPages.indexOf(currentPage) || 0;
     return (
       <SidebarContainer>
-        <Image
-          src="./images/logo.png"
-          width={theme.sidebar.logoSize}
-          height={theme.sidebar.logoSize}
-          margin={'0 0 30px 11px'}
-        />
+        <SidebarTitle>DUNE</SidebarTitle>
         <FlexParent alignItems="stretch">
           <SidebarSelectedIndicator index={pageIndex} />
           <SidebarItemContainer flexDirection="column">
@@ -104,6 +99,20 @@ const SidebarContainer = styled.div`
   bottom: 0;
   width: ${theme.sidebar.width}px;
   padding: ${sidebarPadding}px 0 0 ${sidebarPadding}px;
+  box-sizing: border-box;
   -webkit-app-region: drag;
   background-color: ${theme.sidebar.backgroundColor};
+`;
+
+const SidebarTitle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${theme.sidebar.logoSize}px;
+  height: ${theme.sidebar.logoSize}px;
+  box-sizing: border-box;
+  font-size: 48px;
+  margin-bottom: ${sidebarPadding}px;
+  background-color: ${theme.sidebar.logoBackgroundColor};
+  color: ${theme.sidebar.logoColor};
 `;

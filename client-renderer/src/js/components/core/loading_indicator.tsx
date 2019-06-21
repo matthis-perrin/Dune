@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled, {keyframes} from 'styled-components';
 
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 type LoadingIndicatorSize = 'large' | 'medium' | 'small';
 

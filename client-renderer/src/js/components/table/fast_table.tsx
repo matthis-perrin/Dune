@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface FastTableProps<T extends {ref: string}> {
   width: number;
@@ -14,6 +14,7 @@ interface FastTableProps<T extends {ref: string}> {
   rowHeight: number;
   renderColumn(index: number): JSX.Element;
   style?: React.CSSProperties;
+  // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
   rowStyles?(element: T): React.CSSProperties;
   data: T[];
@@ -29,7 +30,9 @@ const getStringHash = memoize(
     }
     for (let i = 0; i < l; i++) {
       const char = value.charCodeAt(i);
+      // tslint:disable-next-line:no-bitwise
       hash = (hash << 5) - hash + char;
+      // tslint:disable-next-line:no-bitwise
       hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
@@ -137,10 +140,11 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                   styles.top = rowIndex * rowHeight;
                   styles.visibility = 'visible';
                 }
+                const rowStylesData = rowStyles ? rowStyles(data) : {};
                 return (
                   <RowContainer
                     key={ref}
-                    style={{...styles, ...rowStyles(data)}}
+                    style={{...styles, ...rowStylesData}}
                     onClick={this.getRowClickHandlerForRef(ref)}
                   >
                     <FastTableRow
@@ -180,6 +184,7 @@ const Table = styled.div`
 `;
 
 interface FastTableRowProps<T extends {ref: string}> {
+  // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
   columnWidths: number[];
   data: T;
@@ -222,8 +227,8 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
     return true;
   }
 
-  public render() {
-    const {columns, data, columnWidths, isVisible} = this.props;
+  public render(): JSX.Element {
+    const {columns, data, columnWidths} = this.props;
     return (
       <React.Fragment>
         {range(columns.length).map(columnIndex => {
@@ -259,6 +264,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
 }
 
 interface FastTableCellProps<T extends {ref: string}> {
+  // tslint:disable-next-line:no-any
   column: ColumnMetadata<T, any>;
   data: T;
 }
@@ -268,7 +274,7 @@ export class FastTableCell<T extends {ref: string}> extends React.Component<Fast
     return this.props.column.shouldRerender(this.props.data, nextProps.data);
   }
 
-  public render() {
+  public render(): JSX.Element {
     const {column, data} = this.props;
     return column.renderCell(data);
   }

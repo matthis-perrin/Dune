@@ -7,7 +7,7 @@ import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
-import {couleurByName} from '@root/theme/default';
+import {couleurByName, theme} from '@root/theme';
 
 import {CadencierType, aggregateByMonth, createMonthsRange} from '@shared/lib/cadencier';
 import {MONTHS_STRING} from '@shared/lib/time';
@@ -84,7 +84,7 @@ export class BobineCadencierChart extends React.Component<
     emptyElement.style.display = mode === DisplayMode.EMPTY ? 'block' : 'none';
   }
 
-  private loadBobine(bobine: BobineFille) {
+  private loadBobine(bobine: BobineFille): void {
     this.setDisplayMode(DisplayMode.LOADING);
 
     const {ref} = bobine;
@@ -132,7 +132,7 @@ export class BobineCadencierChart extends React.Component<
     const color = bobine.couleurPapier;
     const barColor =
       color === undefined || ['BLANC', 'IVOIRE'].indexOf(color) !== -1
-        ? '#ddd'
+        ? theme.cadencier.whiteBobineBarColor
         : couleurByName(color);
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
@@ -154,7 +154,7 @@ export class BobineCadencierChart extends React.Component<
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
 
     // Final Plot
-    this.plot = new Plottable.Components.Table([[yAxis, bars], [null, xAxis]]);
+    this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
 
     // Tooltips
     createChartTooltip<VenteDatum>(bars, 300, datum => {

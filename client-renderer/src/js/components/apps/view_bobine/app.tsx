@@ -9,12 +9,11 @@ import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {getStock} from '@root/lib/bobine';
-import {bridge} from '@root/lib/bridge';
 import {bobinesFillesStore, clichesStore, stocksStore} from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
-import {BobineFille, Cliche, Stock, Vente} from '@shared/models';
+import {BobineFille, Cliche, Stock} from '@shared/models';
 
 interface Props {
   bobineRef: string;

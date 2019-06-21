@@ -4,10 +4,49 @@ import styled from 'styled-components';
 import {Bobine} from '@root/components/common/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {getRefenteSize} from '@shared/lib/refentes';
 import {Refente, ClientAppType, Perfo, BobineMere, BobineFilleWithMultiPose} from '@shared/models';
+
+interface SelectButtonProps<T> {
+  title: string;
+  selectable: T[];
+  onClick(): void;
+  pixelPerMM: number;
+}
+
+class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
+  public static displayName = 'SelectButton';
+
+  public render(): JSX.Element {
+    const {selectable, onClick, title, pixelPerMM} = this.props;
+    const plural = selectable.length > 1 ? 's' : '';
+
+    return (
+      <SelectButtonWrapper onClick={onClick} style={{width: CAPACITE_MACHINE * pixelPerMM}}>
+        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
+      </SelectButtonWrapper>
+    );
+  }
+}
+
+const SelectButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: ${theme.refente.height}px;
+  box-sizing: border-box;
+  border: dashed 2px ${theme.planProd.selectableBorderColor};
+  color: ${theme.planProd.selectableTextColor};
+  background-color: ${theme.planProd.selectableBackgroundColor};
+  font-size: 24px;
+  cursor: pointer;
+  :hover {
+    border: dashed 2px ${theme.planProd.selectableHoverBorderColor};
+    color: ${theme.planProd.selectableHoverTextColor};
+  }
+`;
 
 interface SelectBobineButtonProps {
   selectable: BobineFilleWithMultiPose[];
@@ -39,61 +78,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
   }
 }
 
-const SelectBobineButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: ${theme.refente.height}px;
-  box-sizing: border-box;
-  border: dashed 2px #888;
-  color: #555;
-  background-color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  :hover {
-    border: dashed 2px #333;
-    color: #111;
-  }
-`;
-
-interface SelectButtonProps<T> {
-  title: string;
-  selectable: T[];
-  onClick(): void;
-  pixelPerMM: number;
-}
-
-class SelectButton<T> extends React.Component<SelectButtonProps<T>> {
-  public static displayName = 'SelectButton';
-
-  public render(): JSX.Element {
-    const {selectable, onClick, title, pixelPerMM} = this.props;
-    const plural = selectable.length > 1 ? 's' : '';
-
-    return (
-      <SelectButtonWrapper onClick={onClick} style={{width: CAPACITE_MACHINE * pixelPerMM}}>
-        {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
-      </SelectButtonWrapper>
-    );
-  }
-}
-
-const SelectButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: ${theme.refente.height}px;
-  box-sizing: border-box;
-  border: dashed 2px #888;
-  color: #555;
-  background-color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  :hover {
-    border: dashed 2px #333;
-    color: #111;
-  }
-`;
+const SelectBobineButtonWrapper = styled(SelectButtonWrapper)``;
 
 interface SelectRefenteProps {
   selectable: Refente[];
@@ -158,8 +143,11 @@ export class SelectBobineMereButton extends React.Component<
         onMouseEnter={() => this.setState({isHovered: true})}
         onMouseLeave={() => this.setState({isHovered: false})}
         onClick={onClick}
-        color="#fff"
-        borderColor={isHovered ? '#333' : '#888'}
+        borderColor={
+          isHovered
+            ? theme.planProd.selectableHoverBorderColor
+            : theme.planProd.selectableBorderColor
+        }
         dashed
       >
         {`Sélectionner ${title} (${selectable.length} compatible${plural})`}
@@ -169,11 +157,11 @@ export class SelectBobineMereButton extends React.Component<
 }
 
 const BobineMereWrapper = styled(Bobine)`
-  color: #555;
+  color: ${theme.planProd.selectableTextColor};
   font-size: 24px;
   cursor: pointer;
   :hover {
-    color: #111;
+    color: ${theme.planProd.selectableHoverTextColor};
   }
 `;
 

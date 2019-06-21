@@ -14,7 +14,7 @@ import {RefLink} from '@root/components/common/ref_link';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {getStock, getBobineSellingPastYear, getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
-import {Colors} from '@root/theme/default';
+import {Colors} from '@root/theme';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {BobineColors as BobineColorsModel} from '@shared/lib/encrier';
@@ -434,7 +434,7 @@ export const NOMBRE_POSES_COLUMN: ColumnMetadata<Cliche, Cliche> = {
   title: 'Poses',
   width: 70,
   sortFunction: sortClichesPosesFunction,
-  renderCell: (cliche: Cliche) => `[${getPoses(cliche).join(', ')}]`,
+  renderCell: (cliche: Cliche) => <span>{`[${getPoses(cliche).join(', ')}]`}</span>,
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 };
 

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {HorizontalCote} from '@root/components/common/cote';
 import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 interface BobineProps extends DivProps {
   size: number;

@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
+import {theme} from '@root/theme';
+
 export function createChartTooltip<T>(
   plot: Plottable.Plots.Bar<unknown, unknown>,
   tooltipWidth: number,
@@ -41,7 +43,7 @@ export function createChartTooltip<T>(
     if (closest && tooltipComponent) {
       tooltipContainer.style.top = `${closest.position.y + top}px`;
       tooltipContainer.style.left = `${x}px`;
-      tooltipComponent.setContent(tooltipContent(closest.datum));
+      tooltipComponent.setContent(tooltipContent(closest.datum as T));
       closest.selection.attr('opacity', 0.5);
       previouslyHoveredEntity = closest;
     }
@@ -85,8 +87,8 @@ class ChartTooltip extends React.Component<ChartTooltipProps, ChartTooltipState>
 }
 
 const ChartTooltipWrapper = styled.div`
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: ${theme.cadencier.tooltipBackgroundColor};
   padding: 8px 12px;
   border-radius: 3px;
-  color: #ddd;
+  color: ${theme.cadencier.textColor};
 `;

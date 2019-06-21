@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {HorizontalCote} from '@root/components/common/cote';
 import {DivProps} from '@root/components/core/common';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, couleurByName, textColorByName} from '@root/theme/default';
+import {theme, couleurByName, textColorByName} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
@@ -151,12 +151,7 @@ export class Encrier extends React.Component<EncrierProps> {
       <div style={{display: 'flex', flexDirection: 'column'}}>
         <div style={{height: ENCRIER_MARGIN / 2}} />
         <Container>
-          <EncrierWrapper
-            {...rest}
-            key={`${encrierColor.color}-${encrierColor.refsCliche.join(',')}`}
-          >
-            {content}
-          </EncrierWrapper>
+          <EncrierWrapper {...rest}>{content}</EncrierWrapper>
           {decalage}
         </Container>
         <div style={{height: ENCRIER_MARGIN / 2}} />

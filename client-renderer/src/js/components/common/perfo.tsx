@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Bague} from '@root/components/common/bague';
 import {Cale} from '@root/components/common/cale';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {Perfo as PerfoModel} from '@shared/models';
 

@@ -1,45 +1,7 @@
 import {createGlobalStyle} from 'styled-components';
+import {theme} from '@root/theme';
 
 export const PlottableCSS = createGlobalStyle`
-  .plottable-colors-0 {
-    background-color: #5279c7;
-  }
-
-  .plottable-colors-1 {
-    background-color: #fd373e;
-  }
-
-  .plottable-colors-2 {
-    background-color: #63c261;
-  }
-
-  .plottable-colors-3 {
-    background-color: #fad419;
-  }
-
-  .plottable-colors-4 {
-    background-color: #2c2b6f;
-  }
-
-  .plottable-colors-5 {
-    background-color: #ff7939;
-  }
-
-  .plottable-colors-6 {
-    background-color: #db2e65;
-  }
-
-  .plottable-colors-7 {
-    background-color: #99ce50;
-  }
-
-  .plottable-colors-8 {
-    background-color: #962565;
-  }
-
-  .plottable-colors-9 {
-    background-color: #06cccc;
-  }
   .plottable {
     display: block;
     pointer-events: visibleFill;
@@ -89,18 +51,18 @@ export const PlottableCSS = createGlobalStyle`
   }
 
   .plottable .label text {
-    font-family: "Helvetica Neue", sans-serif;
+    font-family: ${theme.base.fontFamily}, sans-serif;
     fill: #32313F;
   }
 
   .plottable .bar-label-text-area text {
-    font-family: "Helvetica Neue", sans-serif;
+    font-family: ${theme.base.fontFamily}, sans-serif;
     font-size: 12px;
   }
 
   .plottable .label-area text {
     fill: #32313F;
-    font-family: "Helvetica Neue", sans-serif;
+    font-family: ${theme.base.fontFamily}, sans-serif;
     font-size: 14px;
   }
 
@@ -139,18 +101,18 @@ export const PlottableCSS = createGlobalStyle`
   }
 
   .plottable .axis line.baseline {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
   }
 
   .plottable .axis line.tick-mark {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
   }
 
   .plottable .axis text {
     fill: #32313F;
-    font-family: "Helvetica Neue", sans-serif;
+    font-family: ${theme.base.fontFamily}, sans-serif;
     font-size: 12px;
     font-weight: 200;
     line-height: normal;
@@ -159,16 +121,16 @@ export const PlottableCSS = createGlobalStyle`
   .plottable .axis .annotation-circle {
     fill: white;
     stroke-width: 1px;
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
   }
 
   .plottable .axis .annotation-line {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
   }
 
   .plottable .axis .annotation-rect {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
     fill: white;
   }
@@ -178,7 +140,7 @@ export const PlottableCSS = createGlobalStyle`
   }
 
   .plottable .gridlines line {
-    stroke: #3C3C3C;
+    stroke: ${theme.cadencier.gridLineColor};
     opacity: 0.25;
     stroke-width: 1px;
   }
@@ -186,7 +148,7 @@ export const PlottableCSS = createGlobalStyle`
   .plottable .selection-box-layer .selection-area {
     fill: black;
     fill-opacity: 0.03;
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
   }
   .plottable .drag-box-layer.x-resizable .drag-edge-lr {
     cursor: ew-resize;
@@ -222,7 +184,7 @@ export const PlottableCSS = createGlobalStyle`
   }
 
   .plottable .guide-line-layer line.guide-line {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
   }
 
@@ -236,7 +198,7 @@ export const PlottableCSS = createGlobalStyle`
 
   .plottable .legend text {
     fill: #32313F;
-    font-family: "Helvetica Neue", sans-serif;
+    font-family: ${theme.base.fontFamily}, sans-serif;
     font-size: 12px;
     font-weight: bold;
     line-height: normal;
@@ -244,13 +206,13 @@ export const PlottableCSS = createGlobalStyle`
 
   .plottable .interpolated-color-legend rect.swatch-bounding-box {
     fill: none;
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
     pointer-events: none;
   }
 
   .plottable .waterfall-plot line.connector {
-    stroke: #CCC;
+    stroke: ${theme.cadencier.lineColor};
     stroke-width: 1px;
   }
 

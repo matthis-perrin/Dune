@@ -33,8 +33,8 @@ import {
   ListBobinesQuantities,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
-import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
+import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCliches} from '@shared/db/cliches';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
@@ -42,8 +42,6 @@ import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType} from '@shared/models';
 import {asMap, asNumber, asString} from '@shared/type_utils';
-
-let c = cadencier;
 
 // tslint:disable-next-line:no-any
 export async function handleCommand(command: BridgeCommand, params: any): Promise<any> {
@@ -74,14 +72,14 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   }
   if (command === ListCadencier) {
     const {localUpdate} = asMap(params);
-    return {data: await cadencier.list(asNumber(localUpdate, 0))};
+    return {data: cadencier.list(asNumber(localUpdate, 0))};
   }
   if (command === ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
-    return await cadencier.listAllForBobine(asString(bobineRef, ''));
+    return cadencier.listAllForBobine(asString(bobineRef, ''));
   }
   if (command === ListBobinesQuantities) {
-    return await listBobinesQuantities(db);
+    return listBobinesQuantities(db);
   }
 
   // Window Management

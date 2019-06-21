@@ -7,7 +7,7 @@ import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {perfosStore} from '@root/stores/list_store';
-import {theme} from '@root/theme/default';
+import {theme} from '@root/theme';
 
 import {Perfo} from '@shared/models';
 
@@ -87,6 +87,6 @@ const PerfoWrapper = styled.div`
   padding: ${theme.page.padding}px;
   cursor: pointer;
   &:hover {
-    background-color: #eeeeee;
+    background-color: ${theme.perfo.hoverBackgroundColor};
   }
 `;

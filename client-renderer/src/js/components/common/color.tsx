@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReactProps, DivProps} from '@root/components/core/common';
-import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme/default';
+import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme';
 
 interface ColorProps extends ReactProps, DivProps {
   color: string;

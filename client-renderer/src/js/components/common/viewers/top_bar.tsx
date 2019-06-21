@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Card2} from '@root/components/core/card';
 import {ReactProps, DivProps} from '@root/components/core/common';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {textColorByName, couleurByName} from '@root/theme/default';
+import {textColorByName, couleurByName} from '@root/theme';
 
 interface Props extends ReactProps, DivProps {
   sommeil?: boolean;
