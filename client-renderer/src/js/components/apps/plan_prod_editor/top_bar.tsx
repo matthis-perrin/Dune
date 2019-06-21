@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Input} from '@root/components/core/input';
 import {theme} from '@root/theme';
 
 interface TopBarProps {
@@ -14,11 +15,25 @@ export class TopBar extends React.Component<TopBarProps> {
     const {planProdRef} = this.props;
     return (
       <TopBarWrapper>
-        <LeftContainer>Left Side</LeftContainer>
+        <LeftContainer>
+          <div style={{marginBottom: 6}}>
+            <TopBarInput value="180" />
+            m/min
+          </div>
+          <div>
+            <TopBarInput value="50" />
+            tours
+          </div>
+        </LeftContainer>
         <CenterContainer>
           <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
         </CenterContainer>
-        <RightContainer>Right Side</RightContainer>
+        <RightContainer>
+          <div>Début production: 06h00</div>
+          <div>Réglage: 01:20:00</div>
+          <div>Production: 00:20:10</div>
+          <div>Fin production: 07h40</div>
+        </RightContainer>
       </TopBarWrapper>
     );
   }
@@ -51,6 +66,7 @@ const RightContainer = styled(ContainerBase)`
   flex-basis: 1px;
   flex-grow: 1;
   align-items: flex-end;
+  font-size: ${theme.planProd.topBarDetailsFontSize}px;
 `;
 
 const CenterContainer = styled(ContainerBase)`
@@ -61,4 +77,10 @@ const TopBarTitle = styled.div`
   color: ${theme.planProd.topBarTitleColor};
   font-size: ${theme.planProd.topBarTitleFontSize}px;
   font-size: ${theme.planProd.topBarTitleFontWeight};
+`;
+
+const TopBarInput = styled(Input)`
+  margin-right: 8px;
+  width: 54px;
+  text-align: center;
 `;

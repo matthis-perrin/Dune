@@ -2,6 +2,8 @@ import {omit} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {theme} from '@root/theme';
+
 interface InputProps
   extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   focusOnMount?: boolean;
@@ -47,5 +49,12 @@ export class Input extends React.Component<InputProps> {
 }
 
 const StyledInput = styled.input`
-  font-family: Segoe UI;
+  font-family: ${theme.base.fontFamily};
+  height: ${theme.input.height}px;
+  line-height: ${theme.input.height}px;
+  border: solid ${theme.input.borderThickness}px ${theme.input.borderColor};
+  box-sizing: border-box;
+  outline: none;
+  padding: ${theme.input.padding};
+  border-radius: ${theme.input.borderRadius}px;
 `;
