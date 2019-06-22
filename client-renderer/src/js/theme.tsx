@@ -1,5 +1,3 @@
-import {Color} from 'plottable/build/src/utils';
-
 export const Palette = {
   Turquoise: '#1ABC9C',
   GreenSea: '#16A085',
@@ -26,10 +24,35 @@ export const Palette = {
   Transparent: 'transparent',
 };
 
+// amount: 0 => no change, 1 => white, -1 => black
+function lighten(color: string, amount: number): string {
+  const lightenColorComponent = (c: number, amount: number): number => {
+    let newC = c;
+    if (amount < 0) {
+      newC = c * 1 - amount;
+    } else if (amount > 0) {
+      newC = c + (255 - c) * amount;
+    }
+    return Math.max(0, Math.min(255, Math.round(newC)));
+  };
+  const colorHex = color.slice(1); // Remove #
+  const colorInt = parseInt(colorHex, 16);
+  const red = lightenColorComponent(colorInt >> 16, amount);
+  const green = lightenColorComponent(colorInt & 0x0000ff, amount);
+  const blue = lightenColorComponent((colorInt >> 8) & 0x00ff, amount);
+  const rgb = (green | (blue << 8) | (red << 16)).toString(16);
+  return `#${rgb}`;
+}
+
 export const Colors = {
   Success: Palette.Emerald,
+  SuccessLight: lighten(Palette.Emerald, 0.2),
   Warning: Palette.SunFlower,
-  Danger: Palette.Pomegranate,
+  WarningLight: lighten(Palette.SunFlower, 0.2),
+  Danger: Palette.Alizarin,
+  DangerLight: lighten(Palette.Alizarin, 0.2),
+  Neutral: Palette.Concrete,
+  NeutralLight: lighten(Palette.Concrete, 0.2),
 
   PrimaryDark: Palette.MidnightBlue,
   PrimaryLight: Palette.WetAsphalt,
