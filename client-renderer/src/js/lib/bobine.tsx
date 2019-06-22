@@ -4,7 +4,7 @@ import {ButtonMode} from '@root/components/core/button';
 
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
-import {Stock, BobineQuantities, BobineState} from '@shared/models';
+import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
 
 export function getStock(ref: string, stocks: Map<string, Stock[]>): number {
   const stock = stocks.get(ref) || [];
@@ -65,21 +65,21 @@ export function getBobineState(
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
   additionalStock: number = 0
-): {state: BobineState; quantity: number} {
+): {state: BobineState; quantity: number; yearSell: number; stock: number} {
   const currentStock = getStock(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = lastYearSelling / 12;
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
   if (currentStock < averageSellingByMonth) {
-    return {state: BobineState.Rupture, quantity};
+    return {state: BobineState.Rupture, quantity, yearSell: lastYearSelling, stock: currentStock};
   }
   if (currentStock > lastYearSelling) {
-    return {state: BobineState.Surstock, quantity};
+    return {state: BobineState.Surstock, quantity, yearSell: lastYearSelling, stock: currentStock};
   }
   if (currentStock < threshold) {
-    return {state: BobineState.Alerte, quantity};
+    return {state: BobineState.Alerte, quantity, yearSell: lastYearSelling, stock: currentStock};
   }
-  return {state: BobineState.Neutre, quantity};
+  return {state: BobineState.Neutre, quantity, yearSell: lastYearSelling, stock: currentStock};
 }
 
 export function getBobinePoseState(
@@ -90,7 +90,7 @@ export function getBobinePoseState(
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[]
-): {pose: number; mode: ButtonMode}[] {
+): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
     .filter(
       b =>
@@ -103,30 +103,36 @@ export function getBobinePoseState(
 
   return poses
     .map(pose => {
-      const additionalStock = tourCount ? usedPoses + getPoseSize(pose) : 0;
-      if (firstRuptureOrAlertBobine === ref) {
-        return {pose, mode: ButtonMode.Neutral};
-      }
-      const {quantity, state} = getBobineState(
+      const totalPose = usedPoses + getPoseSize(pose);
+      const additionalStock = tourCount ? totalPose : 0;
+      const {quantity, state, yearSell, stock} = getBobineState(
         ref,
         stocks,
         cadencier,
         bobineQuantities,
         additionalStock
       );
+      const poseStr = pose === POSE_NEUTRE ? 'neutre' : pose;
+      if (firstRuptureOrAlertBobine === ref) {
+        const reason = `Le nombre de tour sera ajustée pour produire un multiple de ${quantity}`;
+        return {pose, mode: ButtonMode.Neutral, reason};
+      }
       if (state === BobineState.Surstock) {
-        return {pose, mode: ButtonMode.Danger};
+        const reason = `Ajouter cette bobine en pose ${poseStr} amènera la bobine en surstock (Stock prévisionnel : ${stock}, Vente annuelle : ${yearSell})`;
+        return {pose, mode: ButtonMode.Danger, reason};
       }
       if (!tourCount) {
         return {pose, mode: ButtonMode.Neutral};
       }
-      if ((tourCount * usedPoses) % quantity === 0) {
-        return {pose, mode: ButtonMode.Success};
+      const reason = `Ajouter cette bobine en pose ${poseStr} amènera la quantité produite à ${tourCount *
+        totalPose} (Objectif: ${quantity})`;
+      if ((tourCount * totalPose) % quantity === 0) {
+        return {pose, mode: ButtonMode.Success, reason};
       }
-      if (tourCount * usedPoses < quantity) {
-        return {pose, mode: ButtonMode.Warning};
+      if (tourCount * totalPose < quantity) {
+        return {pose, mode: ButtonMode.Warning, reason};
       }
-      return {pose, mode: ButtonMode.Danger};
+      return {pose, mode: ButtonMode.Danger, reason};
     })
     .sort((p1, p2) => {
       if (p1.mode === p2.mode) {

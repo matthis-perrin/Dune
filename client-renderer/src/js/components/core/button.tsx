@@ -1,5 +1,6 @@
 import {omit} from 'lodash-es';
 import * as React from 'react';
+import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
 import {ReactProps} from '@root/components/core/common';
@@ -16,13 +17,14 @@ interface ButtonProps
   extends ReactProps,
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   mode?: ButtonMode;
+  popup?: JSX.Element | string;
 }
 
 export class Button extends React.Component<ButtonProps> {
   public static displayName = 'Button';
 
   public render(): JSX.Element {
-    const {mode} = this.props;
+    const {mode, popup} = this.props;
     const props = omit(this.props, ['mode', 'children', 'ref']);
 
     let ButtonClass = DefaultButton;
@@ -35,7 +37,15 @@ export class Button extends React.Component<ButtonProps> {
     } else if (mode === ButtonMode.Neutral) {
       ButtonClass = NeutralButton;
     }
-    return <ButtonClass {...props}>{this.props.children}</ButtonClass>;
+    const button = <ButtonClass {...props}>{this.props.children}</ButtonClass>;
+    if (!popup) {
+      return button;
+    }
+    return (
+      <Popup contentStyle={{width: 'auto'}} trigger={button} position="left center" on="hover">
+        {popup}
+      </Popup>
+    );
   }
 }
 

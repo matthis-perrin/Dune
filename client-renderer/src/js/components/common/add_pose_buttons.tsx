@@ -50,12 +50,13 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
 
     return (
       <React.Fragment>
-        {posesStates.map(({pose, mode}, index) => {
+        {posesStates.map(({pose, mode, reason}, index) => {
           return (
             <Button
               mode={mode}
               key={`${bobine.ref}-${index}`}
               onClick={() => this.handleClick(pose)}
+              popup={reason}
             >
               {pose === POSE_NEUTRE ? 'neutre' : pose}
             </Button>
