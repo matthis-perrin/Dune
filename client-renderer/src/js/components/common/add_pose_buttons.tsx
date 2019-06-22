@@ -1,13 +1,27 @@
+import {sum} from 'lodash-es';
 import * as React from 'react';
 
-import {Button} from '@root/components/core/button';
+import {Button, ButtonMode} from '@root/components/core/button';
+import {getBobineState, getBobinePoseState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
-import {BobineFilleWithMultiPose, POSE_NEUTRE} from '@shared/models';
+import {getPoseSize} from '@shared/lib/cliches';
+import {
+  BobineFilleWithMultiPose,
+  BobineQuantities,
+  BobineState,
+  PlanProductionState,
+  POSE_NEUTRE,
+  Stock,
+} from '@shared/models';
 
 interface AddPoseButtonsProps {
   bobine: BobineFilleWithMultiPose;
+  stocks: Map<string, Stock[]>;
+  cadencier: Map<string, Map<number, number>>;
+  bobineQuantities: BobineQuantities[];
+  planProd: PlanProductionState;
 }
 
 export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
@@ -19,17 +33,34 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
   };
 
   public render(): JSX.Element {
-    const {bobine} = this.props;
+    const {bobine, planProd, stocks, cadencier, bobineQuantities} = this.props;
     const poses = bobine.availablePoses;
     const filteredPoses = dedupePoseNeutre(poses);
+    const tourCount = planProd.tourCount;
+
+    const posesStates = getBobinePoseState(
+      bobine.ref,
+      filteredPoses,
+      planProd.selectedBobines,
+      tourCount,
+      stocks,
+      cadencier,
+      bobineQuantities
+    );
 
     return (
       <React.Fragment>
-        {filteredPoses.map((pose, index) => (
-          <Button key={`${bobine.ref}-${index}`} onClick={() => this.handleClick(pose)}>
-            {pose === POSE_NEUTRE ? 'neutre' : pose}
-          </Button>
-        ))}
+        {posesStates.map(({pose, mode}, index) => {
+          return (
+            <Button
+              mode={mode}
+              key={`${bobine.ref}-${index}`}
+              onClick={() => this.handleClick(pose)}
+            >
+              {pose === POSE_NEUTRE ? 'neutre' : pose}
+            </Button>
+          );
+        })}
       </React.Fragment>
     );
   }

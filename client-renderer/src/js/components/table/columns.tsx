@@ -24,6 +24,7 @@ import {
   OperationConstraint as OperationConstraintModel,
   BobineFilleWithMultiPose,
   BobineQuantities,
+  PlanProductionState,
 } from '@shared/models';
 
 function getStocksSortFunction<T extends {ref: string}>(
@@ -151,7 +152,10 @@ export const BOBINE_FILLE_REF: ColumnMetadata<{ref: string}, string> = {
   title: 'REFERENCE',
   width: 190,
   renderCell: ({ref}) => (
-    <RefLink onClick={() => bridge.viewBobine(ref).catch(console.error)} color={Colors.secondary}>
+    <RefLink
+      onClick={() => bridge.viewBobine(ref).catch(console.error)}
+      color={Colors.SecondaryDark}
+    >
       {ref}
     </RefLink>
   ),
@@ -265,7 +269,6 @@ export const STOCK_COLUMN = (
   title: 'STOCKS',
   width: 80,
   renderCell: row => renderNumber(getStock(row.ref, stocks)),
-  getSearchValue: row => row.ref,
   sortFunction: getStocksSortFunction(stocks),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
@@ -449,18 +452,33 @@ export const POSE_COLUMN: ColumnMetadata<{pose?: number}, number> = {
   shouldRerender: (row1, row2) => row1.pose !== row2.pose,
 };
 
-export const MULTI_POSE_COLUMN: ColumnMetadata<BobineFilleWithMultiPose, string> = {
-  title: 'POSES',
-  width: 200,
-  renderCell: bobine => <AddPoseButtons bobine={bobine} />,
-  sortFunction: (row1, row2) =>
-    sortArrayFunction(
-      dedupePoseNeutre(row1.availablePoses),
-      dedupePoseNeutre(row2.availablePoses),
-      true,
-      numberSort
+export const MULTI_POSE_COLUMN = (
+  stocks: Map<string, Stock[]>,
+  cadencier: Map<string, Map<number, number>>,
+  bobineQuantities: BobineQuantities[],
+  planProd: PlanProductionState
+): ColumnMetadata<BobineFilleWithMultiPose, string> => {
+  return {
+    title: 'POSES',
+    width: 200,
+    renderCell: bobine => (
+      <AddPoseButtons
+        bobine={bobine}
+        stocks={stocks}
+        cadencier={cadencier}
+        bobineQuantities={bobineQuantities}
+        planProd={planProd}
+      />
     ),
-  shouldRerender: (row1, row2) => isEqual(row1.availablePoses, row2.availablePoses),
+    sortFunction: (row1, row2) =>
+      sortArrayFunction(
+        dedupePoseNeutre(row1.availablePoses),
+        dedupePoseNeutre(row2.availablePoses),
+        true,
+        numberSort
+      ),
+    shouldRerender: (row1, row2) => isEqual(row1.availablePoses, row2.availablePoses),
+  };
 };
 
 export const DECALAGE_INITIAL_COLUMN: ColumnMetadata<{decalageInitial?: number}, number> = {

@@ -5,7 +5,12 @@ import styled from 'styled-components';
 import {ReactProps} from '@root/components/core/common';
 import {theme, Colors} from '@root/theme';
 
-type ButtonMode = 'success' | 'warning' | 'danger' | 'neutral';
+export enum ButtonMode {
+  Success = 10,
+  Neutral = 20,
+  Warning = 30,
+  Danger = 40,
+}
 
 interface ButtonProps
   extends ReactProps,
@@ -21,13 +26,13 @@ export class Button extends React.Component<ButtonProps> {
     const props = omit(this.props, ['mode', 'children', 'ref']);
 
     let ButtonClass = DefaultButton;
-    if (mode === 'success') {
+    if (mode === ButtonMode.Success) {
       ButtonClass = SuccessButton;
-    } else if (mode === 'warning') {
+    } else if (mode === ButtonMode.Warning) {
       ButtonClass = WarningButton;
-    } else if (mode === 'danger') {
+    } else if (mode === ButtonMode.Danger) {
       ButtonClass = DangerButton;
-    } else if (mode === 'neutral') {
+    } else if (mode === ButtonMode.Neutral) {
       ButtonClass = NeutralButton;
     }
     return <ButtonClass {...props}>{this.props.children}</ButtonClass>;

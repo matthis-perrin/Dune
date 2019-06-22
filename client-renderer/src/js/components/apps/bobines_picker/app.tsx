@@ -70,36 +70,36 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       return <LoadingTable />;
     }
 
-    const columns = [
-      BOBINE_FILLE_REF,
-      DESIGNATION_COLUMN,
-      LAIZE_COLUMN,
-      COULEUR_PAPIER_COLUMN,
-      GRAMMAGE_COLUMN,
-      STOCK_COLUMN(stocks),
-      MULTI_POSE_COLUMN,
-      COULEURS_IMPRESSION_COLUMN,
-      TYPE_IMPRESSION_COLUMN,
-      LAST_YEAR_SELLING(cadencier),
-      STOCK_COLUMN(stocks),
-      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
-    ];
-
     return (
       <Picker<BobineFilleWithMultiPose>
         getHash={r => r.ref}
         getSelectable={p => p.selectableBobines}
         store={bobinesFillesWithMultiPoseStore}
         title="Choix des bobines"
-        searchColumns={columns}
+        searchColumns={[BOBINE_FILLE_REF, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
       >
-        {(elements, isSelectionnable) => (
+        {(elements, isSelectionnable, planProd) => (
           <SizeMonitor>
             {(width, height) => {
               const filterBarHeight = 32;
               const searchBarHeight = 32;
               const availableWidth = width;
               const availableHeight = height - filterBarHeight - searchBarHeight;
+
+              const columns = [
+                BOBINE_FILLE_REF,
+                DESIGNATION_COLUMN,
+                LAIZE_COLUMN,
+                COULEUR_PAPIER_COLUMN,
+                GRAMMAGE_COLUMN,
+                MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),
+                COULEURS_IMPRESSION_COLUMN,
+                TYPE_IMPRESSION_COLUMN,
+                LAST_YEAR_SELLING(cadencier),
+                STOCK_COLUMN(stocks),
+                STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
+              ];
+
               return (
                 <React.Fragment>
                   <Padding />

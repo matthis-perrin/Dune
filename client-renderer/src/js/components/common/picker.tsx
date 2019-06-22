@@ -14,7 +14,11 @@ import {PlanProductionState} from '@shared/models';
 interface Props<T extends {localUpdate: number; sommeil: boolean}> {
   getSelectable(planProd: PlanProductionState): T[];
   getHash(value: T): string;
-  children(elements: T[], isSelectionnable: (element: T) => boolean): JSX.Element;
+  children(
+    elements: T[],
+    isSelectionnable: (element: T) => boolean,
+    planProduction: PlanProductionState
+  ): JSX.Element;
   store: ListStore<T>;
   dataFilter?(value: T): boolean;
   title: string;
@@ -116,7 +120,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
         ) : (
           <React.Fragment />
         )}
-        {children(filteredSearchedElements || filteredElements, this.isSelectionnable)}
+        {children(filteredSearchedElements || filteredElements, this.isSelectionnable, planProd)}
         <FilterBar
           data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
           filters={[

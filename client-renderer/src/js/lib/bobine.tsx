@@ -1,6 +1,9 @@
 import {sum} from 'lodash-es';
 
+import {ButtonMode} from '@root/components/core/button';
+
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
+import {getPoseSize} from '@shared/lib/cliches';
 import {Stock, BobineQuantities, BobineState} from '@shared/models';
 
 export function getStock(ref: string, stocks: Map<string, Stock[]>): number {
@@ -60,9 +63,10 @@ export function getBobineState(
   ref: string,
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
-  bobineQuantities: BobineQuantities[]
+  bobineQuantities: BobineQuantities[],
+  additionalStock: number = 0
 ): {state: BobineState; quantity: number} {
-  const currentStock = getStock(ref, stocks);
+  const currentStock = getStock(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = lastYearSelling / 12;
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
@@ -76,4 +80,58 @@ export function getBobineState(
     return {state: BobineState.Alerte, quantity};
   }
   return {state: BobineState.Neutre, quantity};
+}
+
+export function getBobinePoseState(
+  ref: string,
+  poses: number[],
+  selectedBobines: {ref: string; pose: number}[],
+  tourCount: number | undefined,
+  stocks: Map<string, Stock[]>,
+  cadencier: Map<string, Map<number, number>>,
+  bobineQuantities: BobineQuantities[]
+): {pose: number; mode: ButtonMode}[] {
+  const firstRuptureOrAlertBobine: string | undefined = selectedBobines
+    .filter(
+      b =>
+        [BobineState.Rupture, BobineState.Alerte].indexOf(
+          getBobineState(b.ref, stocks, cadencier, bobineQuantities).state
+        ) !== -1
+    )
+    .map(b => b.ref)[0];
+  const usedPoses = sum(selectedBobines.filter(b => b.ref === ref).map(b => getPoseSize(b.pose)));
+
+  return poses
+    .map(pose => {
+      const additionalStock = tourCount ? usedPoses + getPoseSize(pose) : 0;
+      if (firstRuptureOrAlertBobine === ref) {
+        return {pose, mode: ButtonMode.Neutral};
+      }
+      const {quantity, state} = getBobineState(
+        ref,
+        stocks,
+        cadencier,
+        bobineQuantities,
+        additionalStock
+      );
+      if (state === BobineState.Surstock) {
+        return {pose, mode: ButtonMode.Danger};
+      }
+      if (!tourCount) {
+        return {pose, mode: ButtonMode.Neutral};
+      }
+      if ((tourCount * usedPoses) % quantity === 0) {
+        return {pose, mode: ButtonMode.Success};
+      }
+      if (tourCount * usedPoses < quantity) {
+        return {pose, mode: ButtonMode.Warning};
+      }
+      return {pose, mode: ButtonMode.Danger};
+    })
+    .sort((p1, p2) => {
+      if (p1.mode === p2.mode) {
+        return p2.pose - p1.pose;
+      }
+      return p1.mode - p2.mode;
+    });
 }
