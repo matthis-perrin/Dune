@@ -31,6 +31,7 @@ import {
   SetPlanRefente,
   ListCadencierForBobine,
   ListBobinesQuantities,
+  SetPlanTourCount,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -126,6 +127,15 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
       return Promise.reject('No plan production in progress');
     }
     engine.setPerfo(asString(ref, ''));
+    return Promise.resolve();
+  }
+  if (command === SetPlanTourCount) {
+    const {tourCount} = asMap(params);
+    const engine = planProductionStore.getEngine();
+    if (!engine) {
+      return Promise.reject('No plan production in progress');
+    }
+    engine.setTourCount(asNumber(tourCount, undefined));
     return Promise.resolve();
   }
   if (command === SetPlanRefente) {

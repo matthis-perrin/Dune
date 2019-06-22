@@ -90,7 +90,7 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [];
+      return [stocksStore, cadencierStore, bobinesQuantitiesStore];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [

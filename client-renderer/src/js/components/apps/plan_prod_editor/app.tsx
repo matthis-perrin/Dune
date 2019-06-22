@@ -19,13 +19,24 @@ import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
+import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme, getColorInfoByName} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
+import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
-import {PlanProductionState, ClientAppType, BobineFilleWithPose} from '@shared/models';
+import {
+  PlanProductionState,
+  ClientAppType,
+  BobineFilleWithPose,
+  BobineState,
+  Stock,
+  BobineQuantities,
+} from '@shared/models';
 
 interface Props {}
 
@@ -33,6 +44,12 @@ interface State {
   planProduction?: PlanProductionState;
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
+
+  stocks?: Map<string, Stock[]>;
+  cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
+
+  tourCountSetByUser: boolean;
 }
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
@@ -40,16 +57,53 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
   public constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {
+      tourCountSetByUser: false,
+    };
   }
 
   public componentDidMount(): void {
     bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    stocksStore.addListener(this.handleStoresChanged);
+    cadencierStore.addListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     this.refreshPlanProduction();
   }
 
   public componentWillUnmount(): void {
     bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    stocksStore.removeListener(this.handleStoresChanged);
+    cadencierStore.removeListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
+  }
+
+  private readonly handleStoresChanged = (): void => {
+    this.setState({
+      stocks: stocksStore.getStockIndex(),
+      cadencier: cadencierStore.getCadencierIndex(),
+      bobineQuantities: bobinesQuantitiesStore.getData(),
+    });
+  };
+
+  private computeTourCount(newPlanProduction: PlanProductionState): number | undefined {
+    const {tourCount, selectedBobines} = newPlanProduction;
+    if (tourCount !== undefined && this.state.tourCountSetByUser) {
+      return tourCount;
+    }
+    const {stocks, cadencier, bobineQuantities} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities) {
+      return tourCount;
+    }
+    for (const bobine of selectedBobines) {
+      const {state, quantity} = getBobineState(bobine.ref, stocks, cadencier, bobineQuantities);
+      if (state === BobineState.Rupture || state === BobineState.Alerte) {
+        const poses = selectedBobines
+          .filter(b => b.ref === bobine.ref)
+          .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
+        return quantity / poses;
+      }
+    }
+    return undefined;
   }
 
   private readonly refreshPlanProduction = () => {
@@ -67,6 +121,12 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           newState.reorderedEncriers = undefined;
         }
         this.setState(newState, () => {
+          if (newState.planProduction) {
+            const newTourCount = this.computeTourCount(newState.planProduction);
+            if (newTourCount !== newState.planProduction.tourCount) {
+              bridge.setPlanTourCount(newTourCount).catch(console.error);
+            }
+          }
           if (this.canAutoComplete()) {
             this.autoComplete();
           }
@@ -84,6 +144,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
   private readonly handleEncrierReorder = (newEncriers: EncrierColor[]): void => {
     this.setState({reorderedEncriers: newEncriers});
+  };
+
+  private readonly handleTourCountChange = (newTourCount?: number): void => {
+    this.setState({tourCountSetByUser: true});
+    bridge.setPlanTourCount(newTourCount).catch(console.error);
   };
 
   private removeRefente(): void {
@@ -198,11 +263,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       selectedPolypro,
       selectablePolypros,
       couleursEncrier,
+      tourCount,
     } = planProduction;
+
+    console.log(tourCount);
 
     return (
       <PlanProdEditorContainer style={{margin: 'auto'}}>
-        <TopBar planProdRef="19062101" />
+        <TopBar
+          tourCount={tourCount}
+          onTourCountChange={this.handleTourCountChange}
+          planProdRef="19062101"
+        />
         {/* <ButtonContainer>
           {this.canAutoComplete() ? (
             <Button onClick={this.autoComplete}>Auto complète</Button>

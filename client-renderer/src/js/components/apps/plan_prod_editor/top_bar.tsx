@@ -6,13 +6,32 @@ import {theme} from '@root/theme';
 
 interface TopBarProps {
   planProdRef: string;
+  tourCount?: number;
+  onTourCountChange(tourCount?: number): void;
 }
 
 export class TopBar extends React.Component<TopBarProps> {
   public static displayName = 'TopBar';
 
+  private readonly handleTourCountInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const {onTourCountChange} = this.props;
+    console.log(event.target.value);
+    try {
+      const newTourCount = parseFloat(event.target.value);
+      if (isNaN(newTourCount) || !isFinite(newTourCount) || newTourCount < 0) {
+        onTourCountChange(0);
+      } else {
+        onTourCountChange(newTourCount);
+      }
+    } catch {
+      onTourCountChange(undefined);
+    }
+  };
+
   public render(): JSX.Element {
-    const {planProdRef} = this.props;
+    const {planProdRef, tourCount} = this.props;
     return (
       <TopBarWrapper>
         <LeftContainer>
@@ -21,7 +40,10 @@ export class TopBar extends React.Component<TopBarProps> {
             m/min
           </div>
           <div>
-            <TopBarInput value="50" />
+            <TopBarInput
+              value={tourCount === undefined ? '' : String(tourCount)}
+              onChange={this.handleTourCountInputChange}
+            />
             tours
           </div>
         </LeftContainer>

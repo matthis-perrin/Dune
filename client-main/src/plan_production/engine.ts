@@ -32,6 +32,7 @@ import {removeUndefined} from '@shared/type_utils';
 
 export class PlanProductionEngine {
   private readonly planProduction: PlanProduction;
+  private tourCount: number | undefined;
 
   // All the elements that can be used in a PlanProduction.
   // Does not account for the constraints given by the current PlanProduction.
@@ -126,6 +127,7 @@ export class PlanProductionEngine {
       selectableBobines: this.getSelectableBobines(),
 
       couleursEncrier: this.getValidCouleursEncriers(),
+      tourCount: this.tourCount,
       calculationTime: this.calculationTime,
     };
   }
@@ -135,6 +137,11 @@ export class PlanProductionEngine {
       return undefined;
     }
     return all.filter(item => item.ref === ref)[0];
+  }
+
+  public setTourCount(tourCount?: number): void {
+    this.tourCount = tourCount;
+    this.changeHandler();
   }
 
   public setPerfo(ref?: string): void {

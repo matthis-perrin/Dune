@@ -164,6 +164,7 @@ export interface PlanProductionState {
   selectableBobines: BobineFilleWithMultiPose[];
 
   couleursEncrier: EncrierColor[][];
+  tourCount?: number;
   calculationTime: number;
 }
 

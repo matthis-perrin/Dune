@@ -18,6 +18,7 @@ export const CloseAppOfType = 'close-app-of-type' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
 export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;
+export const SetPlanTourCount = 'set-plan-tour-count' as BridgeCommand;
 export const SetPlanPerfo = 'set-plan-perfo' as BridgeCommand;
 export const SetPlanRefente = 'set-plan-refente' as BridgeCommand;
 export const SetPlanPapier = 'set-plan-papier' as BridgeCommand;

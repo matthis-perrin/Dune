@@ -30,6 +30,7 @@ import {
   ListCadencier,
   ListCadencierForBobine,
   ListBobinesQuantities,
+  SetPlanTourCount,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -122,6 +123,9 @@ class Bridge {
   }
   public async getPlanProduction(): Promise<PlanProductionState> {
     return this.bridgeTransport.sendBridgeCommand<PlanProductionState>(GetNewPlanProduction);
+  }
+  public async setPlanTourCount(tourCount?: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanTourCount, {tourCount});
   }
   public async setPlanPerfo(ref?: string): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPerfo, {ref});
