@@ -146,8 +146,16 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                 return (
                   <RowContainer
                     key={ref}
-                    style={{...styles, ...rowStylesData}}
+                    style={{
+                      ...styles,
+                      ...rowStylesData,
+                    }}
                     onClick={this.getRowClickHandlerForRef(ref)}
+                    background={
+                      rowIndex % 2 === 0
+                        ? theme.table.rowEvenBackgroundColor
+                        : theme.table.rowOddBackgroundColor
+                    }
                   >
                     <FastTableRow
                       isVisible={
@@ -176,10 +184,15 @@ const ColumnContainer = styled.div<{width: number}>`
   background-color: ${theme.table.headerBackgroundColor};
 `;
 
-const RowContainer = styled.div`
+const RowContainer = styled.div<{background: string}>`
   display: flex;
   position: absolute;
   top: -1000px;
+  background-color: ${props => props.background};
+  transition: background-color 100ms ease-in-out
+  &:hover {
+    background-color: ${theme.table.rowBackgroundColorHovered};
+  }
 `;
 
 const Table = styled.div`

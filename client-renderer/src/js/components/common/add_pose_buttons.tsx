@@ -53,6 +53,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
         {posesStates.map(({pose, mode, reason}, index) => {
           return (
             <Button
+              style={{padding: '4px 12px', marginRight: 4}}
               mode={mode}
               key={`${bobine.ref}-${index}`}
               onClick={() => this.handleClick(pose)}

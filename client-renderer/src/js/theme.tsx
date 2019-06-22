@@ -163,11 +163,14 @@ export const theme = {
     footerHeight: 32,
     footerFontWeight: FontWeight.SemiBold,
     footerFontSize: 13,
+
     rowHeight: 32,
     rowFontSize: 14,
     rowFontWeight: FontWeight.SemiBold,
-    // rowBackgroundColor: Palette.white,
-    // rowBackgroundColorHovered: Palette.lightGray,
+    rowEvenBackgroundColor: Palette.White,
+    rowOddBackgroundColor: Palette.Clouds,
+    rowBackgroundColorHovered: Palette.Silver,
+
     filterIconOpacity: 0.5,
     filterIconHoverOpacity: 0.75,
     filterIconSelectedOpacity: 1,
