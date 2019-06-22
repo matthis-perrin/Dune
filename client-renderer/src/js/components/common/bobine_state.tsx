@@ -1,14 +1,38 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Colors, FontWeight, Palette} from '@root/theme';
+
 import {BobineState as BobineStateModel} from '@shared/models';
 
-const stateDescriptions = new Map<BobineStateModel, string>([
-  [BobineStateModel.Rupture, 'Rupture'],
-  [BobineStateModel.Alerte, 'Alerte'],
-  [BobineStateModel.Neutre, ''],
-  [BobineStateModel.Surstock, 'Surstock'],
+interface StateUI {
+  title: string;
+  color: string;
+  fontWeight: number;
+  icon?: string;
+}
+
+const stateUI = new Map<BobineStateModel, StateUI>([
+  [BobineStateModel.Rupture, {title: 'RUPTURE', color: Colors.Danger, fontWeight: FontWeight.Bold}],
+  [
+    BobineStateModel.Alerte,
+    {title: 'ALERTE', color: Colors.Danger, fontWeight: FontWeight.SemiBold},
+  ],
+  [
+    BobineStateModel.Neutre,
+    {title: '', color: Palette.Transparent, fontWeight: FontWeight.SemiBold},
+  ],
+  [
+    BobineStateModel.Surstock,
+    {title: 'SURSTOCK', color: Colors.Warning, fontWeight: FontWeight.Bold},
+  ],
 ]);
+
+const unknownStateUI = {
+  title: 'Unknown',
+  color: Palette.Black,
+  fontWeight: FontWeight.Regular,
+};
 
 interface BobineStateProps {
   state: BobineStateModel;
@@ -20,13 +44,16 @@ export class BobineState extends React.Component<BobineStateProps> {
   public render(): JSX.Element {
     const {state} = this.props;
 
-    let stateString = stateDescriptions.get(state);
-    if (stateString === undefined) {
-      stateString = 'Unknown';
-    }
+    const {title, color, fontWeight, icon} = stateUI.get(state) || unknownStateUI;
 
-    return <BobineStateContainer>{stateString}</BobineStateContainer>;
+    return (
+      <BobineStateContainer style={{backgroundColor: color, color: Palette.White, fontWeight}}>
+        {title}
+      </BobineStateContainer>
+    );
   }
 }
 
-const BobineStateContainer = styled.div``;
+const BobineStateContainer = styled.div`
+  padding: 2px 6px;
+`;

@@ -717,9 +717,11 @@ export const STOCK_STATE_COLUMN = (
   bobineQuantities: BobineQuantities[]
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'ETAT',
-  width: 90,
+  width: 100,
   renderCell: ({ref}) => (
-    <BobineState state={getBobineState(ref, stocks, cadencier, bobineQuantities).state} />
+    <div style={{marginLeft: 'auto'}}>
+      <BobineState state={getBobineState(ref, stocks, cadencier, bobineQuantities).state} />
+    </div>
   ),
   sortFunction: (row1, row2) =>
     numberSort(
