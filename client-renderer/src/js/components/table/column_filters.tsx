@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {ColumnFilter} from '@root/components/table/sortable_table';
-import {Colors} from '@root/theme';
+import {ColumnMetadata} from '@root/components/table/sortable_table';
+import {Colors, Palette, theme} from '@root/theme';
 
 // tslint:disable-next-line:no-any
 export type FilterStateData = any;
@@ -15,7 +15,7 @@ export interface FilterState<T> {
 interface ColumnFilterProps<T, U> {
   data: T[];
   filterData: FilterStateData;
-  filter: ColumnFilter<T, U>;
+  column: ColumnMetadata<T, U>;
   onChange(state: FilterState<T>, isEnabled: boolean): void;
 }
 
@@ -23,7 +23,11 @@ export class ColumnFilterPane<T, U> extends React.Component<ColumnFilterProps<T,
   public static displayName = 'ColumnFilter';
 
   public render(): JSX.Element {
-    const {filterType = 'group'} = this.props.filter;
+    const filter = this.props.column.filter;
+    if (!filter) {
+      return <React.Fragment />;
+    }
+    const {filterType = 'group'} = filter;
     if (filterType === 'group') {
       return (
         <GroupedColumnFilterPane
@@ -33,12 +37,13 @@ export class ColumnFilterPane<T, U> extends React.Component<ColumnFilterProps<T,
       );
     }
 
-    return <div> {`Unknown filter type: ${this.props.filter.filterType}`}</div>;
+    return <div> {`Unknown filter type: ${filter.filterType}`}</div>;
   }
 }
 
 interface GroupInfo {
   count: number;
+  element: JSX.Element;
   isSelected: boolean;
 }
 
@@ -64,21 +69,28 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
   }
 
   public componentDidUpdate(prevProps: ColumnFilterProps<T, U>): void {
-    if (prevProps.filter !== this.props.filter || prevProps.data !== this.props.data) {
+    if (prevProps.column !== this.props.column || prevProps.data !== this.props.data) {
       this.setState({groups: this.regenerateGroups(this.getEnabledValues(this.state.groups))});
     }
   }
 
   private regenerateGroups(enabledValues?: Map<U, void>): Map<U, GroupInfo> {
-    const {filter, data} = this.props;
-    const {getValue} = filter;
+    const {column, data} = this.props;
     const newInfos = new Map<U, GroupInfo>();
+    if (!column.filter) {
+      return newInfos;
+    }
+    const {getValue, render} = column.filter;
     data.forEach(row => {
       const value = getValue(row);
       const newInfo = newInfos.get(value);
-      const count = newInfo ? newInfo.count + 1 : 1;
-      const isSelected = enabledValues ? enabledValues.has(value) : true;
-      newInfos.set(value, {count, isSelected});
+      if (!newInfo) {
+        const isSelected = enabledValues ? enabledValues.has(value) : true;
+        const element = render ? render(row, value) : column.renderCell(row);
+        newInfos.set(value, {count: 1, isSelected, element});
+      } else {
+        newInfo.count++;
+      }
     });
     return newInfos;
   }
@@ -139,9 +151,13 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
 
   private notifyHandler(): void {
     const enabledValues = this.getEnabledValues(this.state.groups);
-    const {getValue} = this.props.filter;
-    const filter = (row: T) => enabledValues.has(getValue(row));
-    this.props.onChange({filterFn: filter, filterStateData: enabledValues}, !this.allChecked());
+    const {filter} = this.props.column;
+    if (!filter) {
+      return;
+    }
+    const {getValue} = filter;
+    const filterFn = (row: T) => enabledValues.has(getValue(row));
+    this.props.onChange({filterFn, filterStateData: enabledValues}, !this.allChecked());
   }
 
   private toggleValue(value: U): void {
@@ -157,16 +173,6 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
     this.state.groups.forEach(info => (info.isSelected = value));
     this.forceUpdate();
     this.notifyHandler();
-  }
-
-  private renderValue(value: U): string {
-    if (typeof value === 'boolean') {
-      return value ? 'OUI' : 'NON';
-    }
-    if (typeof value === 'undefined') {
-      return '?';
-    }
-    return String(value);
   }
 
   private renderCheckboxAll(): JSX.Element {
@@ -185,24 +191,30 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
 
   public render(): JSX.Element {
     const {groups} = this.state;
-    const {filter} = this.props;
+    const {filter} = this.props.column;
+
+    if (!filter) {
+      return <React.Fragment />;
+    }
 
     const values = Array.from(groups.keys());
     const sortedValues = this.sortValues(values, filter.sortValue);
-    const checkboxes = sortedValues.map(value => {
+    const checkboxes = sortedValues.map((value, index) => {
       const info = groups.get(value);
       if (!info) {
         return <React.Fragment />;
       }
-      const valueStr = this.renderValue(value);
       const checkbox = (
-        <FilterLabel key={valueStr}>
+        <FilterLabel key={index}>
           <FilterCheckbox
             type="checkbox"
             checked={info.isSelected}
             onChange={() => this.toggleValue(value)}
           />
-          {`${valueStr} (${info.count})`}
+          <FilterRenderedValue>{info.element}</FilterRenderedValue>
+          <FilterMatchingCountContainer>
+            <FilterMatchingCount>{info.count}</FilterMatchingCount>
+          </FilterMatchingCountContainer>
         </FilterLabel>
       );
       return checkbox;
@@ -217,26 +229,48 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
   }
 }
 
-const FilterCheckbox = styled.input`
-  margin: 0px 4px 0 0;
-  position: relative;
-  top: 1px;
-`;
-
 const FilterLabel = styled.label`
   display: flex;
   align-items: baseline;
   cursor: pointer;
+  line-height: initial;
+  padding: 4px 8px;
+`;
+
+const FilterCheckbox = styled.input`
+  margin: 0px 4px 0 0;
+  position: relative;
+  top: 1px;
+  fkex-shrink: 0;
+`;
+
+const FilterRenderedValue = styled.div`
+  flex-shrink: 0;
+`;
+
+const FilterMatchingCountContainer = styled.div`
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const FilterMatchingCount = styled.div`
+  line-height: ${theme.table.fitlerCountIndicatorFontSize}px;
+  font-size: ${theme.table.fitlerCountIndicatorFontSize}px;
+  padding: 2px 4px;
+  border-radius: ${theme.table.fitlerCountIndicatorFontSize / 2}px;
+  background-color: ${theme.table.fitlerCountIndicatorBackgroundColor};
+  color: ${theme.table.fitlerCountIndicatorColor};
 `;
 
 const CheckboxSeparator = styled.div`
   height: 1px;
-  background-color: ${Colors.secondaryDark};
+  background-color: ${theme.table.filterSeparatorColor};
   margin: 8px 0;
 `;
 
 const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  color: ${theme.table.filterTextColor};
 `;

@@ -215,13 +215,7 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
   title: 'COULEUR',
   width: 100,
   renderCell: ({couleurPapier}) =>
-    couleurPapier ? (
-      <div style={{display: 'flex', alignItems: 'center', height: '100%'}}>
-        <Color color={couleurPapier} />
-      </div>
-    ) : (
-      <React.Fragment />
-    ),
+    couleurPapier ? <Color color={couleurPapier} /> : <React.Fragment />,
   getSearchValue: row => row.couleurPapier || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleurPapier, row2.couleurPapier),
   filter: {

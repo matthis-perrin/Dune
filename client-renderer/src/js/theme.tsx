@@ -171,6 +171,13 @@ export const theme = {
     rowOddBackgroundColor: Palette.Clouds,
     rowBackgroundColorHovered: Palette.Silver,
 
+    filterBackgroundColor: Palette.White,
+    filterBorderColor: Colors.SecondaryDark,
+    filterSeparatorColor: Colors.SecondaryDark,
+    filterTextColor: Palette.Black,
+    fitlerCountIndicatorBackgroundColor: Palette.Clouds,
+    fitlerCountIndicatorColor: Palette.Asbestos,
+    fitlerCountIndicatorFontSize: 12,
     filterIconOpacity: 0.5,
     filterIconHoverOpacity: 0.75,
     filterIconSelectedOpacity: 1,

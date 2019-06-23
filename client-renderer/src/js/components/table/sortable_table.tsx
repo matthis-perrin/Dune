@@ -14,6 +14,7 @@ type FilterType = 'group';
 export interface ColumnFilter<T, U> {
   filterType?: FilterType;
   getValue(row: T): U;
+  render?(row: T, value: U): JSX.Element;
   sortValue?(v1: U, v2: U): number;
 }
 
@@ -49,11 +50,6 @@ interface State<T extends {ref: string}> {
   sort?: SortInfo;
   hoveredIndex?: number;
 }
-
-const TABLE_STYLES = {
-  borderTop: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
-  borderBottom: `solid ${theme.table.borderThickness}px ${theme.table.borderColor}`,
-};
 
 export class SortableTable<T extends {ref: string}> extends React.PureComponent<
   Props<T>,
@@ -171,8 +167,7 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
         }}
         canSort={canSort}
         sort={sort}
-        title={columnMetadata.title}
-        filter={columnMetadata.filter}
+        column={columnMetadata}
         data={this.state.sortedData}
         // tslint:disable-next-line:no-unsafe-any
         filterData={filterState && filterState.filterStateData}
@@ -221,7 +216,6 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
         getColumnWidth={this.getColumnWidth}
         rowHeight={theme.table.rowHeight}
         renderColumn={this.renderColumn}
-        style={TABLE_STYLES}
         columns={columns}
         rowStyles={rowStyles}
         data={filteredData}

@@ -8,7 +8,7 @@ import {
   FilterState,
   FilterStateData,
 } from '@root/components/table/column_filters';
-import {ColumnFilter} from '@root/components/table/sortable_table';
+import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme';
 
 const {filterIconOpacity, filterIconHoverOpacity, filterIconSelectedOpacity} = theme.table;
@@ -18,13 +18,12 @@ export type ColumnSortMode = 'asc' | 'desc' | 'none';
 interface ColumnHeaderProps<T, U> {
   canSort: boolean;
   sort: ColumnSortMode;
-  title: string;
+  column: ColumnMetadata<T, U>;
   isFirst: boolean;
   isLast: boolean;
   onClick?(evt: React.MouseEvent): void;
   data: T[];
   filterData?: FilterStateData;
-  filter?: ColumnFilter<T, U>;
   onColumnFilterChange(filterState: FilterState<T>): void;
 }
 
@@ -79,10 +78,10 @@ export class ColumnHeader<T, U> extends React.Component<
   };
 
   public render(): JSX.Element {
-    const {sort, title, isFirst, isLast, data, filter, filterData, canSort} = this.props;
+    const {sort, column, isFirst, isLast, data, filterData, canSort} = this.props;
     const {isFilteringOpened, isFilterEnabled} = this.state;
 
-    const titleWrapper = <TitleWrapper>{title}</TitleWrapper>;
+    const titleWrapper = <TitleWrapper>{column.title}</TitleWrapper>;
     const icon =
       sort === 'none' ? (
         <React.Fragment />
@@ -92,11 +91,22 @@ export class ColumnHeader<T, U> extends React.Component<
         <SortingIcon name="caret-up" width={theme.table.headerIconSize} />
       );
 
-    const filterButton = filter ? (
+    const filterButton = column.filter ? (
       <Popup
         onOpen={() => this.setState({isFilteringOpened: true})}
         onClose={() => this.setState({isFilteringOpened: false})}
-        contentStyle={{cursor: 'default'}}
+        contentStyle={{
+          cursor: 'default',
+          backgroundColor: theme.table.filterBackgroundColor,
+          width: 'auto',
+          minWidth: 120,
+          border: `1px solid ${theme.table.filterBorderColor}`,
+          padding: 0,
+        }}
+        arrowStyle={{
+          boxShadow: `${theme.table.filterBorderColor} 1px 1px 0px 0px`,
+          backgroundColor: theme.table.filterBackgroundColor,
+        }}
         trigger={
           <FilteringIcon
             minOpacity={
@@ -112,7 +122,7 @@ export class ColumnHeader<T, U> extends React.Component<
           data={data}
           // tslint:disable-next-line:no-unsafe-any
           filterData={filterData}
-          filter={filter}
+          column={column}
           onChange={this.handleFilterColumnChange}
         />
       </Popup>
