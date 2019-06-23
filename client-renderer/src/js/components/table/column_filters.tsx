@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Checkbox} from '@root/components/core/checkbox';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {Colors, Palette, theme} from '@root/theme';
 
@@ -237,11 +238,11 @@ const FilterLabel = styled.label`
   padding: 4px 8px;
 `;
 
-const FilterCheckbox = styled.input`
+const FilterCheckbox = styled(Checkbox)`
   margin: 0px 4px 0 0;
   position: relative;
   top: 1px;
-  fkex-shrink: 0;
+  flex-shrink: 0;
 `;
 
 const FilterRenderedValue = styled.div`

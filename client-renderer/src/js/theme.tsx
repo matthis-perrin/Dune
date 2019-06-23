@@ -262,6 +262,14 @@ export const theme = {
     padding: '8px 12px',
     borderRadius: 6,
   },
+  checkbox: {
+    size: 16,
+    iconSize: 10,
+    uncheckedBackgroundColor: Palette.Asbestos,
+    uncheckedColor: Colors.TextOnSecondary,
+    checkedBackgroundColor: Colors.SecondaryDark,
+    checkedColor: Colors.TextOnSecondary,
+  },
   modal: {
     margin: 24,
     padding: 24,
