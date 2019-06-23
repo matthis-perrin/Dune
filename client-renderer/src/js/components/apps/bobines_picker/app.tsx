@@ -17,6 +17,7 @@ import {
   STOCK_STATE_COLUMN,
   LAST_YEAR_SELLING,
 } from '@root/components/table/columns';
+import {FastTable} from '@root/components/table/fast_table';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
@@ -24,8 +25,10 @@ import {
   stocksStore,
   cadencierStore,
 } from '@root/stores/list_store';
+import {theme} from '@root/theme';
 
 import {Stock, BobineFilleWithMultiPose, BobineQuantities} from '@shared/models';
+import {removeUndefined} from '@shared/type_utils';
 
 interface Props {}
 
@@ -71,20 +74,19 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     }
 
     return (
-      <Picker<BobineFilleWithMultiPose>
-        getHash={r => r.ref}
-        getSelectable={p => p.selectableBobines}
-        store={bobinesFillesWithMultiPoseStore}
-        title="Choix des bobines"
-        searchColumns={[BOBINE_FILLE_REF, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
-      >
-        {(elements, isSelectionnable, planProd) => (
-          <SizeMonitor>
-            {(width, height) => {
+      <SizeMonitor>
+        {(width, height) => (
+          <Picker<BobineFilleWithMultiPose>
+            getHash={r => r.ref}
+            getSelectable={p => p.selectableBobines}
+            store={bobinesFillesWithMultiPoseStore}
+            title="Choix des bobines"
+            searchColumns={[BOBINE_FILLE_REF, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
+          >
+            {(elements, isSelectionnable, planProd, header, footer) => {
               const filterBarHeight = 32;
               const searchBarHeight = 32;
               const availableWidth = width;
-              const availableHeight = height - filterBarHeight - searchBarHeight;
 
               const columns = [
                 BOBINE_FILLE_REF,
@@ -100,12 +102,61 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
               ];
 
+              const selectableMap = new Map<string, BobineFilleWithMultiPose>();
+              elements.forEach(b => selectableMap.set(b.ref, b));
+
+              const bobinesFillesWithMultiPoseMap = new Map<string, BobineFilleWithMultiPose>();
+              const allSelectedBobinesWithMultiPoses = bobinesFillesWithMultiPoseStore.getData();
+              if (allSelectedBobinesWithMultiPoses) {
+                allSelectedBobinesWithMultiPoses.forEach(b =>
+                  bobinesFillesWithMultiPoseMap.set(b.ref, b)
+                );
+              }
+              const selectedBobinesWithMultiPoses = removeUndefined(
+                planProd.selectedBobines
+                  .map(b => b.ref)
+                  .reduce(
+                    (acc, curr) => (acc.indexOf(curr) === -1 ? acc.concat([curr]) : acc),
+                    [] as string[]
+                  )
+                  .map(ref => bobinesFillesWithMultiPoseMap.get(ref))
+              ).map(b => {
+                const selectable = selectableMap.get(b.ref);
+                const availablePoses = selectable ? selectable.availablePoses : [];
+                return {...b, availablePoses};
+              });
+
+              const selectedTableHeight =
+                selectedBobinesWithMultiPoses.length > 0
+                  ? selectedBobinesWithMultiPoses.length * theme.table.rowHeight + filterBarHeight
+                  : 0;
+
+              const selectableTableHeight =
+                height - selectedTableHeight - filterBarHeight - searchBarHeight;
+
+              const selectedTable =
+                selectedBobinesWithMultiPoses.length > 0 ? (
+                  <React.Fragment>
+                    <SelectedTableHeader>BOBINES SÉLECTIONNÉES</SelectedTableHeader>
+                    <FastTable<BobineFilleWithMultiPose>
+                      width={width}
+                      height={selectedTableHeight - filterBarHeight}
+                      rowHeight={theme.table.rowHeight}
+                      columns={columns}
+                      data={selectedBobinesWithMultiPoses}
+                    />
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment />
+                );
+
               return (
                 <React.Fragment>
-                  <Padding />
+                  {header}
+                  {selectedTable}
                   <SortableTable
                     width={availableWidth}
-                    height={availableHeight}
+                    height={selectableTableHeight}
                     data={elements}
                     columns={columns}
                     initialSort={{
@@ -116,16 +167,27 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       opacity: isSelectionnable(bobine) ? 1 : 0.5,
                     })}
                   />
+                  {footer}
                 </React.Fragment>
               );
             }}
-          </SizeMonitor>
+          </Picker>
         )}
-      </Picker>
+      </SizeMonitor>
     );
   }
 }
 
-const Padding = styled.div`
-  height: 32px;
+const SelectedTableHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: ${theme.table.headerHeight}px;
+  line-height: ${theme.table.headerHeight}px;
+  color: ${theme.table.headerColor};
+  font-size: ${theme.table.headerFontSize}px;
+  font-weight: ${theme.table.headerFontWeight};
+  user-select: none;
+  width: 100%;
+  background-color: ${theme.table.headerBackgroundColor};
 `;

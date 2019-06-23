@@ -17,7 +17,9 @@ interface Props<T extends {localUpdate: number; sommeil: boolean}> {
   children(
     elements: T[],
     isSelectionnable: (element: T) => boolean,
-    planProduction: PlanProductionState
+    planProduction: PlanProductionState,
+    header: JSX.Element,
+    footer: JSX.Element
   ): JSX.Element;
   store: ListStore<T>;
   dataFilter?(value: T): boolean;
@@ -109,38 +111,48 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
       return index === -1 ? e : selectables[index];
     });
 
-    return (
-      <PickerWrapper>
-        {searchColumns ? (
-          <SearchBar
-            data={filteredElements}
-            columns={searchColumns}
-            onChange={this.handleElementsFilteredAndSearched}
-          />
-        ) : (
-          <React.Fragment />
-        )}
-        {children(filteredSearchedElements || filteredElements, this.isSelectionnable, planProd)}
-        <FilterBar
-          data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
-          filters={[
-            {
-              enableByDefault: true,
-              title: 'Compatibles',
-              shouldShowElement: this.shouldShowSelectionnable,
-            },
-            {
-              enableByDefault: false,
-              title: 'Non-compatibles',
-              shouldShowElement: this.shouldShowNotSelectionnable,
-            },
-          ]}
-          onChange={this.handleElementsFiltered}
+    const header = searchColumns ? (
+      <React.Fragment>
+        <SearchBar
+          data={filteredElements}
+          columns={searchColumns}
+          onChange={this.handleElementsFilteredAndSearched}
         />
-        ;
-      </PickerWrapper>
+        <Padding />
+      </React.Fragment>
+    ) : (
+      <React.Fragment />
+    );
+
+    const footer = (
+      <FilterBar
+        data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
+        filters={[
+          {
+            enableByDefault: true,
+            title: 'Compatibles',
+            shouldShowElement: this.shouldShowSelectionnable,
+          },
+          {
+            enableByDefault: false,
+            title: 'Non-compatibles',
+            shouldShowElement: this.shouldShowNotSelectionnable,
+          },
+        ]}
+        onChange={this.handleElementsFiltered}
+      />
+    );
+
+    return children(
+      filteredSearchedElements || filteredElements,
+      this.isSelectionnable,
+      planProd,
+      header,
+      footer
     );
   }
 }
 
-const PickerWrapper = styled.div``;
+const Padding = styled.div`
+  height: 32px;
+`;

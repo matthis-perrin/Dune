@@ -37,7 +37,7 @@ export class PerfoPickerApp extends React.Component<Props> {
         store={perfosStore}
         title="Choix de la perfo"
       >
-        {(elements, isSelectionnable) => (
+        {(elements, isSelectionnable, planProd, header, footer) => (
           <SizeMonitor>
             {(width, height) => {
               const filterBarHeight = 32;
@@ -45,23 +45,27 @@ export class PerfoPickerApp extends React.Component<Props> {
               const availableHeight = height - filterBarHeight;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
               return (
-                <PerfoList style={{height: availableHeight}}>
-                  {elements.map(r => {
-                    const enabled = isSelectionnable(r);
-                    return (
-                      <PerfoWrapper
-                        style={{
-                          opacity: enabled ? 1 : 0.35,
-                          pointerEvents: enabled ? 'all' : 'none',
-                        }}
-                        key={r.ref}
-                        onClick={() => this.handlePerfoSelected(r)}
-                      >
-                        <PerfoComponent perfo={r} pixelPerMM={pixelPerMM} />
-                      </PerfoWrapper>
-                    );
-                  })}
-                </PerfoList>
+                <React.Fragment>
+                  {header}
+                  <PerfoList style={{height: availableHeight}}>
+                    {elements.map(r => {
+                      const enabled = isSelectionnable(r);
+                      return (
+                        <PerfoWrapper
+                          style={{
+                            opacity: enabled ? 1 : 0.35,
+                            pointerEvents: enabled ? 'all' : 'none',
+                          }}
+                          key={r.ref}
+                          onClick={() => this.handlePerfoSelected(r)}
+                        >
+                          <PerfoComponent perfo={r} pixelPerMM={pixelPerMM} />
+                        </PerfoWrapper>
+                      );
+                    })}
+                  </PerfoList>
+                  {footer}
+                </React.Fragment>
               );
             }}
           </SizeMonitor>

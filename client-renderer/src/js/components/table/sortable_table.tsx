@@ -176,33 +176,6 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
     );
   };
 
-  private getFixedColumnsWidthSum(): number {
-    return this.props.columns.reduce((acc, column) => acc + (column.width || 0), 0);
-  }
-
-  private getFixedColumnsWidthCount(): number {
-    return this.props.columns.filter(col => col.width !== undefined).length;
-  }
-
-  private getVariableColumnWidthCount(): number {
-    return this.props.columns.filter(col => col.width === undefined).length;
-  }
-
-  private readonly getColumnWidth = (index: number, width: number): number => {
-    const col = this.props.columns[index];
-    const SCROLLBAR_WIDTH = 17;
-    const variableWidthCount = this.getVariableColumnWidthCount();
-    const spaceLeftForVariables = width - this.getFixedColumnsWidthSum() - SCROLLBAR_WIDTH;
-
-    if (col.width === undefined) {
-      return spaceLeftForVariables / variableWidthCount;
-    }
-    if (variableWidthCount === 0) {
-      return col.width + spaceLeftForVariables / this.getFixedColumnsWidthCount();
-    }
-    return col.width;
-  };
-
   public render(): JSX.Element {
     const {width, height, columns, rowStyles, onRowClick} = this.props;
     const {filteredData} = this.state;
@@ -211,9 +184,6 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
       <FastTable<T>
         width={width}
         height={height}
-        columnCount={this.props.columns.length}
-        rowCount={filteredData.length}
-        getColumnWidth={this.getColumnWidth}
         rowHeight={theme.table.rowHeight}
         renderColumn={this.renderColumn}
         columns={columns}

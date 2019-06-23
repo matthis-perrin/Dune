@@ -74,7 +74,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
         dataFilter={p => p.couleurPapier !== 'POLYPRO'}
         searchColumns={columns}
       >
-        {(elements, isSelectionnable) => (
+        {(elements, isSelectionnable, planProd, header, footer) => (
           <SizeMonitor>
             {(width, height) => {
               const filterBarHeight = 32;
@@ -83,12 +83,11 @@ export class PapierPickerApp extends React.Component<Props, State> {
               const availableHeight = height - filterBarHeight - searchBarHeight;
               return (
                 <React.Fragment>
-                  <Padding />
+                  {header}
                   <SortableTable
                     width={availableWidth}
                     height={availableHeight}
                     data={elements}
-                    lastUpdate={0}
                     columns={columns}
                     initialSort={{
                       index: 0,
@@ -100,6 +99,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
                       pointerEvents: isSelectionnable(papier) ? 'all' : 'none',
                     })}
                   />
+                  {footer}
                 </React.Fragment>
               );
             }}
@@ -109,7 +109,3 @@ export class PapierPickerApp extends React.Component<Props, State> {
     );
   }
 }
-
-const Padding = styled.div`
-  height: 32px;
-`;

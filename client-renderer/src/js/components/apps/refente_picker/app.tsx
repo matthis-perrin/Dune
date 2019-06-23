@@ -37,7 +37,7 @@ export class RefentePickerApp extends React.Component<Props> {
         store={refentesStore}
         title="Choix de la refente"
       >
-        {(elements, isSelectionnable) => (
+        {(elements, isSelectionnable, planProd, header, footer) => (
           <SizeMonitor>
             {(width, height) => {
               const filterBarHeight = 32;
@@ -45,23 +45,27 @@ export class RefentePickerApp extends React.Component<Props> {
               const availableHeight = height - filterBarHeight;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
               return (
-                <RefenteList style={{height: availableHeight}}>
-                  {elements.map(r => {
-                    const enabled = isSelectionnable(r);
-                    return (
-                      <RefenteWrapper
-                        style={{
-                          opacity: enabled ? 1 : 0.35,
-                          pointerEvents: enabled ? 'all' : 'none',
-                        }}
-                        key={r.ref}
-                        onClick={() => this.handleRefenteSelected(r)}
-                      >
-                        <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
-                      </RefenteWrapper>
-                    );
-                  })}
-                </RefenteList>
+                <React.Fragment>
+                  {header}
+                  <RefenteList style={{height: availableHeight}}>
+                    {elements.map(r => {
+                      const enabled = isSelectionnable(r);
+                      return (
+                        <RefenteWrapper
+                          style={{
+                            opacity: enabled ? 1 : 0.35,
+                            pointerEvents: enabled ? 'all' : 'none',
+                          }}
+                          key={r.ref}
+                          onClick={() => this.handleRefenteSelected(r)}
+                        >
+                          <RefenteComponent refente={r} pixelPerMM={pixelPerMM} />
+                        </RefenteWrapper>
+                      );
+                    })}
+                  </RefenteList>
+                  {footer}
+                </React.Fragment>
               );
             }}
           </SizeMonitor>

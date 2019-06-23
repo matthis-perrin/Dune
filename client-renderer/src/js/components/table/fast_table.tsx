@@ -8,11 +8,8 @@ import {theme} from '@root/theme';
 interface FastTableProps<T extends {ref: string}> {
   width: number;
   height: number;
-  columnCount: number;
-  rowCount: number;
-  getColumnWidth(index: number, width: number): number;
   rowHeight: number;
-  renderColumn(index: number): JSX.Element;
+  renderColumn?(index: number): JSX.Element;
   style?: React.CSSProperties;
   // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
@@ -70,13 +67,37 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     }
   );
 
+  private getFixedColumnsWidthSum(): number {
+    return this.props.columns.reduce((acc, column) => acc + (column.width || 0), 0);
+  }
+
+  private getFixedColumnsWidthCount(): number {
+    return this.props.columns.filter(col => col.width !== undefined).length;
+  }
+
+  private getVariableColumnWidthCount(): number {
+    return this.props.columns.filter(col => col.width === undefined).length;
+  }
+
+  private readonly getColumnWidth = (index: number, width: number): number => {
+    const col = this.props.columns[index];
+    const SCROLLBAR_WIDTH = 17;
+    const variableWidthCount = this.getVariableColumnWidthCount();
+    const spaceLeftForVariables = width - this.getFixedColumnsWidthSum() - SCROLLBAR_WIDTH;
+
+    if (col.width === undefined) {
+      return spaceLeftForVariables / variableWidthCount;
+    }
+    if (variableWidthCount === 0) {
+      return col.width + spaceLeftForVariables / this.getFixedColumnsWidthCount();
+    }
+    return col.width;
+  };
+
   public shouldComponentUpdate(nextProps: FastTableProps<T>): boolean {
     const hasChanged =
       this.props.width !== nextProps.width ||
       this.props.height !== nextProps.height ||
-      this.props.columnCount !== nextProps.columnCount ||
-      this.props.rowCount !== nextProps.rowCount ||
-      this.props.getColumnWidth !== nextProps.getColumnWidth ||
       this.props.rowHeight !== nextProps.rowHeight ||
       this.props.renderColumn !== nextProps.renderColumn ||
       this.props.style !== nextProps.style ||
@@ -98,39 +119,41 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   }
 
   public render(): JSX.Element {
-    const {
-      columnCount,
-      columns,
-      getColumnWidth,
-      height,
-      renderColumn,
-      rowCount,
-      rowHeight,
-      rowStyles,
-      style,
-      width,
-    } = this.props;
+    const {columns, height, renderColumn, rowHeight, rowStyles, style, width, data} = this.props;
 
-    const columnWidths = range(columnCount).map(index => getColumnWidth(index, width));
+    const rowCount = data.length;
+    const columnCount = columns.length;
+
+    const columnWidths = range(columnCount).map(index => this.getColumnWidth(index, width));
     let scrollOffset = 0;
     if (this.tableContainerRef.current) {
       scrollOffset = this.tableContainerRef.current.scrollTop;
     }
     const firstVisibleRowIndex = Math.floor(scrollOffset / rowHeight);
     const lastVisibleRowIndex = firstVisibleRowIndex + Math.ceil(height / rowHeight);
+    const header = renderColumn ? (
+      <ColumnContainer width={width}>
+        {range(columnCount).map(i => (
+          <div key={`column-${i}`} style={{width: this.getColumnWidth(i, width)}}>
+            {renderColumn(i)}
+          </div>
+        ))}
+      </ColumnContainer>
+    ) : (
+      <React.Fragment />
+    );
 
     return (
       <div>
-        <ColumnContainer width={width}>
-          {range(columnCount).map(i => (
-            <div key={`column-${i}`} style={{width: getColumnWidth(i, width)}}>
-              {renderColumn(i)}
-            </div>
-          ))}
-        </ColumnContainer>
+        {header}
         <div
           ref={this.tableContainerRef}
-          style={{...style, width, height: height - theme.table.headerHeight, overflow: 'auto'}}
+          style={{
+            ...style,
+            width,
+            height: height - (renderColumn ? theme.table.headerHeight : 0),
+            overflow: 'auto',
+          }}
         >
           <Table style={{height: rowCount * rowHeight}}>
             {Array.from(this.rows.entries())
@@ -152,7 +175,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                     }}
                     onClick={this.getRowClickHandlerForRef(ref)}
                     background={
-                      rowIndex % 2 === 0
+                      rowIndex !== undefined && rowIndex % 2 === 0
                         ? theme.table.rowEvenBackgroundColor
                         : theme.table.rowOddBackgroundColor
                     }
