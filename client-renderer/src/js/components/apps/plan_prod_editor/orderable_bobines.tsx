@@ -202,14 +202,11 @@ export class OrderableBobines extends React.Component<
     bobine: BobineFilleWithPose,
     index: number,
     negativeMargin: boolean,
-    invisible: boolean
+    style?: React.CSSProperties
   ): JSX.Element {
     const {pixelPerMM} = this.props;
     return (
-      <BobineWithPoseWrapper
-        key={`${bobine.ref}-${index}`}
-        style={{visibility: invisible ? 'hidden' : 'visible'}}
-      >
+      <BobineWithPoseWrapper key={`${bobine.ref}-${index}`} style={style}>
         <BobineWithPose
           pixelPerMM={pixelPerMM}
           bobine={bobine}
@@ -224,24 +221,11 @@ export class OrderableBobines extends React.Component<
     const {bobines} = this.props;
     const {dragStart, dragEnd} = this.state;
     const draggedBobineIndex = this.getDraggedBobineIndex();
-    const elements: JSX.Element[] = this.getNewBobinesOrder(
-      draggedBobineIndex,
-      dragStart,
-      dragEnd
-    ).map((bobine, index) =>
-      this.renderBobineWithPose(
-        bobine,
-        index,
-        true,
-        dragStart !== undefined &&
-          dragEnd !== undefined &&
-          draggedBobineIndex !== undefined &&
-          bobines[draggedBobineIndex] === bobine
-      )
-    );
 
     let draggedElement = <React.Fragment />;
+    let isDragging = false;
     if (dragStart !== undefined && dragEnd !== undefined && draggedBobineIndex !== undefined) {
+      isDragging = true;
       const bobine = bobines[draggedBobineIndex];
       const leftPos =
         this.getBobinePosX(draggedBobineIndex) +
@@ -259,10 +243,27 @@ export class OrderableBobines extends React.Component<
             pointerEvents: 'none',
           }}
         >
-          {this.renderBobineWithPose(bobine, -1, false, false)}
+          {this.renderBobineWithPose(bobine, -1, false, {visibility: 'visible'})}
         </div>
       );
     }
+
+    const elements: JSX.Element[] = this.getNewBobinesOrder(
+      draggedBobineIndex,
+      dragStart,
+      dragEnd
+    ).map((bobine, index) =>
+      this.renderBobineWithPose(bobine, index, true, {
+        pointerEvents: isDragging ? 'none' : 'all',
+        visibility:
+          dragStart !== undefined &&
+          dragEnd !== undefined &&
+          draggedBobineIndex !== undefined &&
+          bobines[draggedBobineIndex] === bobine
+            ? 'hidden'
+            : 'visible',
+      })
+    );
 
     return (
       <div style={{position: 'relative'}}>
