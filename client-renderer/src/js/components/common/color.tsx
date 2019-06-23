@@ -39,7 +39,7 @@ const ColorWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 65px;
+  min-width: 75px;
   height: 20px;
   font-weight: 700;
   font-size: 10px;

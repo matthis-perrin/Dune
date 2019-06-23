@@ -271,9 +271,12 @@ export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, s
   title: 'TYPE IMP.',
   width: 90,
   renderCell: ({typeImpression}) => renderString(typeImpression),
-  getSearchValue: row => row.typeImpression || '',
+  getSearchValue: row => row.typeImpression || '-',
   sortFunction: (row1, row2) => optionalStringSort(row1.typeImpression, row2.typeImpression),
   shouldRerender: (row1, row2) => row1.typeImpression !== row2.typeImpression,
+  filter: {
+    getValue: ({typeImpression}) => typeImpression || '-',
+  },
 };
 
 export const REF_CLICHE1_COLUMN: ColumnMetadata<{refCliche1?: string}, string> = {
@@ -725,6 +728,9 @@ export const STOCK_STATE_COLUMN = (
   shouldRerender: (row1, row2) =>
     getBobineState(row1.ref, stocks, cadencier, bobineQuantities).state !==
     getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state,
+  filter: {
+    getValue: ({ref}) => getBobineState(ref, stocks, cadencier, bobineQuantities).state,
+  },
 });
 
 export const BobineFilleColumns = {

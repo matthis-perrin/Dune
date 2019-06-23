@@ -176,17 +176,32 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
     this.notifyHandler();
   }
 
+  private renderFilterItem(
+    checked: boolean,
+    onChange: () => void,
+    element: JSX.Element,
+    count: number,
+    key: string | number
+  ): JSX.Element {
+    return (
+      <FilterLabel key={key}>
+        <FilterCheckbox type="checkbox" checked={checked} onChange={onChange} />
+        <FilterRenderedValue>{element}</FilterRenderedValue>
+        <FilterMatchingCountContainer>
+          <FilterMatchingCount>{count}</FilterMatchingCount>
+        </FilterMatchingCountContainer>
+      </FilterLabel>
+    );
+  }
+
   private renderCheckboxAll(): JSX.Element {
     const allChecked = this.allChecked();
-    return (
-      <label key="all">
-        <FilterCheckbox
-          type="checkbox"
-          checked={allChecked}
-          onChange={() => this.setAll(this.noneChecked())}
-        />
-        {`Tous (${this.props.data.length})`}
-      </label>
+    return this.renderFilterItem(
+      allChecked,
+      () => this.setAll(this.noneChecked()),
+      <span>Tous</span>,
+      this.props.data.length,
+      'all'
     );
   }
 
@@ -205,20 +220,13 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
       if (!info) {
         return <React.Fragment />;
       }
-      const checkbox = (
-        <FilterLabel key={index}>
-          <FilterCheckbox
-            type="checkbox"
-            checked={info.isSelected}
-            onChange={() => this.toggleValue(value)}
-          />
-          <FilterRenderedValue>{info.element}</FilterRenderedValue>
-          <FilterMatchingCountContainer>
-            <FilterMatchingCount>{info.count}</FilterMatchingCount>
-          </FilterMatchingCountContainer>
-        </FilterLabel>
+      return this.renderFilterItem(
+        info.isSelected,
+        () => this.toggleValue(value),
+        info.element,
+        info.count,
+        index
       );
-      return checkbox;
     });
     return (
       <CheckboxList>
@@ -232,14 +240,18 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
 
 const FilterLabel = styled.label`
   display: flex;
-  align-items: baseline;
+  align-items: center;
   cursor: pointer;
-  line-height: initial;
+  line-height: ${theme.table.filterFontSize}px;
+  font-size: ${theme.table.filterFontSize}px;
   padding: 4px 8px;
+  &:hover {
+    background-color: ${theme.table.filterBackgroundColorHover};
+  }
 `;
 
 const FilterCheckbox = styled(Checkbox)`
-  margin: 0px 4px 0 0;
+  margin: 0px 8px 0 0;
   position: relative;
   top: 1px;
   flex-shrink: 0;
@@ -262,6 +274,7 @@ const FilterMatchingCount = styled.div`
   border-radius: ${theme.table.fitlerCountIndicatorFontSize / 2}px;
   background-color: ${theme.table.fitlerCountIndicatorBackgroundColor};
   color: ${theme.table.fitlerCountIndicatorColor};
+  margin-left: 8px;
 `;
 
 const CheckboxSeparator = styled.div`
@@ -274,4 +287,5 @@ const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
   color: ${theme.table.filterTextColor};
+  padding: 8px 0;
 `;

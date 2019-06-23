@@ -107,6 +107,7 @@ export class ColumnHeader<T, U> extends React.Component<
           boxShadow: `${theme.table.filterBorderColor} 1px 1px 0px 0px`,
           backgroundColor: theme.table.filterBackgroundColor,
         }}
+        position={isLast ? 'bottom right' : 'bottom center'}
         trigger={
           <FilteringIcon
             minOpacity={

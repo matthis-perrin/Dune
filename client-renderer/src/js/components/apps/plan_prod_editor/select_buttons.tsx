@@ -49,6 +49,7 @@ const SelectButtonWrapper = styled.div`
   color: ${theme.planProd.selectableTextColor};
   background-color: ${theme.planProd.contentBackgroundColor};
   cursor: pointer;
+  user-select: none;
   :hover {
     border: dashed ${theme.planProd.selectableStrokeWidth}px
       ${theme.planProd.selectableHoverBorderColor};

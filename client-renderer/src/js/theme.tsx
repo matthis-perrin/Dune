@@ -172,9 +172,11 @@ export const theme = {
     rowBackgroundColorHovered: Palette.Silver,
 
     filterBackgroundColor: Palette.White,
+    filterBackgroundColorHover: Palette.Clouds,
     filterBorderColor: Colors.SecondaryDark,
     filterSeparatorColor: Colors.SecondaryDark,
     filterTextColor: Palette.Black,
+    filterFontSize: 13,
     fitlerCountIndicatorBackgroundColor: Palette.Clouds,
     fitlerCountIndicatorColor: Palette.Asbestos,
     fitlerCountIndicatorFontSize: 12,
