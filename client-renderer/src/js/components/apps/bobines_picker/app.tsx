@@ -150,6 +150,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                   <React.Fragment />
                 );
 
+              console.log('render in bobine picker');
+
               return (
                 <React.Fragment>
                   {header}

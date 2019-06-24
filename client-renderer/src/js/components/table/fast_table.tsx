@@ -101,7 +101,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       this.props.rowHeight !== nextProps.rowHeight ||
       this.props.renderColumn !== nextProps.renderColumn ||
       this.props.style !== nextProps.style ||
-      !isEqual(this.props.columns, nextProps.columns) ||
+      this.props.columns !== nextProps.columns ||
       this.props.rowStyles !== nextProps.rowStyles ||
       this.props.onRowClick !== nextProps.onRowClick;
 
@@ -142,6 +142,8 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     ) : (
       <React.Fragment />
     );
+
+    console.log('render in fast table');
 
     return (
       <div>
@@ -240,6 +242,8 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
     let shouldUpdate = false;
     if (!isEqual(this.props.columnWidths, nextProps.columnWidths)) {
       shouldUpdate = true;
+    } else if (this.props.columns !== nextProps.columns) {
+      shouldUpdate = true;
     }
     shouldUpdate = shouldUpdate || this.props.data !== nextProps.data;
     if (!shouldUpdate) {
@@ -318,7 +322,10 @@ interface FastTableCellProps<T extends {ref: string}> {
 
 export class FastTableCell<T extends {ref: string}> extends React.Component<FastTableCellProps<T>> {
   public shouldComponentUpdate(nextProps: FastTableCellProps<T>): boolean {
-    return this.props.column.shouldRerender(this.props.data, nextProps.data);
+    return (
+      this.props.column !== nextProps.column ||
+      this.props.column.shouldRerender(this.props.data, nextProps.data)
+    );
   }
 
   public render(): JSX.Element {

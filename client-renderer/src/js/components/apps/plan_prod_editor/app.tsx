@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
 import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable_encrier';
+import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
 import {
   SelectRefenteButton,
   SelectPapierButton,
@@ -100,7 +101,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         const poses = selectedBobines
           .filter(b => b.ref === bobine.ref)
           .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
-        return quantity / poses;
+        return Math.ceil(quantity / poses);
       }
     }
     return undefined;
@@ -245,7 +246,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {planProduction, reorderedBobines, reorderedEncriers} = this.state;
+    const {
+      planProduction,
+      reorderedBobines,
+      reorderedEncriers,
+      stocks,
+      cadencier,
+      bobineQuantities,
+    } = this.state;
 
     if (!planProduction) {
       return <LoadingIndicator size="large" />;
@@ -395,8 +403,29 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
             );
 
+            const productionTable =
+              planProduction.selectedBobines.length > 0 &&
+              stocks &&
+              cadencier &&
+              bobineQuantities ? (
+                <React.Fragment>
+                  {padding}
+                  <ProductionTable
+                    width={availableWidth + leftPadding}
+                    planProduction={planProduction}
+                    stocks={stocks}
+                    cadencier={cadencier}
+                    bobineQuantities={bobineQuantities}
+                  />
+                </React.Fragment>
+              ) : (
+                <React.Fragment />
+              );
+
             return (
               <Wrapper style={{width: availableWidth + leftPadding}}>
+                {productionTable}
+                {padding}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
                 {padding}
                 <div style={{alignSelf: 'flex-end'}}>{refenteBlock}</div>
@@ -408,6 +437,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <div style={{alignSelf: 'flex-start', paddingLeft: leftPadding}}>{perfoBlock}</div>
                 {padding}
                 <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
+                {padding}
               </Wrapper>
             );
           }}
@@ -427,7 +457,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: ${theme.page.padding}px;
+  padding: 0 ${theme.page.padding}px;
 `;
 
 const ClosableAlignRight = styled(Closable)`

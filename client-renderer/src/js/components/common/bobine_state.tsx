@@ -20,7 +20,7 @@ const stateUI = new Map<BobineStateModel, StateUI>([
   ],
   [
     BobineStateModel.Neutre,
-    {title: '', color: Palette.Transparent, fontWeight: FontWeight.SemiBold},
+    {title: 'EN STOCK', color: Colors.Neutral, fontWeight: FontWeight.SemiBold},
   ],
   [
     BobineStateModel.Surstock,

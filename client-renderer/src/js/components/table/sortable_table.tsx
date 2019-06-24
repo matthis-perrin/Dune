@@ -180,6 +180,8 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
     const {width, height, columns, rowStyles, onRowClick} = this.props;
     const {filteredData} = this.state;
 
+    console.log('render in sortable table');
+
     return (
       <FastTable<T>
         width={width}

@@ -1,4 +1,4 @@
-import {isEqual} from 'lodash-es';
+import {isEqual, pick} from 'lodash-es';
 import * as React from 'react';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
@@ -19,12 +19,13 @@ import {Colors} from '@root/theme';
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {BobineColors as BobineColorsModel} from '@shared/lib/encrier';
 import {
-  Stock,
-  Cliche,
-  OperationConstraint as OperationConstraintModel,
   BobineFilleWithMultiPose,
   BobineQuantities,
+  BobineState as BobineStateModel,
+  Cliche,
+  OperationConstraint as OperationConstraintModel,
   PlanProductionState,
+  Stock,
 } from '@shared/models';
 
 function getStocksSortFunction<T extends {ref: string}>(
@@ -127,7 +128,7 @@ function renderString(value?: string): JSX.Element {
 }
 
 function renderNumber(value?: number): JSX.Element {
-  return <div style={{textAlign: 'center'}}>{value === undefined ? '-' : value}</div>;
+  return <div style={{marginLeft: 'auto'}}>{value === undefined ? '-' : value}</div>;
 }
 
 function renderDate(value?: number): JSX.Element {
@@ -198,6 +199,14 @@ export const LAIZE_COLUMN: ColumnMetadata<{laize?: number}, number> = {
     getValue: (row: {laize?: number}) => row.laize || 0,
   },
   shouldRerender: (row1, row2) => row1.laize !== row2.laize,
+};
+
+export const PISTES_COLUMN: ColumnMetadata<{pistes: number}, number> = {
+  title: 'PISTES',
+  width: 70,
+  renderCell: ({pistes}) => renderNumber(pistes),
+  sortFunction: (row1, row2) => numberSort(row1.pistes, row2.pistes),
+  shouldRerender: (row1, row2) => row1.pistes !== row2.pistes,
 };
 
 export const LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
@@ -733,6 +742,56 @@ export const STOCK_STATE_COLUMN = (
   },
 });
 
+export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
+  title: 'PRODUCTION',
+  renderCell: ({production}) => renderNumber(production),
+  sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
+  shouldRerender: (row1, row2) => row1.production !== row2.production,
+};
+
+export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
+  title: 'STOCK ACTUEL',
+  renderCell: ({stock}) => renderNumber(stock),
+  sortFunction: (row1, row2) => numberSort(row1.stock, row2.stock),
+  shouldRerender: (row1, row2) => row1.stock !== row2.stock,
+};
+
+export const STATE_ACTUEL_COLUMN: ColumnMetadata<{state: BobineStateModel}, number> = {
+  title: 'ÉTAT ACTUEL',
+  renderCell: ({state}) => (
+    <div style={{marginLeft: 'auto'}}>
+      <BobineState state={state} />
+    </div>
+  ),
+  sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
+  shouldRerender: (row1, row2) => row1.state !== row2.state,
+};
+
+export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
+  title: 'QUANTITÉ À PRODUIRE',
+  renderCell: ({quantity}) => renderNumber(quantity),
+  sortFunction: (row1, row2) => numberSort(row1.quantity, row2.quantity),
+  shouldRerender: (row1, row2) => row1.quantity !== row2.quantity,
+};
+
+export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number> = {
+  title: 'STOCK PRÉVISIONNEL',
+  renderCell: ({newStock}) => renderNumber(newStock),
+  sortFunction: (row1, row2) => numberSort(row1.newStock, row2.newStock),
+  shouldRerender: (row1, row2) => row1.newStock !== row2.newStock,
+};
+
+export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<{newState: BobineStateModel}, number> = {
+  title: 'ÉTAT PRÉVISIONNEL',
+  renderCell: ({newState}) => (
+    <div style={{marginLeft: 'auto'}}>
+      <BobineState state={newState} />
+    </div>
+  ),
+  sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
+  shouldRerender: (row1, row2) => row1.newState !== row2.newState,
+};
+
 export const BobineFilleColumns = {
   Ref: REFERENCE_COLUMN(170),
   Designation: DESIGNATION_COLUMN,
@@ -825,3 +884,14 @@ export const OperationColumns = {
   LastUpdate: LAST_UPDATE_COLUMN,
 };
 // tslint:enable:no-magic-numbers
+
+export function toStaticColumn<T, U>(column: ColumnMetadata<T, U>): ColumnMetadata<T, U> {
+  return pick(column, ['title', 'renderCell', 'shouldRerender', 'width']);
+}
+
+export function withWidth<T, U>(
+  column: ColumnMetadata<T, U>,
+  width: number | undefined
+): ColumnMetadata<T, U> {
+  return {...column, width};
+}
