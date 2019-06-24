@@ -122,7 +122,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                   .map(ref => bobinesFillesWithMultiPoseMap.get(ref))
               ).map(b => {
                 const selectable = selectableMap.get(b.ref);
-                const availablePoses = selectable ? selectable.availablePoses : [];
+                const availablePoses = selectable ? [...selectable.availablePoses] : [];
                 return {...b, availablePoses};
               });
 

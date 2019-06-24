@@ -17,7 +17,7 @@ interface ButtonProps
   extends ReactProps,
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
   mode?: ButtonMode;
-  popup?: JSX.Element | string;
+  popup?: JSX.Element;
 }
 
 export class Button extends React.Component<ButtonProps> {
@@ -42,7 +42,12 @@ export class Button extends React.Component<ButtonProps> {
       return button;
     }
     return (
-      <Popup contentStyle={{width: 'auto'}} trigger={button} position="left center" on="hover">
+      <Popup
+        contentStyle={{width: 320, padding: 10, zIndex: 10000, whiteSpace: 'normal'}}
+        trigger={button}
+        position="left center"
+        on="hover"
+      >
         {popup}
       </Popup>
     );

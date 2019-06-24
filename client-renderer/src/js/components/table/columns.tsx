@@ -230,7 +230,7 @@ function listBobineColors(colors: BobineColorsModel): string[] {
 
 export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsModel}, string> = {
   title: 'IMPRESSION',
-  width: 215,
+  width: 240,
   renderCell: ({colors}) => <BobineColors style={{height: '100%'}} bobineColors={colors} />,
   // getSearchValue: row => row.couleursImpression.join(', '),
   sortFunction: (row1, row2) =>
@@ -243,7 +243,7 @@ export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsMod
   // filter: {
   //   getValue: row => row.couleursImpression.join(', '),
   // },
-  shouldRerender: (row1, row2) => isEqual(row1.colors, row2.colors),
+  shouldRerender: (row1, row2) => !isEqual(row1.colors, row2.colors),
 };
 
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
@@ -474,7 +474,7 @@ export const MULTI_POSE_COLUMN = (
         true,
         numberSort
       ),
-    shouldRerender: (row1, row2) => isEqual(row1.availablePoses, row2.availablePoses),
+    shouldRerender: (row1, row2) => !isEqual(row1.availablePoses, row2.availablePoses),
   };
 };
 

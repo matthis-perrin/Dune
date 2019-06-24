@@ -428,7 +428,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: ${theme.page.padding}px;
-  border-bottom: solid 2px black;
 `;
 
 const ClosableAlignRight = styled(Closable)`

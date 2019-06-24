@@ -57,7 +57,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
               mode={mode}
               key={`${bobine.ref}-${index}`}
               onClick={() => this.handleClick(pose)}
-              popup={reason}
+              popup={reason !== undefined ? <span>{reason}</span> : undefined}
             >
               {pose === POSE_NEUTRE ? 'neutre' : pose}
             </Button>
