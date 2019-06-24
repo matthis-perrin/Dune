@@ -9,7 +9,6 @@ interface StateUI {
   title: string;
   color: string;
   fontWeight: number;
-  icon?: string;
 }
 
 const stateUI = new Map<BobineStateModel, StateUI>([
@@ -44,7 +43,7 @@ export class BobineState extends React.Component<BobineStateProps> {
   public render(): JSX.Element {
     const {state} = this.props;
 
-    const {title, color, fontWeight, icon} = stateUI.get(state) || unknownStateUI;
+    const {title, color, fontWeight} = stateUI.get(state) || unknownStateUI;
 
     return (
       <BobineStateContainer style={{backgroundColor: color, color: Palette.White, fontWeight}}>
