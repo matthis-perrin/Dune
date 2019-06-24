@@ -112,6 +112,16 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge
       .getPlanProduction()
       .then(planProduction => {
+        let hasRemoved = false;
+        const oldPlanProduction = this.state.planProduction;
+        if (oldPlanProduction) {
+          hasRemoved =
+            oldPlanProduction.selectedBobines.length > planProduction.selectedBobines.length ||
+            (oldPlanProduction.selectedPapier && !planProduction.selectedPapier) ||
+            (oldPlanProduction.selectedPerfo && !planProduction.selectedPerfo) ||
+            (oldPlanProduction.selectedPolypro && !planProduction.selectedPolypro) ||
+            (oldPlanProduction.selectedRefente && !planProduction.selectedRefente);
+        }
         const newState: Partial<State> = {planProduction};
         if (
           this.state.planProduction &&
@@ -128,7 +138,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               bridge.setPlanTourCount(newTourCount).catch(console.error);
             }
           }
-          if (this.canAutoComplete()) {
+          if (!hasRemoved && this.canAutoComplete()) {
             this.autoComplete();
           }
         });
