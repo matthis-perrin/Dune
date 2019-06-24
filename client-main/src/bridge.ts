@@ -180,7 +180,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    engine.removeBobine(asString(ref, ''), asNumber(pose, 0));
+    engine.removeBobine(asString(ref, ''), asNumber(pose, undefined));
     return Promise.resolve();
   }
   if (command === ClearPlan) {

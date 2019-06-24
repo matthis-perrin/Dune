@@ -142,7 +142,7 @@ class Bridge {
   public async addPlanBobine(ref: string, pose: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {ref, pose});
   }
-  public async removePlanBobine(ref: string, pose: number): Promise<void> {
+  public async removePlanBobine(ref: string, pose?: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {ref, pose});
   }
   public async clearPlan(): Promise<void> {

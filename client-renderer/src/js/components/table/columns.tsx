@@ -1,5 +1,6 @@
 import {isEqual, pick} from 'lodash-es';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {AddPoseButtons} from '@root/components/common/add_pose_buttons';
 import {BobineColors} from '@root/components/common/bobine_colors';
@@ -11,6 +12,7 @@ import {
   ConstraintDescriptions,
 } from '@root/components/common/operation_constraint';
 import {RefLink} from '@root/components/common/ref_link';
+import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {getStock, getBobineSellingPastYear, getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
@@ -820,6 +822,34 @@ export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<{newState: BobineStateMode
   sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
   shouldRerender: (row1, row2) => row1.newState !== row2.newState,
 };
+
+const CloseButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  fill: ${Colors.Danger};
+  opacity: 0.5;
+  :hover {
+    opacity: 1;
+  }
+`;
+
+export function CLOSE_COLUMN<T>(onClose: (row: T) => void): ColumnMetadata<T, void> {
+  return {
+    title: '',
+    width: 30,
+    renderCell: row => (
+      <CloseButton onClick={() => onClose(row)}>
+        <SVGIcon name="cross" width={12} height={12} />
+      </CloseButton>
+    ),
+    justifyContent: 'flex-end',
+    shouldRerender: (row1, row2) => row1 !== row2,
+  };
+}
 
 export const BobineFilleColumns = {
   Ref: REFERENCE_COLUMN(170),

@@ -12,6 +12,7 @@ import {
   STATE_PREVISIONEL_COLUMN,
   toStaticColumn,
   withWidth,
+  CLOSE_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {getStock, getBobineState} from '@root/lib/bobine';
@@ -26,13 +27,14 @@ interface ProductionTableProps {
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
+  onRemove?(ref: string): void;
 }
 
 export class ProductionTable extends React.Component<ProductionTableProps> {
   public static displayName = 'ProductionTable';
 
   public render(): JSX.Element {
-    const {width, planProduction, stocks, cadencier, bobineQuantities} = this.props;
+    const {width, planProduction, stocks, cadencier, bobineQuantities, onRemove} = this.props;
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
     const selectedPistesSum = new Map<string, number>();
@@ -62,7 +64,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       };
     });
 
-    const columns = [
+    let columns = [
       withWidth(toStaticColumn(BOBINE_FILLE_REF), undefined),
       withWidth(toStaticColumn(LAIZE_COLUMN), 70),
       withWidth(toStaticColumn(PISTES_COLUMN), 70),
@@ -72,7 +74,12 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       withWidth(toStaticColumn(PRODUCTION_COLUMN), 120),
       withWidth(toStaticColumn(STOCK_PREVISIONEL_COLUMN), 170),
       withWidth(toStaticColumn(STATE_PREVISIONEL_COLUMN), 170),
+      CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)),
     ];
+
+    if (!onRemove) {
+      columns = columns.slice(0, columns.length - 1);
+    }
 
     return (
       <SortableTable

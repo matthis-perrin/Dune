@@ -416,6 +416,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     stocks={stocks}
                     cadencier={cadencier}
                     bobineQuantities={bobineQuantities}
+                    onRemove={(ref: string) => {
+                      bridge.removePlanBobine(ref).catch(console.error);
+                    }}
                   />
                 </React.Fragment>
               ) : (

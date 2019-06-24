@@ -19,6 +19,7 @@ import {
   LAST_YEAR_SELLING,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
+import {bridge} from '@root/lib/bridge';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
   bobinesFillesWithMultiPoseStore,
@@ -117,6 +118,9 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     stocks={stocks}
                     cadencier={cadencier}
                     bobineQuantities={bobineQuantities}
+                    onRemove={(ref: string) => {
+                      bridge.removePlanBobine(ref).catch(console.error);
+                    }}
                   />
                 ) : (
                   <React.Fragment />

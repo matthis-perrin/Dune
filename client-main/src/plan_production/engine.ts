@@ -189,17 +189,24 @@ export class PlanProductionEngine {
     this.recalculate();
   }
 
-  public removeBobine(ref: string, pose: number): void {
+  public removeBobine(ref: string, pose?: number): void {
     if (this.isComputing) {
       return;
     }
-    const matchingBobines = this.planProduction.bobinesFilles.filter(
-      b => b.ref === ref && b.pose === pose
-    );
-    if (matchingBobines.length > 0) {
-      const toRemove = matchingBobines[matchingBobines.length - 1];
-      const index = this.planProduction.bobinesFilles.indexOf(toRemove);
-      this.planProduction.bobinesFilles.splice(index, 1);
+    if (pose) {
+      const matchingBobines = this.planProduction.bobinesFilles.filter(
+        b => b.ref === ref && b.pose === pose
+      );
+      if (matchingBobines.length > 0) {
+        const toRemove = matchingBobines[matchingBobines.length - 1];
+        const index = this.planProduction.bobinesFilles.indexOf(toRemove);
+        this.planProduction.bobinesFilles.splice(index, 1);
+        this.recalculate();
+      }
+    } else {
+      this.planProduction.bobinesFilles = this.planProduction.bobinesFilles.filter(
+        b => b.ref !== ref
+      );
       this.recalculate();
     }
   }
