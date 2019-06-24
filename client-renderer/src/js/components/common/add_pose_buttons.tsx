@@ -38,7 +38,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
     const filteredPoses = dedupePoseNeutre(poses);
     const tourCount = planProd.tourCount;
 
-    const posesStates = getBobinePoseState(
+    const unusedPoses = getBobinePoseState(
       bobine.ref,
       filteredPoses,
       planProd.selectedBobines,
@@ -46,23 +46,37 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       stocks,
       cadencier,
       bobineQuantities
-    );
+    ).map(({pose, mode, reason}, index) => {
+      return (
+        <Button
+          style={{padding: '4px 12px', marginRight: 4}}
+          mode={mode}
+          key={`${bobine.ref}-${index}`}
+          onClick={() => this.handleClick(pose)}
+          popup={reason !== undefined ? <span>{reason}</span> : undefined}
+        >
+          {pose === POSE_NEUTRE ? 'neutre' : pose}
+        </Button>
+      );
+    });
+
+    const usedPoses = planProd.selectedBobines
+      .filter(b => b.ref === bobine.ref)
+      .sort((b1, b2) => b2.pose - b1.pose)
+      .map(({ref, pose}, index) => (
+        <Button
+          mode={ButtonMode.Disabled}
+          style={{padding: '4px 12px', marginRight: 4}}
+          key={`${ref}-used-${index}`}
+        >
+          {pose === POSE_NEUTRE ? 'neutre' : pose}
+        </Button>
+      ));
 
     return (
       <React.Fragment>
-        {posesStates.map(({pose, mode, reason}, index) => {
-          return (
-            <Button
-              style={{padding: '4px 12px', marginRight: 4}}
-              mode={mode}
-              key={`${bobine.ref}-${index}`}
-              onClick={() => this.handleClick(pose)}
-              popup={reason !== undefined ? <span>{reason}</span> : undefined}
-            >
-              {pose === POSE_NEUTRE ? 'neutre' : pose}
-            </Button>
-          );
-        })}
+        {unusedPoses}
+        {usedPoses}
       </React.Fragment>
     );
   }

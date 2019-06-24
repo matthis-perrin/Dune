@@ -143,8 +143,6 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       <React.Fragment />
     );
 
-    console.log('render in fast table');
-
     return (
       <div>
         {header}
@@ -303,7 +301,6 @@ const CellWrapper = styled.div`
   box-sizing: border-box;
   font-size: ${theme.table.rowFontSize}px;
   font-weight: ${theme.table.rowFontWeight};
-  cursor: pointer;
   user-select: auto;
   display: flex;
   align-items: center;

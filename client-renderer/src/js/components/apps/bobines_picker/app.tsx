@@ -101,35 +101,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
               ];
 
-              // const selectableMap = new Map<string, BobineFilleWithMultiPose>();
-              // elements.forEach(b => selectableMap.set(b.ref, b));
-
-              // const bobinesFillesWithMultiPoseMap = new Map<string, BobineFilleWithMultiPose>();
-              // const allSelectedBobinesWithMultiPoses = bobinesFillesWithMultiPoseStore.getData();
-              // if (allSelectedBobinesWithMultiPoses) {
-              //   allSelectedBobinesWithMultiPoses.forEach(b =>
-              //     bobinesFillesWithMultiPoseMap.set(b.ref, b)
-              //   );
-              // }
-              // const selectedBobinesWithMultiPoses = removeUndefined(
-              //   planProd.selectedBobines
-              //     .map(b => b.ref)
-              //     .reduce(
-              //       (acc, curr) => (acc.indexOf(curr) === -1 ? acc.concat([curr]) : acc),
-              //       [] as string[]
-              //     )
-              //     .map(ref => bobinesFillesWithMultiPoseMap.get(ref))
-              // ).map(b => {
-              //   const selectable = selectableMap.get(b.ref);
-              //   const availablePoses = selectable ? [...selectable.availablePoses] : [];
-              //   return {...b, availablePoses};
-              // });
-
-              // const selectedTableHeight =
-              //   selectedBobinesWithMultiPoses.length > 0
-              //     ? selectedBobinesWithMultiPoses.length * theme.table.rowHeight + filterBarHeight
-              //     : 0;
-
               const selectedTableHeight =
                 planProd.selectedBobines.length > 0
                   ? planProd.selectedBobines.length * theme.table.rowHeight + filterBarHeight
@@ -137,24 +108,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
 
               const selectableTableHeight =
                 height - selectedTableHeight - filterBarHeight - searchBarHeight;
-
-              // const selectedTable =
-              //   selectedBobinesWithMultiPoses.length > 0 ? (
-              //     <React.Fragment>
-              //       <SelectedTableHeader>BOBINES SÉLECTIONNÉES</SelectedTableHeader>
-              //       <FastTable<BobineFilleWithMultiPose>
-              //         width={width}
-              //         height={selectedTableHeight - filterBarHeight}
-              //         rowHeight={theme.table.rowHeight}
-              //         columns={columns}
-              //         data={selectedBobinesWithMultiPoses}
-              //       />
-              //     </React.Fragment>
-              //   ) : (
-              //     <React.Fragment />
-              //   );
-
-              // console.log('render in bobine picker');
 
               const productionTable =
                 planProd.selectedBobines.length > 0 && stocks && cadencier && bobineQuantities ? (

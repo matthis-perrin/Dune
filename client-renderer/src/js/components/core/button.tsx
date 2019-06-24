@@ -11,6 +11,7 @@ export enum ButtonMode {
   Neutral = 20,
   Warning = 30,
   Danger = 40,
+  Disabled = 50,
 }
 
 interface ButtonProps
@@ -36,6 +37,8 @@ export class Button extends React.Component<ButtonProps> {
       ButtonClass = DangerButton;
     } else if (mode === ButtonMode.Neutral) {
       ButtonClass = NeutralButton;
+    } else if (mode === ButtonMode.Disabled) {
+      ButtonClass = DisabledButton;
     }
     const button = <ButtonClass {...props}>{this.props.children}</ButtonClass>;
     if (!popup) {
@@ -112,6 +115,19 @@ export const DangerButton = styled(ButtonBase)`
 `;
 
 export const NeutralButton = styled(ButtonBase)`
+  background-color: ${Colors.Neutral};
+  &:hover {
+    background-color: ${Colors.NeutralLight};
+  }
+  &:active {
+    background-color: ${Colors.Neutral};
+  }
+`;
+
+export const DisabledButton = styled(ButtonBase)`
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.5;
   background-color: ${Colors.Neutral};
   &:hover {
     background-color: ${Colors.NeutralLight};
