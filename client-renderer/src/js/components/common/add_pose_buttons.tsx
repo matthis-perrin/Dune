@@ -60,8 +60,24 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       );
     });
 
+    const usedPosesNeutres = planProd.selectedBobines.filter(
+      b => b.ref === bobine.ref && b.pose === POSE_NEUTRE
+    ).length;
+    const usedPosesNeutresButton =
+      usedPosesNeutres > 0 ? (
+        <Button
+          mode={ButtonMode.Disabled}
+          style={{padding: '4px 12px', marginRight: 4}}
+          key={`${bobine.ref}-used-neutre`}
+        >
+          {`neutre${usedPosesNeutres > 1 ? ` x ${usedPosesNeutres}` : ''}`}
+        </Button>
+      ) : (
+        <React.Fragment />
+      );
+
     const usedPoses = planProd.selectedBobines
-      .filter(b => b.ref === bobine.ref)
+      .filter(b => b.ref === bobine.ref && b.pose !== POSE_NEUTRE)
       .sort((b1, b2) => b2.pose - b1.pose)
       .map(({ref, pose}, index) => (
         <Button
@@ -69,7 +85,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
           style={{padding: '4px 12px', marginRight: 4}}
           key={`${ref}-used-${index}`}
         >
-          {pose === POSE_NEUTRE ? 'neutre' : pose}
+          {pose}
         </Button>
       ));
 
@@ -77,6 +93,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       <React.Fragment>
         {unusedPoses}
         {usedPoses}
+        {usedPosesNeutresButton}
       </React.Fragment>
     );
   }
