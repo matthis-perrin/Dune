@@ -131,11 +131,13 @@ export class ColumnHeader<T, U> extends React.Component<
       <React.Fragment />
     );
 
+    const justifyContent = column.justifyContent || 'flex-start';
+
     const wrapperProps = {
       isFirst,
       isLast,
       onClick: this.handleColumnClick,
-      style: {cursor: canSort ? 'pointer' : 'default'},
+      style: {cursor: canSort ? 'pointer' : 'default', justifyContent},
     };
     return (
       <ColumnHeaderWrapper {...wrapperProps}>
@@ -171,7 +173,6 @@ const TitleWrapper = styled.div`
 const ColumnHeaderWrapper = styled.div`
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   height: ${theme.table.headerHeight}px;
   line-height: ${theme.table.headerHeight}px;
   color: ${theme.table.headerColor};

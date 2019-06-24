@@ -19,13 +19,15 @@ export interface ColumnFilter<T, U> {
 }
 
 export interface ColumnMetadata<T, U> {
-  title: string;
+  title: string | JSX.Element;
+  renderCell(element: T): JSX.Element;
+  shouldRerender(prev: T, next: T): boolean;
+
   sortFunction?: SortFunction<T>;
   width?: number;
   filter?: ColumnFilter<T, U>;
-  renderCell(element: T): JSX.Element;
   getSearchValue?(element: T): string;
-  shouldRerender(prev: T, next: T): boolean;
+  justifyContent?: 'flex-start' | 'flex-end' | 'center';
 }
 
 export interface SortInfo {

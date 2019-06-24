@@ -10,7 +10,6 @@ import {getPoseSize} from '@shared/lib/cliches';
 import {
   BobineFilleWithMultiPose,
   BobineQuantities,
-  BobineState,
   PlanProductionState,
   POSE_NEUTRE,
   Stock,

@@ -279,10 +279,12 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
           const isLast = columnIndex === columns.length - 1;
           const paddingLeft = isFirst ? theme.table.headerPadding : theme.table.headerPadding / 2;
           const paddingRight = isLast ? theme.table.headerPadding : theme.table.headerPadding / 2;
+          const justifyContent = columns[columnIndex].justifyContent || 'flex-start';
 
           const cellStyles: React.CSSProperties = {
             paddingLeft,
             paddingRight,
+            justifyContent,
             width: columnWidth,
             height: rowHeight,
           };

@@ -64,14 +64,14 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
 
     const columns = [
       withWidth(toStaticColumn(BOBINE_FILLE_REF), undefined),
-      withWidth(toStaticColumn(LAIZE_COLUMN), 50),
-      withWidth(toStaticColumn(PISTES_COLUMN), 50),
-      withWidth(toStaticColumn(STOCK_ACTUEL_COLUMN), 100),
-      withWidth(toStaticColumn(STATE_ACTUEL_COLUMN), 100),
-      withWidth(toStaticColumn(QUANTITY_COLUMN), 150),
-      withWidth(toStaticColumn(PRODUCTION_COLUMN), 100),
-      withWidth(toStaticColumn(STOCK_PREVISIONEL_COLUMN), 150),
-      withWidth(toStaticColumn(STATE_PREVISIONEL_COLUMN), 150),
+      withWidth(toStaticColumn(LAIZE_COLUMN), 70),
+      withWidth(toStaticColumn(PISTES_COLUMN), 70),
+      withWidth(toStaticColumn(STOCK_ACTUEL_COLUMN), 120),
+      withWidth(toStaticColumn(STATE_ACTUEL_COLUMN), 120),
+      withWidth(toStaticColumn(QUANTITY_COLUMN), 170),
+      withWidth(toStaticColumn(PRODUCTION_COLUMN), 120),
+      withWidth(toStaticColumn(STOCK_PREVISIONEL_COLUMN), 170),
+      withWidth(toStaticColumn(STATE_PREVISIONEL_COLUMN), 170),
     ];
 
     return (
