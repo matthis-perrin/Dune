@@ -62,9 +62,6 @@ export async function getTableRowCount(
 }
 
 export async function getGescomSyncData(db: knex, tableName: string): Promise<GescomSyncData> {
-  if (Math.random() < 0.1) {
-    throw new Error('Erreur déclenchée manuellement lol');
-  }
   const syncInfo = await db(GESCOM_SYNC_TABLE_NAME)
     .select([LAST_UPDATED_COLUMN, LAST_CHECKED_COLUMN, LAST_FULL_REFRESH_COLUMN])
     .where(TABLE_NAME_COLUMN, '=', tableName);
