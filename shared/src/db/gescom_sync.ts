@@ -51,7 +51,7 @@ export async function getTableRowCount(
   tableName: string
 ): Promise<{rowCount: number; rowCountSommeil?: number}> {
   const tablesWithSommeil = ['bobines_filles', 'bobines_meres', 'cliches'];
-  let rowCountSommeil: number | undefined = undefined;
+  let rowCountSommeil: number | undefined;
   if (tablesWithSommeil.indexOf(tableName) !== -1) {
     rowCountSommeil = (await db(tableName)
       .where('sommeil', '=', '1')

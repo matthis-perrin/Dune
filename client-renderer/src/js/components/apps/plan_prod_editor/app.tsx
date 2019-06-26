@@ -20,7 +20,7 @@ import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
-import {getBobineState} from '@root/lib/bobine';
+import {getBobineState, getStock} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -343,6 +343,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               />
             );
 
+            const selectedPapierStock =
+              selectedPapier && stocks ? getStock(selectedPapier.ref, stocks) : 0;
             const papierBlock = selectedPapier ? (
               <Closable
                 color={getColorInfoByName(selectedPapier.couleurPapier).dangerHex}
@@ -361,7 +363,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   >
                     {`Bobine Papier ${selectedPapier.couleurPapier} ${
                       selectedPapier.ref
-                    } - Largeur ${selectedPapier.laize} - ${selectedPapier.grammage}g`}
+                    } - Largeur ${selectedPapier.laize} - ${
+                      selectedPapier.grammage
+                    }g - ${selectedPapierStock} en stock`}
                   </AutoFontWeight>
                 </Bobine>
               </Closable>
@@ -396,7 +400,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   >
                     {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
                       selectedPolypro.grammage
-                    }g`}
+                    }μg`}
                   </AutoFontWeight>
                 </Bobine>
               </Closable>

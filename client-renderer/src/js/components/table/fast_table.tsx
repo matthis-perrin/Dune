@@ -124,7 +124,9 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const rowCount = data.length;
     const columnCount = columns.length;
 
-    const columnWidths = range(columnCount).map(index => this.getColumnWidth(index, width));
+    const adjustedWidth = Math.max(this.getFixedColumnsWidthSum() + 250, width);
+    const columnWidths = range(columnCount).map(index => this.getColumnWidth(index, adjustedWidth));
+
     let scrollOffset = 0;
     if (this.tableContainerRef.current) {
       scrollOffset = this.tableContainerRef.current.scrollTop;
@@ -132,9 +134,9 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const firstVisibleRowIndex = Math.floor(scrollOffset / rowHeight);
     const lastVisibleRowIndex = firstVisibleRowIndex + Math.ceil(height / rowHeight);
     const header = renderColumn ? (
-      <ColumnContainer width={width}>
+      <ColumnContainer width={adjustedWidth}>
         {range(columnCount).map(i => (
-          <div key={`column-${i}`} style={{width: this.getColumnWidth(i, width)}}>
+          <div key={`column-${i}`} style={{width: this.getColumnWidth(i, adjustedWidth)}}>
             {renderColumn(i)}
           </div>
         ))}
@@ -144,13 +146,13 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     );
 
     return (
-      <div>
+      <div style={{width}}>
         {header}
         <div
           ref={this.tableContainerRef}
           style={{
             ...style,
-            width,
+            width: adjustedWidth,
             height: height - (renderColumn ? theme.table.headerHeight : 0),
             overflow: 'auto',
           }}

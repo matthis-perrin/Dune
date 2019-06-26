@@ -27,7 +27,7 @@ const STOCK_COLUMNS = [
 ];
 
 export class GescomWatcherStocks extends GescomWatcher {
-  tableName = STOCKS_TABLE_NAME;
+  public tableName = STOCKS_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(GESCOM_STOCK_TABLE_NAME)

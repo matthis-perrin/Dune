@@ -31,6 +31,7 @@ import {
   ListCadencierForBobine,
   ListBobinesQuantities,
   SetPlanTourCount,
+  ListColors,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -46,6 +47,7 @@ import {
   Vente,
   Cadencier,
   BobineQuantities,
+  Color,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -116,6 +118,9 @@ class Bridge {
   }
   public async listBobinesQuantities(): Promise<BobineQuantities[]> {
     return this.bridgeTransport.sendBridgeCommand<BobineQuantities[]>(ListBobinesQuantities);
+  }
+  public async listColors(): Promise<Color[]> {
+    return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
   }
 
   public async createNewPlanProduction(): Promise<void> {

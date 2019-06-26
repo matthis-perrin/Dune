@@ -1,8 +1,5 @@
 import knex from 'knex';
 
-import {BobineMereColumns, deleteBobinesMeres} from '@shared/db/bobines_meres';
-import {BOBINES_MERES_TABLE_NAME} from '@shared/db/table_names';
-import {asString, asNumber, asDate} from '@shared/type_utils';
 import {
   GescomWatcher,
   ARTICLE_REF_COLUMN,
@@ -16,6 +13,10 @@ import {
   ARTICLE_TABLE_NAME,
   ARTICLE_LONGUEUR_BM_COLUMN,
 } from '@root/gescom/common';
+
+import {BobineMereColumns, deleteBobinesMeres} from '@shared/db/bobines_meres';
+import {BOBINES_MERES_TABLE_NAME} from '@shared/db/table_names';
+import {asString, asNumber, asDate} from '@shared/type_utils';
 
 export const BOBINE_MERE_REF_PATTERN = '8[1-7]%';
 
@@ -31,7 +32,7 @@ const BOBINE_MERE_COLUMNS = [
 ];
 
 export class GescomWatcherBobinesMeres extends GescomWatcher {
-  tableName = BOBINES_MERES_TABLE_NAME;
+  public tableName = BOBINES_MERES_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(ARTICLE_TABLE_NAME)

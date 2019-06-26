@@ -29,6 +29,7 @@ interface State {
 
 export class ViewBobineApp extends React.Component<Props, State> {
   public static displayName = 'ViewBobineApp';
+  private readonly cadencier = React.createRef<BobineCadencierChart>();
 
   public constructor(props: Props) {
     super(props);
@@ -138,6 +139,14 @@ export class ViewBobineApp extends React.Component<Props, State> {
     );
   }
 
+  public componentDidUpdate(): void {
+    setTimeout(() => {
+      if (this.cadencier.current) {
+        this.cadencier.current.redrawChart();
+      }
+    });
+  }
+
   public render(): JSX.Element {
     const {bobineRef} = this.props;
     const {bobine} = this.state;
@@ -155,7 +164,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
         <CandencierContainer>
           <CardTitle>Historique des ventes</CardTitle>
           <CadencierChartContainer>
-            <BobineCadencierChart bobine={bobine} />
+            <BobineCadencierChart ref={this.cadencier} bobine={bobine} />
           </CadencierChartContainer>
         </CandencierContainer>
       </AppWrapper>

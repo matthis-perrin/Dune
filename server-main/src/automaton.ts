@@ -1,5 +1,5 @@
-import {Socket} from 'net';
 import * as log from 'electron-log';
+import {Socket} from 'net';
 
 const AUTOMATON_IP = '192.168.0.50';
 const AUTOMATON_PORT = 9600;

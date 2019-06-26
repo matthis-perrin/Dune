@@ -1,5 +1,5 @@
-import knex from 'knex';
 import * as log from 'electron-log';
+import knex from 'knex';
 
 import {addError} from '@root/state';
 
@@ -13,9 +13,10 @@ import {
   getGescomSyncData,
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
+import {createColorsTable} from '@shared/db/colors';
+import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createRefentesTable} from '@shared/db/refentes';
-import {createOperationsTable} from '@shared/db/operations';
 import {createStocksTable} from '@shared/db/stocks';
 
 export async function setupSqliteDB(db: knex): Promise<void> {
@@ -30,6 +31,7 @@ export async function setupSqliteDB(db: knex): Promise<void> {
     createCadencierTable(db),
     createOperationsTable(db),
     createBobinesQuantitiesTable(db),
+    createColorsTable(db),
   ]);
 }
 
@@ -263,7 +265,7 @@ export abstract class GescomWatcher {
                     });
                 })
                 .catch(err => {
-                  addError(`This error should never happen`, err.toString());
+                  addError('This error should never happen', err.toString());
                 });
             } else {
               updateGescomSyncData(

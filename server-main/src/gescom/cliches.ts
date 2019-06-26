@@ -39,7 +39,7 @@ const CLICHE_COLUMNS = [
 ];
 
 export class GescomWatcherCliches extends GescomWatcher {
-  tableName = CLICHES_TABLE_NAME;
+  public tableName = CLICHES_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(ARTICLE_TABLE_NAME)

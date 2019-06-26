@@ -56,6 +56,16 @@ export interface BobineMere {
   localUpdate: number;
 }
 
+export interface Color {
+  ref: string;
+  name: string;
+  backgroundHex: string;
+  textHex: string;
+  closeHex: string;
+  hasBorder: boolean;
+  description: string;
+}
+
 export interface ClicheBase {
   ref: string;
   designation?: string;

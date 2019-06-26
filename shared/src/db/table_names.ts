@@ -1,6 +1,7 @@
 export const BOBINES_FILLES_TABLE_NAME = 'bobines_filles';
 export const BOBINES_MERES_TABLE_NAME = 'bobines_meres';
 export const BOBINES_QUANTITIES_TABLE_NAME = 'bobines_quantities';
+export const COLORS_TABLE_NAME = 'colors';
 export const CADENCIER_TABLE_NAME = 'cadencier';
 export const CLICHES_TABLE_NAME = 'cliches';
 export const PERFOS_TABLE_NAME = 'perfos';

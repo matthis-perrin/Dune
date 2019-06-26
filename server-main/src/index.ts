@@ -1,6 +1,7 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
+import {handleCommand} from '@root/bridge';
 import {gescomDB, sqliteDB} from '@root/db';
 import {GescomWatcherBobinesFilles} from '@root/gescom/bobines_filles';
 import {GescomWatcherBobinesMeres} from '@root/gescom/bobines_meres';
@@ -8,9 +9,11 @@ import {GescomWatcherCadencier} from '@root/gescom/cadencier';
 import {GescomWatcherCliches} from '@root/gescom/cliches';
 import {setupSqliteDB} from '@root/gescom/common';
 import {GescomWatcherStocks} from '@root/gescom/stocks';
-import {handleCommand} from '@root/bridge';
+import {configureLogs} from '@root/log';
 
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
+
+configureLogs();
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');

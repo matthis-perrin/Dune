@@ -37,7 +37,7 @@ const BOBINE_FILLE_COLUMNS = [
 ];
 
 export class GescomWatcherBobinesFilles extends GescomWatcher {
-  tableName = BOBINES_FILLES_TABLE_NAME;
+  public tableName = BOBINES_FILLES_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(ARTICLE_TABLE_NAME)

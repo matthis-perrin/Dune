@@ -83,7 +83,6 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
 
   private readonly refreshPlanProduction = async (): Promise<void> => {
     const planProduction = await bridge.getPlanProduction();
-    document.title = `${this.props.title} (${planProduction.selectableRefentes.length})`;
     this.setState({planProd: planProduction});
   };
 
@@ -96,7 +95,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
   };
 
   public render(): JSX.Element {
-    const {children, dataFilter, searchColumns, getSelectable, getHash} = this.props;
+    const {children, dataFilter, searchColumns, getSelectable, getHash, title} = this.props;
     const {allElements, planProd, filteredElements = [], filteredSearchedElements} = this.state;
 
     if (!allElements || !planProd) {
@@ -105,6 +104,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
 
     // Replace elements in `allElements` by the one in `selectable`
     const selectables = getSelectable(planProd);
+    document.title = `${title} (${selectables.length})`;
     const selectableHashes = selectables.map(getHash);
     const mappedElements = allElements.map(e => {
       const index = selectableHashes.indexOf(getHash(e));

@@ -1,12 +1,13 @@
+import {sqliteDB} from '@root/db';
+import {getErrors} from '@root/state';
+
 import {
   BridgeCommand,
   ServerGetStatus,
   ServerRequestRefresh,
   ServerClearErrors,
 } from '@shared/bridge/commands';
-import {getErrors} from '@root/state';
 import {getStatus} from '@shared/db/gescom_sync';
-import {sqliteDB} from '@root/db';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 
 async function getServerStatus(): Promise<ServerStatus> {
@@ -26,7 +27,7 @@ async function getServerStatus(): Promise<ServerStatus> {
 // tslint:disable-next-line:no-any
 export async function handleCommand(command: BridgeCommand, data: any): Promise<any> {
   if (command === ServerGetStatus) {
-    return await getServerStatus();
+    return getServerStatus();
   }
   if (command === ServerRequestRefresh) {
   }

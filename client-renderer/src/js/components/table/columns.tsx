@@ -775,9 +775,29 @@ export const STOCK_STATE_COLUMN = (
   },
 });
 
+export const QUANTITY_TO_PRODUCE = (
+  stocks: Map<string, Stock[]>,
+  cadencier: Map<string, Map<number, number>>,
+  bobineQuantities: BobineQuantities[]
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'QTÉ À PROD',
+  width: 100,
+  renderCell: ({ref}) =>
+    renderNumber(getBobineState(ref, stocks, cadencier, bobineQuantities).quantity),
+  justifyContent: 'flex-end',
+  sortFunction: (row1, row2) =>
+    numberSort(
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities).quantity,
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities).quantity
+    ),
+  shouldRerender: (row1, row2) =>
+    getBobineState(row1.ref, stocks, cadencier, bobineQuantities).quantity !==
+    getBobineState(row2.ref, stocks, cadencier, bobineQuantities).quantity,
+});
+
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PRODUCTION',
-  renderCell: ({production}) => renderNumber(production),
+  renderCell: ({production}) => renderString(`+${production}`),
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
   shouldRerender: (row1, row2) => row1.production !== row2.production,

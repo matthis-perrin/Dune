@@ -32,11 +32,13 @@ import {
   ListCadencierForBobine,
   ListBobinesQuantities,
   SetPlanTourCount,
+  ListColors,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCliches} from '@shared/db/cliches';
+import {listColors} from '@shared/db/colors';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {listRefentes} from '@shared/db/refentes';
@@ -81,6 +83,9 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   }
   if (command === ListBobinesQuantities) {
     return listBobinesQuantities(db);
+  }
+  if (command === ListColors) {
+    return listColors(db);
   }
 
   // Window Management

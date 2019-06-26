@@ -37,7 +37,7 @@ const CADENCIER_COLUMNS = [
 // ];
 
 export class GescomWatcherCadencier extends GescomWatcher {
-  tableName = CADENCIER_TABLE_NAME;
+  public tableName = CADENCIER_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(GESCOM_CADENCIER_TABLE_NAME)

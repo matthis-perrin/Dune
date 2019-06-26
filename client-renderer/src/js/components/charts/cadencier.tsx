@@ -203,6 +203,10 @@ export class BobineCadencierChart extends React.Component<
     return data;
   }
 
+  public redrawChart(): void {
+    this.plot && this.plot.redraw();
+  }
+
   public render(): JSX.Element {
     return (
       <React.Fragment>

@@ -104,7 +104,7 @@ export function getBobinePoseState(
   return poses
     .map(pose => {
       const totalPose = usedPoses + getPoseSize(pose);
-      const additionalStock = tourCount ? totalPose : 0;
+      const additionalStock = tourCount ? totalPose * tourCount : 0;
       const {quantity, state, yearSell, stock} = getBobineState(
         ref,
         stocks,
@@ -132,7 +132,7 @@ export function getBobinePoseState(
       if (tourCount * totalPose < quantity) {
         return {pose, mode: ButtonMode.Warning, reason};
       }
-      return {pose, mode: ButtonMode.Danger, reason};
+      return {pose, mode: ButtonMode.Warning, reason};
     })
     .sort((p1, p2) => {
       if (p1.mode === p2.mode) {

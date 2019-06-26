@@ -1,4 +1,5 @@
 import * as React from 'react';
+import reactVirtualizedAutoSizer from 'react-virtualized-auto-sizer';
 import styled from 'styled-components';
 
 import {LoadingTable} from '@root/components/apps/main/administration/admin_table';
@@ -17,6 +18,7 @@ import {
   BOBINE_FILLE_REF,
   STOCK_STATE_COLUMN,
   LAST_YEAR_SELLING,
+  QUANTITY_TO_PRODUCE,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -97,6 +99,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),
                 COULEURS_IMPRESSION_COLUMN,
                 TYPE_IMPRESSION_COLUMN,
+                QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
                 LAST_YEAR_SELLING(cadencier),
                 STOCK_COLUMN(stocks),
                 STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
@@ -153,17 +156,3 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     );
   }
 }
-
-const SelectedTableHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: ${theme.table.headerHeight}px;
-  line-height: ${theme.table.headerHeight}px;
-  color: ${theme.table.headerColor};
-  font-size: ${theme.table.headerFontSize}px;
-  font-weight: ${theme.table.headerFontWeight};
-  user-select: none;
-  width: 100%;
-  background-color: ${theme.table.headerBackgroundColor};
-`;

@@ -2,7 +2,7 @@ import {isEqual} from 'lodash-es';
 
 import {bridge} from '@root/lib/bridge';
 
-import {BobineQuantities} from '@shared/models';
+import {BobineQuantities, Color} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export abstract class DataStore<T> extends BaseStore {
@@ -33,3 +33,10 @@ class BobinesQuantitiesStore extends DataStore<BobineQuantities> {
   }
 }
 export const bobinesQuantitiesStore = new BobinesQuantitiesStore();
+
+class ColorsStore extends DataStore<Color> {
+  public async fetch(): Promise<Color[]> {
+    return bridge.listColors();
+  }
+}
+export const solorsStore = new ColorsStore();
