@@ -40,69 +40,6 @@ export class GescomWatcherCadencier extends GescomWatcher {
   tableName = CADENCIER_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
-    // const dateFormat = `FORMAT(DO_Date, 'yy-MM')`;
-    // console.log('Test');
-
-    // this.gescomDB(GESCOM_CADENCIER_TABLE_NAME)
-    //   .select(knex.raw('DO_Piece, count(DO_Piece)'))
-    //   .groupBy('DO_Piece')
-    //   .havingRaw('count(DO_Piece) > 1')
-    //   .then(l => {
-    //     console.log('Hello success');
-    //     l.forEach(ll => console.log(ll));
-    //     console.log('Hello after');
-    //     // console.log(JSON.stringify(l, undefined, 2));
-    //   })
-    //   .catch(err => {
-    //     console.log('Hello error');
-    //     console.error(err);
-    //   })
-    //   .finally(() => process.exit(-1));
-
-    // this.gescomDB(GESCOM_CADENCIER_TABLE_NAME)
-    //   .select()
-    //   .where('DO_Piece', '=', '1307262')
-    //   .then(l => {
-    //     console.log('Hello success');
-    //     l.forEach(ll => console.log(ll));
-    //     console.log('Hello after');
-    //     // console.log(JSON.stringify(l, undefined, 2));
-    //   })
-    //   .catch(err => {
-    //     console.log('Hello error');
-    //     console.error(err);
-    //   })
-    //   .finally(() => process.exit(-1));
-
-    // this.gescomDB(GESCOM_CADENCIER_TABLE_NAME)
-    //   .select()
-    //   //   .select(knex.raw(`FORMAT(DO_Date, 'dd-yy-MM') as formattedDate`))
-    //   //   // .sum(VENTE_QUANTITE_COLUMN)
-    //   //   // .sum('DL_QteBC')
-    //   //   // .sum('DL_QteBL')
-    //   .where(ARTICLE_REF_COLUMN, '=', 'B140070ANP00')
-    //   .andWhere(VENTE_QUANTITE_COLUMN, '=', 48)
-    //   //   .whereIn(VENTE_DOCUMENT_TYPE_COLUMN, [4, 6, 7, 14, 17])
-    //   //   // .groupBy(VENTE_DOCUMENT_TYPE_COLUMN)
-    //   //   // .groupByRaw(`FORMAT(DO_Date, 'dd-yy-MM')`)
-    //   //   .orderBy('formattedDate')
-    //   .then(l => {
-    //     console.log('Hello success');
-    //     l.forEach(ll => console.log(ll));
-    //     console.log('Hello after');
-    //     // console.log(JSON.stringify(l, undefined, 2));
-    //   })
-    //   .catch(err => {
-    //     console.log('Hello error');
-    //     console.error(err);
-    //   })
-    //   .finally(() => process.exit(-1));
-
-    //   .then(lines => {
-    //     console.log(
-    //       lines.map(l => `${l['DO_Type']},${l['DL_Qte']},${l['formattedDate']}`).join('\n')
-    //     );
-    //   });
     return this.gescomDB(GESCOM_CADENCIER_TABLE_NAME)
       .select(CADENCIER_COLUMNS)
       .where(VENTE_DOCUMENT_TYPE_COLUMN, '<=', 8)

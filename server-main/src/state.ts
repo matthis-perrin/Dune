@@ -1,3 +1,4 @@
+import * as log from 'electron-log';
 import {ServerErrorData} from '@shared/models';
 
 let errors: ServerErrorData[] = [];
@@ -13,5 +14,5 @@ export function clearErrors(): void {
 export function addError(msg: string, details: string): void {
   const time = new Date();
   errors.push({time, msg, details});
-  console.log({time, msg, details});
+  log.error({time, msg, details});
 }

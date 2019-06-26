@@ -30,24 +30,6 @@ export class GescomWatcherStocks extends GescomWatcher {
   tableName = STOCKS_TABLE_NAME;
 
   protected fetch(): knex.QueryBuilder {
-    // this.gescomDB(GESCOM_STOCK_TABLE_NAME)
-    //   .select()
-    //   .where(ARTICLE_REF_COLUMN, 'B140098AEP00')
-    //   .then(console.log);
-
-    // this.gescomDB(GESCOM_STOCK_TABLE_NAME)
-    //   .select(ARTICLE_REF_COLUMN)
-    //   .where(function() {
-    //     this.where(ARTICLE_REF_COLUMN, 'like', BOBINE_FILLE_REF_PATTERN).orWhere(
-    //       ARTICLE_REF_COLUMN,
-    //       'like',
-    //       BOBINE_MERE_REF_PATTERN
-    //     );
-    //   })
-    //   .groupBy(ARTICLE_REF_COLUMN)
-    //   .having(knex.raw('count(*) > 6'))
-    //   .then(console.log);
-
     return this.gescomDB(GESCOM_STOCK_TABLE_NAME)
       .select(STOCK_COLUMNS)
       .where(function() {

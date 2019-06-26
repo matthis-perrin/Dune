@@ -1,4 +1,5 @@
 import knex from 'knex';
+import * as log from 'electron-log';
 
 import {addError} from '@root/state';
 
@@ -87,6 +88,7 @@ export abstract class GescomWatcher {
   protected BATCH_SIZE_INSERT = 50;
   protected WAIT_ON_ERROR_MS = 250;
   protected WAIT_WHEN_NO_NEW_CHANGE_MS = 1000;
+  protected MIN_LINES_FOR_NO_WAIT_AFTER_INSERT = 5;
 
   constructor(protected readonly gescomDB: knex, protected readonly sqliteDB: knex) {}
 
@@ -94,18 +96,19 @@ export abstract class GescomWatcher {
     this.fetchNextBatch();
   }
 
-  private isSameMinute(gescomDate: Date, lastCheckDate: Date): boolean {
+  private hasPossiblyChanged(gescomDate: Date, lastCheckDate: Date): boolean {
     // Gescom date is actually incorrect. The "raw" value of the date is the right
     // one, but without timezone info. So we need to add to the time the equivalent
     // of the current timezone offset (we assume that the error was that the date are
     // inserted to the database as strings without timezone info and that SQL set one
     // by default).
     const convertedGescomDate = new Date(
-      gescomDate.getTime() + gescomDate.getTimezoneOffset() * 60 * 1000
+      gescomDate.getTime() - gescomDate.getTimezoneOffset() * 60 * 1000
     );
     const convertedGescomDateRounded = convertedGescomDate.setSeconds(0, 0);
     const lastCheckDateRounded = lastCheckDate.setSeconds(0, 0);
-    return convertedGescomDateRounded === lastCheckDateRounded;
+
+    return Math.abs(lastCheckDateRounded - convertedGescomDateRounded) <= 60000;
   }
 
   private shouldPerformFullRefresh(lastFullRefresh: Date): boolean {
@@ -137,7 +140,7 @@ export abstract class GescomWatcher {
           this.sqliteDB(this.tableName)
             .insert(chunk.map(l => this.mapGescomLineToSqliteLine(localDate, l)))
             .then(() => {
-              console.log(
+              log.info(
                 `Inserted ${offset + chunk.length}/${lines.length} line in the SQLite table ${
                   this.tableName
                 }.`
@@ -169,6 +172,7 @@ export abstract class GescomWatcher {
   }
 
   private async clearTable(): Promise<void> {
+    log.info(`Clearing table ${this.tableName}`);
     await this.sqliteDB(this.tableName).truncate();
   }
 
@@ -208,7 +212,7 @@ export abstract class GescomWatcher {
             });
           return;
         }
-        const operator = this.isSameMinute(lastChecked, lastUpdated) ? '>=' : '>';
+        const operator = this.hasPossiblyChanged(lastChecked, lastUpdated) ? '>=' : '>';
         const fetchQuery = this.fetch()
           .where(LAST_UPDATE_COLUMN, operator, lastUpdated)
           .orderBy(LAST_UPDATE_COLUMN);
@@ -216,7 +220,7 @@ export abstract class GescomWatcher {
 
         fetchQuery
           .then((lines: any) => {
-            // console.log(
+            // log.info(
             //   `Fetched ${lines.length} for ${
             //     this.tableName
             //   } with ${operator} (lastChecked=${lastChecked}, lastUpdated=${lastUpdated})`
@@ -233,7 +237,21 @@ export abstract class GescomWatcher {
                     queryTime,
                     lastFullRefresh
                   )
-                    .then(() => this.fetchNextBatch())
+                    .then(() => {
+                      // When we detect a change, we need to keep inserting it in the database for around a minute
+                      // because the GESCOM "last update" field is rounded to the minute. So we have no way to know if
+                      // the data has changed again.
+                      // But most of the time there is nothing to really update, so we still want to wait until fetching the
+                      // next batch to not query the GESCOM too much. So if we are not inserting too many rows, it's likely we
+                      // are in this case and not in a "big update phase".
+                      const wait =
+                        lines.length >= this.MIN_LINES_FOR_NO_WAIT_AFTER_INSERT
+                          ? 0
+                          : this.WAIT_WHEN_NO_NEW_CHANGE_MS;
+                      setTimeout(() => {
+                        this.fetchNextBatch();
+                      }, wait);
+                    })
                     .catch(err => {
                       addError(
                         `Erreur lors de la mise à jour de la table de synchronisation pour la table ${
@@ -255,9 +273,7 @@ export abstract class GescomWatcher {
                 queryTime,
                 lastFullRefresh
               )
-                .then(() => {
-                  setTimeout(() => this.fetchNextBatch(), this.WAIT_WHEN_NO_NEW_CHANGE_MS);
-                })
+                .then(() => this.fetchNextBatch())
                 .catch(err => {
                   addError(
                     `Erreur lors de la mise à jour de la table de synchronisation pour la table ${

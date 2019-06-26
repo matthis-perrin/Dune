@@ -1,4 +1,5 @@
 import {Socket} from 'net';
+import * as log from 'electron-log';
 
 const AUTOMATON_IP = '192.168.0.50';
 const AUTOMATON_PORT = 9600;
@@ -31,7 +32,7 @@ const GET_SPEED_COMMAND = new AutomatonCommand(
 function sendCommand(socket: Socket, command: AutomatonCommand): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     socket.write(command.binary, (err: any) => {
-      console.log(`==> ${command.description} (${err ? 'error' : 'success'})`);
+      log.info(`==> ${command.description} (${err ? 'error' : 'success'})`);
       if (err) {
         reject(err);
       } else {
@@ -54,19 +55,19 @@ export async function test(): Promise<void> {
 
   socket.on('data', function(buffer) {
     const value = buffer.readUInt32BE(buffer.length - 4);
-    console.log(`<= reading ${value}`);
+    log.info(`<= reading ${value}`);
   });
 
-  socket.on('close', (had_error: boolean) => console.log('[close] had_error = ', had_error));
-  socket.on('connect', () => console.log('[connect]'));
-  //   socket.on('data', (data: Buffer) => console.log('<==', data));
-  socket.on('drain', () => console.log('[drain]'));
-  socket.on('end', () => console.log('[end]'));
-  socket.on('error', (err: Error) => console.log('[error]', err));
+  socket.on('close', (had_error: boolean) => log.info('[close] had_error = ', had_error));
+  socket.on('connect', () => log.info('[connect]'));
+  //   socket.on('data', (data: Buffer) => log.info('<==', data));
+  socket.on('drain', () => log.info('[drain]'));
+  socket.on('end', () => log.info('[end]'));
+  socket.on('error', (err: Error) => log.info('[error]', err));
   socket.on('lookup', (err: Error, address: string, family: string | number, host: string) =>
-    console.log('[lookup]', err, address, family, host)
+    log.info('[lookup]', err, address, family, host)
   );
-  socket.on('timeout', () => console.log('[timeout]'));
+  socket.on('timeout', () => log.info('[timeout]'));
 
   socket.connect(AUTOMATON_PORT, AUTOMATON_IP, async () => {
     await sendCommand(socket, CONNECT_COMMAND);
