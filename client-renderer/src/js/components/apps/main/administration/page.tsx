@@ -9,23 +9,11 @@ import {
   bobinesFillesStore,
   bobinesMeresStore,
   clichesStore,
-  operationsStore,
-  perfosStore,
-  refentesStore,
   stocksStore,
 } from '@root/stores/list_store';
 import {theme, FontWeight} from '@root/theme';
 
-import {
-  BobineFille,
-  BobineMere,
-  Cliche,
-  Perfo,
-  Refente,
-  Operation,
-  Stock,
-  ClientAppType,
-} from '@shared/models';
+import {BobineFille, BobineMere, Cliche, Stock, ClientAppType} from '@shared/models';
 
 enum AdministrationTab {
   BobinesFilles,
@@ -41,10 +29,7 @@ interface State {
   bobinesFilles?: BobineFille[];
   bobinesMeres?: BobineMere[];
   cliches?: Cliche[];
-  refentes?: Refente[];
-  perfos?: Perfo[];
   stocks?: {[key: string]: Stock[]};
-  operations?: Operation[];
 
   currentTab: AdministrationTab;
 }
@@ -62,9 +47,6 @@ export class AdministrationPage extends React.Component<Props, State> {
     bobinesMeresStore.addListener(this.handleBobinesMeresChange);
     clichesStore.addListener(this.handleClichesChange);
     stocksStore.addListener(this.handleStocksChange);
-    refentesStore.addListener(this.handleRefentesChange);
-    perfosStore.addListener(this.handlePerfosChange);
-    operationsStore.addListener(this.handleOperationsChange);
   }
 
   public componentWillUnmount(): void {
@@ -72,9 +54,6 @@ export class AdministrationPage extends React.Component<Props, State> {
     bobinesMeresStore.removeListener(this.handleBobinesMeresChange);
     clichesStore.removeListener(this.handleClichesChange);
     stocksStore.removeListener(this.handleStocksChange);
-    refentesStore.removeListener(this.handleRefentesChange);
-    perfosStore.removeListener(this.handlePerfosChange);
-    operationsStore.removeListener(this.handleOperationsChange);
   }
 
   private readonly handleBobinesFillesChange = (): void => {
@@ -93,18 +72,6 @@ export class AdministrationPage extends React.Component<Props, State> {
     this.setState({stocks: groupBy(stocksStore.getData(), 'ref')});
   };
 
-  private readonly handleRefentesChange = (): void => {
-    this.setState({refentes: refentesStore.getData()});
-  };
-
-  private readonly handlePerfosChange = (): void => {
-    this.setState({perfos: perfosStore.getData()});
-  };
-
-  private readonly handleOperationsChange = (): void => {
-    this.setState({operations: operationsStore.getData()});
-  };
-
   public renderListAppButton(
     title: string,
     type: ClientAppType,
@@ -115,7 +82,7 @@ export class AdministrationPage extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const {bobinesFilles, bobinesMeres, cliches, refentes, perfos, operations} = this.state;
+    const {bobinesFilles, bobinesMeres, cliches} = this.state;
 
     return (
       <Page>
@@ -127,10 +94,6 @@ export class AdministrationPage extends React.Component<Props, State> {
         )}
         {this.renderListAppButton('Bobines Mères', ClientAppType.ListBobinesMeresApp, bobinesMeres)}
         {this.renderListAppButton('Clichés', ClientAppType.ListClichesApp, cliches)}
-        <Title>Production</Title>
-        {this.renderListAppButton('Refentes', ClientAppType.ListRefentesApp, refentes)}
-        {this.renderListAppButton('Perfos', ClientAppType.ListPerfosApp, perfos)}
-        {this.renderListAppButton('Operations', ClientAppType.ListOperationsApp, operations)}
       </Page>
     );
   }

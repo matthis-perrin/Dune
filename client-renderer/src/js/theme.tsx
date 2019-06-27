@@ -101,10 +101,10 @@ export const theme = {
   },
   table: {
     padding: 8,
-    borderRadius: 2,
-    borderThickness: 2,
-    borderColor: Colors.PrimaryDark,
     backgroundColor: Palette.White,
+    disabledOpacity: 0.5,
+
+    searchBarHeight: 32,
 
     headerHeight: 42,
     headerPadding: 8,

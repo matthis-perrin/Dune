@@ -5,9 +5,6 @@ import {BobinesPickerApp} from '@root/components/apps/bobines_picker/app';
 import {ListBobinesFillesApp} from '@root/components/apps/list_bobines_filles/app';
 import {ListBobinesMeresApp} from '@root/components/apps/list_bobines_meres/app';
 import {ListClichesApp} from '@root/components/apps/list_cliches/app';
-import {ListOperationsApp} from '@root/components/apps/list_operations/app';
-import {ListPerfosApp} from '@root/components/apps/list_perfos/app';
-import {ListRefentesApp} from '@root/components/apps/list_refentes/app';
 import {MainApp} from '@root/components/apps/main/app';
 import {PapierPickerApp} from '@root/components/apps/papier_picker/app';
 import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
@@ -27,7 +24,6 @@ import {
   clichesStore,
   perfosStore,
   refentesStore,
-  operationsStore,
   bobinesFillesWithMultiPoseStore,
   cadencierStore,
 } from '@root/stores/list_store';
@@ -78,15 +74,6 @@ export class AppManager extends React.Component<Props, State> {
     }
     if (type === ClientAppType.ListClichesApp) {
       return [clichesStore];
-    }
-    if (type === ClientAppType.ListPerfosApp) {
-      return [perfosStore];
-    }
-    if (type === ClientAppType.ListRefentesApp) {
-      return [refentesStore];
-    }
-    if (type === ClientAppType.ListOperationsApp) {
-      return [operationsStore];
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
@@ -140,15 +127,6 @@ export class AppManager extends React.Component<Props, State> {
     }
     if (type === ClientAppType.ListClichesApp) {
       return <ListClichesApp />;
-    }
-    if (type === ClientAppType.ListPerfosApp) {
-      return <ListPerfosApp />;
-    }
-    if (type === ClientAppType.ListRefentesApp) {
-      return <ListRefentesApp />;
-    }
-    if (type === ClientAppType.ListOperationsApp) {
-      return <ListOperationsApp />;
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {

@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import {LoadingTable} from '@root/components/apps/main/administration/admin_table';
 import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
 import {Picker} from '@root/components/common/picker';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
   DESIGNATION_COLUMN,
@@ -70,7 +70,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     const {stocks, cadencier, bobineQuantities} = this.state;
 
     if (!stocks || !cadencier || !bobineQuantities) {
-      return <LoadingTable />;
+      return <LoadingScreen />;
     }
 
     return (
@@ -141,7 +141,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     rowStyles={bobine => ({
-                      opacity: isSelectionnable(bobine) ? 1 : 0.5,
+                      opacity: isSelectionnable(bobine) ? 1 : theme.table.disabledOpacity,
                     })}
                   />
                   {footer}

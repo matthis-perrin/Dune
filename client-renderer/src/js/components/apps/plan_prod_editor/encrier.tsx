@@ -7,7 +7,6 @@ import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {DivProps} from '@root/components/core/common';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {colorsStore} from '@root/stores/data_store';
 import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';

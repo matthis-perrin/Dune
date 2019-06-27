@@ -23,7 +23,7 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState, getStock} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {bobinesQuantitiesStore, colorsStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 

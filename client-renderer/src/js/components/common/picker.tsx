@@ -1,5 +1,4 @@
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {FilterBar} from '@root/components/common/filter_bar';
 import {SearchBar} from '@root/components/common/search_bar';
@@ -112,14 +111,11 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     });
 
     const header = searchColumns ? (
-      <React.Fragment>
-        <SearchBar
-          data={filteredElements}
-          columns={searchColumns}
-          onChange={this.handleElementsFilteredAndSearched}
-        />
-        <Padding />
-      </React.Fragment>
+      <SearchBar
+        data={filteredElements}
+        columns={searchColumns}
+        onChange={this.handleElementsFilteredAndSearched}
+      />
     ) : (
       <React.Fragment />
     );
@@ -152,7 +148,3 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     );
   }
 }
-
-const Padding = styled.div`
-  height: 32px;
-`;

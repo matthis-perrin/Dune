@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {LoadingTable} from '@root/components/apps/main/administration/admin_table';
 import {OperationForm} from '@root/components/apps/view_operation/operation_form';
 import {Button} from '@root/components/core/button';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {bridge} from '@root/lib/bridge';
 import {operationsStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -142,7 +142,7 @@ export class ViewOperationApp extends React.Component<Props, State> {
     const {operation = this.getDefaultOperation()} = this.state;
 
     if (operationRef && !operation) {
-      return <LoadingTable>Chargement...</LoadingTable>;
+      return <LoadingScreen />;
     }
 
     return (

@@ -14,7 +14,6 @@ import {
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
-import {colorsStore} from '@root/stores/data_store';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineMere, Stock} from '@shared/models';

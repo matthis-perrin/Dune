@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import {AdminTable, LoadingTable} from '@root/components/apps/main/administration/admin_table';
+import {LoadingScreen} from '@root/components/core/loading_screen';
+import {AdminTable} from '@root/components/table/admin_table';
 import {ClicheColumns} from '@root/components/table/columns';
 import {clichesStore} from '@root/stores/list_store';
 
@@ -10,7 +11,6 @@ interface Props {}
 
 interface State {
   cliches?: Cliche[];
-  lastUpdate: number;
 }
 
 export class ListClichesApp extends React.Component<Props, State> {
@@ -18,7 +18,7 @@ export class ListClichesApp extends React.Component<Props, State> {
 
   public constructor(props: Props) {
     super(props);
-    this.state = {lastUpdate: 0};
+    this.state = {};
   }
 
   public componentDidMount(): void {
@@ -32,20 +32,18 @@ export class ListClichesApp extends React.Component<Props, State> {
   private readonly handleClichesChange = (): void => {
     const cliches = clichesStore.getData();
     document.title = `Liste des clichés (${cliches ? cliches.length : 0})`;
-    this.setState({cliches, lastUpdate: clichesStore.getLastUpdate()});
+    this.setState({cliches});
   };
 
   public render(): JSX.Element {
-    const {cliches, lastUpdate} = this.state;
+    const {cliches} = this.state;
 
     if (!cliches) {
-      return <LoadingTable>Loading...</LoadingTable>;
+      return <LoadingScreen />;
     }
     return (
       <AdminTable
-        title="cliché"
         data={cliches}
-        lastUpdate={lastUpdate}
         columns={[
           ClicheColumns.Ref,
           ClicheColumns.Designation,

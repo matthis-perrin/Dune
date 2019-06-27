@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {Input} from '@root/components/core/input';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
+import {theme} from '@root/theme';
 
 interface SearchBarProps<T> {
   data: T[];
@@ -63,21 +64,24 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
   public render(): JSX.Element {
     const {searchValue} = this.state;
     return (
-      <SearchContainer>
-        <SearchInput
-          focusOnMount
-          type="text"
-          placeholder="Rechercher"
-          value={searchValue}
-          onChange={this.handleSearchChange}
-        />
-      </SearchContainer>
+      <React.Fragment>
+        <SearchContainer>
+          <SearchInput
+            focusOnMount
+            type="text"
+            placeholder="Rechercher"
+            value={searchValue}
+            onChange={this.handleSearchChange}
+          />
+        </SearchContainer>
+        <Padding />
+      </React.Fragment>
     );
   }
 }
 
 const SearchInput = styled(Input)`
-  padding: 4px 8px;
+  height: ${theme.table.searchBarHeight}
   font-size: 16px;
   width: 100%;
   box-sizing: border-box;
@@ -90,5 +94,8 @@ const SearchContainer = styled.div`
   right: 0;
   box-sizing: border-box;
   background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+`;
+
+const Padding = styled.div`
+  height: ${theme.table.searchBarHeight}px;
 `;
