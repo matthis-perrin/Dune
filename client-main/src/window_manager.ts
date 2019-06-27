@@ -91,15 +91,6 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ListClichesApp) {
       return {id: 'list-cliches-app', size: listAppSize};
     }
-    if (appInfo.type === ClientAppType.ListPerfosApp) {
-      return {id: 'list-perfos-app', size: listAppSize};
-    }
-    if (appInfo.type === ClientAppType.ListRefentesApp) {
-      return {id: 'list-refentes-app', size: listAppSize};
-    }
-    if (appInfo.type === ClientAppType.ListOperationsApp) {
-      return {id: 'list-operations-app', size: listAppSize};
-    }
 
     if (appInfo.type === ClientAppType.ViewOperationApp) {
       const {operationRef = 'create'} = asMap(appInfo.data);

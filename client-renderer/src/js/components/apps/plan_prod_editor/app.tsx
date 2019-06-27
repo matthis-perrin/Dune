@@ -304,12 +304,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           {`Computed in ${planProduction.calculationTime}ms`}
         </ButtonContainer> */}
         <SizeMonitor>
-          {width => {
+          {(width, height, hasVerticalScrollbar) => {
             // Padding for the extra space taken by the bobine offset
             const leftPadding =
               (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
             const availableWidth =
-              width - 2 * theme.page.padding - leftPadding - SCROLLBAR_WIDTH - 20;
+              width -
+              2 * theme.page.padding -
+              leftPadding -
+              (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
             const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
             const bobinesBlock = (

@@ -1,12 +1,13 @@
 import * as React from 'react';
 
 interface SizeMonitorProps {
-  children(width: number, height: number): JSX.Element;
+  children(width: number, height: number, hasVerticalScrollbar: boolean): JSX.Element;
 }
 
 interface SizeMonitorState {
   width: number;
   height: number;
+  hasVerticalScrollbar: boolean;
 }
 
 export const SCROLLBAR_WIDTH = 17;
@@ -43,13 +44,14 @@ export class SizeMonitor extends React.Component<SizeMonitorProps, SizeMonitorSt
     return {
       width: window.innerWidth - (hasVerticalScrollbar ? SCROLLBAR_WIDTH : 0),
       height: window.innerHeight,
+      hasVerticalScrollbar,
     };
   }
 
   public render(): JSX.Element {
     const {children} = this.props;
-    const {width, height} = this.state;
+    const {width, height, hasVerticalScrollbar} = this.state;
 
-    return children(width, height);
+    return children(width, height, hasVerticalScrollbar);
   }
 }

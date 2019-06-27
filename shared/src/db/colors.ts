@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {COLORS_TABLE_NAME} from '@shared/db/table_names';
 import {Color} from '@shared/models';
-import {asMap, asString, asBoolean, asNumber} from '@shared/type_utils';
+import {asMap, asString, asNumber} from '@shared/type_utils';
 
 export const ColorsColumn = {
   REF_COLUMN: 'ref',
