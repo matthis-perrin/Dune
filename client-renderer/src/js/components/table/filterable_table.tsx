@@ -109,7 +109,7 @@ export class FilterableTable<T extends {ref: string}, U> extends React.Component
   }
 
   public render(): JSX.Element {
-    const {data, columns, width, height, lastUpdate, filters = []} = this.props;
+    const {data, columns, width, height, filters = []} = this.props;
     const {searchValue, enabledFilters} = this.state;
     const filteredData = data.filter(d => {
       let isFilteredOut = true;
@@ -149,7 +149,6 @@ export class FilterableTable<T extends {ref: string}, U> extends React.Component
         />
         <SortableTable<T>
           data={filteredData}
-          lastUpdate={lastUpdate}
           columns={columns}
           onRowClick={this.handleRowClick}
           initialSort={{

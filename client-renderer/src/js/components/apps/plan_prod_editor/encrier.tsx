@@ -5,8 +5,10 @@ import styled from 'styled-components';
 import {HorizontalCote} from '@root/components/common/cote';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {DivProps} from '@root/components/core/common';
+import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {theme, couleurByName, textColorByName} from '@root/theme';
+import {colorsStore} from '@root/stores/data_store';
+import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
@@ -72,21 +74,25 @@ export class Encrier extends React.Component<EncrierProps> {
       return this.renderEmptySpot(size, index);
     }
     return (
-      <EncrierClicheSpot
-        key={`cliche-${refCliche}-${pose}-${index}`}
-        style={{
-          width: size * pixelPerMM,
-          height: theme.planProd.elementsBaseHeight * pixelPerMM,
-          backgroundColor: couleurByName(encrierColor.color),
-          color: textColorByName(encrierColor.color),
-        }}
-      >
-        <AutoFontWeight fontSize={theme.planProd.elementsBaseMediumFontSize * pixelPerMM}>
-          {refCliche}
-          <br />
-          {`${poseSize} poses`}
-        </AutoFontWeight>
-      </EncrierClicheSpot>
+      <WithColor color={encrierColor.color}>
+        {color => (
+          <EncrierClicheSpot
+            key={`cliche-${refCliche}-${pose}-${index}`}
+            style={{
+              width: size * pixelPerMM,
+              height: theme.planProd.elementsBaseHeight * pixelPerMM,
+              backgroundColor: color.backgroundHex,
+              color: color.textHex,
+            }}
+          >
+            <AutoFontWeight fontSize={theme.planProd.elementsBaseMediumFontSize * pixelPerMM}>
+              {refCliche}
+              <br />
+              {`${poseSize} poses`}
+            </AutoFontWeight>
+          </EncrierClicheSpot>
+        )}
+      </WithColor>
     );
   }
 

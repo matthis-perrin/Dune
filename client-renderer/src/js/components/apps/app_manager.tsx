@@ -19,7 +19,7 @@ import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
-import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, colorsStore} from '@root/stores/data_store';
 import {
   bobinesFillesStore,
   bobinesMeresStore,
@@ -71,10 +71,10 @@ export class AppManager extends React.Component<Props, State> {
       return StoreManager.AllStores;
     }
     if (type === ClientAppType.ListBobinesFillesApp) {
-      return [bobinesFillesStore, stocksStore];
+      return [bobinesFillesStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListBobinesMeresApp) {
-      return [bobinesMeresStore, stocksStore];
+      return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListClichesApp) {
       return [clichesStore];
@@ -90,7 +90,7 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [stocksStore, cadencierStore, bobinesQuantitiesStore];
+      return [stocksStore, cadencierStore, bobinesQuantitiesStore, colorsStore];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [
@@ -100,6 +100,7 @@ export class AppManager extends React.Component<Props, State> {
         stocksStore,
         cadencierStore,
         bobinesQuantitiesStore,
+        colorsStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -109,14 +110,14 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore];
+      return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore];
+      return [bobinesMeresStore, stocksStore, colorsStore];
     }
 
     if (type === ClientAppType.ViewBobineApp) {
-      return [bobinesFillesStore, clichesStore, stocksStore];
+      return [bobinesFillesStore, clichesStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ViewOperationApp) {
       return [];

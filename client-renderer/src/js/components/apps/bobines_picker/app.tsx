@@ -1,6 +1,4 @@
 import * as React from 'react';
-import reactVirtualizedAutoSizer from 'react-virtualized-auto-sizer';
-import styled from 'styled-components';
 
 import {LoadingTable} from '@root/components/apps/main/administration/admin_table';
 import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';

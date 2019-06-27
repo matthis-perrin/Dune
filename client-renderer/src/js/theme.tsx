@@ -24,14 +24,14 @@ export const Palette = {
   Transparent: 'transparent',
 };
 
-// amount: 0 => no change, 1 => white, -1 => black
+// tslint:disable:no-magic-numbers no-bitwise
 function lighten(color: string, amount: number): string {
-  const lightenColorComponent = (c: number, amount: number): number => {
+  const lightenColorComponent = (c: number, amt: number): number => {
     let newC = c;
-    if (amount < 0) {
-      newC = c * 1 - amount;
-    } else if (amount > 0) {
-      newC = c + (255 - c) * amount;
+    if (amt < 0) {
+      newC = c * 1 - amt;
+    } else if (amt > 0) {
+      newC = c + (255 - c) * amt;
     }
     return Math.max(0, Math.min(255, Math.round(newC)));
   };
@@ -43,6 +43,7 @@ function lighten(color: string, amount: number): string {
   const rgb = (green | (blue << 8) | (red << 16)).toString(16);
   return `#${rgb}`;
 }
+// tslint:enable:no-magic-numbers no-bitwise
 
 export const Colors = {
   Success: Palette.Emerald,
@@ -71,50 +72,6 @@ export const FontWeight = {
   Bold: 700,
   Black: 800,
 };
-
-interface ColorInfo {
-  hex: string;
-  textHex: string;
-  dangerHex: string;
-  hasBorder: boolean;
-}
-
-const COLOR_INFO = new Map<string, ColorInfo>([
-  ['BLANC', {hex: '#F6F6F6', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: true}],
-  ['ECRU', {hex: '#F7D794', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['ECRU ENDUIT', {hex: '#F7D794', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['IVOIRE', {hex: '#F7F1E3', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: true}],
-  ['JAUNE', {hex: '#FFC700', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['MARRON', {hex: '#784212', textHex: '#ffffff', dangerHex: Colors.Danger, hasBorder: false}],
-  ['NOIR', {hex: '#3D3D3D', textHex: '#ffffff', dangerHex: Colors.Danger, hasBorder: false}],
-  ['ORANGE', {hex: '#E67E22', textHex: '#000000', dangerHex: '#000000', hasBorder: false}],
-  ['PRUNE', {hex: '#9B59B6', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['ROUGE', {hex: '#E74C3C', textHex: '#000000', dangerHex: '#000000', hasBorder: false}],
-  ['VERT', {hex: '#2ECC71', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['BLEU', {hex: '#2E71CC', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['BISTRE', {hex: '#856D4D', textHex: '#ffffff', dangerHex: Colors.Danger, hasBorder: false}],
-  ['OR', {hex: '#EED807', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-  ['POLYPRO', {hex: '#F0F0F0', textHex: '#000000', dangerHex: Colors.Danger, hasBorder: false}],
-]);
-
-const DEFAULT_COLOR_INFO = {
-  hex: '#ffffff',
-  textHex: '#000000',
-  dangerHex: Colors.Danger,
-  hasBorder: true,
-};
-
-export function getColorInfoByName(name?: string): ColorInfo {
-  return COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO;
-}
-
-export function couleurByName(name?: string): string {
-  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).hex;
-}
-
-export function textColorByName(name?: string): string {
-  return (COLOR_INFO.get(name || '') || DEFAULT_COLOR_INFO).textHex;
-}
 
 export const theme = {
   base: {
@@ -146,8 +103,8 @@ export const theme = {
     padding: 8,
     borderRadius: 2,
     borderThickness: 2,
-    // borderColor: Palette.primary,
-    // backgroundColor: Palette.white,
+    borderColor: Colors.PrimaryDark,
+    backgroundColor: Palette.White,
 
     headerHeight: 42,
     headerPadding: 8,
@@ -276,8 +233,8 @@ export const theme = {
     margin: 24,
     padding: 24,
     closeIconSize: 18,
-    // backgroundColor: Palette.white,
-    // borderColor: Palette.primary,
+    backgroundColor: Palette.White,
+    borderColor: Colors.PrimaryDark,
     borderWidth: 2,
   },
   loadingIndicator: {

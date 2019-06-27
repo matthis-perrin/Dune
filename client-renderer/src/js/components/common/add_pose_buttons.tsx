@@ -1,12 +1,10 @@
-import {sum} from 'lodash-es';
 import * as React from 'react';
 
 import {Button, ButtonMode} from '@root/components/core/button';
-import {getBobineState, getBobinePoseState} from '@root/lib/bobine';
+import {getBobinePoseState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
-import {getPoseSize} from '@shared/lib/cliches';
 import {
   BobineFilleWithMultiPose,
   BobineQuantities,

@@ -7,7 +7,8 @@ import {createChartTooltip} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
-import {couleurByName, theme} from '@root/theme';
+import {colorsStore} from '@root/stores/data_store';
+import {theme} from '@root/theme';
 
 import {CadencierType, aggregateByMonth, createMonthsRange} from '@shared/lib/cadencier';
 import {MONTHS_STRING} from '@shared/lib/time';
@@ -52,6 +53,11 @@ export class BobineCadencierChart extends React.Component<
       return;
     }
     this.loadBobine(bobine);
+    colorsStore.addListener(this.handleColorsChanged);
+  }
+
+  public componentWillUnmount(): void {
+    colorsStore.removeListener(this.handleColorsChanged);
   }
 
   public componentDidUpdate(prevProps: BobineCadencierChartProps): void {
@@ -71,6 +77,12 @@ export class BobineCadencierChart extends React.Component<
       }
     }
   }
+
+  private readonly handleColorsChanged = (): void => {
+    if (this.props.bobine) {
+      this.loadBobine(this.props.bobine);
+    }
+  };
 
   private setDisplayMode(mode: DisplayMode): void {
     const chartElement = this.chartRef.current;
@@ -129,11 +141,11 @@ export class BobineCadencierChart extends React.Component<
         0
       );
     };
-    const color = bobine.couleurPapier;
+    const color = colorsStore.get(bobine.couleurPapier);
     const barColor =
-      color === undefined || ['BLANC', 'IVOIRE'].indexOf(color) !== -1
+      ['BLANC', 'IVOIRE'].indexOf(color.name) !== -1
         ? theme.cadencier.whiteBobineBarColor
-        : couleurByName(color);
+        : color.backgroundHex;
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
       .x((d: VenteDatum) => d.time, xScale)
@@ -204,7 +216,9 @@ export class BobineCadencierChart extends React.Component<
   }
 
   public redrawChart(): void {
-    this.plot && this.plot.redraw();
+    if (this.plot) {
+      this.plot.redraw();
+    }
   }
 
   public render(): JSX.Element {

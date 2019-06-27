@@ -7,9 +7,10 @@ import {RefLink} from '@root/components/common/ref_link';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Closable} from '@root/components/core/closable';
 import {DivProps} from '@root/components/core/common';
+import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {couleurByName, textColorByName, getColorInfoByName, theme} from '@root/theme';
+import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
@@ -31,8 +32,6 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
   public render(): JSX.Element {
     const {bobine, pixelPerMM, negativeMargin} = this.props;
     const poseSize = getPoseSize(bobine.pose);
-    const color = couleurByName(bobine.couleurPapier);
-    const textColor = textColorByName(bobine.couleurPapier);
 
     const initialSize = bobine.laize || 0;
     // In order to have overlapping bobines we need make them slightly larger (by the size of the
@@ -49,44 +48,48 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     };
 
     return (
-      <ClosableWithHover
-        color={getColorInfoByName(bobine.couleurPapier).dangerHex}
-        onClose={this.handleClose}
-        {...rest}
-        style={style}
-        offset={curveOffset}
-        size={size * poseSize + offset}
-      >
-        {range(poseSize).map((pose, i) => (
-          <Bobine
-            key={i}
-            style={{marginLeft: negativeMargin || i > 0 ? -offset : 0, zIndex: i + 1}}
-            pixelPerMM={pixelPerMM}
-            size={size}
-            color={color}
-            strokeWidth={1}
-            faceDown
+      <WithColor color={bobine.couleurPapier}>
+        {papierColor => (
+          <ClosableWithHover
+            color={papierColor.closeHex}
+            onClose={this.handleClose}
+            {...rest}
+            style={style}
+            offset={curveOffset}
+            size={size * poseSize + offset}
           >
-            <AutoFontWeight
-              fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}
-              style={{userSelect: 'none'}}
-            >
-              <BobineDescription style={{color: textColor}}>
-                <RefLink
-                  style={{width: size * pixelPerMM}}
-                  color={textColor}
-                  noIcon
-                  onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
+            {range(poseSize).map((pose, i) => (
+              <Bobine
+                key={i}
+                style={{marginLeft: negativeMargin || i > 0 ? -offset : 0, zIndex: i + 1}}
+                pixelPerMM={pixelPerMM}
+                size={size}
+                color={papierColor.backgroundHex}
+                strokeWidth={1}
+                faceDown
+              >
+                <AutoFontWeight
+                  fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}
+                  style={{userSelect: 'none'}}
                 >
-                  {bobine.ref}
-                </RefLink>
-                <br />
-                {`${bobine.laize} - ${bobine.grammage}g`}
-              </BobineDescription>
-            </AutoFontWeight>
-          </Bobine>
-        ))}
-      </ClosableWithHover>
+                  <BobineDescription style={{color: papierColor.textHex}}>
+                    <RefLink
+                      style={{width: size * pixelPerMM}}
+                      color={papierColor.textHex}
+                      noIcon
+                      onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
+                    >
+                      {bobine.ref}
+                    </RefLink>
+                    <br />
+                    {`${bobine.laize} - ${bobine.grammage}g`}
+                  </BobineDescription>
+                </AutoFontWeight>
+              </Bobine>
+            ))}
+          </ClosableWithHover>
+        )}
+      </WithColor>
     );
   }
 }

@@ -1,4 +1,4 @@
-import {isEqual, range} from 'lodash-es';
+import {isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -16,16 +16,16 @@ import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
-import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
+import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState, getStock} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, colorsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
-import {theme, getColorInfoByName} from '@root/theme';
+import {theme} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {getPoseSize} from '@shared/lib/cliches';
@@ -117,12 +117,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         if (oldPlanProduction) {
           hasRemoved =
             oldPlanProduction.selectedBobines.length > planProduction.selectedBobines.length ||
-            (oldPlanProduction.selectedPapier && !planProduction.selectedPapier) ||
-            (oldPlanProduction.selectedPerfo && !planProduction.selectedPerfo) ||
-            (oldPlanProduction.selectedPolypro && !planProduction.selectedPolypro) ||
-            (oldPlanProduction.selectedRefente && !planProduction.selectedRefente);
+            Boolean(oldPlanProduction.selectedPapier && !planProduction.selectedPapier) ||
+            Boolean(oldPlanProduction.selectedPerfo && !planProduction.selectedPerfo) ||
+            Boolean(oldPlanProduction.selectedPolypro && !planProduction.selectedPolypro) ||
+            Boolean(oldPlanProduction.selectedRefente && !planProduction.selectedRefente);
         }
-        const newState: Partial<State> = {planProduction};
+        const newState = {
+          ...this.state,
+          planProduction,
+        };
         if (
           this.state.planProduction &&
           (this.state.reorderedBobines || this.state.reorderedEncriers) &&
@@ -178,32 +181,32 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanPolypro(undefined).catch(console.error);
   }
 
-  private canClear(): boolean {
-    const {planProduction} = this.state;
-    if (!planProduction) {
-      return false;
-    }
+  // private canClear(): boolean {
+  //   const {planProduction} = this.state;
+  //   if (!planProduction) {
+  //     return false;
+  //   }
 
-    const {
-      selectedRefente,
-      selectedPapier,
-      selectedPerfo,
-      selectedPolypro,
-      selectedBobines,
-    } = planProduction;
+  //   const {
+  //     selectedRefente,
+  //     selectedPapier,
+  //     selectedPerfo,
+  //     selectedPolypro,
+  //     selectedBobines,
+  //   } = planProduction;
 
-    return (
-      selectedRefente !== undefined ||
-      selectedPapier !== undefined ||
-      selectedPerfo !== undefined ||
-      selectedPolypro !== undefined ||
-      selectedBobines.length > 0
-    );
-  }
+  //   return (
+  //     selectedRefente !== undefined ||
+  //     selectedPapier !== undefined ||
+  //     selectedPerfo !== undefined ||
+  //     selectedPolypro !== undefined ||
+  //     selectedBobines.length > 0
+  //   );
+  // }
 
-  private clear(): void {
-    bridge.clearPlan().catch(console.error);
-  }
+  // private clear(): void {
+  //   bridge.clearPlan().catch(console.error);
+  // }
 
   private canAutoComplete(): boolean {
     const {planProduction} = this.state;
@@ -284,8 +287,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       tourCount,
     } = planProduction;
 
-    console.log(tourCount);
-
     return (
       <PlanProdEditorContainer style={{margin: 'auto'}}>
         <TopBar
@@ -346,29 +347,30 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             const selectedPapierStock =
               selectedPapier && stocks ? getStock(selectedPapier.ref, stocks) : 0;
             const papierBlock = selectedPapier ? (
-              <Closable
-                color={getColorInfoByName(selectedPapier.couleurPapier).dangerHex}
-                onClose={this.removePapier}
-              >
-                <Bobine
-                  size={selectedPapier.laize || 0}
-                  pixelPerMM={pixelPerMM}
-                  decalage={selectedRefente && selectedRefente.decalage}
-                  color={getColorInfoByName(selectedPapier.couleurPapier).hex}
-                  strokeWidth={theme.planProd.selectedStrokeWidth}
-                >
-                  <AutoFontWeight
-                    style={{color: getColorInfoByName(selectedPapier.couleurPapier).textHex}}
-                    fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                  >
-                    {`Bobine Papier ${selectedPapier.couleurPapier} ${
-                      selectedPapier.ref
-                    } - Largeur ${selectedPapier.laize} - ${
-                      selectedPapier.grammage
-                    }g - ${selectedPapierStock} en stock`}
-                  </AutoFontWeight>
-                </Bobine>
-              </Closable>
+              <WithColor color={selectedPapier.couleurPapier}>
+                {color => (
+                  <Closable color={color.closeHex} onClose={this.removePapier}>
+                    <Bobine
+                      size={selectedPapier.laize || 0}
+                      pixelPerMM={pixelPerMM}
+                      decalage={selectedRefente && selectedRefente.decalage}
+                      color={color.textHex}
+                      strokeWidth={theme.planProd.selectedStrokeWidth}
+                    >
+                      <AutoFontWeight
+                        style={{color: color.textHex}}
+                        fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
+                      >
+                        {`Bobine Papier ${selectedPapier.couleurPapier} ${
+                          selectedPapier.ref
+                        } - Largeur ${selectedPapier.laize} - ${
+                          selectedPapier.grammage
+                        }g - ${selectedPapierStock} en stock`}
+                      </AutoFontWeight>
+                    </Bobine>
+                  </Closable>
+                )}
+              </WithColor>
             ) : (
               <SelectPapierButton
                 selectedRefente={selectedRefente}
@@ -386,24 +388,28 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const polyproBlock = selectedPolypro ? (
-              <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePolypro}>
-                <Bobine
-                  size={selectedPolypro.laize || 0}
-                  pixelPerMM={pixelPerMM}
-                  decalage={selectedRefente && selectedRefente.decalage}
-                  color={getColorInfoByName(selectedPolypro.couleurPapier).hex}
-                  strokeWidth={theme.planProd.selectedStrokeWidth}
-                >
-                  <AutoFontWeight
-                    style={{color: getColorInfoByName(selectedPolypro.couleurPapier).textHex}}
-                    fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                  >
-                    {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${selectedPolypro.laize} - ${
-                      selectedPolypro.grammage
-                    }μg`}
-                  </AutoFontWeight>
-                </Bobine>
-              </Closable>
+              <WithColor color={selectedPolypro.couleurPapier}>
+                {color => (
+                  <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePolypro}>
+                    <Bobine
+                      size={selectedPolypro.laize || 0}
+                      pixelPerMM={pixelPerMM}
+                      decalage={selectedRefente && selectedRefente.decalage}
+                      color={color.textHex}
+                      strokeWidth={theme.planProd.selectedStrokeWidth}
+                    >
+                      <AutoFontWeight
+                        style={{color: color.textHex}}
+                        fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
+                      >
+                        {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
+                          selectedPolypro.laize
+                        } - ${selectedPolypro.grammage}μg`}
+                      </AutoFontWeight>
+                    </Bobine>
+                  </Closable>
+                )}
+              </WithColor>
             ) : (
               <SelectPolyproButton
                 selectedRefente={selectedRefente}

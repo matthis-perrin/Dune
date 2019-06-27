@@ -114,12 +114,18 @@ export function getBobinePoseState(
       );
       const poseStr = pose === POSE_NEUTRE ? 'neutre' : pose;
       if (firstRuptureOrAlertBobine === ref) {
-        const reason = `Le nombre de tour sera ajustée pour produire un multiple de ${quantity}`;
-        return {pose, mode: ButtonMode.Neutral, reason};
+        return {
+          pose,
+          mode: ButtonMode.Neutral,
+          reason: `Le nombre de tour sera ajustée pour produire un multiple de ${quantity}`,
+        };
       }
       if (state === BobineState.Surstock) {
-        const reason = `Ajouter cette bobine en pose ${poseStr} amènera la bobine en surstock (Stock prévisionnel : ${stock}, Vente annuelle : ${yearSell})`;
-        return {pose, mode: ButtonMode.Danger, reason};
+        return {
+          pose,
+          mode: ButtonMode.Danger,
+          reason: `Ajouter cette bobine en pose ${poseStr} amènera la bobine en surstock (Stock prévisionnel : ${stock}, Vente annuelle : ${yearSell})`,
+        };
       }
       if (!tourCount) {
         return {pose, mode: ButtonMode.Neutral};

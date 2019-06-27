@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {Checkbox} from '@root/components/core/checkbox';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {Colors, Palette, theme} from '@root/theme';
+import {theme} from '@root/theme';
 
 // tslint:disable-next-line:no-any
 export type FilterStateData = any;

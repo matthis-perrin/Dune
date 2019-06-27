@@ -3,8 +3,6 @@ import styled from 'styled-components';
 
 import {SidebarItem} from '@root/components/apps/main/sidebar/sidebar_item';
 import {FlexParent} from '@root/components/core/flex';
-import {Image} from '@root/components/core/image';
-import {SVGIconName} from '@root/components/core/svg_icon';
 import {AppPage, appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme';
 
@@ -16,13 +14,12 @@ interface State {
 
 interface SidebarItemData {
   title: string;
-  icon: SVGIconName;
 }
 
 const Pages: {[key: string]: SidebarItemData} = {
-  // [AppPage.Production]: {title: 'Production', icon: 'calendar'},
-  [AppPage.Gestion]: {title: 'Gestion', icon: 'calendar'},
-  [AppPage.Administration]: {title: 'Administration', icon: 'gear'},
+  // [AppPage.Production]: {title: 'Production'},
+  [AppPage.Gestion]: {title: 'Gestion'},
+  [AppPage.Administration]: {title: 'Administration'},
 };
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
@@ -59,12 +56,11 @@ export class Sidebar extends React.Component<Props, State> {
           <SidebarSelectedIndicator index={pageIndex} />
           <SidebarItemContainer flexDirection="column">
             {SidebarPages.map((pageName, index) => {
-              const {title, icon} = Pages[pageName];
+              const {title} = Pages[pageName];
               return (
                 <SidebarItem
                   key={title}
                   title={title}
-                  icon={icon}
                   isSelected={index === pageIndex}
                   onClick={() => appStore.setCurrentPage(pageName)}
                 />

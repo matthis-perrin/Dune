@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Card2} from '@root/components/core/card';
 import {ReactProps, DivProps} from '@root/components/core/common';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {textColorByName, couleurByName} from '@root/theme';
+import {WithColor} from '@root/components/core/with_colors';
 
 interface Props extends ReactProps, DivProps {
   sommeil?: boolean;
@@ -20,24 +20,32 @@ export class ViewerTopBar extends React.Component<Props> {
       return <React.Fragment />;
     }
     return (
-      <SommeilIndicator>
-        <SVGIcon name="zzz" width={16} height={16} />
-        <SommeilIndicatorText style={{color: textColorByName(color)}}>
-          En sommeil
-        </SommeilIndicatorText>
-      </SommeilIndicator>
+      <WithColor color={color}>
+        {colorData => (
+          <SommeilIndicator>
+            <SVGIcon name="zzz" width={16} height={16} />
+            <SommeilIndicatorText style={{color: colorData.textHex}}>
+              En sommeil
+            </SommeilIndicatorText>
+          </SommeilIndicator>
+        )}
+      </WithColor>
     );
   }
 
   public render(): JSX.Element {
     const {children, color} = this.props;
     return (
-      <ViewerTopBarWrapper
-        style={{color: textColorByName(color), backgroundColor: couleurByName(color)}}
-      >
-        {this.renderSommeilIndicator()}
-        {children}
-      </ViewerTopBarWrapper>
+      <WithColor color={color}>
+        {colorData => (
+          <ViewerTopBarWrapper
+            style={{color: colorData.textHex, backgroundColor: colorData.backgroundHex}}
+          >
+            {this.renderSommeilIndicator()}
+            {children}
+          </ViewerTopBarWrapper>
+        )}
+      </WithColor>
     );
   }
 }

@@ -161,13 +161,13 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
             {Array.from(this.rows.entries())
               .sort((e1, e2) => getStringHash(e1[0]) - getStringHash(e2[0]))
               .map(([ref, rowData]) => {
-                const {rowIndex, data} = rowData;
+                const {rowIndex} = rowData;
                 const styles: React.CSSProperties = {};
                 if (rowIndex !== undefined) {
                   styles.top = rowIndex * rowHeight;
                   styles.visibility = 'visible';
                 }
-                const rowStylesData = rowStyles ? rowStyles(data) : {};
+                const rowStylesData = rowStyles ? rowStyles(rowData.data) : {};
                 return (
                   <RowContainer
                     key={ref}
@@ -191,7 +191,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
                       columns={columns}
                       columnWidths={columnWidths}
                       rowHeight={rowHeight}
-                      data={data}
+                      data={rowData.data}
                     />
                   </RowContainer>
                 );

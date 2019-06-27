@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReactProps, DivProps} from '@root/components/core/common';
-import {couleurByName, textColorByName, getColorInfoByName} from '@root/theme';
+import {WithColor} from '@root/components/core/with_colors';
 
 interface ColorProps extends ReactProps, DivProps {
   color: string;
@@ -14,23 +14,25 @@ export class Color extends React.Component<ColorProps> {
 
   public render(): JSX.Element {
     const {color, style} = this.props;
-    const backgroundColor = couleurByName(color);
-    const textColor = textColorByName(color);
 
-    const rest = omit(this.props, ['color', 'style']);
+    const rest = omit(this.props, ['data', 'style']);
 
     return (
-      <ColorWrapper
-        {...rest}
-        style={{
-          ...style,
-          backgroundColor,
-          color: textColor,
-          border: `solid 1px ${getColorInfoByName(color).hasBorder ? 'black' : 'transparent'}`,
-        }}
-      >
-        {color}
-      </ColorWrapper>
+      <WithColor color={color}>
+        {colorData => (
+          <ColorWrapper
+            {...rest}
+            style={{
+              ...style,
+              backgroundColor: colorData.backgroundHex,
+              color: colorData.textHex,
+              border: `solid 1px ${colorData.hasBorder ? colorData.textHex : 'transparent'}`,
+            }}
+          >
+            {colorData.name}
+          </ColorWrapper>
+        )}
+      </WithColor>
     );
   }
 }
