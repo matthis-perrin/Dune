@@ -1,13 +1,21 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Duration} from '@root/components/common/duration';
 import {Input} from '@root/components/core/input';
 import {theme} from '@root/theme';
 
+import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
+
+const MAX_SPEED_RATIO = 0.82;
+
 interface TopBarProps {
   planProdRef: string;
+  planProduction: PlanProductionState;
   tourCount?: number;
+  speed: number;
   onTourCountChange(tourCount?: number): void;
+  onSpeedChange(speed: number): void;
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -17,7 +25,6 @@ export class TopBar extends React.Component<TopBarProps> {
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     const {onTourCountChange} = this.props;
-    console.log(event.target.value);
     try {
       const newTourCount = parseFloat(event.target.value);
       if (isNaN(newTourCount) || !isFinite(newTourCount) || newTourCount < 0) {
@@ -30,13 +37,43 @@ export class TopBar extends React.Component<TopBarProps> {
     }
   };
 
+  private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const {onSpeedChange} = this.props;
+    try {
+      const newTourCount = parseFloat(event.target.value);
+      if (isNaN(newTourCount) || !isFinite(newTourCount) || newTourCount < 0) {
+        onSpeedChange(0);
+      } else {
+        onSpeedChange(newTourCount);
+      }
+    } catch {
+      onSpeedChange(0);
+    }
+  };
+
+  private computeProductionTime(
+    firstBobine: BobineFilleWithPose,
+    speed: number,
+    tourCount: number
+  ): number {
+    const actualSpeed = MAX_SPEED_RATIO * speed;
+    const lengthToProduce = tourCount * (firstBobine.longueur || 0);
+    return Math.round((lengthToProduce / actualSpeed) * 60);
+  }
+
   public render(): JSX.Element {
-    const {planProdRef, tourCount} = this.props;
+    const {planProdRef, planProduction, tourCount, speed} = this.props;
+
+    const productionTimeInSec =
+      planProduction.selectedBobines.length > 0 && speed > 0 && tourCount && tourCount > 0
+        ? this.computeProductionTime(planProduction.selectedBobines[0], speed, tourCount)
+        : undefined;
+
     return (
       <TopBarWrapper>
         <LeftContainer>
           <div style={{marginBottom: 6}}>
-            <TopBarInput value="180" />
+            <TopBarInput value={speed} onChange={this.handleSpeedInputChange} />
             m/min
           </div>
           <div>
@@ -51,10 +88,9 @@ export class TopBar extends React.Component<TopBarProps> {
           <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
         </CenterContainer>
         <RightContainer>
-          <div>Début production: 06h00</div>
-          <div>Réglage: 01:20:00</div>
-          <div>Production: 00:20:10</div>
-          <div>Fin production: 07h40</div>
+          <div>
+            Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
+          </div>
         </RightContainer>
       </TopBarWrapper>
     );

@@ -5,7 +5,6 @@ import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
   DESIGNATION_COLUMN,
   LAIZE_COLUMN,
-  LONGUEUR_COLUMN,
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
   STOCK_COLUMN,

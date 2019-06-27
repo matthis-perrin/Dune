@@ -39,6 +39,8 @@ import {
   BobineQuantities,
 } from '@shared/models';
 
+const INITIAL_SPEED = 180;
+
 interface Props {}
 
 interface State {
@@ -51,6 +53,7 @@ interface State {
   bobineQuantities?: BobineQuantities[];
 
   tourCountSetByUser: boolean;
+  speed: number;
 }
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
@@ -60,6 +63,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     super(props);
     this.state = {
       tourCountSetByUser: false,
+      speed: INITIAL_SPEED,
     };
   }
 
@@ -165,6 +169,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanTourCount(newTourCount).catch(console.error);
   };
 
+  private readonly handleSpeedChange = (speed: number): void => {
+    this.setState({speed});
+  };
+
   private removeRefente(): void {
     bridge.setPlanRefente(undefined).catch(console.error);
   }
@@ -266,6 +274,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       stocks,
       cadencier,
       bobineQuantities,
+      speed,
     } = this.state;
 
     if (!planProduction) {
@@ -291,8 +300,11 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       <PlanProdEditorContainer style={{margin: 'auto'}}>
         <TopBar
           tourCount={tourCount}
+          speed={speed}
           onTourCountChange={this.handleTourCountChange}
+          onSpeedChange={this.handleSpeedChange}
           planProdRef="19062101"
+          planProduction={planProduction}
         />
         <SizeMonitor>
           {(width, height, hasVerticalScrollbar) => {
