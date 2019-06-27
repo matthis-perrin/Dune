@@ -5,10 +5,11 @@ import styled from 'styled-components';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {theme} from '@root/theme';
 
-const TRIANGLE_HEIGHT_RATIO = 0.12; // Based on the entire height of the Bague
+const TRIANGLE_HEIGHT_RATIO = 0.12; // Compared to the size of the bague
+const BAGUE_HEIGHT_RATIO = 0.5; // Compared to the full size of the element
 
 interface BagueProps {
-  size: number; // Actual size of the physical bague
+  size: number; // Size of the perfo
   pixelPerMM: number;
 }
 
@@ -40,7 +41,11 @@ export class Bague extends React.Component<BagueProps> {
     const {size, pixelPerMM} = this.props;
     const width = size * pixelPerMM;
     const triangleCount = Math.round(
-      width / (theme.planProd.elementsBaseHeight * 0.5 * TRIANGLE_HEIGHT_RATIO * pixelPerMM)
+      width /
+        (theme.planProd.elementsBaseHeight *
+          BAGUE_HEIGHT_RATIO *
+          TRIANGLE_HEIGHT_RATIO *
+          pixelPerMM)
     );
     const triangleWidth = width / triangleCount;
     const triangleHeight = triangleWidth + 1;
@@ -54,7 +59,9 @@ export class Bague extends React.Component<BagueProps> {
         <BagueInner
           fontSize={theme.planProd.elementsBaseMediumFontSize * pixelPerMM}
           style={{
-            height: theme.planProd.elementsBaseHeight * 0.5 * pixelPerMM - 2 * triangleHeight,
+            height:
+              theme.planProd.elementsBaseHeight * BAGUE_HEIGHT_RATIO * pixelPerMM -
+              2 * triangleHeight,
           }}
         >
           {size}

@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import {
   LAIZE_COLUMN,
-  BOBINE_FILLE_REF,
   PISTES_COLUMN,
   STOCK_ACTUEL_COLUMN,
   STATE_ACTUEL_COLUMN,
@@ -13,6 +12,7 @@ import {
   toStaticColumn,
   withWidth,
   CLOSE_COLUMN,
+  BOBINE_FILLE_REF_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {getStock, getBobineState} from '@root/lib/bobine';
@@ -65,15 +65,15 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     });
 
     let columns = [
-      withWidth(toStaticColumn(BOBINE_FILLE_REF), undefined),
-      withWidth(toStaticColumn(LAIZE_COLUMN), 70),
-      withWidth(toStaticColumn(PISTES_COLUMN), 70),
-      withWidth(toStaticColumn(STATE_ACTUEL_COLUMN), 120),
-      withWidth(toStaticColumn(QUANTITY_COLUMN), 170),
-      withWidth(toStaticColumn(STOCK_ACTUEL_COLUMN), 120),
-      withWidth(toStaticColumn(PRODUCTION_COLUMN), 120),
-      withWidth(toStaticColumn(STOCK_PREVISIONEL_COLUMN), 170),
-      withWidth(toStaticColumn(STATE_PREVISIONEL_COLUMN), 170),
+      withWidth(toStaticColumn(BOBINE_FILLE_REF_COLUMN), undefined),
+      toStaticColumn(LAIZE_COLUMN),
+      toStaticColumn(PISTES_COLUMN),
+      toStaticColumn(STATE_ACTUEL_COLUMN),
+      toStaticColumn(QUANTITY_COLUMN),
+      toStaticColumn(STOCK_ACTUEL_COLUMN),
+      toStaticColumn(PRODUCTION_COLUMN),
+      toStaticColumn(STOCK_PREVISIONEL_COLUMN),
+      toStaticColumn(STATE_PREVISIONEL_COLUMN),
       CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)),
     ];
 

@@ -169,7 +169,7 @@ export class BobineCadencierChart extends React.Component<
     this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
 
     // Tooltips
-    createChartTooltip<VenteDatum>(bars, 300, datum => {
+    createChartTooltip<VenteDatum>(bars, theme.cadencier.tooltipWidth, datum => {
       const monthStr = MONTHS_STRING[datum.time.getMonth()];
       const dateStr = `${monthStr} ${datum.time.getFullYear()}`;
       const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);

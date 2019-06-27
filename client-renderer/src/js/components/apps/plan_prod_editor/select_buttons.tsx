@@ -63,6 +63,8 @@ interface SelectBobineButtonProps {
   pixelPerMM: number;
 }
 
+const MIN_SIZE_FOR_FULL_TEXT = 500;
+
 export class SelectBobineButton extends React.Component<SelectBobineButtonProps> {
   public static displayName = 'SelectBobineButton';
 
@@ -71,7 +73,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
     const width = size * pixelPerMM;
     const plural = selectable.length > 1 ? 's' : '';
 
-    const smallMode = width < 350;
+    const smallMode = size < MIN_SIZE_FOR_FULL_TEXT;
     const content = smallMode
       ? '+'
       : `Sélectionner des bobines - ${selectable.length} compatible${plural}`;

@@ -45,15 +45,16 @@ function lighten(color: string, amount: number): string {
 }
 // tslint:enable:no-magic-numbers no-bitwise
 
+const LIGHT_COLOR_RATIO = 0.2;
 export const Colors = {
   Success: Palette.Emerald,
-  SuccessLight: lighten(Palette.Emerald, 0.2),
+  SuccessLight: lighten(Palette.Emerald, LIGHT_COLOR_RATIO),
   Warning: Palette.SunFlower,
-  WarningLight: lighten(Palette.SunFlower, 0.2),
+  WarningLight: lighten(Palette.SunFlower, LIGHT_COLOR_RATIO),
   Danger: Palette.Alizarin,
-  DangerLight: lighten(Palette.Alizarin, 0.2),
+  DangerLight: lighten(Palette.Alizarin, LIGHT_COLOR_RATIO),
   Neutral: Palette.Concrete,
-  NeutralLight: lighten(Palette.Concrete, 0.2),
+  NeutralLight: lighten(Palette.Concrete, LIGHT_COLOR_RATIO),
 
   PrimaryDark: Palette.MidnightBlue,
   PrimaryLight: Palette.WetAsphalt,
@@ -102,7 +103,8 @@ export const theme = {
   table: {
     padding: 8,
     backgroundColor: Palette.White,
-    disabledOpacity: 0.5,
+    disabledOpacity: 0.35,
+    minSizeForVariableColumns: 250,
 
     searchBarHeight: 32,
 
@@ -196,6 +198,8 @@ export const theme = {
     textColor: '#ddd',
     lineColor: '#ccc',
     gridLineColor: '#3C3C3C',
+    tooltipWidth: 300,
+    tooltipOpacity: 0.5,
   },
   operation: {
     backgroundColor: '#eeeeee',

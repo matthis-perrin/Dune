@@ -3,7 +3,6 @@ import * as React from 'react';
 import {Picker} from '@root/components/common/picker';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
-  REFERENCE_COLUMN,
   DESIGNATION_COLUMN,
   LAIZE_COLUMN,
   LONGUEUR_COLUMN,
@@ -11,10 +10,12 @@ import {
   GRAMMAGE_COLUMN,
   STOCK_COLUMN,
   LAST_UPDATE_COLUMN,
+  BOBINE_MERE_REF_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
+import {theme} from '@root/theme';
 
 import {BobineMere, Stock} from '@shared/models';
 
@@ -55,7 +56,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const columns = [
-      REFERENCE_COLUMN(170),
+      BOBINE_MERE_REF_COLUMN,
       DESIGNATION_COLUMN,
       LAIZE_COLUMN,
       LONGUEUR_COLUMN,
@@ -76,10 +77,9 @@ export class PapierPickerApp extends React.Component<Props, State> {
         {(elements, isSelectionnable, planProd, header, footer) => (
           <SizeMonitor>
             {(width, height) => {
-              const filterBarHeight = 32;
-              const searchBarHeight = 32;
               const availableWidth = width;
-              const availableHeight = height - filterBarHeight - searchBarHeight;
+              const availableHeight =
+                height - theme.table.headerHeight - theme.table.searchBarHeight;
               return (
                 <React.Fragment>
                   {header}
@@ -94,7 +94,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
                     }}
                     onRowClick={this.handlePapierSelected}
                     rowStyles={papier => ({
-                      opacity: isSelectionnable(papier) ? 1 : 0.5,
+                      opacity: isSelectionnable(papier) ? 1 : theme.table.disabledOpacity,
                       pointerEvents: isSelectionnable(papier) ? 'all' : 'none',
                     })}
                   />

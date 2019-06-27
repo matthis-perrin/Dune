@@ -2,7 +2,18 @@ import * as React from 'react';
 
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {AdminTable} from '@root/components/table/admin_table';
-import {BobineFilleColumns, BOBINE_FILLE_REF} from '@root/components/table/columns';
+import {
+  BOBINE_FILLE_REF_COLUMN,
+  DESIGNATION_COLUMN,
+  LAIZE_COLUMN,
+  LONGUEUR_COLUMN,
+  COULEUR_PAPIER_COLUMN,
+  GRAMMAGE_COLUMN,
+  TYPE_IMPRESSION_COLUMN,
+  REF_CLICHE1_COLUMN,
+  REF_CLICHE2_COLUMN,
+  STOCK_COLUMN,
+} from '@root/components/table/columns';
 import {bobinesFillesStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineFille, Stock} from '@shared/models';
@@ -54,16 +65,16 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
       <AdminTable
         data={bobinesFilles}
         columns={[
-          BOBINE_FILLE_REF,
-          BobineFilleColumns.Designation,
-          BobineFilleColumns.Laize,
-          BobineFilleColumns.Longueur,
-          BobineFilleColumns.CouleurPapier,
-          BobineFilleColumns.Grammage,
-          BobineFilleColumns.TypeImpression,
-          BobineFilleColumns.RefCliche1,
-          BobineFilleColumns.RefCliche2,
-          BobineFilleColumns.Stock(stocks),
+          BOBINE_FILLE_REF_COLUMN,
+          DESIGNATION_COLUMN,
+          LAIZE_COLUMN,
+          LONGUEUR_COLUMN,
+          COULEUR_PAPIER_COLUMN,
+          GRAMMAGE_COLUMN,
+          TYPE_IMPRESSION_COLUMN,
+          REF_CLICHE1_COLUMN,
+          REF_CLICHE2_COLUMN,
+          STOCK_COLUMN(stocks),
         ]}
       />
     );

@@ -98,11 +98,12 @@ const BobineDescription = styled.div`
   text-align: center;
 `;
 
+const hoverZoomEffectRatio = 0.05;
 const ClosableWithHover = styled(Closable)`
   position: relative;
   transition: all 100ms ease-in-out;
   &:hover {
-    transform: scale(1.05)
-      translate(${props => `${(-((props.size as number) || 0) * 0.05) / 2}px`}, 0);
+    transform: scale(${1 + hoverZoomEffectRatio})
+      translate(${props => `${(-((props.size as number) || 0) * hoverZoomEffectRatio) / 2}px`}, 0);
   }
 `;

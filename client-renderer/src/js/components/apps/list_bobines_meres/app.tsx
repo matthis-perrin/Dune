@@ -2,7 +2,15 @@ import * as React from 'react';
 
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {AdminTable} from '@root/components/table/admin_table';
-import {BobineMereColumns} from '@root/components/table/columns';
+import {
+  BOBINE_MERE_REF_COLUMN,
+  DESIGNATION_COLUMN,
+  LAIZE_COLUMN,
+  LONGUEUR_COLUMN,
+  COULEUR_PAPIER_COLUMN,
+  GRAMMAGE_COLUMN,
+  STOCK_COLUMN,
+} from '@root/components/table/columns';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 
 import {BobineMere, Stock} from '@shared/models';
@@ -55,14 +63,13 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
       <AdminTable
         data={bobinesMeres}
         columns={[
-          BobineMereColumns.Ref,
-          BobineMereColumns.Designation,
-          BobineMereColumns.Laize,
-          BobineMereColumns.Longueur,
-          BobineMereColumns.CouleurPapier,
-          BobineMereColumns.Grammage,
-          BobineMereColumns.Stock(stocks),
-          BobineMereColumns.LastUpdate,
+          BOBINE_MERE_REF_COLUMN,
+          DESIGNATION_COLUMN,
+          LAIZE_COLUMN,
+          LONGUEUR_COLUMN,
+          COULEUR_PAPIER_COLUMN,
+          GRAMMAGE_COLUMN,
+          STOCK_COLUMN(stocks),
         ]}
       />
     );

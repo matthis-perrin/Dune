@@ -130,6 +130,7 @@ export class OrderableBobines extends React.Component<
     }
     let shiftCount = 0;
     let mmOffset = (dragEnd - dragStart) / pixelPerMM;
+    const halfPose = 0.5;
 
     if (mmOffset > 0) {
       while (mmOffset > 0) {
@@ -138,7 +139,7 @@ export class OrderableBobines extends React.Component<
           break;
         }
         const pose = getPoseSize(bobine.pose);
-        if (mmOffset < (bobine.laize || 0) * (pose - 0.5)) {
+        if (mmOffset < (bobine.laize || 0) * (pose - halfPose)) {
           break;
         }
         mmOffset -= (bobine.laize || 0) * pose;
@@ -151,7 +152,7 @@ export class OrderableBobines extends React.Component<
           break;
         }
         const pose = getPoseSize(bobine.pose);
-        if (Math.abs(mmOffset) < (bobine.laize || 0) * (pose - 0.5)) {
+        if (Math.abs(mmOffset) < (bobine.laize || 0) * (pose - halfPose)) {
           break;
         }
         mmOffset += (bobine.laize || 0) * pose;

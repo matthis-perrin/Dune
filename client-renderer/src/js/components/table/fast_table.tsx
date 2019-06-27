@@ -27,9 +27,9 @@ const getStringHash = memoize(
     }
     for (let i = 0; i < l; i++) {
       const char = value.charCodeAt(i);
-      // tslint:disable-next-line:no-bitwise
+      // tslint:disable-next-line:no-bitwise no-magic-numbers
       hash = (hash << 5) - hash + char;
-      // tslint:disable-next-line:no-bitwise
+      // tslint:disable-next-line:no-bitwise no-magic-numbers
       hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
@@ -124,7 +124,10 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const rowCount = data.length;
     const columnCount = columns.length;
 
-    const adjustedWidth = Math.max(this.getFixedColumnsWidthSum() + 250, width);
+    const adjustedWidth = Math.max(
+      this.getFixedColumnsWidthSum() + theme.table.minSizeForVariableColumns,
+      width
+    );
     const columnWidths = range(columnCount).map(index => this.getColumnWidth(index, adjustedWidth));
 
     let scrollOffset = 0;

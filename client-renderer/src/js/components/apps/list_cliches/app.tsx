@@ -2,7 +2,15 @@ import * as React from 'react';
 
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {AdminTable} from '@root/components/table/admin_table';
-import {ClicheColumns} from '@root/components/table/columns';
+import {
+  CLICHE_REF_COLUMN,
+  DESIGNATION_COLUMN,
+  NOMBRE_POSES_COLUMN,
+  COULEUR1_CLICHE_COLUMN,
+  COULEUR2_CLICHE_COLUMN,
+  COULEUR3_CLICHE_COLUMN,
+  IMPORTANCE_ORDRE_COULEUR_COLUMN,
+} from '@root/components/table/columns';
 import {clichesStore} from '@root/stores/list_store';
 
 import {Cliche} from '@shared/models';
@@ -45,14 +53,13 @@ export class ListClichesApp extends React.Component<Props, State> {
       <AdminTable
         data={cliches}
         columns={[
-          ClicheColumns.Ref,
-          ClicheColumns.Designation,
-          ClicheColumns.NombrePoses,
-          ClicheColumns.Couleur1,
-          ClicheColumns.Couleur2,
-          ClicheColumns.Couleur3,
-          ClicheColumns.ImportanceOrdreCouleurs,
-          ClicheColumns.LastUpdate,
+          CLICHE_REF_COLUMN,
+          DESIGNATION_COLUMN,
+          NOMBRE_POSES_COLUMN,
+          COULEUR1_CLICHE_COLUMN,
+          COULEUR2_CLICHE_COLUMN,
+          COULEUR3_CLICHE_COLUMN,
+          IMPORTANCE_ORDRE_COULEUR_COLUMN,
         ]}
       />
     );

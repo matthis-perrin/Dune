@@ -13,10 +13,10 @@ import {
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
   COULEURS_IMPRESSION_COLUMN,
-  BOBINE_FILLE_REF,
   STOCK_STATE_COLUMN,
   LAST_YEAR_SELLING,
   QUANTITY_TO_PRODUCE,
+  BOBINE_FILLE_REF_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -81,15 +81,15 @@ export class BobinesPickerApp extends React.Component<Props, State> {
             getSelectable={p => p.selectableBobines}
             store={bobinesFillesWithMultiPoseStore}
             title="Choix des bobines"
-            searchColumns={[BOBINE_FILLE_REF, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
+            searchColumns={[BOBINE_FILLE_REF_COLUMN, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
           >
             {(elements, isSelectionnable, planProd, header, footer) => {
-              const filterBarHeight = 32;
-              const searchBarHeight = 32;
+              const filterBarHeight = theme.table.footerHeight;
+              const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
               const columns = [
-                BOBINE_FILLE_REF,
+                BOBINE_FILLE_REF_COLUMN,
                 DESIGNATION_COLUMN,
                 LAIZE_COLUMN,
                 COULEUR_PAPIER_COLUMN,

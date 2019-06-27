@@ -24,13 +24,14 @@ export const SHEET_EXTRA_HEIGHT = 0.2;
 export class Bobine extends React.Component<BobineProps> {
   public static displayName = 'Bobine';
 
-  private renderDecalage(offset: number, decalage?: number): JSX.Element {
+  private renderDecalage(decalage?: number): JSX.Element {
     const {pixelPerMM} = this.props;
     if (!decalage) {
       return <React.Fragment />;
     }
+    const borderSize = 1;
     return (
-      <div style={{marginLeft: offset}}>
+      <div style={{marginLeft: borderSize * 2}}>
         <HorizontalCote
           fontSize={theme.refente.baseFontSize * pixelPerMM}
           size={decalage}
@@ -52,7 +53,8 @@ export class Bobine extends React.Component<BobineProps> {
     const workingWidth = width - strokeWidth;
     const workingHeight = height - strokeWidth - sheetExtraHeight;
     const halfStrokeWidth = strokeWidth / 2;
-    const strokeDasharray = dashed ? `${strokeWidth * 2} ${strokeWidth * 3}` : '0';
+    const strokeCount = 3;
+    const strokeDasharray = dashed ? `${strokeWidth * 2} ${strokeWidth * strokeCount}` : '0';
 
     const leftBottom = [
       halfStrokeWidth + curveOffset,
@@ -164,7 +166,7 @@ export class Bobine extends React.Component<BobineProps> {
         }}
       >
         {this.draw(width, height, offset, sheetExtraHeight, strokeWidth, faceDown)}
-        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(-2, decalage)}</div>
+        <div style={{marginRight: strokeWidth}}>{this.renderDecalage(decalage)}</div>
         <ChildrenWrapper
           style={{
             width,

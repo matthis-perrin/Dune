@@ -59,6 +59,7 @@ export function getQuantityToProduce(
   return {threshold: closest.threshold, quantity: closest.qtyToProduce};
 }
 
+const MONTHS_IN_YEAR = 12;
 export function getBobineState(
   ref: string,
   stocks: Map<string, Stock[]>,
@@ -68,7 +69,7 @@ export function getBobineState(
 ): {state: BobineState; quantity: number; yearSell: number; stock: number} {
   const currentStock = getStock(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
-  const averageSellingByMonth = lastYearSelling / 12;
+  const averageSellingByMonth = lastYearSelling / MONTHS_IN_YEAR;
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
   if (currentStock < averageSellingByMonth) {
     return {state: BobineState.Rupture, quantity, yearSell: lastYearSelling, stock: currentStock};

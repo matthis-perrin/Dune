@@ -44,7 +44,7 @@ export function createChartTooltip<T>(
       tooltipContainer.style.top = `${closest.position.y + top}px`;
       tooltipContainer.style.left = `${x}px`;
       tooltipComponent.setContent(tooltipContent(closest.datum as T));
-      closest.selection.attr('opacity', 0.5);
+      closest.selection.attr('opacity', theme.cadencier.tooltipOpacity);
       previouslyHoveredEntity = closest;
     }
   });

@@ -40,7 +40,7 @@ export class PerfoPickerApp extends React.Component<Props> {
         {(elements, isSelectionnable, planProd, header, footer) => (
           <SizeMonitor>
             {(width, height) => {
-              const filterBarHeight = 32;
+              const filterBarHeight = theme.table.footerHeight;
               const availableWidth = width - 2 * theme.page.padding - SCROLLBAR_WIDTH;
               const availableHeight = height - filterBarHeight;
               const pixelPerMM = availableWidth / CAPACITE_MACHINE;
@@ -53,7 +53,7 @@ export class PerfoPickerApp extends React.Component<Props> {
                       return (
                         <PerfoWrapper
                           style={{
-                            opacity: enabled ? 1 : 0.35,
+                            opacity: enabled ? 1 : theme.table.disabledOpacity,
                             pointerEvents: enabled ? 'all' : 'none',
                           }}
                           key={r.ref}

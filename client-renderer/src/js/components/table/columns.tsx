@@ -151,7 +151,13 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
 
-export const BOBINE_FILLE_REF: ColumnMetadata<{ref: string}, string> = {
+export const BOBINE_MERE_REF_COLUMN = REFERENCE_COLUMN(170);
+export const REFENTE_REF_COLUMN = REFERENCE_COLUMN(70);
+export const PERFO_REF_COLUMN = REFERENCE_COLUMN(70);
+export const CLICHE_REF_COLUMN = REFERENCE_COLUMN(80);
+export const OEPRATION_REF_COLUMN = REFERENCE_COLUMN(40);
+
+export const BOBINE_FILLE_REF_COLUMN: ColumnMetadata<{ref: string}, string> = {
   title: 'REFERENCE',
   width: 190,
   renderCell: ({ref}) => (
@@ -797,6 +803,7 @@ export const QUANTITY_TO_PRODUCE = (
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PRODUCTION',
+  width: 120,
   renderCell: ({production}) => renderString(`+${production}`),
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
@@ -805,6 +812,7 @@ export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
 
 export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
   title: 'STOCK ACTUEL',
+  width: 120,
   renderCell: ({stock}) => renderNumber(stock),
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.stock, row2.stock),
@@ -813,6 +821,7 @@ export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
 
 export const STATE_ACTUEL_COLUMN: ColumnMetadata<{state: BobineStateModel}, number> = {
   title: 'ÉTAT ACTUEL',
+  width: 120,
   renderCell: ({state}) => <BobineState state={state} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
@@ -821,6 +830,7 @@ export const STATE_ACTUEL_COLUMN: ColumnMetadata<{state: BobineStateModel}, numb
 
 export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
   title: 'QUANTITÉ À PRODUIRE',
+  width: 170,
   renderCell: ({quantity}) => renderNumber(quantity),
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.quantity, row2.quantity),
@@ -829,6 +839,7 @@ export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
 
 export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number> = {
   title: 'STOCK PRÉVISIONNEL',
+  width: 170,
   renderCell: ({newStock}) => renderNumber(newStock),
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.newStock, row2.newStock),
@@ -837,6 +848,7 @@ export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number
 
 export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<{newState: BobineStateModel}, number> = {
   title: 'ÉTAT PRÉVISIONNEL',
+  width: 170,
   renderCell: ({newState}) => <BobineState state={newState} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
@@ -870,98 +882,6 @@ export function CLOSE_COLUMN<T>(onClose: (row: T) => void): ColumnMetadata<T, vo
     shouldRerender: (row1, row2) => row1 !== row2,
   };
 }
-
-export const BobineFilleColumns = {
-  Ref: REFERENCE_COLUMN(170),
-  Designation: DESIGNATION_COLUMN,
-  Laize: LAIZE_COLUMN,
-  Longueur: LONGUEUR_COLUMN,
-  CouleurPapier: COULEUR_PAPIER_COLUMN,
-  Grammage: GRAMMAGE_COLUMN,
-  TypeImpression: TYPE_IMPRESSION_COLUMN,
-  RefCliche1: REF_CLICHE1_COLUMN,
-  RefCliche2: REF_CLICHE2_COLUMN,
-  Stock: STOCK_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
-
-export const BobineFilleClichePoseColumns = {
-  Ref: REFERENCE_COLUMN(170),
-  Laize: LAIZE_COLUMN,
-  CouleurPapier: COULEUR_PAPIER_COLUMN,
-  Grammage: GRAMMAGE_COLUMN,
-  Stock: STOCK_COLUMN,
-  Pose: POSE_COLUMN,
-  // CouleursImpression: COULEURS_CLICHE_COLUMN,
-  ImportanceOrdreCouleurs: IMPORTANCE_ORDRE_COULEUR_COLUMN,
-  TypeImpression: TYPE_IMPRESSION_COLUMN,
-};
-
-export const BobineMereColumns = {
-  Ref: REFERENCE_COLUMN(170),
-  Designation: DESIGNATION_COLUMN,
-  Laize: LAIZE_COLUMN,
-  Longueur: LONGUEUR_COLUMN,
-  CouleurPapier: COULEUR_PAPIER_COLUMN,
-  Grammage: GRAMMAGE_COLUMN,
-  Stock: STOCK_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
-
-export const ClicheColumns = {
-  Ref: REFERENCE_COLUMN(80),
-  Designation: DESIGNATION_COLUMN,
-  NombrePoses: NOMBRE_POSES_COLUMN,
-  Couleur1: COULEUR1_CLICHE_COLUMN,
-  Couleur2: COULEUR2_CLICHE_COLUMN,
-  Couleur3: COULEUR3_CLICHE_COLUMN,
-  ImportanceOrdreCouleurs: IMPORTANCE_ORDRE_COULEUR_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
-
-export const PerfoColumns = {
-  Ref: REFERENCE_COLUMN(70),
-  DecalageInitial: DECALAGE_INITIAL_COLUMN,
-  Cale1: CALE1_COLUMN,
-  Bague1: BAGUE1_COLUMN,
-  Cale2: CALE2_COLUMN,
-  Bague2: BAGUE2_COLUMN,
-  Cale3: CALE3_COLUMN,
-  Bague3: BAGUE3_COLUMN,
-  Cale4: CALE4_COLUMN,
-  Bague4: BAGUE4_COLUMN,
-  Cale5: CALE5_COLUMN,
-  Bague5: BAGUE5_COLUMN,
-  Cale6: CALE6_COLUMN,
-  Bague6: BAGUE6_COLUMN,
-  Cale7: CALE7_COLUMN,
-  Bague7: BAGUE7_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
-
-export const RefenteColumns = {
-  Ref: REFERENCE_COLUMN(70),
-  RefPerfo: REF_PERFO_COLUMN,
-  Decalage: DECALAGE_COLUMN,
-  Laize1: LAIZE1_REFENTE_COLUMN,
-  Laize2: LAIZE2_REFENTE_COLUMN,
-  Laize3: LAIZE3_REFENTE_COLUMN,
-  Laize4: LAIZE4_REFENTE_COLUMN,
-  Laize5: LAIZE5_REFENTE_COLUMN,
-  Laize6: LAIZE6_REFENTE_COLUMN,
-  Laize7: LAIZE7_REFENTE_COLUMN,
-  Chute: CHUTE_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
-
-export const OperationColumns = {
-  Ref: REFERENCE_COLUMN(40),
-  Description: DESCRIPTION_COLUMN,
-  Required: IS_REQUIRED_COLUMN,
-  Constraint: OPERATION_CONSTRAINT_COLUMN,
-  Duration: DURATION_SECONDS_COLUMN,
-  LastUpdate: LAST_UPDATE_COLUMN,
-};
 // tslint:enable:no-magic-numbers
 
 export function toStaticColumn<T, U>(column: ColumnMetadata<T, U>): ColumnMetadata<T, U> {
