@@ -47,10 +47,22 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       const pistes = selectedPistesSum.get(ref) || 0;
       const production = (planProduction.tourCount || 0) * pistes;
       const stock = getStock(ref, stocks);
-      const {state, quantity} = getBobineState(bobine.ref, stocks, cadencier, bobineQuantities, 0);
+      const {state, info, quantity} = getBobineState(
+        bobine.ref,
+        stocks,
+        cadencier,
+        bobineQuantities,
+        0
+      );
       const newStock = stock + production;
-      const newState = getBobineState(bobine.ref, stocks, cadencier, bobineQuantities, production)
-        .state;
+      const newBobineState = getBobineState(
+        bobine.ref,
+        stocks,
+        cadencier,
+        bobineQuantities,
+        production
+      );
+
       return {
         ref: bobine.ref,
         laize: bobine.laize,
@@ -58,9 +70,11 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         production,
         stock,
         state,
+        info,
         quantity,
         newStock,
-        newState,
+        newState: newBobineState.state,
+        newInfo: newBobineState.info,
       };
     });
 

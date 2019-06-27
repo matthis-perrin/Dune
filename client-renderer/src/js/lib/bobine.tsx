@@ -60,27 +60,69 @@ export function getQuantityToProduce(
 }
 
 const MONTHS_IN_YEAR = 12;
+const INFINITE_STOCK = 1e10;
 export function getBobineState(
   ref: string,
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
   additionalStock: number = 0
-): {state: BobineState; quantity: number; yearSell: number; stock: number} {
+): {
+  state: BobineState;
+  quantity: number;
+  yearSell: number;
+  stock: number;
+  info: string;
+  infoValue: number;
+} {
   const currentStock = getStock(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
-  const averageSellingByMonth = lastYearSelling / MONTHS_IN_YEAR;
+  const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
   if (currentStock < averageSellingByMonth) {
-    return {state: BobineState.Rupture, quantity, yearSell: lastYearSelling, stock: currentStock};
+    return {
+      state: BobineState.Rupture,
+      quantity,
+      yearSell: lastYearSelling,
+      stock: currentStock,
+      info: `${currentStock - averageSellingByMonth}`,
+      infoValue: currentStock - averageSellingByMonth,
+    };
   }
   if (currentStock > lastYearSelling) {
-    return {state: BobineState.Surstock, quantity, yearSell: lastYearSelling, stock: currentStock};
+    return {
+      state: BobineState.Surstock,
+      quantity,
+      yearSell: lastYearSelling,
+      stock: currentStock,
+      info: `+${currentStock - lastYearSelling}`,
+      infoValue: currentStock - lastYearSelling,
+    };
   }
   if (currentStock < threshold) {
-    return {state: BobineState.Alerte, quantity, yearSell: lastYearSelling, stock: currentStock};
+    return {
+      state: BobineState.Alerte,
+      quantity,
+      yearSell: lastYearSelling,
+      stock: currentStock,
+      info: `${currentStock - threshold}`,
+      infoValue: currentStock - threshold,
+    };
   }
-  return {state: BobineState.Neutre, quantity, yearSell: lastYearSelling, stock: currentStock};
+  return {
+    state: BobineState.Neutre,
+    quantity,
+    yearSell: lastYearSelling,
+    stock: currentStock,
+    info:
+      averageSellingByMonth === 0
+        ? '∞'
+        : `${Math.floor(currentStock / averageSellingByMonth)} mois`,
+    infoValue:
+      averageSellingByMonth === 0
+        ? INFINITE_STOCK
+        : Math.floor(currentStock / averageSellingByMonth),
+  };
 }
 
 export function getBobinePoseState(

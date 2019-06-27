@@ -763,16 +763,20 @@ export const STOCK_STATE_COLUMN = (
   bobineQuantities: BobineQuantities[]
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'ETAT',
-  width: 100,
-  renderCell: ({ref}) => (
-    <BobineState state={getBobineState(ref, stocks, cadencier, bobineQuantities).state} />
-  ),
+  width: 170,
+  renderCell: ({ref}) => {
+    const {state, info} = getBobineState(ref, stocks, cadencier, bobineQuantities);
+    return <BobineState state={state} info={info} />;
+  },
   justifyContent: 'flex-end',
-  sortFunction: (row1, row2) =>
-    numberSort(
-      getBobineState(row1.ref, stocks, cadencier, bobineQuantities).state,
-      getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state
-    ),
+  sortFunction: (row1, row2) => {
+    const info1 = getBobineState(row1.ref, stocks, cadencier, bobineQuantities);
+    const info2 = getBobineState(row2.ref, stocks, cadencier, bobineQuantities);
+    if (info1.state === info2.state) {
+      return info1.infoValue - info2.infoValue;
+    }
+    return info1.state - info2.state;
+  },
   shouldRerender: (row1, row2) =>
     getBobineState(row1.ref, stocks, cadencier, bobineQuantities).state !==
     getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state,
@@ -819,10 +823,13 @@ export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
   shouldRerender: (row1, row2) => row1.stock !== row2.stock,
 };
 
-export const STATE_ACTUEL_COLUMN: ColumnMetadata<{state: BobineStateModel}, number> = {
+export const STATE_ACTUEL_COLUMN: ColumnMetadata<
+  {state: BobineStateModel; info: string},
+  number
+> = {
   title: 'ÉTAT ACTUEL',
-  width: 120,
-  renderCell: ({state}) => <BobineState state={state} />,
+  width: 170,
+  renderCell: ({state, info}) => <BobineState state={state} info={info} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
   shouldRerender: (row1, row2) => row1.state !== row2.state,
@@ -846,10 +853,13 @@ export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number
   shouldRerender: (row1, row2) => row1.newStock !== row2.newStock,
 };
 
-export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<{newState: BobineStateModel}, number> = {
+export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<
+  {newState: BobineStateModel; newInfo: string},
+  number
+> = {
   title: 'ÉTAT PRÉVISIONNEL',
   width: 170,
-  renderCell: ({newState}) => <BobineState state={newState} />,
+  renderCell: ({newState, newInfo}) => <BobineState state={newState} info={newInfo} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
   shouldRerender: (row1, row2) => row1.newState !== row2.newState,

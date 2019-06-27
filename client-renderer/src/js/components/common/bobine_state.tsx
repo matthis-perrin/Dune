@@ -32,19 +32,20 @@ const unknownStateUI = {
 
 interface BobineStateProps {
   state: BobineStateModel;
+  info: string;
 }
 
 export class BobineState extends React.Component<BobineStateProps> {
   public static displayName = 'BobineState';
 
   public render(): JSX.Element {
-    const {state} = this.props;
+    const {state, info} = this.props;
 
     const {title, color, fontWeight} = stateUI.get(state) || unknownStateUI;
 
     return (
       <BobineStateContainer style={{backgroundColor: color, color: Palette.White, fontWeight}}>
-        {title}
+        {`${title} (${info})`}
       </BobineStateContainer>
     );
   }
