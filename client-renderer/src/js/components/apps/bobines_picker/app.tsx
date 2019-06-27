@@ -17,6 +17,7 @@ import {
   LAST_YEAR_SELLING,
   QUANTITY_TO_PRODUCE,
   BOBINE_FILLE_REF_COLUMN,
+  LONGUEUR_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -92,6 +93,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 BOBINE_FILLE_REF_COLUMN,
                 DESIGNATION_COLUMN,
                 LAIZE_COLUMN,
+                LONGUEUR_COLUMN,
                 COULEUR_PAPIER_COLUMN,
                 GRAMMAGE_COLUMN,
                 MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),

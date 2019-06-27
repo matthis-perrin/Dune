@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import {FilterBar} from '@root/components/common/filter_bar';
 import {SearchBar} from '@root/components/common/search_bar';
-import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {ListStore} from '@root/stores/list_store';
@@ -98,7 +98,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     const {allElements, planProd, filteredElements = [], filteredSearchedElements} = this.state;
 
     if (!allElements || !planProd) {
-      return <LoadingIndicator size="large" />;
+      return <LoadingScreen />;
     }
 
     // Replace elements in `allElements` by the one in `selectable`

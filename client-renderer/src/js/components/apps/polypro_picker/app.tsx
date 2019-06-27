@@ -59,7 +59,6 @@ export class PolyproPickerApp extends React.Component<Props, State> {
       BOBINE_MERE_REF_COLUMN,
       DESIGNATION_COLUMN,
       LAIZE_COLUMN,
-      LONGUEUR_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
       STOCK_COLUMN(this.state.stocks || new Map<string, Stock[]>()),

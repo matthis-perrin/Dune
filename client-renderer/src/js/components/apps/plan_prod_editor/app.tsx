@@ -17,7 +17,7 @@ import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Closable} from '@root/components/core/closable';
-import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState, getStock} from '@root/lib/bobine';
@@ -269,7 +269,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = this.state;
 
     if (!planProduction) {
-      return <LoadingIndicator size="large" />;
+      return <LoadingScreen />;
     }
 
     const {
@@ -294,15 +294,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           onTourCountChange={this.handleTourCountChange}
           planProdRef="19062101"
         />
-        {/* <ButtonContainer>
-          {this.canAutoComplete() ? (
-            <Button onClick={this.autoComplete}>Auto complète</Button>
-          ) : (
-            <React.Fragment />
-          )}
-          {this.canClear() ? <Button onClick={this.clear}>Effacer</Button> : <React.Fragment />}
-          {`Computed in ${planProduction.calculationTime}ms`}
-        </ButtonContainer> */}
         <SizeMonitor>
           {(width, height, hasVerticalScrollbar) => {
             // Padding for the extra space taken by the bobine offset
@@ -357,7 +348,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       size={selectedPapier.laize || 0}
                       pixelPerMM={pixelPerMM}
                       decalage={selectedRefente && selectedRefente.decalage}
-                      color={color.textHex}
+                      color={color.backgroundHex}
                       strokeWidth={theme.planProd.selectedStrokeWidth}
                     >
                       <AutoFontWeight
@@ -398,7 +389,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       size={selectedPolypro.laize || 0}
                       pixelPerMM={pixelPerMM}
                       decalage={selectedRefente && selectedRefente.decalage}
-                      color={color.textHex}
+                      color={color.backgroundHex}
                       strokeWidth={theme.planProd.selectedStrokeWidth}
                     >
                       <AutoFontWeight

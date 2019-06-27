@@ -50,11 +50,13 @@ export function getBobineFilleClichePose(
 }
 
 export function isValidBobineFille(bobineFille: BobineFille): boolean {
-  const {sommeil, laize, couleurPapier, grammage} = bobineFille;
+  const {sommeil, laize, longueur, couleurPapier, grammage} = bobineFille;
   return (
     !sommeil &&
     laize !== undefined &&
     laize > 0 &&
+    longueur !== undefined &&
+    longueur > 0 &&
     grammage !== undefined &&
     grammage > 0 &&
     couleurPapier !== undefined &&
