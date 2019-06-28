@@ -106,7 +106,7 @@ export const theme = {
     disabledOpacity: 0.35,
     minSizeForVariableColumns: 250,
 
-    searchBarHeight: 32,
+    searchBarHeight: 42,
 
     headerHeight: 42,
     headerPadding: 8,

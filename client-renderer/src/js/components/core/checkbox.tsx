@@ -34,6 +34,8 @@ export class Checkbox extends React.Component<CheckboxProps> {
 }
 
 const CheckboxWrapper = styled.div`
+  display: inline-block;
+  cursor: pointer;
   position: relative;
   width: ${theme.checkbox.size}px;
   height: ${theme.checkbox.size}px;

@@ -81,7 +81,7 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
 }
 
 const SearchInput = styled(Input)`
-  height: ${theme.table.searchBarHeight}
+  height: ${theme.table.searchBarHeight}px;
   font-size: 16px;
   width: 100%;
   box-sizing: border-box;

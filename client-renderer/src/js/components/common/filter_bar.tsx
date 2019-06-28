@@ -2,6 +2,7 @@ import {without, isEqual} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Checkbox} from '@root/components/core/checkbox';
 import {theme} from '@root/theme';
 
 type FilterFn<T> = (row: T, filterEnabled: boolean) => boolean;
@@ -83,14 +84,14 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
   private renderFilter(filter: Filter<T>): JSX.Element {
     const {shouldShowElement, title} = filter;
     return (
-      <label key={filter.title}>
+      <FooterLabel key={filter.title}>
         <FooterCheckbox
           type="checkbox"
           checked={this.state.enabledFilters.indexOf(shouldShowElement) !== -1}
           onChange={() => this.toggleFilter(filter)}
         />
         {title}
-      </label>
+      </FooterLabel>
     );
   }
 
@@ -110,21 +111,23 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
   }
 }
 
-const FooterCheckbox = styled.input`
+const FooterCheckbox = styled(Checkbox)`
   margin: 0 4px 0 10px;
-  position: relative;
-  top: 2px;
+`;
+
+const FooterLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 `;
 
 const FooterContainer = styled.div`
   position: fixed;
   bottom: 0;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   width: 100%;
   height: ${theme.table.footerHeight}px;
-  padding: 16px;
   box-sizing: border-box;
   font-weight: 600
   font-size: 13px;
@@ -135,10 +138,17 @@ const FooterContainer = styled.div`
 
 const FooterForm = styled.div`
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
 `;
 
 const FooterStats = styled.div`
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 16px;
   text-align: right;
   font-size: 13px;
 `;
