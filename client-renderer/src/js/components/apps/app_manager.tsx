@@ -73,7 +73,7 @@ export class AppManager extends React.Component<Props, State> {
       return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListClichesApp) {
-      return [clichesStore];
+      return [clichesStore, colorsStore];
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {

@@ -7,7 +7,7 @@ import {
   LAIZE_COLUMN,
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
-  STOCK_COLUMN,
+  STOCK_TERME_COLUMN,
   LAST_UPDATE_COLUMN,
   BOBINE_MERE_REF_COLUMN,
 } from '@root/components/table/columns';
@@ -60,7 +60,7 @@ export class PolyproPickerApp extends React.Component<Props, State> {
       LAIZE_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
-      STOCK_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
+      STOCK_TERME_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
       LAST_UPDATE_COLUMN,
     ];
     return (

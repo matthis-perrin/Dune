@@ -9,7 +9,8 @@ import {
   LAIZE_COLUMN,
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
-  STOCK_COLUMN,
+  STOCK_REEL_COLUMN,
+  STOCK_TERME_COLUMN,
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
   COULEURS_IMPRESSION_COLUMN,
@@ -103,7 +104,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
                 LAST_YEAR_SELLING(cadencier),
                 MONTHLY_SELLING(cadencier),
-                STOCK_COLUMN(stocks), // TODO - LEFT HERE
+                STOCK_REEL_COLUMN(stocks),
+                STOCK_TERME_COLUMN(stocks),
                 STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
               ];
 

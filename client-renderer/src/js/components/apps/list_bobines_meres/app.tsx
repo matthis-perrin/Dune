@@ -9,7 +9,7 @@ import {
   LONGUEUR_COLUMN,
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
-  STOCK_COLUMN,
+  STOCK_TERME_COLUMN,
 } from '@root/components/table/columns';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 
@@ -69,7 +69,7 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
           LONGUEUR_COLUMN,
           COULEUR_PAPIER_COLUMN,
           GRAMMAGE_COLUMN,
-          STOCK_COLUMN(stocks),
+          STOCK_TERME_COLUMN(stocks),
         ]}
       />
     );

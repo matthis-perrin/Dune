@@ -19,6 +19,7 @@ import {
   getBobineSellingPastYear,
   getBobineState,
   getBobineMonthlySelling,
+  getStockReel,
 } from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme';
@@ -159,7 +160,7 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
 export const BOBINE_MERE_REF_COLUMN = REFERENCE_COLUMN(170);
 export const REFENTE_REF_COLUMN = REFERENCE_COLUMN(70);
 export const PERFO_REF_COLUMN = REFERENCE_COLUMN(70);
-export const CLICHE_REF_COLUMN = REFERENCE_COLUMN(80);
+export const CLICHE_REF_COLUMN = REFERENCE_COLUMN(100);
 export const OEPRATION_REF_COLUMN = REFERENCE_COLUMN(40);
 
 export const BOBINE_FILLE_REF_COLUMN: ColumnMetadata<{ref: string}, string> = {
@@ -284,12 +285,23 @@ export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   shouldRerender: (row1, row2) => row1.grammage !== row2.grammage,
 };
 
-export const STOCK_COLUMN = (
+export const STOCK_TERME_COLUMN = (
   stocks: Map<string, Stock[]>
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'STOCKS TERME',
   width: 65,
   renderCell: row => renderNumber(getStockTerme(row.ref, stocks)),
+  justifyContent: 'center',
+  sortFunction: getStocksSortFunction(stocks),
+  shouldRerender: (row1, row2) => row1.ref !== row2.ref,
+});
+
+export const STOCK_REEL_COLUMN = (
+  stocks: Map<string, Stock[]>
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'STOCKS RÉEL',
+  width: 65,
+  renderCell: row => renderNumber(getStockReel(row.ref, stocks)),
   justifyContent: 'center',
   sortFunction: getStocksSortFunction(stocks),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
@@ -327,28 +339,37 @@ export const REF_CLICHE2_COLUMN: ColumnMetadata<{refCliche2?: string}, string> =
 
 export const COULEUR1_CLICHE_COLUMN: ColumnMetadata<{couleur1?: string}, string> = {
   title: 'COULEUR 1',
-  width: 70,
-  renderCell: ({couleur1}) => renderString(couleur1),
+  width: 110,
+  renderCell: ({couleur1}) => (couleur1 ? <Color color={couleur1} /> : renderString(couleur1)),
   getSearchValue: row => row.couleur1 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur1, row2.couleur1),
+  filter: {
+    getValue: ({couleur1}) => couleur1 || '',
+  },
   shouldRerender: (row1, row2) => row1.couleur1 !== row2.couleur1,
 };
 
 export const COULEUR2_CLICHE_COLUMN: ColumnMetadata<{couleur2?: string}, string> = {
   title: 'COULEUR 2',
-  width: 70,
-  renderCell: ({couleur2}) => renderString(couleur2),
+  width: 110,
+  renderCell: ({couleur2}) => (couleur2 ? <Color color={couleur2} /> : renderString(couleur2)),
   getSearchValue: row => row.couleur2 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur2, row2.couleur2),
+  filter: {
+    getValue: ({couleur2}) => couleur2 || '',
+  },
   shouldRerender: (row1, row2) => row1.couleur2 !== row2.couleur2,
 };
 
 export const COULEUR3_CLICHE_COLUMN: ColumnMetadata<{couleur3?: string}, string> = {
   title: 'COULEUR 3',
-  width: 70,
-  renderCell: ({couleur3}) => renderString(couleur3),
+  width: 110,
+  renderCell: ({couleur3}) => (couleur3 ? <Color color={couleur3} /> : renderString(couleur3)),
   getSearchValue: row => row.couleur3 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur3, row2.couleur3),
+  filter: {
+    getValue: ({couleur3}) => couleur3 || '',
+  },
   shouldRerender: (row1, row2) => row1.couleur3 !== row2.couleur3,
 };
 
@@ -356,8 +377,8 @@ export const IMPORTANCE_ORDRE_COULEUR_COLUMN: ColumnMetadata<
   {importanceOrdreCouleurs?: boolean},
   boolean
 > = {
-  title: 'ORDRE IMP.',
-  width: 90,
+  title: 'COULEURS ORDONNÉES',
+  width: 120,
   renderCell: ({importanceOrdreCouleurs}) => renderBoolean(importanceOrdreCouleurs),
   sortFunction: (row1, row2) =>
     optionalBooleanSort(row1.importanceOrdreCouleurs, row2.importanceOrdreCouleurs),

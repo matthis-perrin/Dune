@@ -6,7 +6,7 @@ import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
 import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
 
-export function getStockTermeReel(ref: string, stocks: Map<string, Stock[]>): number {
+export function getStockReel(ref: string, stocks: Map<string, Stock[]>): number {
   const stock = stocks.get(ref) || [];
   return sum(stock.map(s => s.reel));
 }

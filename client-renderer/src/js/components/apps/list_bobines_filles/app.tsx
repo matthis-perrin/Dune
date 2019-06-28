@@ -12,7 +12,8 @@ import {
   TYPE_IMPRESSION_COLUMN,
   REF_CLICHE1_COLUMN,
   REF_CLICHE2_COLUMN,
-  STOCK_COLUMN,
+  STOCK_REEL_COLUMN,
+  STOCK_TERME_COLUMN,
 } from '@root/components/table/columns';
 import {bobinesFillesStore, stocksStore} from '@root/stores/list_store';
 
@@ -74,7 +75,8 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
           TYPE_IMPRESSION_COLUMN,
           REF_CLICHE1_COLUMN,
           REF_CLICHE2_COLUMN,
-          STOCK_COLUMN(stocks),
+          STOCK_REEL_COLUMN(stocks),
+          STOCK_TERME_COLUMN(stocks),
         ]}
       />
     );
