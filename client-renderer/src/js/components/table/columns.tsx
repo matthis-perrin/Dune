@@ -157,7 +157,7 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
 
-export const BOBINE_MERE_REF_COLUMN = REFERENCE_COLUMN(170);
+export const BOBINE_MERE_REF_COLUMN = REFERENCE_COLUMN(100);
 export const REFENTE_REF_COLUMN = REFERENCE_COLUMN(70);
 export const PERFO_REF_COLUMN = REFERENCE_COLUMN(70);
 export const CLICHE_REF_COLUMN = REFERENCE_COLUMN(100);

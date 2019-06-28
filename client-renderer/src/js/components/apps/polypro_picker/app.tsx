@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {Picker} from '@root/components/common/picker';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {
   DESIGNATION_COLUMN,
@@ -10,6 +11,7 @@ import {
   STOCK_TERME_COLUMN,
   LAST_UPDATE_COLUMN,
   BOBINE_MERE_REF_COLUMN,
+  STOCK_REEL_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -54,14 +56,19 @@ export class PolyproPickerApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
+    const {stocks} = this.state;
+    if (!stocks) {
+      return <LoadingScreen />;
+    }
+
     const columns = [
       BOBINE_MERE_REF_COLUMN,
       DESIGNATION_COLUMN,
       LAIZE_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
-      STOCK_TERME_COLUMN(this.state.stocks || new Map<string, Stock[]>()),
-      LAST_UPDATE_COLUMN,
+      STOCK_REEL_COLUMN(stocks),
+      STOCK_TERME_COLUMN(stocks),
     ];
     return (
       <Picker<BobineMere>
