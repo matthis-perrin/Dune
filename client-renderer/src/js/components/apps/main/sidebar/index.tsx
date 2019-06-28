@@ -19,7 +19,7 @@ interface SidebarItemData {
 const Pages: {[key: string]: SidebarItemData} = {
   // [AppPage.Production]: {title: 'Production'},
   [AppPage.Gestion]: {title: 'Gestion'},
-  [AppPage.Administration]: {title: 'Administration'},
+  [AppPage.Administration]: {title: 'Gescom'},
 };
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
