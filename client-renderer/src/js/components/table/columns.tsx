@@ -15,11 +15,11 @@ import {RefLink} from '@root/components/common/ref_link';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {
-  getStockTerme,
   getBobineSellingPastYear,
   getBobineState,
   getBobineMonthlySelling,
-  getStockReel,
+  StockType,
+  getStock,
 } from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme';
@@ -37,11 +37,12 @@ import {
 } from '@shared/models';
 
 function getStocksSortFunction<T extends {ref: string}>(
-  stocks: Map<string, Stock[]>
+  stocks: Map<string, Stock[]>,
+  type: StockType
 ): (d1: T, d2: T) => number {
   return function(data1: T, data2: T): number {
-    const s1 = getStockTerme(data1.ref, stocks);
-    const s2 = getStockTerme(data2.ref, stocks);
+    const s1 = getStock(data1.ref, stocks, type);
+    const s2 = getStock(data2.ref, stocks, type);
     return s1 - s2;
   };
 }
@@ -285,27 +286,31 @@ export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   shouldRerender: (row1, row2) => row1.grammage !== row2.grammage,
 };
 
-export const STOCK_TERME_COLUMN = (
-  stocks: Map<string, Stock[]>
+const STOCK_COLUMN = (
+  title: string,
+  type: StockType,
+  stocks: Map<string, Stock[]>,
+  width: number = 65
 ): ColumnMetadata<{ref: string}, number> => ({
-  title: 'STOCKS TERME',
-  width: 65,
-  renderCell: row => renderNumber(getStockTerme(row.ref, stocks)),
+  title,
+  width,
+  renderCell: row => renderNumber(getStock(row.ref, stocks, type)),
   justifyContent: 'center',
-  sortFunction: getStocksSortFunction(stocks),
+  sortFunction: getStocksSortFunction(stocks, type),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
 
-export const STOCK_REEL_COLUMN = (
-  stocks: Map<string, Stock[]>
-): ColumnMetadata<{ref: string}, number> => ({
-  title: 'STOCKS RÉEL',
-  width: 65,
-  renderCell: row => renderNumber(getStockReel(row.ref, stocks)),
-  justifyContent: 'center',
-  sortFunction: getStocksSortFunction(stocks),
-  shouldRerender: (row1, row2) => row1.ref !== row2.ref,
-});
+export const STOCK_TERME_COLUMN = (stocks: Map<string, Stock[]>) =>
+  STOCK_COLUMN('STOCKS TERME', StockType.TERME, stocks);
+
+export const STOCK_REEL_COLUMN = (stocks: Map<string, Stock[]>) =>
+  STOCK_COLUMN('STOCKS RÉEL', StockType.REEL, stocks);
+
+export const STOCK_COMMANDE_COLUMN = (stocks: Map<string, Stock[]>) =>
+  STOCK_COLUMN('STOCKS COMMANDÉ', StockType.COMMANDE, stocks, 85);
+
+export const STOCK_RESERVE_COLUMN = (stocks: Map<string, Stock[]>) =>
+  STOCK_COLUMN('STOCKS RÉSERVÉ', StockType.RESERVE, stocks, 75);
 
 export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, string> = {
   title: 'IMP',

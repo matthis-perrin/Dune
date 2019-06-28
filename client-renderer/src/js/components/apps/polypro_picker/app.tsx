@@ -9,7 +9,6 @@ import {
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
   STOCK_TERME_COLUMN,
-  LAST_UPDATE_COLUMN,
   BOBINE_MERE_REF_COLUMN,
   STOCK_REEL_COLUMN,
 } from '@root/components/table/columns';
