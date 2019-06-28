@@ -33,6 +33,7 @@ import {
   ListBobinesQuantities,
   SetPlanTourCount,
   ListColors,
+  SaveToPDF,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -110,6 +111,11 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   if (command === CloseAppOfType) {
     const {type} = asMap(params);
     windowManager.closeWindowOfType(asString(type, '') as ClientAppType);
+    return Promise.resolve();
+  }
+  if (command === SaveToPDF) {
+    const {windowId} = asMap(params);
+    windowManager.saveToPDF(asString(windowId, ''));
     return Promise.resolve();
   }
 

@@ -2,7 +2,9 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Duration} from '@root/components/common/duration';
+import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
+import {bridge} from '@root/lib/bridge';
 import {theme} from '@root/theme';
 
 import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
@@ -35,6 +37,10 @@ export class TopBar extends React.Component<TopBarProps> {
     } catch {
       onTourCountChange(undefined);
     }
+  };
+
+  private readonly handleSave = (): void => {
+    bridge.saveToPDF().catch(console.error);
   };
 
   private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -86,6 +92,7 @@ export class TopBar extends React.Component<TopBarProps> {
         </LeftContainer>
         <CenterContainer>
           <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
+          <Button onClick={this.handleSave}>Téléchargement</Button>
         </CenterContainer>
         <RightContainer>
           <div>

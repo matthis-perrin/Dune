@@ -1,4 +1,5 @@
-import {BrowserWindow, screen} from 'electron';
+import {BrowserWindow, dialog, screen} from 'electron';
+import fs from 'fs';
 
 import {handleCommand} from '@root/bridge';
 import {planProductionStore} from '@root/store';
@@ -53,6 +54,44 @@ class WindowManager {
       windowInfo.browserWindow.close();
     }
     this.windows.delete(windowId);
+  }
+
+  public async saveToPDF(windowId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const windowInfo = this.windows.get(windowId);
+      if (!windowInfo) {
+        return;
+      }
+      windowInfo.browserWindow.webContents.print();
+      // windowInfo.browserWindow.webContents.printToPDF(
+      //   {
+      //     marginsType: 2, // minimum margin
+      //     pageSize: 'Tabloid',
+      //     printBackground: true,
+      //     printSelectionOnly: false,
+      //     landscape: false,
+      //   },
+      //   (printError, data) => {
+      //     if (printError) {
+      //       reject(printError);
+      //       return;
+      //     }
+      //     dialog.showSaveDialog(windowInfo.browserWindow, {}, filename => {
+      //       if (!filename) {
+      //         resolve();
+      //         return;
+      //       }
+      //       fs.writeFile(filename, data, saveError => {
+      //         if (saveError) {
+      //           reject(saveError);
+      //           return;
+      //         }
+      //         resolve();
+      //       });
+      //     });
+      //   }
+      // );
+    });
   }
 
   public closeWindowOfType(type: ClientAppType): void {

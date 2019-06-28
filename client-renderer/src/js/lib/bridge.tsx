@@ -32,6 +32,7 @@ import {
   ListBobinesQuantities,
   SetPlanTourCount,
   ListColors,
+  SaveToPDF,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -177,6 +178,9 @@ class Bridge {
   }
   public async closeApp(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(CloseApp, {windowId: getWindowId()});
+  }
+  public async saveToPDF(): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SaveToPDF, {windowId: getWindowId()});
   }
 }
 

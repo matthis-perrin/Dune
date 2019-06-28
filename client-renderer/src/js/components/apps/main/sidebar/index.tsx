@@ -17,7 +17,6 @@ interface SidebarItemData {
 }
 
 const Pages: {[key: string]: SidebarItemData} = {
-  // [AppPage.Production]: {title: 'Production'},
   [AppPage.Gestion]: {title: 'Gestion'},
   [AppPage.Administration]: {title: 'Gescom'},
 };
