@@ -182,7 +182,7 @@ export const ID_COLUMN = (width: number): ColumnMetadata<{id: number}, number> =
   title: 'ID',
   width,
   renderCell: ({id}) => renderNumber(id),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   getSearchValue: row => String(row.id),
   sortFunction: (row1, row2) => numberSort(row1.id, row2.id),
   shouldRerender: (row1, row2) => row1.id !== row2.id,
@@ -206,9 +206,9 @@ export const DESCRIPTION_COLUMN: ColumnMetadata<{description?: string}, string> 
 
 export const LAIZE_COLUMN: ColumnMetadata<{laize?: number}, number> = {
   title: 'LAIZE',
-  width: 70,
+  width: 64,
   renderCell: ({laize}) => renderNumber(laize),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize, row2.laize),
   filter: {
     getValue: (row: {laize?: number}) => row.laize || 0,
@@ -218,18 +218,18 @@ export const LAIZE_COLUMN: ColumnMetadata<{laize?: number}, number> = {
 
 export const PISTES_COLUMN: ColumnMetadata<{pistes: number}, number> = {
   title: 'PISTES',
-  width: 70,
+  width: 55,
   renderCell: ({pistes}) => renderNumber(pistes),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.pistes, row2.pistes),
   shouldRerender: (row1, row2) => row1.pistes !== row2.pistes,
 };
 
 export const LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
-  title: 'LONG.',
-  width: 80,
+  title: 'LONG',
+  width: 64,
   renderCell: ({longueur}) => renderNumber(longueur),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.longueur, row2.longueur),
   filter: {
     getValue: (row: {longueur?: number}) => row.longueur || 0,
@@ -274,9 +274,9 @@ export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsMod
 
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   title: 'GR',
-  width: 80,
+  width: 55,
   renderCell: ({grammage}) => renderNumber(grammage),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.grammage, row2.grammage),
   filter: {
     getValue: (row: {grammage?: number}) => row.grammage || 0,
@@ -288,16 +288,16 @@ export const STOCK_COLUMN = (
   stocks: Map<string, Stock[]>
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'STOCKS TERME',
-  width: 80,
+  width: 65,
   renderCell: row => renderNumber(getStockTerme(row.ref, stocks)),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: getStocksSortFunction(stocks),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
 
 export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, string> = {
   title: 'IMP',
-  width: 90,
+  width: 64,
   renderCell: ({typeImpression}) => renderString(typeImpression),
   getSearchValue: row => row.typeImpression || '-',
   sortFunction: (row1, row2) => optionalStringSort(row1.typeImpression, row2.typeImpression),
@@ -391,7 +391,7 @@ export const LAST_UPDATE_COLUMN: ColumnMetadata<{localUpdate: number}, number> =
 export const LAIZE1_REFENTE_COLUMN: ColumnMetadata<{laize1?: number}, number> = {
   title: 'LAIZE 1',
   renderCell: ({laize1}) => renderNumber(laize1),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize1, row2.laize1),
   filter: {
     getValue: (row: {laize1?: number}) => row.laize1 || 0,
@@ -402,7 +402,7 @@ export const LAIZE1_REFENTE_COLUMN: ColumnMetadata<{laize1?: number}, number> = 
 export const LAIZE2_REFENTE_COLUMN: ColumnMetadata<{laize2?: number}, number> = {
   title: 'LAIZE 2',
   renderCell: ({laize2}) => renderNumber(laize2),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize2, row2.laize2),
   filter: {
     getValue: (row: {laize2?: number}) => row.laize2 || 0,
@@ -413,7 +413,7 @@ export const LAIZE2_REFENTE_COLUMN: ColumnMetadata<{laize2?: number}, number> = 
 export const LAIZE3_REFENTE_COLUMN: ColumnMetadata<{laize3?: number}, number> = {
   title: 'LAIZE 3',
   renderCell: ({laize3}) => renderNumber(laize3),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize3, row2.laize3),
   filter: {
     getValue: (row: {laize3?: number}) => row.laize3 || 0,
@@ -424,7 +424,7 @@ export const LAIZE3_REFENTE_COLUMN: ColumnMetadata<{laize3?: number}, number> = 
 export const LAIZE4_REFENTE_COLUMN: ColumnMetadata<{laize4?: number}, number> = {
   title: 'LAIZE 4',
   renderCell: ({laize4}) => renderNumber(laize4),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize4, row2.laize4),
   filter: {
     getValue: (row: {laize4?: number}) => row.laize4 || 0,
@@ -435,7 +435,7 @@ export const LAIZE4_REFENTE_COLUMN: ColumnMetadata<{laize4?: number}, number> = 
 export const LAIZE5_REFENTE_COLUMN: ColumnMetadata<{laize5?: number}, number> = {
   title: 'LAIZE 5',
   renderCell: ({laize5}) => renderNumber(laize5),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize5, row2.laize5),
   filter: {
     getValue: (row: {laize5?: number}) => row.laize5 || 0,
@@ -446,7 +446,7 @@ export const LAIZE5_REFENTE_COLUMN: ColumnMetadata<{laize5?: number}, number> = 
 export const LAIZE6_REFENTE_COLUMN: ColumnMetadata<{laize6?: number}, number> = {
   title: 'LAIZE 6',
   renderCell: ({laize6}) => renderNumber(laize6),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize6, row2.laize6),
   filter: {
     getValue: (row: {laize6?: number}) => row.laize6 || 0,
@@ -457,7 +457,7 @@ export const LAIZE6_REFENTE_COLUMN: ColumnMetadata<{laize6?: number}, number> = 
 export const LAIZE7_REFENTE_COLUMN: ColumnMetadata<{laize7?: number}, number> = {
   title: 'LAIZE 7',
   renderCell: ({laize7}) => renderNumber(laize7),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.laize7, row2.laize7),
   filter: {
     getValue: (row: {laize7?: number}) => row.laize7 || 0,
@@ -475,9 +475,9 @@ export const NOMBRE_POSES_COLUMN: ColumnMetadata<Cliche, Cliche> = {
 
 export const POSE_COLUMN: ColumnMetadata<{pose?: number}, number> = {
   title: 'POSE',
-  width: 60,
+  width: 55,
   renderCell: ({pose}) => renderNumber(pose),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.pose, row2.pose),
   filter: {
     getValue: (row: {pose: number}) => row.pose,
@@ -493,7 +493,7 @@ export const MULTI_POSE_COLUMN = (
 ): ColumnMetadata<BobineFilleWithMultiPose, string> => {
   return {
     title: 'POSES',
-    width: 200,
+    width: 165,
     renderCell: bobine => (
       <AddPoseButtons
         bobine={bobine}
@@ -516,9 +516,9 @@ export const MULTI_POSE_COLUMN = (
 
 export const DECALAGE_INITIAL_COLUMN: ColumnMetadata<{decalageInitial?: number}, number> = {
   title: 'DÉCALAGE',
-  width: 70,
+  width: 55,
   renderCell: ({decalageInitial}) => renderNumber(decalageInitial),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.decalageInitial, row2.decalageInitial),
   filter: {
     getValue: (row: {decalageInitial: number}) => row.decalageInitial,
@@ -528,9 +528,9 @@ export const DECALAGE_INITIAL_COLUMN: ColumnMetadata<{decalageInitial?: number},
 
 export const CALE1_COLUMN: ColumnMetadata<{cale1?: number}, number> = {
   title: 'CALE 1',
-  width: 70,
+  width: 55,
   renderCell: ({cale1}) => renderNumber(cale1),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale1, row2.cale1),
   filter: {
     getValue: (row: {cale1?: number}) => row.cale1 || 0,
@@ -540,9 +540,9 @@ export const CALE1_COLUMN: ColumnMetadata<{cale1?: number}, number> = {
 
 export const CALE2_COLUMN: ColumnMetadata<{cale2?: number}, number> = {
   title: 'CALE 2',
-  width: 70,
+  width: 55,
   renderCell: ({cale2}) => renderNumber(cale2),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale2, row2.cale2),
   filter: {
     getValue: (row: {cale2?: number}) => row.cale2 || 0,
@@ -552,9 +552,9 @@ export const CALE2_COLUMN: ColumnMetadata<{cale2?: number}, number> = {
 
 export const CALE3_COLUMN: ColumnMetadata<{cale3?: number}, number> = {
   title: 'CALE 3',
-  width: 70,
+  width: 55,
   renderCell: ({cale3}) => renderNumber(cale3),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale3, row2.cale3),
   filter: {
     getValue: (row: {cale3?: number}) => row.cale3 || 0,
@@ -564,9 +564,9 @@ export const CALE3_COLUMN: ColumnMetadata<{cale3?: number}, number> = {
 
 export const CALE4_COLUMN: ColumnMetadata<{cale4?: number}, number> = {
   title: 'CALE 4',
-  width: 70,
+  width: 55,
   renderCell: ({cale4}) => renderNumber(cale4),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale4, row2.cale4),
   filter: {
     getValue: (row: {cale4?: number}) => row.cale4 || 0,
@@ -576,9 +576,9 @@ export const CALE4_COLUMN: ColumnMetadata<{cale4?: number}, number> = {
 
 export const CALE5_COLUMN: ColumnMetadata<{cale5?: number}, number> = {
   title: 'CALE 5',
-  width: 70,
+  width: 55,
   renderCell: ({cale5}) => renderNumber(cale5),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale5, row2.cale5),
   filter: {
     getValue: (row: {cale5?: number}) => row.cale5 || 0,
@@ -588,9 +588,9 @@ export const CALE5_COLUMN: ColumnMetadata<{cale5?: number}, number> = {
 
 export const CALE6_COLUMN: ColumnMetadata<{cale6?: number}, number> = {
   title: 'CALE 6',
-  width: 70,
+  width: 55,
   renderCell: ({cale6}) => renderNumber(cale6),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale6, row2.cale6),
   filter: {
     getValue: (row: {cale6?: number}) => row.cale6 || 0,
@@ -600,9 +600,9 @@ export const CALE6_COLUMN: ColumnMetadata<{cale6?: number}, number> = {
 
 export const CALE7_COLUMN: ColumnMetadata<{cale7?: number}, number> = {
   title: 'CALE 7',
-  width: 70,
+  width: 55,
   renderCell: ({cale7}) => renderNumber(cale7),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.cale7, row2.cale7),
   filter: {
     getValue: (row: {cale7?: number}) => row.cale7 || 0,
@@ -613,7 +613,7 @@ export const CALE7_COLUMN: ColumnMetadata<{cale7?: number}, number> = {
 export const BAGUE1_COLUMN: ColumnMetadata<{bague1?: number}, number> = {
   title: 'BAGUE 1',
   renderCell: ({bague1}) => renderNumber(bague1),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague1, row2.bague1),
   filter: {
     getValue: (row: {bague1?: number}) => row.bague1 || 0,
@@ -624,7 +624,7 @@ export const BAGUE1_COLUMN: ColumnMetadata<{bague1?: number}, number> = {
 export const BAGUE2_COLUMN: ColumnMetadata<{bague2?: number}, number> = {
   title: 'BAGUE 2',
   renderCell: ({bague2}) => renderNumber(bague2),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague2, row2.bague2),
   filter: {
     getValue: (row: {bague2?: number}) => row.bague2 || 0,
@@ -635,7 +635,7 @@ export const BAGUE2_COLUMN: ColumnMetadata<{bague2?: number}, number> = {
 export const BAGUE3_COLUMN: ColumnMetadata<{bague3?: number}, number> = {
   title: 'BAGUE 3',
   renderCell: ({bague3}) => renderNumber(bague3),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague3, row2.bague3),
   filter: {
     getValue: (row: {bague3?: number}) => row.bague3 || 0,
@@ -646,7 +646,7 @@ export const BAGUE3_COLUMN: ColumnMetadata<{bague3?: number}, number> = {
 export const BAGUE4_COLUMN: ColumnMetadata<{bague4?: number}, number> = {
   title: 'BAGUE 4',
   renderCell: ({bague4}) => renderNumber(bague4),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague4, row2.bague4),
   filter: {
     getValue: (row: {bague4?: number}) => row.bague4 || 0,
@@ -657,7 +657,7 @@ export const BAGUE4_COLUMN: ColumnMetadata<{bague4?: number}, number> = {
 export const BAGUE5_COLUMN: ColumnMetadata<{bague5?: number}, number> = {
   title: 'BAGUE 5',
   renderCell: ({bague5}) => renderNumber(bague5),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague5, row2.bague5),
   filter: {
     getValue: (row: {bague5?: number}) => row.bague5 || 0,
@@ -668,7 +668,7 @@ export const BAGUE5_COLUMN: ColumnMetadata<{bague5?: number}, number> = {
 export const BAGUE6_COLUMN: ColumnMetadata<{bague6?: number}, number> = {
   title: 'BAGUE 6',
   renderCell: ({bague6}) => renderNumber(bague6),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague6, row2.bague6),
   filter: {
     getValue: (row: {bague6?: number}) => row.bague6 || 0,
@@ -679,7 +679,7 @@ export const BAGUE6_COLUMN: ColumnMetadata<{bague6?: number}, number> = {
 export const BAGUE7_COLUMN: ColumnMetadata<{bague7?: number}, number> = {
   title: 'BAGUE 7',
   renderCell: ({bague7}) => renderNumber(bague7),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.bague7, row2.bague7),
   filter: {
     getValue: (row: {bague7?: number}) => row.bague7 || 0,
@@ -698,9 +698,9 @@ export const REF_PERFO_COLUMN: ColumnMetadata<{refPerfo: string}, string> = {
 
 export const DECALAGE_COLUMN: ColumnMetadata<{decalage?: number}, number> = {
   title: 'DÉCALAGE',
-  width: 70,
+  width: 55,
   renderCell: ({decalage}) => renderNumber(decalage),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.decalage, row2.decalage),
   filter: {
     getValue: (row: {decalage: number}) => row.decalage,
@@ -712,7 +712,7 @@ export const CHUTE_COLUMN: ColumnMetadata<{chute?: number}, number> = {
   title: 'CHUTE',
   width: 80,
   renderCell: ({chute}) => renderNumber(chute),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => optionalNumberSort(row1.chute, row2.chute),
   filter: {
     getValue: (row: {chute: number}) => row.chute,
@@ -749,9 +749,9 @@ export const LAST_YEAR_SELLING = (
   cadencier: Map<string, Map<number, number>>
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'VENTES 12M',
-  width: 90,
+  width: 65,
   renderCell: ({ref}) => renderNumber(getBobineSellingPastYear(cadencier.get(ref))),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) =>
     numberSort(
       getBobineSellingPastYear(cadencier.get(row1.ref)),
@@ -766,9 +766,9 @@ export const MONTHLY_SELLING = (
   cadencier: Map<string, Map<number, number>>
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'VENTES 1M',
-  width: 90,
+  width: 65,
   renderCell: ({ref}) => renderNumber(getBobineMonthlySelling(cadencier.get(ref))),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) =>
     numberSort(
       getBobineMonthlySelling(cadencier.get(row1.ref)),
@@ -804,6 +804,7 @@ export const STOCK_STATE_COLUMN = (
     getBobineState(row2.ref, stocks, cadencier, bobineQuantities).state,
   filter: {
     getValue: ({ref}) => getBobineState(ref, stocks, cadencier, bobineQuantities).state,
+    render: (row, value) => <BobineState state={value} />,
   },
 });
 
@@ -813,10 +814,10 @@ export const QUANTITY_TO_PRODUCE = (
   bobineQuantities: BobineQuantities[]
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'QTÉ À PROD',
-  width: 100,
+  width: 65,
   renderCell: ({ref}) =>
     renderNumber(getBobineState(ref, stocks, cadencier, bobineQuantities).quantity),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) =>
     numberSort(
       getBobineState(row1.ref, stocks, cadencier, bobineQuantities).quantity,
@@ -831,7 +832,7 @@ export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PRODUCTION',
   width: 120,
   renderCell: ({production}) => renderString(`+${production}`),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
   shouldRerender: (row1, row2) => row1.production !== row2.production,
 };
@@ -840,7 +841,7 @@ export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
   title: 'STOCK ACTUEL',
   width: 120,
   renderCell: ({stock}) => renderNumber(stock),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.stock, row2.stock),
   shouldRerender: (row1, row2) => row1.stock !== row2.stock,
 };
@@ -861,7 +862,7 @@ export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
   title: 'QUANTITÉ À PRODUIRE',
   width: 170,
   renderCell: ({quantity}) => renderNumber(quantity),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.quantity, row2.quantity),
   shouldRerender: (row1, row2) => row1.quantity !== row2.quantity,
 };
@@ -870,7 +871,7 @@ export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number
   title: 'STOCK PRÉVISIONNEL',
   width: 170,
   renderCell: ({newStock}) => renderNumber(newStock),
-  justifyContent: 'flex-end',
+  justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.newStock, row2.newStock),
   shouldRerender: (row1, row2) => row1.newStock !== row2.newStock,
 };

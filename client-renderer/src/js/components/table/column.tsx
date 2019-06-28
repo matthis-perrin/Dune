@@ -150,7 +150,7 @@ export class ColumnHeader<T, U> extends React.Component<
 }
 
 const FilteringIcon = styled.div<{minOpacity: number}>`
-  padding: 9px 8px 6px 8px;
+  padding: 9px 0px 6px ${theme.table.headerIconSpacing}px;
   fill: ${theme.table.headerIconColor};
   ${props => `opacity: ${props.minOpacity}`}
   :hover {
@@ -165,9 +165,8 @@ const SortingIcon = styled(SVGIcon)`
 `;
 
 const TitleWrapper = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: normal;
+  text-align: center;
 `;
 
 const ColumnHeaderWrapper = styled.div`
