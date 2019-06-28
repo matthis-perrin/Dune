@@ -18,6 +18,8 @@ import {
   QUANTITY_TO_PRODUCE,
   BOBINE_FILLE_REF_COLUMN,
   LONGUEUR_COLUMN,
+  withWidth,
+  MONTHLY_SELLING,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -90,8 +92,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const availableWidth = width;
 
               const columns = [
-                BOBINE_FILLE_REF_COLUMN,
-                DESIGNATION_COLUMN,
+                withWidth(BOBINE_FILLE_REF_COLUMN, undefined),
                 LAIZE_COLUMN,
                 LONGUEUR_COLUMN,
                 COULEUR_PAPIER_COLUMN,
@@ -101,7 +102,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 TYPE_IMPRESSION_COLUMN,
                 QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
                 LAST_YEAR_SELLING(cadencier),
-                STOCK_COLUMN(stocks),
+                MONTHLY_SELLING(cadencier),
+                STOCK_COLUMN(stocks), // TODO - LEFT HERE
                 STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
               ];
 

@@ -6,10 +6,29 @@ import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
 import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
 
-export function getStock(ref: string, stocks: Map<string, Stock[]>): number {
+export function getStockTermeReel(ref: string, stocks: Map<string, Stock[]>): number {
   const stock = stocks.get(ref) || [];
-  //   return sum(stock.map(s => s.reel - s.reserve - s.commande));
   return sum(stock.map(s => s.reel));
+}
+
+export function getStockCommande(ref: string, stocks: Map<string, Stock[]>): number {
+  const stock = stocks.get(ref) || [];
+  return sum(stock.map(s => s.commande));
+}
+
+export function getStockReserve(ref: string, stocks: Map<string, Stock[]>): number {
+  const stock = stocks.get(ref) || [];
+  return sum(stock.map(s => s.reserve));
+}
+
+export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number {
+  const stock = stocks.get(ref) || [];
+  return sum(stock.map(s => s.reel - s.commande + s.reserve));
+}
+
+const MONTHS_IN_YEAR = 12;
+export function getBobineMonthlySelling(cadencier?: Map<number, number>): number {
+  return Math.ceil(getBobineSellingPastYear(cadencier) / MONTHS_IN_YEAR);
 }
 
 export function getBobineSellingPastYear(cadencier?: Map<number, number>): number {
@@ -59,7 +78,6 @@ export function getQuantityToProduce(
   return {threshold: closest.threshold, quantity: closest.qtyToProduce};
 }
 
-const MONTHS_IN_YEAR = 12;
 const INFINITE_STOCK = 1e10;
 export function getBobineState(
   ref: string,
@@ -75,7 +93,7 @@ export function getBobineState(
   info: string;
   infoValue: number;
 } {
-  const currentStock = getStock(ref, stocks) + additionalStock;
+  const currentStock = getStockTerme(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);

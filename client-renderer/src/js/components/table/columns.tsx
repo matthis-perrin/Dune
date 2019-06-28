@@ -14,7 +14,12 @@ import {
 import {RefLink} from '@root/components/common/ref_link';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {getStock, getBobineSellingPastYear, getBobineState} from '@root/lib/bobine';
+import {
+  getStockTerme,
+  getBobineSellingPastYear,
+  getBobineState,
+  getBobineMonthlySelling,
+} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {Colors} from '@root/theme';
 
@@ -34,8 +39,8 @@ function getStocksSortFunction<T extends {ref: string}>(
   stocks: Map<string, Stock[]>
 ): (d1: T, d2: T) => number {
   return function(data1: T, data2: T): number {
-    const s1 = getStock(data1.ref, stocks);
-    const s2 = getStock(data2.ref, stocks);
+    const s1 = getStockTerme(data1.ref, stocks);
+    const s2 = getStockTerme(data2.ref, stocks);
     return s1 - s2;
   };
 }
@@ -250,7 +255,7 @@ function listBobineColors(colors: BobineColorsModel): string[] {
 }
 
 export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsModel}, string> = {
-  title: 'IMPRESSION',
+  title: 'COULEURS CLICHÉS',
   width: 240,
   renderCell: ({colors}) => <BobineColors style={{height: '100%'}} bobineColors={colors} />,
   // getSearchValue: row => row.couleursImpression.join(', '),
@@ -268,7 +273,7 @@ export const COULEURS_IMPRESSION_COLUMN: ColumnMetadata<{colors: BobineColorsMod
 };
 
 export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
-  title: 'GRAM.',
+  title: 'GR',
   width: 80,
   renderCell: ({grammage}) => renderNumber(grammage),
   justifyContent: 'flex-end',
@@ -282,16 +287,16 @@ export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
 export const STOCK_COLUMN = (
   stocks: Map<string, Stock[]>
 ): ColumnMetadata<{ref: string}, number> => ({
-  title: 'STOCKS',
+  title: 'STOCKS TERME',
   width: 80,
-  renderCell: row => renderNumber(getStock(row.ref, stocks)),
+  renderCell: row => renderNumber(getStockTerme(row.ref, stocks)),
   justifyContent: 'flex-end',
   sortFunction: getStocksSortFunction(stocks),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
 
 export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, string> = {
-  title: 'TYPE IMP.',
+  title: 'IMP',
   width: 90,
   renderCell: ({typeImpression}) => renderString(typeImpression),
   getSearchValue: row => row.typeImpression || '-',
@@ -743,7 +748,7 @@ export const DURATION_SECONDS_COLUMN: ColumnMetadata<{duration: number}, string>
 export const LAST_YEAR_SELLING = (
   cadencier: Map<string, Map<number, number>>
 ): ColumnMetadata<{ref: string}, number> => ({
-  title: 'VENTES ANN.',
+  title: 'VENTES 12M',
   width: 90,
   renderCell: ({ref}) => renderNumber(getBobineSellingPastYear(cadencier.get(ref))),
   justifyContent: 'flex-end',
@@ -755,6 +760,23 @@ export const LAST_YEAR_SELLING = (
   shouldRerender: (row1, row2) =>
     getBobineSellingPastYear(cadencier.get(row1.ref)) !==
     getBobineSellingPastYear(cadencier.get(row2.ref)),
+});
+
+export const MONTHLY_SELLING = (
+  cadencier: Map<string, Map<number, number>>
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'VENTES 1M',
+  width: 90,
+  renderCell: ({ref}) => renderNumber(getBobineMonthlySelling(cadencier.get(ref))),
+  justifyContent: 'flex-end',
+  sortFunction: (row1, row2) =>
+    numberSort(
+      getBobineMonthlySelling(cadencier.get(row1.ref)),
+      getBobineMonthlySelling(cadencier.get(row2.ref))
+    ),
+  shouldRerender: (row1, row2) =>
+    getBobineMonthlySelling(cadencier.get(row1.ref)) !==
+    getBobineMonthlySelling(cadencier.get(row2.ref)),
 });
 
 export const STOCK_STATE_COLUMN = (

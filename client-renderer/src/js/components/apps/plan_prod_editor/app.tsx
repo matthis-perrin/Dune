@@ -20,7 +20,7 @@ import {Closable} from '@root/components/core/closable';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
-import {getBobineState, getStock} from '@root/lib/bobine';
+import {getBobineState, getStockTerme} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -351,7 +351,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
             const selectedPapierStock =
-              selectedPapier && stocks ? getStock(selectedPapier.ref, stocks) : 0;
+              selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
             const papierBlock = selectedPapier ? (
               <WithColor color={selectedPapier.couleurPapier}>
                 {color => (
@@ -371,7 +371,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                           selectedPapier.ref
                         } - Largeur ${selectedPapier.laize} - ${
                           selectedPapier.grammage
-                        }g - ${selectedPapierStock} en stock`}
+                        }g - Stock à terme ${selectedPapierStock}`}
                       </AutoFontWeight>
                     </Bobine>
                   </Closable>

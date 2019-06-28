@@ -8,7 +8,7 @@ import {BobineColors} from '@root/components/common/bobine_colors';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {getStock} from '@root/lib/bobine';
+import {getStockTerme} from '@root/lib/bobine';
 import {bobinesFillesStore, clichesStore, stocksStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
@@ -91,7 +91,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
             {title: 'Grammage', value: bobine.grammage},
             {title: 'Longueur', value: bobine.longueur},
             {title: "Type d'impression", value: bobine.typeImpression},
-            {title: 'Stocks', value: getStock(bobine.ref, stocks)},
+            {title: 'Stocks à terme', value: getStockTerme(bobine.ref, stocks)},
           ]}
         />
       </React.Fragment>

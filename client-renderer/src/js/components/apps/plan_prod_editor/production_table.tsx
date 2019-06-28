@@ -15,7 +15,7 @@ import {
   BOBINE_FILLE_REF_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
-import {getStock, getBobineState} from '@root/lib/bobine';
+import {getStockTerme, getBobineState} from '@root/lib/bobine';
 import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
@@ -46,7 +46,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     const data = Array.from(selectedBobines.entries()).map(([ref, bobine]) => {
       const pistes = selectedPistesSum.get(ref) || 0;
       const production = (planProduction.tourCount || 0) * pistes;
-      const stock = getStock(ref, stocks);
+      const stock = getStockTerme(ref, stocks);
       const {state, info, quantity} = getBobineState(
         bobine.ref,
         stocks,
