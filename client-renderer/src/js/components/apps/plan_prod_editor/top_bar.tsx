@@ -68,6 +68,29 @@ export class TopBar extends React.Component<TopBarProps> {
     return Math.round((lengthToProduce / actualSpeed) * 60);
   }
 
+  private isComplete(): boolean {
+    const {planProduction, tourCount, speed} = this.props;
+    return (
+      tourCount !== undefined &&
+      tourCount > 0 &&
+      speed !== undefined &&
+      speed > 0 &&
+      planProduction.selectablePapiers.length === 0 &&
+      planProduction.selectableBobines.length === 0 &&
+      planProduction.selectablePerfos.length === 0 &&
+      planProduction.selectablePolypros.length === 0 &&
+      planProduction.selectableRefentes.length === 0
+    );
+  }
+
+  private renderButtons(): JSX.Element {
+    const {isPrinting} = this.props;
+    if (!this.isComplete() || isPrinting) {
+      return <React.Fragment />;
+    }
+    return <Button onClick={this.handleSave}>Téléchargement</Button>;
+  }
+
   public render(): JSX.Element {
     const {planProdRef, planProduction, tourCount, speed, isPrinting} = this.props;
 
@@ -95,11 +118,7 @@ export class TopBar extends React.Component<TopBarProps> {
         </LeftContainer>
         <CenterContainer>
           <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
-          {isPrinting ? (
-            <React.Fragment />
-          ) : (
-            <Button onClick={this.handleSave}>Téléchargement</Button>
-          )}
+          {this.renderButtons()}
         </CenterContainer>
         <RightContainer>
           <div>
@@ -127,9 +146,11 @@ const TopBarWrapper = styled(TopBarWrapperBase)`
   color: ${theme.planProd.topBarTextColor};
 `;
 
+// background-color: ${Palette.Transparent};
+// color: ${Palette.Black};
 const TopBarWrapperWhenPrinting = styled(TopBarWrapperBase)`
-  background-color: ${Palette.Transparent};
-  color: ${Palette.Black};
+  background-color: ${theme.planProd.topBarBackgroundColor};
+  color: ${theme.planProd.topBarTextColor};
 `;
 
 const ContainerBase = styled.div`
