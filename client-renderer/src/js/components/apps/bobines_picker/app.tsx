@@ -146,9 +146,12 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       index: columns.length - 1,
                       asc: true,
                     }}
-                    rowStyles={bobine => ({
-                      opacity: isSelectionnable(bobine) ? 1 : theme.table.disabledOpacity,
-                    })}
+                    rowStyles={bobine => {
+                      const selectable = isSelectionnable(bobine);
+                      return {
+                        opacity: selectable ? 1 : theme.table.disabledOpacity,
+                      };
+                    }}
                   />
                   {footer}
                 </React.Fragment>

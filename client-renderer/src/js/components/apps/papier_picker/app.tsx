@@ -97,10 +97,14 @@ export class PapierPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     onRowClick={this.handlePapierSelected}
-                    rowStyles={papier => ({
-                      opacity: isSelectionnable(papier) ? 1 : theme.table.disabledOpacity,
-                      pointerEvents: isSelectionnable(papier) ? 'all' : 'none',
-                    })}
+                    rowStyles={papier => {
+                      const selectable = isSelectionnable(papier);
+                      return {
+                        opacity: selectable ? 1 : theme.table.disabledOpacity,
+                        pointerEvents: selectable ? 'all' : 'none',
+                        cursor: selectable ? 'pointer' : 'default',
+                      };
+                    }}
                   />
                   {footer}
                 </React.Fragment>

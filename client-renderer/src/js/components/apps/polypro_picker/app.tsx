@@ -98,10 +98,14 @@ export class PolyproPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     onRowClick={this.handlePolyproSelected}
-                    rowStyles={polypro => ({
-                      opacity: isSelectionnable(polypro) ? 1 : theme.table.disabledOpacity,
-                      pointerEvents: isSelectionnable(polypro) ? 'all' : 'none',
-                    })}
+                    rowStyles={polypro => {
+                      const selectable = isSelectionnable(polypro);
+                      return {
+                        opacity: selectable ? 1 : theme.table.disabledOpacity,
+                        pointerEvents: selectable ? 'all' : 'none',
+                        cursor: selectable ? 'pointer' : 'default',
+                      };
+                    }}
                   />
                   {footer}
                 </React.Fragment>

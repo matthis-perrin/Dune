@@ -856,7 +856,7 @@ export const QUANTITY_TO_PRODUCE = (
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PRODUCTION',
-  width: 120,
+  width: 100,
   renderCell: ({production}) => renderString(`+${production}`),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
@@ -865,7 +865,7 @@ export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
 
 export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
   title: 'STOCK ACTUEL',
-  width: 120,
+  width: 65,
   renderCell: ({stock}) => renderNumber(stock),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.stock, row2.stock),
@@ -885,8 +885,8 @@ export const STATE_ACTUEL_COLUMN: ColumnMetadata<
 };
 
 export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
-  title: 'QUANTITÉ À PRODUIRE',
-  width: 170,
+  title: 'QTÉ À PROD',
+  width: 65,
   renderCell: ({quantity}) => renderNumber(quantity),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.quantity, row2.quantity),
@@ -895,7 +895,7 @@ export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
 
 export const STOCK_PREVISIONEL_COLUMN: ColumnMetadata<{newStock: number}, number> = {
   title: 'STOCK PRÉVISIONNEL',
-  width: 170,
+  width: 100,
   renderCell: ({newStock}) => renderNumber(newStock),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.newStock, row2.newStock),
