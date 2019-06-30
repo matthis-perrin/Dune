@@ -62,7 +62,6 @@ class WindowManager {
       if (!windowInfo) {
         return;
       }
-      // windowInfo.browserWindow.webContents.print();
       windowInfo.browserWindow.webContents.printToPDF(
         {
           marginsType: 2, // minimum margin
@@ -91,6 +90,22 @@ class WindowManager {
           });
         }
       );
+    });
+  }
+
+  public async print(windowId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const windowInfo = this.windows.get(windowId);
+      if (!windowInfo) {
+        return;
+      }
+      windowInfo.browserWindow.webContents.print({}, (success: boolean) => {
+        if (success) {
+          resolve();
+        } else {
+          reject();
+        }
+      });
     });
   }
 

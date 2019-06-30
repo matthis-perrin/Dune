@@ -44,6 +44,10 @@ export class TopBar extends React.Component<TopBarProps> {
     bridge.saveToPDF().catch(console.error);
   };
 
+  private readonly handlePrint = (): void => {
+    bridge.print().catch(console.error);
+  };
+
   private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const {onSpeedChange} = this.props;
     try {
@@ -88,7 +92,14 @@ export class TopBar extends React.Component<TopBarProps> {
     if (!this.isComplete() || isPrinting) {
       return <React.Fragment />;
     }
-    return <Button onClick={this.handleSave}>Téléchargement</Button>;
+    return (
+      <ButtonsContainer>
+        <Button style={{marginRight: 8}} onClick={this.handleSave}>
+          Télécharger
+        </Button>
+        <Button onClick={this.handlePrint}>Imprimer</Button>
+      </ButtonsContainer>
+    );
   }
 
   public render(): JSX.Element {
@@ -173,6 +184,11 @@ const RightContainer = styled(ContainerBase)`
 
 const CenterContainer = styled(ContainerBase)`
   align-items: center;
+  justify-content: space-evenly;
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
 `;
 
 const TopBarTitle = styled.div`

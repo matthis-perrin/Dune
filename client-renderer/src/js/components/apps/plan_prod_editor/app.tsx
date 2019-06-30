@@ -1,4 +1,5 @@
 import {isEqual} from 'lodash-es';
+import {number} from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -38,9 +39,9 @@ import {
   Stock,
   BobineQuantities,
 } from '@shared/models';
-
 const INITIAL_SPEED = 180;
-const WIDTH_WHEN_PRINTING = 380;
+const WIDTH_THRESHOLD_FOR_PRINTING = 380;
+const printingWidths = new Map<number, number>([[380, 1180], [353, 1000]]);
 
 interface Props {}
 
@@ -303,13 +304,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           // Padding for the extra space taken by the bobine offset
           const leftPadding =
             (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
-          const isPrinting = width === WIDTH_WHEN_PRINTING;
-          const adjustedWidthForPrinting = isPrinting ? width * 3 : width;
+          const printingWidth = printingWidths.get(width);
+          const isPrinting = printingWidth !== undefined;
+          const adjustedWidthForPrinting = printingWidth ? printingWidth : width;
           const availableWidth =
             adjustedWidthForPrinting -
             2 * theme.page.padding -
             leftPadding -
             (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
+          console.log(width);
 
           const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
@@ -489,6 +492,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 0 ${theme.page.padding}px;
+  margin: auto;
 `;
 
 const ClosableAlignRight = styled(Closable)`
