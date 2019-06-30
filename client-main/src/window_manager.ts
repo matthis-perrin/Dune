@@ -56,7 +56,7 @@ class WindowManager {
     this.windows.delete(windowId);
   }
 
-  public async saveToPDF(windowId: string): Promise<void> {
+  public async saveToPDF(windowId: string, title: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const windowInfo = this.windows.get(windowId);
       if (!windowInfo) {
@@ -75,19 +75,23 @@ class WindowManager {
             reject(printError);
             return;
           }
-          dialog.showSaveDialog(windowInfo.browserWindow, {}, filename => {
-            if (!filename) {
-              resolve();
-              return;
-            }
-            fs.writeFile(filename, data, saveError => {
-              if (saveError) {
-                reject(saveError);
+          dialog.showSaveDialog(
+            windowInfo.browserWindow,
+            {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
+            filename => {
+              if (!filename) {
+                resolve();
                 return;
               }
-              resolve();
-            });
-          });
+              fs.writeFile(filename, data, saveError => {
+                if (saveError) {
+                  reject(saveError);
+                  return;
+                }
+                resolve();
+              });
+            }
+          );
         }
       );
     });
@@ -156,7 +160,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1250, height: 950}};
+      return {id: 'plan-production-editor-app', size: {width: 1250}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
       return {id: 'bobines-picker-app', size: {width: 1550, height: 800}};

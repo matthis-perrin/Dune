@@ -115,8 +115,8 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     return Promise.resolve();
   }
   if (command === SaveToPDF) {
-    const {windowId} = asMap(params);
-    windowManager.saveToPDF(asString(windowId, ''));
+    const {windowId, title} = asMap(params);
+    windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
     return Promise.resolve();
   }
   if (command === Print) {

@@ -41,7 +41,7 @@ export class TopBar extends React.Component<TopBarProps> {
   };
 
   private readonly handleSave = (): void => {
-    bridge.saveToPDF().catch(console.error);
+    bridge.saveToPDF(`plan_prod_${this.props.planProdRef}.pdf`).catch(console.error);
   };
 
   private readonly handlePrint = (): void => {

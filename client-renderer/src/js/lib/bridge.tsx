@@ -180,8 +180,11 @@ class Bridge {
   public async closeApp(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(CloseApp, {windowId: getWindowId()});
   }
-  public async saveToPDF(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SaveToPDF, {windowId: getWindowId()});
+  public async saveToPDF(title: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SaveToPDF, {
+      windowId: getWindowId(),
+      title,
+    });
   }
   public async print(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(Print, {windowId: getWindowId()});
