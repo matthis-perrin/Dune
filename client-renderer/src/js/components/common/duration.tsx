@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {padNumber} from '@root/lib/utils';
 
 interface DurationProps {
   durationMs?: number;
@@ -11,14 +12,6 @@ const MS_IN_SECONDS = 1000;
 
 export class Duration extends React.Component<DurationProps> {
   public static displayName = 'Duration';
-
-  private padNumber(value: number, padding: number): string {
-    let valueStr = String(value);
-    while (valueStr.length < padding) {
-      valueStr = `0${valueStr}`;
-    }
-    return valueStr;
-  }
 
   // private getDurationString(duration: number): string {
   //   if (duration === 0) {
@@ -48,9 +41,9 @@ export class Duration extends React.Component<DurationProps> {
     duration -= minutes * MS_IN_MINUTE;
     const seconds = Math.floor(duration / MS_IN_SECONDS);
 
-    const hoursStr = this.padNumber(hours, 2);
-    const minutesStr = this.padNumber(minutes, 2);
-    const secondsStr = this.padNumber(seconds, 2);
+    const hoursStr = padNumber(hours, 2);
+    const minutesStr = padNumber(minutes, 2);
+    const secondsStr = padNumber(seconds, 2);
 
     return `${hoursStr}:${minutesStr}:${secondsStr}`;
   }

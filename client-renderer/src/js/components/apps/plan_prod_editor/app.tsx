@@ -1,5 +1,5 @@
 import {isEqual} from 'lodash-es';
-import {number} from 'prop-types';
+import {number, string} from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -24,6 +24,7 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState, getStockTerme} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -40,12 +41,12 @@ import {
   BobineQuantities,
 } from '@shared/models';
 const INITIAL_SPEED = 180;
-const WIDTH_THRESHOLD_FOR_PRINTING = 380;
 const printingWidths = new Map<number, number>([[380, 1180], [353, 1000]]);
 
 interface Props {}
 
 interface State {
+  planProductionRef: string;
   planProduction?: PlanProductionState;
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
@@ -58,12 +59,26 @@ interface State {
   speed: number;
 }
 
+function createPlanProductionRef(): string {
+  const now = new Date();
+  const year = now
+    .getFullYear()
+    .toString()
+    .slice(2, 4);
+  const month = padNumber(now.getMonth() + 1, 2);
+  const day = padNumber(now.getDate(), 2);
+  const number = padNumber(Math.round(Math.random() * 100), 2);
+  const planProdRef = `${year}${month}${day}_${number}`;
+  return planProdRef;
+}
+
 export class PlanProdEditorApp extends React.Component<Props, State> {
   public static displayName = 'PlanProdEditorApp';
 
   public constructor(props: Props) {
     super(props);
     this.state = {
+      planProductionRef: createPlanProductionRef(),
       tourCountSetByUser: false,
       speed: INITIAL_SPEED,
     };
@@ -271,6 +286,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {
       planProduction,
+      planProductionRef,
       reorderedBobines,
       reorderedEncriers,
       stocks,
@@ -453,7 +469,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
                 onSpeedChange={this.handleSpeedChange}
-                planProdRef="19062101"
+                planProdRef={planProductionRef}
                 planProduction={planProduction}
                 isPrinting={isPrinting}
               />
