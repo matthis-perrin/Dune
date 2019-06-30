@@ -146,7 +146,6 @@ export const theme = {
   planProd: {
     topBarHeight: 96,
     topBarBackgroundColor: Colors.PrimaryDark,
-    topBarTitleColor: Colors.TextOnPrimary,
     topBarTextColor: Colors.TextOnPrimary,
     topBarTitleFontSize: 24,
     topBarTitleFontWeight: 400,

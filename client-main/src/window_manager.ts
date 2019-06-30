@@ -62,35 +62,35 @@ class WindowManager {
       if (!windowInfo) {
         return;
       }
-      windowInfo.browserWindow.webContents.print();
-      // windowInfo.browserWindow.webContents.printToPDF(
-      //   {
-      //     marginsType: 2, // minimum margin
-      //     pageSize: 'Tabloid',
-      //     printBackground: true,
-      //     printSelectionOnly: false,
-      //     landscape: false,
-      //   },
-      //   (printError, data) => {
-      //     if (printError) {
-      //       reject(printError);
-      //       return;
-      //     }
-      //     dialog.showSaveDialog(windowInfo.browserWindow, {}, filename => {
-      //       if (!filename) {
-      //         resolve();
-      //         return;
-      //       }
-      //       fs.writeFile(filename, data, saveError => {
-      //         if (saveError) {
-      //           reject(saveError);
-      //           return;
-      //         }
-      //         resolve();
-      //       });
-      //     });
-      //   }
-      // );
+      // windowInfo.browserWindow.webContents.print();
+      windowInfo.browserWindow.webContents.printToPDF(
+        {
+          marginsType: 2, // minimum margin
+          pageSize: 'A4',
+          printBackground: true,
+          printSelectionOnly: false,
+          landscape: false,
+        },
+        (printError, data) => {
+          if (printError) {
+            reject(printError);
+            return;
+          }
+          dialog.showSaveDialog(windowInfo.browserWindow, {}, filename => {
+            if (!filename) {
+              resolve();
+              return;
+            }
+            fs.writeFile(filename, data, saveError => {
+              if (saveError) {
+                reject(saveError);
+                return;
+              }
+              resolve();
+            });
+          });
+        }
+      );
     });
   }
 

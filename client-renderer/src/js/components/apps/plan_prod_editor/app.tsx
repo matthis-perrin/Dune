@@ -40,6 +40,7 @@ import {
 } from '@shared/models';
 
 const INITIAL_SPEED = 180;
+const WIDTH_WHEN_PRINTING = 380;
 
 interface Props {}
 
@@ -297,161 +298,162 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = planProduction;
 
     return (
-      <PlanProdEditorContainer style={{margin: 'auto'}}>
-        <TopBar
-          tourCount={tourCount}
-          speed={speed}
-          onTourCountChange={this.handleTourCountChange}
-          onSpeedChange={this.handleSpeedChange}
-          planProdRef="19062101"
-          planProduction={planProduction}
-        />
-        <SizeMonitor>
-          {(width, height, hasVerticalScrollbar) => {
-            // Padding for the extra space taken by the bobine offset
-            const leftPadding =
-              (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
-            const availableWidth =
-              width -
-              2 * theme.page.padding -
-              leftPadding -
-              (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
-            const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+      <SizeMonitor>
+        {(width, height, hasVerticalScrollbar) => {
+          // Padding for the extra space taken by the bobine offset
+          const leftPadding =
+            (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
+          const isPrinting = width === WIDTH_WHEN_PRINTING;
+          const adjustedWidthForPrinting = isPrinting ? width * 3 : width;
+          const availableWidth =
+            adjustedWidthForPrinting -
+            2 * theme.page.padding -
+            leftPadding -
+            (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
 
-            const bobinesBlock = (
-              <BobinesForm
-                selectedBobines={reorderedBobines || selectedBobines}
-                selectableBobines={selectableBobines}
-                selectedRefente={selectedRefente}
-                pixelPerMM={pixelPerMM}
-                onReorder={this.handleBobineReorder}
-              />
-            );
+          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
-            const refenteBlock = selectedRefente ? (
-              <ClosableAlignRight
-                color={theme.planProd.closeDefaultColor}
-                onClose={this.removeRefente}
-              >
-                <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
-              </ClosableAlignRight>
-            ) : (
-              <SelectRefenteButton selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
-            );
+          const bobinesBlock = (
+            <BobinesForm
+              selectedBobines={reorderedBobines || selectedBobines}
+              selectableBobines={selectableBobines}
+              selectedRefente={selectedRefente}
+              pixelPerMM={pixelPerMM}
+              onReorder={this.handleBobineReorder}
+            />
+          );
 
-            const encriersBlock = (
-              <OrderableEncrier
-                pixelPerMM={pixelPerMM}
-                selectedBobines={reorderedBobines || selectedBobines}
-                selectedRefente={selectedRefente}
-                allValidEncrierColors={couleursEncrier}
-                encrierColors={reorderedEncriers || couleursEncrier[0] || []}
-                onReorder={this.handleEncrierReorder}
-              />
-            );
+          const refenteBlock = selectedRefente ? (
+            <ClosableAlignRight
+              color={theme.planProd.closeDefaultColor}
+              onClose={this.removeRefente}
+            >
+              <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
+            </ClosableAlignRight>
+          ) : (
+            <SelectRefenteButton selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
+          );
 
-            const selectedPapierStock =
-              selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
-            const papierBlock = selectedPapier ? (
-              <WithColor color={selectedPapier.couleurPapier}>
-                {color => (
-                  <Closable color={color.closeHex} onClose={this.removePapier}>
-                    <Bobine
-                      size={selectedPapier.laize || 0}
-                      pixelPerMM={pixelPerMM}
-                      decalage={selectedRefente && selectedRefente.decalage}
-                      color={color.backgroundHex}
-                      strokeWidth={theme.planProd.selectedStrokeWidth}
+          const encriersBlock = (
+            <OrderableEncrier
+              pixelPerMM={pixelPerMM}
+              selectedBobines={reorderedBobines || selectedBobines}
+              selectedRefente={selectedRefente}
+              allValidEncrierColors={couleursEncrier}
+              encrierColors={reorderedEncriers || couleursEncrier[0] || []}
+              onReorder={this.handleEncrierReorder}
+            />
+          );
+
+          const selectedPapierStock =
+            selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
+          const papierBlock = selectedPapier ? (
+            <WithColor color={selectedPapier.couleurPapier}>
+              {color => (
+                <Closable color={color.closeHex} onClose={this.removePapier}>
+                  <Bobine
+                    size={selectedPapier.laize || 0}
+                    pixelPerMM={pixelPerMM}
+                    decalage={selectedRefente && selectedRefente.decalage}
+                    color={color.backgroundHex}
+                    strokeWidth={theme.planProd.selectedStrokeWidth}
+                  >
+                    <AutoFontWeight
+                      style={{color: color.textHex}}
+                      fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
                     >
-                      <AutoFontWeight
-                        style={{color: color.textHex}}
-                        fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                      >
-                        {`Bobine Papier ${selectedPapier.couleurPapier} ${
-                          selectedPapier.ref
-                        } - Largeur ${selectedPapier.laize} - ${
-                          selectedPapier.grammage
-                        }g - Stock à terme ${selectedPapierStock}`}
-                      </AutoFontWeight>
-                    </Bobine>
-                  </Closable>
-                )}
-              </WithColor>
-            ) : (
-              <SelectPapierButton
-                selectedRefente={selectedRefente}
-                selectable={selectablePapiers}
-                pixelPerMM={pixelPerMM}
-              />
-            );
+                      {`Bobine Papier ${selectedPapier.couleurPapier} ${
+                        selectedPapier.ref
+                      } - Largeur ${selectedPapier.laize} - ${
+                        selectedPapier.grammage
+                      }g - Stock à terme ${selectedPapierStock}`}
+                    </AutoFontWeight>
+                  </Bobine>
+                </Closable>
+              )}
+            </WithColor>
+          ) : (
+            <SelectPapierButton
+              selectedRefente={selectedRefente}
+              selectable={selectablePapiers}
+              pixelPerMM={pixelPerMM}
+            />
+          );
 
-            const perfoBlock = selectedPerfo ? (
-              <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePerfo}>
-                <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
-              </Closable>
-            ) : (
-              <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
-            );
+          const perfoBlock = selectedPerfo ? (
+            <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePerfo}>
+              <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
+            </Closable>
+          ) : (
+            <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
+          );
 
-            const polyproBlock = selectedPolypro ? (
-              <WithColor color={selectedPolypro.couleurPapier}>
-                {color => (
-                  <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePolypro}>
-                    <Bobine
-                      size={selectedPolypro.laize || 0}
-                      pixelPerMM={pixelPerMM}
-                      decalage={selectedRefente && selectedRefente.decalage}
-                      color={color.backgroundHex}
-                      strokeWidth={theme.planProd.selectedStrokeWidth}
+          const polyproBlock = selectedPolypro ? (
+            <WithColor color={selectedPolypro.couleurPapier}>
+              {color => (
+                <Closable color={theme.planProd.closeDefaultColor} onClose={this.removePolypro}>
+                  <Bobine
+                    size={selectedPolypro.laize || 0}
+                    pixelPerMM={pixelPerMM}
+                    decalage={selectedRefente && selectedRefente.decalage}
+                    color={color.backgroundHex}
+                    strokeWidth={theme.planProd.selectedStrokeWidth}
+                  >
+                    <AutoFontWeight
+                      style={{color: color.textHex}}
+                      fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
                     >
-                      <AutoFontWeight
-                        style={{color: color.textHex}}
-                        fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                      >
-                        {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
-                          selectedPolypro.laize
-                        } - ${selectedPolypro.grammage}μg`}
-                      </AutoFontWeight>
-                    </Bobine>
-                  </Closable>
-                )}
-              </WithColor>
+                      {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
+                        selectedPolypro.laize
+                      } - ${selectedPolypro.grammage}μg`}
+                    </AutoFontWeight>
+                  </Bobine>
+                </Closable>
+              )}
+            </WithColor>
+          ) : (
+            <SelectPolyproButton
+              selectedRefente={selectedRefente}
+              selectable={selectablePolypros}
+              pixelPerMM={pixelPerMM}
+            />
+          );
+
+          const padding = <div style={{height: theme.planProd.basePadding * pixelPerMM}} />;
+          const halfPadding = (
+            <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
+          );
+
+          const productionTable =
+            planProduction.selectedBobines.length > 0 && stocks && cadencier && bobineQuantities ? (
+              <React.Fragment>
+                {padding}
+                <ProductionTable
+                  width={availableWidth + leftPadding}
+                  planProduction={planProduction}
+                  stocks={stocks}
+                  cadencier={cadencier}
+                  bobineQuantities={bobineQuantities}
+                  onRemove={(ref: string) => {
+                    bridge.removePlanBobine(ref).catch(console.error);
+                  }}
+                />
+              </React.Fragment>
             ) : (
-              <SelectPolyproButton
-                selectedRefente={selectedRefente}
-                selectable={selectablePolypros}
-                pixelPerMM={pixelPerMM}
+              <React.Fragment />
+            );
+
+          return (
+            <PlanProdEditorContainer style={{margin: 'auto'}}>
+              <TopBar
+                tourCount={tourCount}
+                speed={speed}
+                onTourCountChange={this.handleTourCountChange}
+                onSpeedChange={this.handleSpeedChange}
+                planProdRef="19062101"
+                planProduction={planProduction}
+                isPrinting={isPrinting}
               />
-            );
-
-            const padding = <div style={{height: theme.planProd.basePadding * pixelPerMM}} />;
-            const halfPadding = (
-              <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
-            );
-
-            const productionTable =
-              planProduction.selectedBobines.length > 0 &&
-              stocks &&
-              cadencier &&
-              bobineQuantities ? (
-                <React.Fragment>
-                  {padding}
-                  <ProductionTable
-                    width={availableWidth + leftPadding}
-                    planProduction={planProduction}
-                    stocks={stocks}
-                    cadencier={cadencier}
-                    bobineQuantities={bobineQuantities}
-                    onRemove={(ref: string) => {
-                      bridge.removePlanBobine(ref).catch(console.error);
-                    }}
-                  />
-                </React.Fragment>
-              ) : (
-                <React.Fragment />
-              );
-
-            return (
               <Wrapper style={{width: availableWidth + leftPadding}}>
                 {productionTable}
                 {padding}
@@ -468,10 +470,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
                 {padding}
               </Wrapper>
-            );
-          }}
-        </SizeMonitor>
-      </PlanProdEditorContainer>
+            </PlanProdEditorContainer>
+          );
+        }}
+      </SizeMonitor>
     );
   }
 }

@@ -5,7 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {bridge} from '@root/lib/bridge';
-import {theme} from '@root/theme';
+import {theme, Palette} from '@root/theme';
 
 import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
 
@@ -18,6 +18,7 @@ interface TopBarProps {
   speed: number;
   onTourCountChange(tourCount?: number): void;
   onSpeedChange(speed: number): void;
+  isPrinting: boolean;
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -68,15 +69,17 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 
   public render(): JSX.Element {
-    const {planProdRef, planProduction, tourCount, speed} = this.props;
+    const {planProdRef, planProduction, tourCount, speed, isPrinting} = this.props;
 
     const productionTimeInSec =
       planProduction.selectedBobines.length > 0 && speed > 0 && tourCount && tourCount > 0
         ? this.computeProductionTime(planProduction.selectedBobines[0], speed, tourCount)
         : undefined;
 
+    const WrapperClass = isPrinting ? TopBarWrapperWhenPrinting : TopBarWrapper;
+
     return (
-      <TopBarWrapper>
+      <WrapperClass>
         <LeftContainer>
           <div style={{marginBottom: 6}}>
             <TopBarInput value={speed} onChange={this.handleSpeedInputChange} />
@@ -92,29 +95,41 @@ export class TopBar extends React.Component<TopBarProps> {
         </LeftContainer>
         <CenterContainer>
           <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
-          <Button onClick={this.handleSave}>Téléchargement</Button>
+          {isPrinting ? (
+            <React.Fragment />
+          ) : (
+            <Button onClick={this.handleSave}>Téléchargement</Button>
+          )}
         </CenterContainer>
         <RightContainer>
           <div>
             Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
           </div>
         </RightContainer>
-      </TopBarWrapper>
+      </WrapperClass>
     );
   }
 }
 
-const TopBarWrapper = styled.div`
+const TopBarWrapperBase = styled.div`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: ${theme.planProd.topBarHeight}px;
   display: flex;
-  background-color: ${theme.planProd.topBarBackgroundColor};
-  color: ${theme.planProd.topBarTextColor}
   padding: 0 32px;
   z-index: 100;
+`;
+
+const TopBarWrapper = styled(TopBarWrapperBase)`
+  background-color: ${theme.planProd.topBarBackgroundColor};
+  color: ${theme.planProd.topBarTextColor};
+`;
+
+const TopBarWrapperWhenPrinting = styled(TopBarWrapperBase)`
+  background-color: ${Palette.Transparent};
+  color: ${Palette.Black};
 `;
 
 const ContainerBase = styled.div`
@@ -140,7 +155,6 @@ const CenterContainer = styled(ContainerBase)`
 `;
 
 const TopBarTitle = styled.div`
-  color: ${theme.planProd.topBarTitleColor};
   font-size: ${theme.planProd.topBarTitleFontSize}px;
   font-weight: ${theme.planProd.topBarTitleFontWeight};
 `;
