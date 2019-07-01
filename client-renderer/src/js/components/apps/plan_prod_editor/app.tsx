@@ -20,7 +20,7 @@ import {Closable} from '@root/components/core/closable';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
-import {getBobineState, getStockTerme} from '@root/lib/bobine';
+import {getBobineState, getStockTerme, getStockReel} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
@@ -41,11 +41,13 @@ import {
 } from '@shared/models';
 const INITIAL_SPEED = 180;
 
-const WIDTH_WHEN_RENDERING_PDF = 380;
+const WIDTH_WHEN_RENDERING_PDF = 578;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
-const WIDTH_WHEN_PRINTING = 353;
+const WIDTH_WHEN_PRINTING = 521;
 const ADJUSTED_WIDTH_WHEN_PRINTING = 1000;
 const printingWidths = new Map<number, number>([
+  [WIDTH_WHEN_RENDERING_PDF, ADJUSTED_WIDTH_WHEN_RENDERING_PDF],
+  [WIDTH_WHEN_PRINTING, ADJUSTED_WIDTH_WHEN_PRINTING],
   [WIDTH_WHEN_RENDERING_PDF, ADJUSTED_WIDTH_WHEN_RENDERING_PDF],
   [WIDTH_WHEN_PRINTING, ADJUSTED_WIDTH_WHEN_PRINTING],
 ]);
@@ -333,7 +335,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             2 * theme.page.padding -
             leftPadding -
             (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
-          console.log(width);
 
           const pixelPerMM = availableWidth / CAPACITE_MACHINE;
 
@@ -369,7 +370,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             />
           );
 
-          const selectedPapierStock =
+          const selectedPapierStockReel =
+            selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
+          const selectedPapierStockTerme =
             selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
           const papierBlock = selectedPapier ? (
             <WithColor color={selectedPapier.couleurPapier}>
@@ -390,7 +393,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                         selectedPapier.ref
                       } - Largeur ${selectedPapier.laize} - ${
                         selectedPapier.grammage
-                      }g - Stock à terme ${selectedPapierStock}`}
+                      }g - ${selectedPapierStockReel} (à terme ${selectedPapierStockTerme})`}
                     </AutoFontWeight>
                   </Bobine>
                 </Closable>
@@ -412,6 +415,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
           );
 
+          const selectedPolyproStockReel =
+            selectedPolypro && stocks ? getStockReel(selectedPolypro.ref, stocks) : 0;
+          const selectedPolyproStockTerme =
+            selectedPolypro && stocks ? getStockTerme(selectedPolypro.ref, stocks) : 0;
           const polyproBlock = selectedPolypro ? (
             <WithColor color={selectedPolypro.couleurPapier}>
               {color => (
@@ -429,7 +436,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     >
                       {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
                         selectedPolypro.laize
-                      } - ${selectedPolypro.grammage}μg`}
+                      } - ${
+                        selectedPolypro.grammage
+                      }μg - ${selectedPolyproStockReel} (à terme ${selectedPolyproStockTerme})`}
                     </AutoFontWeight>
                   </Bobine>
                 </Closable>
@@ -458,6 +467,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   stocks={stocks}
                   cadencier={cadencier}
                   bobineQuantities={bobineQuantities}
+                  canRemove={!isPrinting}
                   onRemove={(ref: string) => {
                     bridge.removePlanBobine(ref).catch(console.error);
                   }}
@@ -468,7 +478,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
           return (
-            <PlanProdEditorContainer style={{margin: 'auto'}}>
+            <PlanProdEditorContainer>
               <TopBar
                 tourCount={tourCount}
                 speed={speed}
@@ -504,6 +514,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
 const PlanProdEditorContainer = styled.div`
   width: 100%;
+  margin: auto;
   padding-top: ${theme.planProd.topBarHeight}px;
   background-color: ${theme.planProd.contentBackgroundColor};
 `;

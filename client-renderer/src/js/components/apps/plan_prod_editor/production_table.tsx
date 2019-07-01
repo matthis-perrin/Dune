@@ -28,13 +28,22 @@ interface ProductionTableProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   onRemove?(ref: string): void;
+  canRemove: boolean;
 }
 
 export class ProductionTable extends React.Component<ProductionTableProps> {
   public static displayName = 'ProductionTable';
 
   public render(): JSX.Element {
-    const {width, planProduction, stocks, cadencier, bobineQuantities, onRemove} = this.props;
+    const {
+      width,
+      planProduction,
+      stocks,
+      cadencier,
+      bobineQuantities,
+      onRemove,
+      canRemove,
+    } = this.props;
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
     const selectedPistesSum = new Map<string, number>();
@@ -88,8 +97,11 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       toStaticColumn(PRODUCTION_COLUMN),
       toStaticColumn(STOCK_PREVISIONEL_COLUMN),
       toStaticColumn(STATE_PREVISIONEL_COLUMN),
-      CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)),
     ];
+
+    if (canRemove) {
+      columns.push(CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)));
+    }
 
     if (!onRemove) {
       columns = columns.slice(0, columns.length - 1);

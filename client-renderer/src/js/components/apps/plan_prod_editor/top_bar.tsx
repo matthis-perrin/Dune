@@ -5,7 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {bridge} from '@root/lib/bridge';
-import {theme} from '@root/theme';
+import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
 import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
 
@@ -96,7 +96,7 @@ export class TopBar extends React.Component<TopBarProps> {
         <Button style={{marginRight: 8}} onClick={this.handleSave}>
           Télécharger
         </Button>
-        <Button onClick={this.handlePrint}>Imprimer</Button>
+        {/* <Button onClick={this.handlePrint}>Imprimer</Button> */}
       </ButtonsContainer>
     );
   }
@@ -109,14 +109,39 @@ export class TopBar extends React.Component<TopBarProps> {
         ? this.computeProductionTime(planProduction.selectedBobines[0], speed, tourCount)
         : undefined;
 
-    const WrapperClass = isPrinting ? TopBarWrapperWhenPrinting : TopBarWrapper;
+    if (isPrinting) {
+      return (
+        <TopBarWrapperWhenPrinting>
+          <PrintingLeftContainer>
+            <PrintingLeftContainerBlock style={{marginRight: 32}}>
+              <LargeValue>{speed}</LargeValue>
+              <SmallValue> m/min</SmallValue>
+            </PrintingLeftContainerBlock>
+            <PrintingLeftContainerBlock>
+              <LargeValue>{tourCount}</LargeValue>
+              <SmallValue>tours</SmallValue>
+            </PrintingLeftContainerBlock>
+          </PrintingLeftContainer>
+          <CenterContainer>
+            <PrintingTopBarTitle>{`PRODUCTION N°${planProdRef}`}</PrintingTopBarTitle>
+            {this.renderButtons()}
+          </CenterContainer>
+          <RightContainer>
+            <div>
+              <LargeValue>
+                Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
+              </LargeValue>
+            </div>
+          </RightContainer>
+        </TopBarWrapperWhenPrinting>
+      );
+    }
 
     return (
-      <WrapperClass>
+      <TopBarWrapper>
         <LeftContainer>
           <div style={{marginBottom: 6}}>
-            <TopBarInput value={speed} onChange={this.handleSpeedInputChange} />
-            m/min
+            <TopBarInput value={speed} onChange={this.handleSpeedInputChange} /> m/min
           </div>
           <div>
             <TopBarInput
@@ -135,7 +160,7 @@ export class TopBar extends React.Component<TopBarProps> {
             Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
           </div>
         </RightContainer>
-      </WrapperClass>
+      </TopBarWrapper>
     );
   }
 }
@@ -156,11 +181,10 @@ const TopBarWrapper = styled(TopBarWrapperBase)`
   color: ${theme.planProd.topBarTextColor};
 `;
 
-// background-color: ${Palette.Transparent};
-// color: ${Palette.Black};
 const TopBarWrapperWhenPrinting = styled(TopBarWrapperBase)`
-  background-color: ${theme.planProd.topBarBackgroundColor};
-  color: ${theme.planProd.topBarTextColor};
+  background-color: ${Palette.Transparent};
+  color: ${Palette.Black};
+  border: ${theme.planProd.printingBorder};
 `;
 
 const ContainerBase = styled.div`
@@ -173,7 +197,9 @@ const LeftContainer = styled(ContainerBase)`
   flex-basis: 1px;
   flex-grow: 1;
   align-items: flex-start;
+  font-size: ${theme.planProd.topBarDetailsFontSize}px;
 `;
+
 const RightContainer = styled(ContainerBase)`
   flex-basis: 1px;
   flex-grow: 1;
@@ -195,8 +221,38 @@ const TopBarTitle = styled.div`
   font-weight: ${theme.planProd.topBarTitleFontWeight};
 `;
 
+const PrintingTopBarTitle = styled.div`
+  font-size: 30px;
+  font-weight: ${FontWeight.SemiBold};
+`;
+
 const TopBarInput = styled(Input)`
   margin-right: 8px;
   width: 54px;
   text-align: center;
+`;
+
+const LargeValue = styled.div`
+  font-size: 20px;
+  font-weight: ${FontWeight.SemiBold};
+`;
+
+const SmallValue = styled.div`
+  font-size: 14px;
+  font-weight: ${FontWeight.Regular};
+`;
+
+const PrintingLeftContainerBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const PrintingLeftContainer = styled.div`
+  flex-basis: 1px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
 `;

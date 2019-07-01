@@ -151,6 +151,7 @@ export const theme = {
     topBarTitleFontWeight: 400,
     topBarDetailsFontSize: 14,
 
+    printingBorder: `solid 4px ${Colors.PrimaryDark}`,
     contentBackgroundColor: Palette.White,
     closeDefaultColor: Colors.Danger,
 

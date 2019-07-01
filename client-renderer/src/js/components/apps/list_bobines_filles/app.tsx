@@ -14,7 +14,6 @@ import {
   REF_CLICHE2_COLUMN,
   STOCK_REEL_COLUMN,
   STOCK_TERME_COLUMN,
-  STOCK_COMMANDE_COLUMN,
   STOCK_RESERVE_COLUMN,
 } from '@root/components/table/columns';
 import {bobinesFillesStore, stocksStore} from '@root/stores/list_store';

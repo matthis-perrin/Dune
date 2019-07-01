@@ -81,7 +81,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
 
   private readonly getColumnWidth = (index: number, width: number): number => {
     const col = this.props.columns[index];
-    const SCROLLBAR_WIDTH = 17;
+    const SCROLLBAR_WIDTH = this.props.data.length < 10 ? 0 : 17;
     const variableWidthCount = this.getVariableColumnWidthCount();
     const spaceLeftForVariables = width - this.getFixedColumnsWidthSum() - SCROLLBAR_WIDTH;
 
