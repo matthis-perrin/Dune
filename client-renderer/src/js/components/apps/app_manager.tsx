@@ -13,6 +13,7 @@ import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
 import {ViewOperationApp} from '@root/components/apps/view_operation/app';
+import {LoadingScreen} from '@root/components/core/loading_screen';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
@@ -180,7 +181,7 @@ export class AppManager extends React.Component<Props, State> {
       return this.renderForApp(appInfo);
     }
 
-    return <TempWrapper>Loading...</TempWrapper>;
+    return <LoadingScreen />;
   }
 
   public render(): JSX.Element {

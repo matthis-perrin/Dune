@@ -47,12 +47,11 @@ export class BobineCadencierChart extends React.Component<
   }
 
   public componentDidMount(): void {
-    window.addEventListener('resize', this.handleRise);
+    window.addEventListener('resize', this.handleResize);
     const {bobine} = this.props;
     if (!bobine) {
       return;
     }
-    this.loadBobine(bobine);
     colorsStore.addListener(this.handleColorsChanged);
   }
 
@@ -106,7 +105,7 @@ export class BobineCadencierChart extends React.Component<
       .catch(console.error);
   }
 
-  private readonly handleRise = (): void => {
+  private readonly handleResize = (): void => {
     if (!this.plot) {
       return;
     }

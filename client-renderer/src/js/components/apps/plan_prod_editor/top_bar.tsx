@@ -5,7 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {bridge} from '@root/lib/bridge';
-import {theme, Palette} from '@root/theme';
+import {theme} from '@root/theme';
 
 import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
 
@@ -77,7 +77,6 @@ export class TopBar extends React.Component<TopBarProps> {
     return (
       tourCount !== undefined &&
       tourCount > 0 &&
-      speed !== undefined &&
       speed > 0 &&
       planProduction.selectablePapiers.length === 0 &&
       planProduction.selectableBobines.length === 0 &&

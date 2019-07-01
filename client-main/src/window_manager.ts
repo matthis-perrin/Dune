@@ -156,7 +156,7 @@ class WindowManager {
     }
     if (appInfo.type === ClientAppType.ViewBobineApp) {
       const {bobineRef = ''} = asMap(appInfo.data);
-      return {id: `view-bobine-app--${bobineRef}`, size: {width: 900, height: 700}};
+      return {id: `view-bobine-app--${bobineRef}`, size: {width: 900, height: 750}};
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {

@@ -1,5 +1,4 @@
 import {isEqual} from 'lodash-es';
-import {number, string} from 'prop-types';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -41,7 +40,15 @@ import {
   BobineQuantities,
 } from '@shared/models';
 const INITIAL_SPEED = 180;
-const printingWidths = new Map<number, number>([[380, 1180], [353, 1000]]);
+
+const WIDTH_WHEN_RENDERING_PDF = 380;
+const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
+const WIDTH_WHEN_PRINTING = 353;
+const ADJUSTED_WIDTH_WHEN_PRINTING = 1000;
+const printingWidths = new Map<number, number>([
+  [WIDTH_WHEN_RENDERING_PDF, ADJUSTED_WIDTH_WHEN_RENDERING_PDF],
+  [WIDTH_WHEN_PRINTING, ADJUSTED_WIDTH_WHEN_PRINTING],
+]);
 
 interface Props {}
 
@@ -61,14 +68,12 @@ interface State {
 
 function createPlanProductionRef(): string {
   const now = new Date();
-  const year = now
-    .getFullYear()
-    .toString()
-    .slice(2, 4);
+  const fullYearStr = now.getFullYear().toString();
+  const lastTwoDigitYear = fullYearStr.slice(2, fullYearStr.length);
   const month = padNumber(now.getMonth() + 1, 2);
   const day = padNumber(now.getDate(), 2);
-  const number = padNumber(Math.round(Math.random() * 100), 2);
-  const planProdRef = `${year}${month}${day}_${number}`;
+  const index = padNumber(Math.round(Math.random() * 100), 2);
+  const planProdRef = `${lastTwoDigitYear}${month}${day}_${index}`;
   return planProdRef;
 }
 

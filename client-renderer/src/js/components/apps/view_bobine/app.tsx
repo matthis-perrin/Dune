@@ -149,7 +149,8 @@ export class ViewBobineApp extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {bobineRef} = this.props;
-    const {bobine} = this.state;
+
+    const {bobine, stocks, clicheLoaded} = this.state;
 
     return (
       <AppWrapper>
@@ -219,6 +220,7 @@ const ClichePadding = styled.div`
 `;
 
 const CardTitle = styled.div`
+  flex-shrink: 0;
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 12px;
@@ -234,11 +236,14 @@ const NoClicheContainer = styled.div`
 
 const CandencierContainer = styled(ContainerBase)`
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
   margin: ${CARD_MARGIN / 2}px ${CARD_MARGIN}px ${CARD_MARGIN}px ${CARD_MARGIN}px;
 `;
 
 const CadencierChartContainer = styled.div`
-  height: 100%;
+  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;

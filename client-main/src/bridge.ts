@@ -116,13 +116,11 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   }
   if (command === SaveToPDF) {
     const {windowId, title} = asMap(params);
-    windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
-    return Promise.resolve();
+    return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
   }
   if (command === Print) {
     const {windowId} = asMap(params);
-    windowManager.print(asString(windowId, ''));
-    return Promise.resolve();
+    return windowManager.print(asString(windowId, ''));
   }
 
   // Plan Production
