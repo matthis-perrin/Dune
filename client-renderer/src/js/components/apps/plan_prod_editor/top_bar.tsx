@@ -5,7 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {bridge} from '@root/lib/bridge';
-import {theme, Palette, FontWeight, Colors} from '@root/theme';
+import {theme, Palette, FontWeight} from '@root/theme';
 
 import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
 
@@ -44,9 +44,9 @@ export class TopBar extends React.Component<TopBarProps> {
     bridge.saveToPDF(`plan_prod_${this.props.planProdRef}.pdf`).catch(console.error);
   };
 
-  private readonly handlePrint = (): void => {
-    bridge.print().catch(console.error);
-  };
+  // private readonly handlePrint = (): void => {
+  //   bridge.print().catch(console.error);
+  // };
 
   private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const {onSpeedChange} = this.props;

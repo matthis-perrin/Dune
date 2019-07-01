@@ -79,11 +79,16 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     return this.props.columns.filter(col => col.width === undefined).length;
   }
 
-  private readonly getColumnWidth = (index: number, width: number): number => {
+  private readonly getColumnWidth = (
+    index: number,
+    width: number,
+    shouldAssumeScrollbar: boolean
+  ): number => {
     const col = this.props.columns[index];
-    const SCROLLBAR_WIDTH = this.props.data.length < 10 ? 0 : 17;
+    const SCROLLBAR_WIDTH = 17;
     const variableWidthCount = this.getVariableColumnWidthCount();
-    const spaceLeftForVariables = width - this.getFixedColumnsWidthSum() - SCROLLBAR_WIDTH;
+    const spaceLeftForVariables =
+      width - this.getFixedColumnsWidthSum() - this.props.data.length < 10 ? 0 : SCROLLBAR_WIDTH;
 
     if (col.width === undefined) {
       return spaceLeftForVariables / variableWidthCount;
@@ -124,12 +129,15 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
 
     const rowCount = data.length;
     const columnCount = columns.length;
+    const shouldAssumeScrollbar = rowCount * rowHeight > height;
 
     const adjustedWidth = Math.max(
       this.getFixedColumnsWidthSum() + theme.table.minSizeForVariableColumns,
       width
     );
-    const columnWidths = range(columnCount).map(index => this.getColumnWidth(index, adjustedWidth));
+    const columnWidths = range(columnCount).map(index =>
+      this.getColumnWidth(index, adjustedWidth, shouldAssumeScrollbar)
+    );
 
     let scrollOffset = 0;
     if (this.tableContainerRef.current) {
@@ -140,7 +148,10 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const header = renderColumn ? (
       <ColumnContainer width={adjustedWidth}>
         {range(columnCount).map(i => (
-          <div key={`column-${i}`} style={{width: this.getColumnWidth(i, adjustedWidth)}}>
+          <div
+            key={`column-${i}`}
+            style={{width: this.getColumnWidth(i, adjustedWidth, shouldAssumeScrollbar)}}
+          >
             {renderColumn(i)}
           </div>
         ))}

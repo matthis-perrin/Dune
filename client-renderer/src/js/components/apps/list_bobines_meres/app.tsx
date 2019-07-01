@@ -11,7 +11,6 @@ import {
   STOCK_TERME_COLUMN,
   STOCK_REEL_COLUMN,
   STOCK_COMMANDE_COLUMN,
-  STOCK_RESERVE_COLUMN,
 } from '@root/components/table/columns';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
 

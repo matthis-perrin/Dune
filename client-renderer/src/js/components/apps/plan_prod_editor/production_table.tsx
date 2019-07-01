@@ -15,7 +15,7 @@ import {
   BOBINE_FILLE_REF_COLUMN,
   MINIMUM_COLUMN,
 } from '@root/components/table/columns';
-import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
+import {SortableTable} from '@root/components/table/sortable_table';
 import {getStockTerme, getBobineState} from '@root/lib/bobine';
 import {theme} from '@root/theme';
 
@@ -94,7 +94,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     });
 
     // tslint:disable-next-line:no-any
-    const columns = [
+    let columns = [
       withWidth(toStaticColumn(BOBINE_FILLE_REF_COLUMN), undefined),
       toStaticColumn(LAIZE_COLUMN),
       toStaticColumn(PISTES_COLUMN),
@@ -102,21 +102,23 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       toStaticColumn(QUANTITY_COLUMN),
       toStaticColumn(STOCK_ACTUEL_COLUMN),
       toStaticColumn(PRODUCTION_COLUMN),
+      MINIMUM_COLUMN<{ref: string; minimum: number}>((ref, newMinimum) => {
+        if (onMiniUpdated) {
+          onMiniUpdated(ref, isNaN(newMinimum) ? 0 : newMinimum);
+        }
+      }),
+      toStaticColumn(STOCK_PREVISIONEL_COLUMN),
+      toStaticColumn(STATE_PREVISIONEL_COLUMN),
+      CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)),
     ];
 
-    if (minimums) {
-      columns.push(
-        MINIMUM_COLUMN<{ref: string; minimum: number}>((ref, newMinimum) => {
-          onMiniUpdated(ref, isNaN(newMinimum) ? 0 : newMinimum);
-        })
-      );
+    if (!minimums) {
+      const miniColumnIndex = 7;
+      columns.splice(miniColumnIndex, 1);
     }
 
-    columns.push(toStaticColumn(STOCK_PREVISIONEL_COLUMN));
-    columns.push(toStaticColumn(STATE_PREVISIONEL_COLUMN));
-
-    if (canRemove) {
-      columns.push(CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)));
+    if (!canRemove) {
+      columns = columns.slice(0, columns.length - 2);
     }
 
     return (

@@ -125,6 +125,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     stocks={stocks}
                     cadencier={cadencier}
                     bobineQuantities={bobineQuantities}
+                    canRemove
                     onRemove={(ref: string) => {
                       bridge.removePlanBobine(ref).catch(console.error);
                     }}

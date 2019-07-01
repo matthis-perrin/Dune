@@ -7,6 +7,8 @@ import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
 import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
 
+const MONTHS_IN_YEAR = 12;
+
 export enum StockType {
   REEL,
   COMMANDE,
@@ -48,7 +50,6 @@ export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number
   return getStock(ref, stocks, StockType.TERME);
 }
 
-const MONTHS_IN_YEAR = 12;
 export function getBobineMonthlySelling(cadencier?: Map<number, number>): number {
   return Math.ceil(getBobineSellingPastYear(cadencier) / MONTHS_IN_YEAR);
 }
@@ -82,8 +83,8 @@ export function getBobineTotalSell(
 
   const firstMonth = new Date(min(months) || 0);
   const lastMonth = new Date();
-  const firstMonthIndex = firstMonth.getFullYear() * 12 + firstMonth.getMonth();
-  const lastMonthIndex = lastMonth.getFullYear() * 12 + lastMonth.getMonth();
+  const firstMonthIndex = firstMonth.getFullYear() * MONTHS_IN_YEAR + firstMonth.getMonth();
+  const lastMonthIndex = lastMonth.getFullYear() * MONTHS_IN_YEAR + lastMonth.getMonth();
 
   const monthRange = lastMonthIndex - firstMonthIndex + 1;
   const total = sum(values);

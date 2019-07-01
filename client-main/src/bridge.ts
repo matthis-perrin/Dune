@@ -34,7 +34,6 @@ import {
   SetPlanTourCount,
   ListColors,
   SaveToPDF,
-  Print,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -118,10 +117,10 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     const {windowId, title} = asMap(params);
     return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
   }
-  if (command === Print) {
-    const {windowId} = asMap(params);
-    return windowManager.print(asString(windowId, ''));
-  }
+  // if (command === Print) {
+  //   const {windowId} = asMap(params);
+  //   return windowManager.print(asString(windowId, ''));
+  // }
 
   // Plan Production
   if (command === CreateNewPlanProduction) {

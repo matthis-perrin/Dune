@@ -1,7 +1,5 @@
-import {BrowserWindow, dialog, screen, shell, app} from 'electron';
+import {BrowserWindow, dialog, screen, shell} from 'electron';
 import fs from 'fs';
-import path from 'path';
-import ch from 'child_process';
 
 import {handleCommand} from '@root/bridge';
 import {planProductionStore} from '@root/store';

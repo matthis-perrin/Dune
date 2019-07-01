@@ -1,3 +1,5 @@
+const MONTHS_IN_YEAR = 12;
+
 export function padNumber(value: number, padding: number): string {
   let valueStr = String(value);
   while (valueStr.length < padding) {
@@ -7,11 +9,11 @@ export function padNumber(value: number, padding: number): string {
 }
 
 export function formatMonthCount(monthCount: number): string {
-  if (monthCount < 12) {
+  if (monthCount < MONTHS_IN_YEAR) {
     return `${monthCount} mois`;
   }
-  const yearCount = Math.floor(monthCount / 12);
-  const monthCountWithoutYear = monthCount - yearCount * 12;
+  const yearCount = Math.floor(monthCount / MONTHS_IN_YEAR);
+  const monthCountWithoutYear = monthCount - yearCount * MONTHS_IN_YEAR;
   const yearStr = yearCount > 1 ? `${yearCount} ans` : '1 an';
   if (monthCountWithoutYear === 0) {
     return yearStr;

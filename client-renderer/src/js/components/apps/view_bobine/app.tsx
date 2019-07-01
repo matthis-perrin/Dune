@@ -131,7 +131,8 @@ export class ViewBobineApp extends React.Component<Props, State> {
 
     const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities);
     const {state, quantity, info, yearSell} = bobineState;
-    const monthSell = Math.ceil(yearSell / 12);
+    const MONTHS_IN_YEAR = 12;
+    const monthSell = Math.ceil(yearSell / MONTHS_IN_YEAR);
     const stockTerme = getStockTerme(bobineRef, stocks);
     const stockReel = getStockReel(bobineRef, stocks);
     const stockReserve = getStockReserve(bobineRef, stocks);
