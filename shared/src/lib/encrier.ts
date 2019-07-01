@@ -329,5 +329,6 @@ export function generateAllAcceptableColorsOrder(
     const firstEmptyIndex2 = indexFirstEmptyEncrier(a2);
     return firstEmptyIndex1 - firstEmptyIndex2;
   });
+
   return sorted;
 }

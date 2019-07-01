@@ -37,10 +37,18 @@ export class Input extends React.Component<InputProps> {
     }
   };
 
+  private readonly handleFocus = (event: React.FocusEvent<HTMLInputElement>): void => {
+    const inputElement = this.getRef().current;
+    if (inputElement) {
+      inputElement.setSelectionRange(0, inputElement.value.length);
+    }
+  };
+
   public render(): JSX.Element {
     return (
       <StyledInput
         onKeyDown={this.handleKeyDown}
+        onFocus={this.handleFocus}
         ref={this.getRef()}
         {...omit(this.props, ['focusOnMount'])}
       />

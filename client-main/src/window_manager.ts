@@ -1,5 +1,7 @@
-import {BrowserWindow, dialog, screen} from 'electron';
+import {BrowserWindow, dialog, screen, shell, app} from 'electron';
 import fs from 'fs';
+import path from 'path';
+import ch from 'child_process';
 
 import {handleCommand} from '@root/bridge';
 import {planProductionStore} from '@root/store';
@@ -56,12 +58,8 @@ class WindowManager {
     this.windows.delete(windowId);
   }
 
-  public async saveToPDF(windowId: string, title: string): Promise<void> {
+  public async saveAsPDF(windowInfo: WindowInfo, filePath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const windowInfo = this.windows.get(windowId);
-      if (!windowInfo) {
-        return;
-      }
       windowInfo.browserWindow.webContents.printToPDF(
         {
           marginsType: 2, // minimum margin
@@ -75,43 +73,69 @@ class WindowManager {
             reject(printError);
             return;
           }
-          dialog.showSaveDialog(
-            windowInfo.browserWindow,
-            {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
-            filename => {
-              if (!filename) {
-                resolve();
-                return;
-              }
-              fs.writeFile(filename, data, saveError => {
-                if (saveError) {
-                  reject(saveError);
-                  return;
-                }
-                resolve();
-              });
+          fs.writeFile(filePath, data, saveError => {
+            if (saveError) {
+              reject(saveError);
+              return;
             }
-          );
+            resolve();
+          });
         }
       );
     });
   }
 
-  public async print(windowId: string): Promise<void> {
+  public async saveToPDF(windowId: string, title: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const windowInfo = this.windows.get(windowId);
       if (!windowInfo) {
+        reject();
         return;
       }
-      windowInfo.browserWindow.webContents.print({}, (success: boolean) => {
-        if (success) {
-          resolve();
-        } else {
-          reject();
+      dialog.showSaveDialog(
+        windowInfo.browserWindow,
+        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
+        filename => {
+          if (!filename) {
+            resolve();
+            return;
+          }
+          this.saveAsPDF(windowInfo, filename)
+            .then(() => {
+              if (shell.openItem(filename)) {
+                resolve();
+                return;
+              }
+              reject();
+            })
+            .catch(reject);
         }
-      });
+      );
     });
   }
+
+  // public async print(windowId: string): Promise<void> {
+  //   return new Promise<void>((resolve, reject) => {
+  //     const windowInfo = this.windows.get(windowId);
+  //     if (!windowInfo) {
+  //       return;
+  //     }
+  //     const tempPath = path.join(app.getPath('temp'), `${Date.now()}.pdf`);
+  //     console.log(tempPath);
+  //     this.saveAsPDF(windowInfo, tempPath)
+  //       .then(() => {
+  //         ch.exec(`print ${tempPath}`, err => {
+  //           if (err) {
+  //             console.log(err);
+  //             reject(err);
+  //             return;
+  //           }
+  //           resolve();
+  //         });
+  //       })
+  //       .catch(reject);
+  //   });
+  // }
 
   public closeWindowOfType(type: ClientAppType): void {
     for (const w of this.windows.values()) {
@@ -156,7 +180,7 @@ class WindowManager {
     }
     if (appInfo.type === ClientAppType.ViewBobineApp) {
       const {bobineRef = ''} = asMap(appInfo.data);
-      return {id: `view-bobine-app--${bobineRef}`, size: {width: 900, height: 750}};
+      return {id: `view-bobine-app--${bobineRef}`, size: {width: 1300, height: 750}};
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {

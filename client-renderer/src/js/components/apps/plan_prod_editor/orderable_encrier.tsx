@@ -86,7 +86,7 @@ export class OrderableEncrier extends React.Component<
     const {dragStart, dragEnd} = this.state;
     const draggedEncrierIndex = this.getDraggedEncrierIndex();
     const newEncriersOrder = this.getNewEncriersOrder(draggedEncrierIndex, dragStart, dragEnd);
-    onReorder(newEncriersOrder.reverse());
+    onReorder(newEncriersOrder);
     this.setState({dragStart: undefined, dragEnd: undefined});
   }
 
@@ -114,7 +114,7 @@ export class OrderableEncrier extends React.Component<
 
   private isValidEncrierColors(encrierColors: EncrierColor[]): boolean {
     const {allValidEncrierColors} = this.props;
-    const reversed = [...encrierColors].reverse();
+    const reversed = [...encrierColors];
     for (const validEncrierColors of allValidEncrierColors) {
       if (isEqual(reversed, validEncrierColors)) {
         return true;
@@ -129,7 +129,7 @@ export class OrderableEncrier extends React.Component<
     dragEnd?: number
   ): EncrierColor[] {
     const {encrierColors} = this.props;
-    const encrierOrder = [...encrierColors].reverse();
+    const encrierOrder = [...encrierColors];
     if (draggedEncrierIndex === undefined || dragStart === undefined || dragEnd === undefined) {
       return encrierOrder;
     }
@@ -167,12 +167,11 @@ export class OrderableEncrier extends React.Component<
     const {pixelPerMM, selectedBobines, selectedRefente, encrierColors} = this.props;
     const {dragStart, dragEnd} = this.state;
     const draggedEncrierIndex = this.getDraggedEncrierIndex();
-    const reversedEncrierColors = [...encrierColors].reverse();
     const orderedEncriers = this.getNewEncriersOrder(draggedEncrierIndex, dragStart, dragEnd);
 
     let draggedElement = <React.Fragment />;
     if (dragStart !== undefined && dragEnd !== undefined && draggedEncrierIndex !== undefined) {
-      const encrier = reversedEncrierColors[draggedEncrierIndex];
+      const encrier = encrierColors[draggedEncrierIndex];
       const topPos = draggedEncrierIndex * this.getEncrierHeight() + dragEnd - dragStart;
       draggedElement = (
         <div
@@ -215,7 +214,7 @@ export class OrderableEncrier extends React.Component<
                     dragStart !== undefined &&
                     dragEnd !== undefined &&
                     draggedEncrierIndex !== undefined &&
-                    reversedEncrierColors[draggedEncrierIndex] === encrierColor
+                    encrierColors[draggedEncrierIndex] === encrierColor
                       ? 'hidden'
                       : 'visible',
                 }}

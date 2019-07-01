@@ -115,6 +115,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
         this.rows.set(data.ref, {data: {...data}, rowIndex})
       );
     }
+
     return hasChanged || hasDataChanged;
   }
 

@@ -1,19 +1,34 @@
 import {find} from 'lodash-es';
 import * as React from 'react';
+import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
 import {BobineCadencierChart} from '@root/components/charts/cadencier';
 import {BasicInfo} from '@root/components/common/basic_info';
 import {BobineColors} from '@root/components/common/bobine_colors';
+import {BobineState} from '@root/components/common/bobine_state';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {getStockTerme} from '@root/lib/bobine';
-import {bobinesFillesStore, clichesStore, stocksStore} from '@root/stores/list_store';
+import {
+  getStockTerme,
+  getStockReserve,
+  getStockReel,
+  getBobineState,
+  getBobineTotalSell,
+} from '@root/lib/bobine';
+import {formatMonthCount, numberWithSeparator} from '@root/lib/utils';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {
+  bobinesFillesStore,
+  clichesStore,
+  stocksStore,
+  cadencierStore,
+} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
-import {BobineFille, Cliche, Stock} from '@shared/models';
+import {BobineFille, Cliche, Stock, BobineQuantities} from '@shared/models';
 
 interface Props {
   bobineRef: string;
@@ -22,6 +37,8 @@ interface Props {
 interface State {
   bobine?: BobineFille;
   stocks?: Map<string, Stock[]>;
+  cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
   cliche1?: Cliche;
   cliche2?: Cliche;
   clicheLoaded: boolean;
@@ -41,12 +58,16 @@ export class ViewBobineApp extends React.Component<Props, State> {
     bobinesFillesStore.addListener(this.refreshBobineInfo);
     clichesStore.addListener(this.refreshBobineInfo);
     stocksStore.addListener(this.refreshBobineInfo);
+    bobinesQuantitiesStore.addListener(this.refreshBobineInfo);
+    cadencierStore.addListener(this.refreshBobineInfo);
   }
 
   public componentWillUnmount(): void {
     bobinesFillesStore.removeListener(this.refreshBobineInfo);
     clichesStore.removeListener(this.refreshBobineInfo);
     stocksStore.removeListener(this.refreshBobineInfo);
+    bobinesQuantitiesStore.removeListener(this.refreshBobineInfo);
+    cadencierStore.removeListener(this.refreshBobineInfo);
   }
 
   private readonly refreshBobineInfo = (): void => {
@@ -72,7 +93,9 @@ export class ViewBobineApp extends React.Component<Props, State> {
       }
     }
     const stocks = stocksStore.getStockIndex();
-    this.setState({bobine, cliche1, cliche2, clicheLoaded, stocks});
+    const cadencier = cadencierStore.getCadencierIndex();
+    const bobineQuantities = bobinesQuantitiesStore.getData();
+    this.setState({bobine, cliche1, cliche2, clicheLoaded, stocks, cadencier, bobineQuantities});
   };
 
   private renderGeneralInfo(): JSX.Element {
@@ -82,16 +105,126 @@ export class ViewBobineApp extends React.Component<Props, State> {
     }
     return (
       <React.Fragment>
-        <CardTitle>{'Info'}</CardTitle>
+        <CardHeader>
+          <CardTitle>{'Info'}</CardTitle>
+        </CardHeader>
         <BasicInfo
           data={[
             {title: 'Désignation', value: bobine.designation},
             {title: 'Laize', value: bobine.laize},
             {title: 'Couleur Papier', value: bobine.couleurPapier},
-            {title: 'Grammage', value: bobine.grammage},
-            {title: 'Longueur', value: bobine.longueur},
-            {title: "Type d'impression", value: bobine.typeImpression},
-            {title: 'Stocks à terme', value: getStockTerme(bobine.ref, stocks)},
+            {title: 'Grammage', value: `${bobine.grammage}g`},
+            {title: 'Longueur', value: `${bobine.longueur}m`},
+            {title: "Type d'impression", value: bobine.typeImpression || 'Neutre'},
+          ]}
+        />
+      </React.Fragment>
+    );
+  }
+
+  private renderStockInfo(): JSX.Element {
+    const {bobineRef} = this.props;
+    const {stocks, bobineQuantities, cadencier} = this.state;
+    if (!stocks || !bobineQuantities || !cadencier) {
+      return <LoadingIndicator size="medium" />;
+    }
+
+    const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities);
+    const {state, quantity, info, yearSell} = bobineState;
+    const monthSell = Math.ceil(yearSell / 12);
+    const stockTerme = getStockTerme(bobineRef, stocks);
+    const stockReel = getStockReel(bobineRef, stocks);
+    const stockReserve = getStockReserve(bobineRef, stocks);
+    const allSell = getBobineTotalSell(bobineRef, cadencier);
+    const monthAverage = Math.round((10 * allSell.total) / allSell.monthRange) / 10;
+    const monthRange = formatMonthCount(allSell.monthRange);
+    const titleWidth = 130;
+
+    const withPopup = (title: JSX.Element, content: JSX.Element): JSX.Element => {
+      return (
+        <Popup
+          trigger={title}
+          position="left center"
+          on="hover"
+          contentStyle={{width: 260, whiteSpace: 'normal'}}
+        >
+          {content}
+        </Popup>
+      );
+    };
+
+    return (
+      <React.Fragment>
+        <CardHeader>
+          <CardTitle>{'État'}</CardTitle>
+          <BobineState info={info} state={state} />
+        </CardHeader>
+        <BasicInfo
+          style={{marginBottom: 8}}
+          data={[
+            {
+              title: <div style={{width: titleWidth}}>Stocks réel</div>,
+              value: numberWithSeparator(stockReel),
+            },
+            {
+              title: <div style={{width: titleWidth}}>Commande en cours</div>,
+              value: numberWithSeparator(stockReserve),
+            },
+            {
+              title: <div style={{width: titleWidth}}>Stocks à terme</div>,
+              value: numberWithSeparator(stockTerme),
+            },
+          ]}
+        />
+        <BasicInfo
+          style={{marginBottom: 8}}
+          data={[
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Ventes annuelle</div>,
+                <div>Total des ventes sur les 12 derniers mois.</div>
+              ),
+              value: numberWithSeparator(yearSell),
+            },
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Ventes mensuelle</div>,
+                <div>Moyenne mensuelle des ventes sur les 12 derniers mois.</div>
+              ),
+              value: numberWithSeparator(monthSell),
+            },
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Quantité à produire</div>,
+                <div>Quantité idéale de production basée sur les ventes des 12 dernier mois.</div>
+              ),
+              value: numberWithSeparator(quantity),
+            },
+          ]}
+        />
+        <BasicInfo
+          data={[
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Total des ventes</div>,
+                <div>Total des ventes depuis la première vente.</div>
+              ),
+              value: numberWithSeparator(allSell.total),
+            },
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Age de la bobine</div>,
+                <div>Temps écoulé depuis la première vente.</div>
+              ),
+              value: monthRange,
+            },
+            {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Moyenne mensuelle</div>,
+                <div>Moyenne mensuelle des ventes depuis la première vente.</div>
+              ),
+              value: isNaN(monthAverage) ? '0' : monthAverage,
+            },
           ]}
         />
       </React.Fragment>
@@ -126,7 +259,9 @@ export class ViewBobineApp extends React.Component<Props, State> {
 
     return (
       <ClicheWrapper key={cliche.ref}>
-        <CardTitle>{`Cliché ${index}`}</CardTitle>
+        <CardHeader>
+          <CardTitle>{`Cliché ${index}`}</CardTitle>
+        </CardHeader>
         <BasicInfo
           data={[
             {title: 'Ref', value: cliche.ref},
@@ -149,8 +284,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {bobineRef} = this.props;
-
-    const {bobine, stocks, clicheLoaded} = this.state;
+    const {bobine} = this.state;
 
     return (
       <AppWrapper>
@@ -160,10 +294,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
         >{`Bobine ${bobineRef}`}</ViewerTopBar>
         <InfoContainer>
           <GeneralInfoContainer>{this.renderGeneralInfo()}</GeneralInfoContainer>
+          <EtatInfoContainer>{this.renderStockInfo()}</EtatInfoContainer>
           <ClichesInfoContainer>{this.renderClichesInfo()}</ClichesInfoContainer>
         </InfoContainer>
         <CandencierContainer>
-          <CardTitle>Historique des ventes</CardTitle>
+          <CardHeader>
+            <CardTitle>Historique des ventes</CardTitle>
+          </CardHeader>
           <CadencierChartContainer>
             <BobineCadencierChart ref={this.cadencier} bobine={bobine} />
           </CadencierChartContainer>
@@ -202,6 +339,12 @@ const GeneralInfoContainer = styled(ContainerBase)`
   margin: ${CARD_MARGIN}px ${CARD_MARGIN / 2}px ${CARD_MARGIN / 2}px ${CARD_MARGIN}px;
 `;
 
+const EtatInfoContainer = styled(ContainerBase)`
+  flex-basis: 1px;
+  flex-grow: 1;
+  margin: ${CARD_MARGIN}px ${CARD_MARGIN / 2}px ${CARD_MARGIN / 2}px ${CARD_MARGIN / 2}px;
+`;
+
 const ClichesInfoContainer = styled(ContainerBase)`
   flex-basis: 1px;
   flex-grow: 1;
@@ -219,11 +362,17 @@ const ClichePadding = styled.div`
   height: 16px;
 `;
 
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+`;
+
 const CardTitle = styled.div`
   flex-shrink: 0;
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 12px;
 `;
 
 const NoClicheContainer = styled.div`

@@ -72,7 +72,6 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
           GRAMMAGE_COLUMN,
           STOCK_REEL_COLUMN(stocks),
           STOCK_COMMANDE_COLUMN(stocks),
-          STOCK_RESERVE_COLUMN(stocks),
           STOCK_TERME_COLUMN(stocks),
         ]}
       />

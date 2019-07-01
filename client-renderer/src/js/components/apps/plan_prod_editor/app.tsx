@@ -39,6 +39,8 @@ import {
   Stock,
   BobineQuantities,
 } from '@shared/models';
+
+const MAX_PLAN_PROD_WIDTH = 940;
 const INITIAL_SPEED = 180;
 
 const WIDTH_WHEN_RENDERING_PDF = 578;
@@ -59,6 +61,7 @@ interface State {
   planProduction?: PlanProductionState;
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
+  bobinesMinimums: Map<string, number>;
 
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
@@ -88,6 +91,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       planProductionRef: createPlanProductionRef(),
       tourCountSetByUser: false,
       speed: INITIAL_SPEED,
+      bobinesMinimums: new Map<string, number>(),
     };
   }
 
@@ -191,6 +195,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   private readonly handleTourCountChange = (newTourCount?: number): void => {
     this.setState({tourCountSetByUser: true});
     bridge.setPlanTourCount(newTourCount).catch(console.error);
+  };
+
+  private readonly handleMiniUpdated = (ref: string, newMini: number): void => {
+    const currentBobinesMinimums = Array.from(this.state.bobinesMinimums.entries());
+    const newBobinesMinimums = new Map<string, number>(currentBobinesMinimums);
+    newBobinesMinimums.set(ref, newMini);
+    this.setState({bobinesMinimums: newBobinesMinimums});
   };
 
   private readonly handleSpeedChange = (speed: number): void => {
@@ -300,6 +311,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       cadencier,
       bobineQuantities,
       speed,
+      bobinesMinimums,
     } = this.state;
 
     if (!planProduction) {
@@ -336,7 +348,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             leftPadding -
             (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
 
-          const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+          const adjustedAvailableWidth = Math.min(MAX_PLAN_PROD_WIDTH, availableWidth);
+          const pixelPerMM = adjustedAvailableWidth / CAPACITE_MACHINE;
 
           const bobinesBlock = (
             <BobinesForm
@@ -371,7 +384,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           );
 
           const selectedPapierStockReel =
-            selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
+            selectedPapier && stocks ? getStockReel(selectedPapier.ref, stocks) : 0;
           const selectedPapierStockTerme =
             selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
           const papierBlock = selectedPapier ? (
@@ -386,7 +399,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
                     <AutoFontWeight
-                      style={{color: color.textHex}}
+                      style={{color: color.textHex, textAlign: 'center'}}
                       fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
                     >
                       {`Bobine Papier ${selectedPapier.couleurPapier} ${
@@ -431,7 +444,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
                     <AutoFontWeight
-                      style={{color: color.textHex}}
+                      style={{color: color.textHex, textAlign: 'center'}}
                       fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
                     >
                       {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
@@ -457,12 +470,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
           );
 
+          console.log(bobinesMinimums);
+
           const productionTable =
             planProduction.selectedBobines.length > 0 && stocks && cadencier && bobineQuantities ? (
               <React.Fragment>
                 {padding}
                 <ProductionTable
-                  width={availableWidth + leftPadding}
+                  width={adjustedAvailableWidth + leftPadding}
                   planProduction={planProduction}
                   stocks={stocks}
                   cadencier={cadencier}
@@ -471,6 +486,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   onRemove={(ref: string) => {
                     bridge.removePlanBobine(ref).catch(console.error);
                   }}
+                  minimums={bobinesMinimums}
+                  onMiniUpdated={this.handleMiniUpdated}
                 />
               </React.Fragment>
             ) : (
@@ -488,7 +505,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 planProduction={planProduction}
                 isPrinting={isPrinting}
               />
-              <Wrapper style={{width: availableWidth + leftPadding}}>
+              <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
                 {productionTable}
                 {padding}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>

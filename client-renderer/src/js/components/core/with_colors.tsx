@@ -21,6 +21,12 @@ export class WithColor extends React.Component<Props, State> {
     };
   }
 
+  public componentDidUpdate(nextProps: Props, nextState: State) {
+    if (this.props.children !== nextProps.children || this.props.color !== nextProps.color) {
+      this.handleColorsChanged();
+    }
+  }
+
   public componentDidMount(): void {
     colorsStore.addListener(this.handleColorsChanged);
   }

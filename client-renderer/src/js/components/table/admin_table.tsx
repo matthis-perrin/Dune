@@ -62,7 +62,7 @@ export class AdminTable<T extends {ref: string; sommeil: boolean}> extends React
               columns={columns}
               initialSort={{
                 index: 0,
-                asc: false,
+                asc: true,
               }}
               width={width}
               height={height - theme.table.footerHeight - theme.table.searchBarHeight}

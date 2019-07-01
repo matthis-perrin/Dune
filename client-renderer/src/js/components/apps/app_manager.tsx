@@ -105,7 +105,14 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.ViewBobineApp) {
-      return [bobinesFillesStore, clichesStore, stocksStore, colorsStore];
+      return [
+        bobinesFillesStore,
+        clichesStore,
+        stocksStore,
+        colorsStore,
+        bobinesQuantitiesStore,
+        cadencierStore,
+      ];
     }
     if (type === ClientAppType.ViewOperationApp) {
       return [];

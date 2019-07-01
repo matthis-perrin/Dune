@@ -77,7 +77,6 @@ export class ListBobinesFillesApp extends React.Component<Props, State> {
           REF_CLICHE1_COLUMN,
           REF_CLICHE2_COLUMN,
           STOCK_REEL_COLUMN(stocks),
-          STOCK_COMMANDE_COLUMN(stocks),
           STOCK_RESERVE_COLUMN(stocks),
           STOCK_TERME_COLUMN(stocks),
         ]}

@@ -12,6 +12,7 @@ import {
   ConstraintDescriptions,
 } from '@root/components/common/operation_constraint';
 import {RefLink} from '@root/components/common/ref_link';
+import {Input} from '@root/components/core/input';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {
@@ -22,6 +23,7 @@ import {
   getStock,
 } from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
+import {numberWithSeparator} from '@root/lib/utils';
 import {Colors} from '@root/theme';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
@@ -137,7 +139,7 @@ function renderString(value?: string): JSX.Element {
 }
 
 function renderNumber(value?: number): JSX.Element {
-  return <span>{value === undefined ? '-' : value}</span>;
+  return <span>{value === undefined ? '-' : numberWithSeparator(value)}</span>;
 }
 
 function renderDate(value?: number): JSX.Element {
@@ -493,7 +495,7 @@ export const LAIZE7_REFENTE_COLUMN: ColumnMetadata<{laize7?: number}, number> = 
 
 export const NOMBRE_POSES_COLUMN: ColumnMetadata<Cliche, Cliche> = {
   title: 'POSES',
-  width: 70,
+  width: 120,
   sortFunction: sortClichesPosesFunction,
   renderCell: (cliche: Cliche) => <span>{`[${getPoses(cliche).join(', ')}]`}</span>,
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
@@ -811,7 +813,7 @@ export const STOCK_STATE_COLUMN = (
   bobineQuantities: BobineQuantities[]
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'ETAT',
-  width: 170,
+  width: 152,
   renderCell: ({ref}) => {
     const {state, info} = getBobineState(ref, stocks, cadencier, bobineQuantities);
     return <BobineState state={state} info={info} />;
@@ -855,8 +857,8 @@ export const QUANTITY_TO_PRODUCE = (
 });
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
-  title: 'PRODUCTION',
-  width: 100,
+  title: 'PROD',
+  width: 60,
   renderCell: ({production}) => renderString(`+${production}`),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
@@ -877,7 +879,7 @@ export const STATE_ACTUEL_COLUMN: ColumnMetadata<
   number
 > = {
   title: 'ÉTAT ACTUEL',
-  width: 170,
+  width: 152,
   renderCell: ({state, info}) => <BobineState state={state} info={info} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
@@ -907,7 +909,7 @@ export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<
   number
 > = {
   title: 'ÉTAT PRÉVISIONNEL',
-  width: 170,
+  width: 152,
   renderCell: ({newState, newInfo}) => <BobineState state={newState} info={newInfo} />,
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
@@ -938,6 +940,24 @@ export function CLOSE_COLUMN<T>(onClose: (row: T) => void): ColumnMetadata<T, vo
       </CloseButton>
     ),
     justifyContent: 'flex-end',
+    shouldRerender: (row1, row2) => row1 !== row2,
+  };
+}
+
+export function MINIMUM_COLUMN<T extends {ref: string; minimum: number}>(
+  onMinimumUpdated: (ref: string, newMinimum: number) => void
+): ColumnMetadata<T, void> {
+  return {
+    title: 'MINI',
+    width: 50,
+    renderCell: row => (
+      <Input
+        style={{padding: 4, textAlign: 'center', height: 26, lineHeight: 26}}
+        value={row.minimum}
+        onChange={event => onMinimumUpdated(row.ref, parseFloat(event.target.value))}
+      />
+    ),
+    justifyContent: 'center',
     shouldRerender: (row1, row2) => row1 !== row2,
   };
 }

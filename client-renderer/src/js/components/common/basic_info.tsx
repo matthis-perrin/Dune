@@ -1,10 +1,13 @@
+import {omit} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {DivProps} from '@root/components/core/common';
+
 type AcceptableVlue = JSX.Element | string | undefined | number | boolean;
 
-interface Props {
-  data: {title: string; value: JSX.Element | string | undefined | number | boolean}[];
+interface Props extends DivProps {
+  data: {title: JSX.Element | string; value: JSX.Element | string | undefined | number | boolean}[];
 }
 
 export class BasicInfo extends React.Component<Props> {
@@ -22,12 +25,13 @@ export class BasicInfo extends React.Component<Props> {
 
   public render(): JSX.Element {
     const {data} = this.props;
+    const rest = omit(this.props, ['data']);
 
     return (
-      <table>
+      <table {...rest}>
         <tbody>
-          {data.map(({title, value}) => (
-            <tr key={title}>
+          {data.map(({title, value}, index) => (
+            <tr key={`line-${index}`}>
               <InfoHeader>{title}</InfoHeader>
               <InfoValue>{this.renderValue(value)}</InfoValue>
             </tr>

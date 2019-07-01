@@ -104,7 +104,7 @@ export const theme = {
     padding: 8,
     backgroundColor: Palette.White,
     disabledOpacity: 0.35,
-    minSizeForVariableColumns: 250,
+    minSizeForVariableColumns: 175,
 
     searchBarHeight: 42,
 
@@ -220,7 +220,7 @@ export const theme = {
   input: {
     height: 32,
     largeHeight: 32,
-    borderThickness: 3,
+    borderThickness: 1,
     borderColor: Colors.SecondaryDark,
     padding: '8px 12px',
     borderRadius: 6,

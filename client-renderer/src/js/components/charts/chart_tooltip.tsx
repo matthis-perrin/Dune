@@ -5,6 +5,8 @@ import styled from 'styled-components';
 
 import {theme} from '@root/theme';
 
+export const CHART_TOOLTIP_ID = 'chart_tooltip_id';
+
 export function createChartTooltip<T>(
   plot: Plottable.Plots.Bar<unknown, unknown>,
   tooltipWidth: number,
@@ -20,6 +22,7 @@ export function createChartTooltip<T>(
   tooltipContainer.style.pointerEvents = 'none';
   tooltipContainer.style.transform = 'translateY(-105%)';
   tooltipContainer.style.transition = 'top 100ms ease 0s, left 100ms ease 0s';
+  tooltipContainer.id = CHART_TOOLTIP_ID;
   document.body.appendChild(tooltipContainer);
   ReactDOM.render(<ChartTooltip ref={tooltipComponentRef} />, tooltipContainer);
 

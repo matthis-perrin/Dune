@@ -13,8 +13,9 @@ import {
   withWidth,
   CLOSE_COLUMN,
   BOBINE_FILLE_REF_COLUMN,
+  MINIMUM_COLUMN,
 } from '@root/components/table/columns';
-import {SortableTable} from '@root/components/table/sortable_table';
+import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
 import {getStockTerme, getBobineState} from '@root/lib/bobine';
 import {theme} from '@root/theme';
 
@@ -29,6 +30,8 @@ interface ProductionTableProps {
   bobineQuantities: BobineQuantities[];
   onRemove?(ref: string): void;
   canRemove: boolean;
+  minimums?: Map<string, number>;
+  onMiniUpdated?(ref: string, newMini: number): void;
 }
 
 export class ProductionTable extends React.Component<ProductionTableProps> {
@@ -43,6 +46,8 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       bobineQuantities,
       onRemove,
       canRemove,
+      onMiniUpdated,
+      minimums,
     } = this.props;
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
@@ -84,10 +89,12 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         newStock,
         newState: newBobineState.state,
         newInfo: newBobineState.info,
+        minimum: (minimums && minimums.get(bobine.ref)) || production,
       };
     });
 
-    let columns = [
+    // tslint:disable-next-line:no-any
+    const columns = [
       withWidth(toStaticColumn(BOBINE_FILLE_REF_COLUMN), undefined),
       toStaticColumn(LAIZE_COLUMN),
       toStaticColumn(PISTES_COLUMN),
@@ -95,16 +102,21 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       toStaticColumn(QUANTITY_COLUMN),
       toStaticColumn(STOCK_ACTUEL_COLUMN),
       toStaticColumn(PRODUCTION_COLUMN),
-      toStaticColumn(STOCK_PREVISIONEL_COLUMN),
-      toStaticColumn(STATE_PREVISIONEL_COLUMN),
     ];
+
+    if (minimums) {
+      columns.push(
+        MINIMUM_COLUMN<{ref: string; minimum: number}>((ref, newMinimum) => {
+          onMiniUpdated(ref, isNaN(newMinimum) ? 0 : newMinimum);
+        })
+      );
+    }
+
+    columns.push(toStaticColumn(STOCK_PREVISIONEL_COLUMN));
+    columns.push(toStaticColumn(STATE_PREVISIONEL_COLUMN));
 
     if (canRemove) {
       columns.push(CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)));
-    }
-
-    if (!onRemove) {
-      columns = columns.slice(0, columns.length - 1);
     }
 
     return (

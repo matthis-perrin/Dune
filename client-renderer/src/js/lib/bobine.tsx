@@ -1,6 +1,7 @@
-import {sum} from 'lodash-es';
+import {sum, min} from 'lodash-es';
 
 import {ButtonMode} from '@root/components/core/button';
+import {numberWithSeparator} from '@root/lib/utils';
 
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
@@ -67,6 +68,29 @@ export function getBobineSellingPastYear(cadencier?: Map<number, number>): numbe
   return total;
 }
 
+export function getBobineTotalSell(
+  bobineRef: string,
+  cadencier: Map<string, Map<number, number>>
+): {total: number; monthRange: number} {
+  const sell = cadencier.get(bobineRef) || [];
+  const months = Array.from(sell.keys());
+  const values = Array.from(sell.values());
+
+  if (months.length === 0) {
+    return {total: 0, monthRange: 0};
+  }
+
+  const firstMonth = new Date(min(months) || 0);
+  const lastMonth = new Date();
+  const firstMonthIndex = firstMonth.getFullYear() * 12 + firstMonth.getMonth();
+  const lastMonthIndex = lastMonth.getFullYear() * 12 + lastMonth.getMonth();
+
+  const monthRange = lastMonthIndex - firstMonthIndex + 1;
+  const total = sum(values);
+
+  return {total, monthRange};
+}
+
 function getDistanceToQuantityRange(value: number, quantity: BobineQuantities): number {
   if (value < quantity.soldMin) {
     return quantity.soldMin - value;
@@ -124,7 +148,7 @@ export function getBobineState(
       quantity,
       yearSell: lastYearSelling,
       stock: currentStock,
-      info: `${currentStock - averageSellingByMonth}`,
+      info: `${numberWithSeparator(currentStock - averageSellingByMonth)}`,
       infoValue: currentStock - averageSellingByMonth,
     };
   }
@@ -134,7 +158,7 @@ export function getBobineState(
       quantity,
       yearSell: lastYearSelling,
       stock: currentStock,
-      info: `+${currentStock - lastYearSelling}`,
+      info: `+${numberWithSeparator(currentStock - lastYearSelling)}`,
       infoValue: currentStock - lastYearSelling,
     };
   }
@@ -144,7 +168,7 @@ export function getBobineState(
       quantity,
       yearSell: lastYearSelling,
       stock: currentStock,
-      info: `${currentStock - threshold}`,
+      info: `${numberWithSeparator(currentStock - threshold)}`,
       infoValue: currentStock - threshold,
     };
   }
@@ -199,7 +223,7 @@ export function getBobinePoseState(
         return {
           pose,
           mode: ButtonMode.Neutral,
-          reason: `Le nombre de tour sera ajustée pour produire un multiple de ${quantity}`,
+          reason: `Le nombre de tours sera ajusté pour produire ${quantity} bobines`,
         };
       }
       if (state === BobineState.Surstock) {

@@ -3,10 +3,11 @@ import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {createChartTooltip} from '@root/components/charts/chart_tooltip';
+import {createChartTooltip, CHART_TOOLTIP_ID} from '@root/components/charts/chart_tooltip';
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
+import {numberWithSeparator} from '@root/lib/utils';
 import {colorsStore} from '@root/stores/data_store';
 import {theme} from '@root/theme';
 
@@ -47,12 +48,12 @@ export class BobineCadencierChart extends React.Component<
   }
 
   public componentDidMount(): void {
+    colorsStore.addListener(this.handleColorsChanged);
     window.addEventListener('resize', this.handleResize);
     const {bobine} = this.props;
     if (!bobine) {
       return;
     }
-    colorsStore.addListener(this.handleColorsChanged);
   }
 
   public componentWillUnmount(): void {
@@ -145,6 +146,7 @@ export class BobineCadencierChart extends React.Component<
       ['BLANC', 'IVOIRE'].indexOf(color.name) !== -1
         ? theme.cadencier.whiteBobineBarColor
         : color.backgroundHex;
+
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
       .x((d: VenteDatum) => d.time, xScale)
@@ -168,6 +170,10 @@ export class BobineCadencierChart extends React.Component<
     this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
 
     // Tooltips
+    const tooltip = document.getElementById(CHART_TOOLTIP_ID);
+    if (tooltip) {
+      tooltip.remove();
+    }
     createChartTooltip<VenteDatum>(bars, theme.cadencier.tooltipWidth, datum => {
       const monthStr = MONTHS_STRING[datum.time.getMonth()];
       const dateStr = `${monthStr} ${datum.time.getFullYear()}`;
@@ -177,9 +183,9 @@ export class BobineCadencierChart extends React.Component<
         <div>
           {dateStr}
           <br />
-          {`${factures.length} factures comptabilisées`}
+          {`${numberWithSeparator(factures.length)} factures comptabilisées`}
           <br />
-          {`Total : ${facturesSum}`}
+          {`Total : ${numberWithSeparator(facturesSum)}`}
         </div>
       );
     });
@@ -195,6 +201,7 @@ export class BobineCadencierChart extends React.Component<
 
     // Rendering
     this.setDisplayMode(DisplayMode.LOADED);
+    chartElement.innerHTML = '';
     this.plot.renderTo(chartElement);
   };
 
