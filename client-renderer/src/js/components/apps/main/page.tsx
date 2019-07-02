@@ -27,7 +27,7 @@ const PageWrapper = styled.div`
   bottom: 0;
   right: 0;
   overflow-y: auto;
-  padding: ${theme.page.padding}px ${theme.page.padding}px 0 ${theme.page.padding}px;
+  padding: ${theme.page.padding}px;
   background: ${theme.page.backgroundColor};
 `;
 

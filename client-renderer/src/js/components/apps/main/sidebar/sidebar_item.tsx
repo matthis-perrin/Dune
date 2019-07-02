@@ -10,7 +10,7 @@ interface Props {
 }
 
 export class SidebarItem extends React.Component<Props, {}> {
-  public static displayName = 'Sidebar';
+  public static displayName = 'SidebarItem';
 
   public render(): JSX.Element {
     const {title, onClick} = this.props;

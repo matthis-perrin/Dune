@@ -24,3 +24,14 @@ export function formatMonthCount(monthCount: number): string {
 export function numberWithSeparator(value: number): string {
   return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
+
+const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+// Monday = 0
+export function getDayOfWeek(date: Date): number {
+  return DayOfWeek.indexOf(date.toLocaleString('fr-FR', {weekday: 'long'}));
+}
+
+export function isWeekDay(date: Date): boolean {
+  const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
+  return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
+}

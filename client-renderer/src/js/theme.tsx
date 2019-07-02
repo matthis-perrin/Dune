@@ -247,4 +247,13 @@ export const theme = {
     mediumSize: 32,
     smallSize: 16,
   },
+  calendar: {
+    dayBackgroundColor: Palette.Clouds,
+    dayBorderColor: Colors.SecondaryDark,
+    dayCircleSize: 32,
+    dayCircleBackgroundColor: Colors.SecondaryDark,
+    dayCircleTextColor: Colors.TextOnSecondary,
+    dayCircleFontSize: 14,
+    dayCircleFontWeight: FontWeight.SemiBold,
+  },
 };
