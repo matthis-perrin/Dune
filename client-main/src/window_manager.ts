@@ -15,7 +15,9 @@ interface WindowOptions {
   // Size of the window in pixels, if not specified, the window will be opened fullscreen
   size: {
     width?: number;
+    minWidth?: number;
     height?: number;
+    minHeight?: number;
   };
 }
 
@@ -182,7 +184,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1250}};
+      return {id: 'plan-production-editor-app', size: {width: 1250, minWidth: 1050}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
       return {id: 'bobines-picker-app', size: {width: 1550, height: 800}};
@@ -231,10 +233,12 @@ class WindowManager {
 
     // Create the BrowserWindow, hidden at first.
     const defaultSize = this.getDefaultSize();
-    const {width = defaultSize.width, height = defaultSize.height} = size;
+    const {width = defaultSize.width, height = defaultSize.height, minWidth, minHeight} = size;
     const newBrowserWindow = createBrowserWindow({
       width,
       height,
+      minWidth,
+      minHeight,
       show: false,
       // skipTaskbar: id !== MAIN_APP_ID,
     });

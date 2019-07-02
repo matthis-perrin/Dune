@@ -40,7 +40,7 @@ import {
   BobineQuantities,
 } from '@shared/models';
 
-const MAX_PLAN_PROD_WIDTH = 940;
+const MAX_PLAN_PROD_WIDTH = 900;
 const INITIAL_SPEED = 180;
 
 const WIDTH_WHEN_RENDERING_PDF = 578;
@@ -348,7 +348,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             leftPadding -
             (hasVerticalScrollbar ? 0 : SCROLLBAR_WIDTH);
 
-          const adjustedAvailableWidth = Math.min(MAX_PLAN_PROD_WIDTH, availableWidth);
+          const adjustedAvailableWidth = isPrinting
+            ? availableWidth
+            : Math.min(MAX_PLAN_PROD_WIDTH, availableWidth);
           const pixelPerMM = adjustedAvailableWidth / CAPACITE_MACHINE;
 
           const bobinesBlock = (
@@ -469,8 +471,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           const halfPadding = (
             <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
           );
-
-          console.log(bobinesMinimums);
 
           const productionTable =
             planProduction.selectedBobines.length > 0 && stocks && cadencier && bobineQuantities ? (
