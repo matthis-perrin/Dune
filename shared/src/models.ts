@@ -178,6 +178,44 @@ export interface PlanProductionState {
   calculationTime: number;
 }
 
+interface PlanProductionBase {
+  id: number;
+  sommeil: boolean;
+  localUpdate: number;
+}
+
+export interface PlanProductionRaw extends PlanProductionBase {
+  data: string;
+}
+
+export enum PlanProductionStatus {
+  DONE = 1,
+  IN_PROGRESS = 2,
+  PLANNED = 3,
+}
+
+export interface PlanProductionData {
+  day: number;
+  indexInDay: number;
+  isBeginningOfDay: boolean;
+
+  polypro: BobineMere;
+  papier: BobineMere;
+  perfo: Perfo;
+  refente: Refente;
+  bobines: BobineFilleWithPose[];
+  encriers: EncrierColor[];
+  allEncriers: EncrierColor[][];
+
+  tourCount: number;
+  speed: number;
+  status: PlanProductionStatus;
+}
+
+export interface PlanProduction extends PlanProductionBase {
+  data: PlanProductionData;
+}
+
 export interface Operation {
   ref: string;
   description: string;
@@ -253,20 +291,4 @@ export enum ClientAppType {
   PerfoPickerApp = 'PerfoPickerApp',
   PapierPickerApp = 'PapierPickerApp',
   PolyproPickerApp = 'PolyproPickerApp',
-}
-
-interface PlanProductionBase {
-  id: number;
-  sommeil: boolean;
-  localUpdate: number;
-}
-
-export interface PlanProductionRaw extends PlanProductionBase {
-  data: string;
-}
-
-export interface PlanProductionData {}
-
-export interface PlanProduction extends PlanProductionBase {
-  data: PlanProductionData;
 }
