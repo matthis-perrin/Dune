@@ -42,17 +42,7 @@ import {
 
 const MAX_PLAN_PROD_WIDTH = 900;
 const INITIAL_SPEED = 180;
-
-const WIDTH_WHEN_RENDERING_PDF = 578;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
-const WIDTH_WHEN_PRINTING = 521;
-const ADJUSTED_WIDTH_WHEN_PRINTING = 1000;
-const printingWidths = new Map<number, number>([
-  [WIDTH_WHEN_RENDERING_PDF, ADJUSTED_WIDTH_WHEN_RENDERING_PDF],
-  [WIDTH_WHEN_PRINTING, ADJUSTED_WIDTH_WHEN_PRINTING],
-  [WIDTH_WHEN_RENDERING_PDF, ADJUSTED_WIDTH_WHEN_RENDERING_PDF],
-  [WIDTH_WHEN_PRINTING, ADJUSTED_WIDTH_WHEN_PRINTING],
-]);
 
 interface Props {}
 
@@ -339,7 +329,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           // Padding for the extra space taken by the bobine offset
           const leftPadding =
             (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
-          const printingWidth = printingWidths.get(width);
+          const printingWidth = width < 1000 ? ADJUSTED_WIDTH_WHEN_RENDERING_PDF : undefined;
           const isPrinting = printingWidth !== undefined;
           const adjustedWidthForPrinting = printingWidth ? printingWidth : width;
           const availableWidth =

@@ -88,7 +88,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const SCROLLBAR_WIDTH = 17;
     const variableWidthCount = this.getVariableColumnWidthCount();
     const spaceLeftForVariables =
-      width - this.getFixedColumnsWidthSum() - this.props.data.length < 10 ? 0 : SCROLLBAR_WIDTH;
+      width - this.getFixedColumnsWidthSum() - (shouldAssumeScrollbar ? SCROLLBAR_WIDTH : 0);
 
     if (col.width === undefined) {
       return spaceLeftForVariables / variableWidthCount;
@@ -138,6 +138,8 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const columnWidths = range(columnCount).map(index =>
       this.getColumnWidth(index, adjustedWidth, shouldAssumeScrollbar)
     );
+
+    console.log(width, columnWidths, columnWidths.reduce((acc, curr) => acc + curr, 0));
 
     let scrollOffset = 0;
     if (this.tableContainerRef.current) {
