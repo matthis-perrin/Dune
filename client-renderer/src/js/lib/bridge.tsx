@@ -34,6 +34,7 @@ import {
   ListColors,
   SaveToPDF,
   Print,
+  ListPlansProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -50,6 +51,7 @@ import {
   Cadencier,
   BobineQuantities,
   Color,
+  PlanProductionRaw,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -114,6 +116,11 @@ class Bridge {
   }
   public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
     return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
+  }
+  public async listPlansProduction(
+    localUpdate: number
+  ): Promise<BridgeListResponse<PlanProductionRaw>> {
+    return this.listGeneric<PlanProductionRaw>(ListPlansProduction, localUpdate);
   }
   public async listCadencierForBobine(bobineRef: string): Promise<Vente[]> {
     return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine, {bobineRef});

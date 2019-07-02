@@ -11,8 +11,11 @@ import {
   Operation,
   BobineFilleWithMultiPose,
   Cadencier,
+  PlanProduction,
+  PlanProductionData,
 } from '@shared/models';
 import {BaseStore} from '@shared/store';
+import {removeUndefined} from '@shared/type_utils';
 
 export abstract class ListStore<T extends {localUpdate: number}> extends BaseStore {
   protected data?: T[] = undefined;
@@ -190,6 +193,36 @@ class OperationsStore extends ListStore<Operation> {
   }
 }
 export const operationsStore = new OperationsStore();
+
+class PlansProductionStore extends ListStore<PlanProduction> {
+  public async fetch(): Promise<BridgeListResponse<PlanProduction>> {
+    const raw = await bridge.listPlansProduction(this.getLastUpdate());
+    const parsePlanProdData = (data: string): PlanProductionData | undefined => {
+      try {
+        return JSON.parse(data) as PlanProductionData;
+      } catch {
+        return undefined;
+      }
+    };
+    const result = {
+      ...raw,
+      data: removeUndefined(
+        raw.data.map(planProd => {
+          const data = parsePlanProdData(planProd.data);
+          if (!data) {
+            return undefined;
+          }
+          return {...planProd, data};
+        })
+      ),
+    };
+    return result;
+  }
+  public getId(element: PlanProduction): string {
+    return element.id.toString();
+  }
+}
+export const plansProductionStore = new PlansProductionStore();
 
 class BobinesFillesWithMultiPoseStore extends ListStore<BobineFilleWithMultiPose> {
   constructor(

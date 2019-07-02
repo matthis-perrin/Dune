@@ -254,3 +254,19 @@ export enum ClientAppType {
   PapierPickerApp = 'PapierPickerApp',
   PolyproPickerApp = 'PolyproPickerApp',
 }
+
+interface PlanProductionBase {
+  id: number;
+  sommeil: boolean;
+  localUpdate: number;
+}
+
+export interface PlanProductionRaw extends PlanProductionBase {
+  data: string;
+}
+
+export interface PlanProductionData {}
+
+export interface PlanProduction extends PlanProductionBase {
+  data: PlanProductionData;
+}

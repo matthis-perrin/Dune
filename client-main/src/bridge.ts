@@ -34,6 +34,7 @@ import {
   SetPlanTourCount,
   ListColors,
   SaveToPDF,
+  ListPlansProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -42,6 +43,7 @@ import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
+import {listPlansProduction} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType} from '@shared/models';
@@ -77,6 +79,10 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   if (command === ListCadencier) {
     const {localUpdate} = asMap(params);
     return {data: cadencier.list(asNumber(localUpdate, 0))};
+  }
+  if (command === ListPlansProduction) {
+    const {localUpdate} = asMap(params);
+    return {data: await listPlansProduction(db, asNumber(localUpdate, 0))};
   }
   if (command === ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
