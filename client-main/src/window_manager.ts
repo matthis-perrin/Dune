@@ -28,6 +28,20 @@ interface WindowInfo {
 }
 
 const MAIN_APP_ID = 'main-app';
+const PLAN_PROD_EDITOR_APP_ID = 'plan-production-editor-app';
+const BOBINES_PICKER_APP_ID = 'bobines-picker-app';
+const REFENTE_PICKER_APP_ID = 'refente-picker-app';
+const PERFO_PICKER_APP_ID = 'perfo-picker-app';
+const PAPIER_PICKER_APP_ID = 'papier-picker-app';
+const POLYPRO_PICKER_APP_ID = 'polypro-picker-app';
+
+const PICKER_APP_IDS = [
+  BOBINES_PICKER_APP_ID,
+  REFENTE_PICKER_APP_ID,
+  PERFO_PICKER_APP_ID,
+  PAPIER_PICKER_APP_ID,
+  POLYPRO_PICKER_APP_ID,
+];
 
 class WindowManager {
   private readonly windows = new Map<string, WindowInfo>();
@@ -40,8 +54,10 @@ class WindowManager {
     const windowInfo = await this.openOrForegroundWindow(appInfo);
     windowInfo.browserWindow.on('close', () => {
       // Close all the other windows before closing the main window
-      if (appInfo.type === ClientAppType.MainApp) {
+      if (windowInfo.id === MAIN_APP_ID) {
         this.closeAllNoneMainWindows();
+      } else if (windowInfo.id === PLAN_PROD_EDITOR_APP_ID) {
+        PICKER_APP_IDS.forEach(id => this.closeWindow(id));
       }
       this.windows.delete(windowInfo.id);
     });
@@ -184,22 +200,22 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
-      return {id: 'plan-production-editor-app', size: {width: 1250, minWidth: 1050}};
+      return {id: PLAN_PROD_EDITOR_APP_ID, size: {width: 1250, minWidth: 1050}};
     }
     if (appInfo.type === ClientAppType.BobinesPickerApp) {
-      return {id: 'bobines-picker-app', size: {width: 1550, height: 800}};
+      return {id: BOBINES_PICKER_APP_ID, size: {width: 1550, height: 800}};
     }
     if (appInfo.type === ClientAppType.RefentePickerApp) {
-      return {id: 'refente-picker-app', size: {width: 700, height: 800}};
+      return {id: REFENTE_PICKER_APP_ID, size: {width: 700, height: 800}};
     }
     if (appInfo.type === ClientAppType.PerfoPickerApp) {
-      return {id: 'perfo-picker-app', size: {width: 1150, height: 750}};
+      return {id: PERFO_PICKER_APP_ID, size: {width: 1150, height: 750}};
     }
     if (appInfo.type === ClientAppType.PapierPickerApp) {
-      return {id: 'papier-picker-app', size: {width: 1000, height: 800}};
+      return {id: PAPIER_PICKER_APP_ID, size: {width: 1000, height: 800}};
     }
     if (appInfo.type === ClientAppType.PolyproPickerApp) {
-      return {id: 'polypro-picker-app', size: {width: 1000, height: 450}};
+      return {id: POLYPRO_PICKER_APP_ID, size: {width: 1000, height: 450}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
