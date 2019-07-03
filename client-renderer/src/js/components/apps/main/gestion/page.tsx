@@ -2,12 +2,13 @@ import * as React from 'react';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
+import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {Page} from '@root/components/apps/main/page';
 import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
 import {plansProductionStore} from '@root/stores/list_store';
 
-import {ClientAppType, PlanProduction} from '@shared/models';
+import {ClientAppType, PlanProduction, PlanProductionData} from '@shared/models';
 
 interface Props {}
 
@@ -15,6 +16,7 @@ interface State {
   plansProduction?: Map<number, PlanProduction[]>;
   month: number;
   year: number;
+  preview?: PlanProductionData;
 }
 
 export class GestionPage extends React.Component<Props, State> {
@@ -72,7 +74,7 @@ export class GestionPage extends React.Component<Props, State> {
     return (
       <div>
         {planForDay.map(p => (
-          <PlanProdTile data={p.data} />
+          <PlanProdTile data={p.data} onMouseEnter={() => this.setState({preview: p.data})} />
         ))}
       </div>
     );
@@ -82,7 +84,6 @@ export class GestionPage extends React.Component<Props, State> {
     const {month, year} = this.state;
     return (
       <Page>
-        {/* <Button onClick={this.handleNewPlanProdClick}>Nouveau plan de production</Button> */}
         <Calendar
           month={month}
           year={year}
@@ -91,6 +92,14 @@ export class GestionPage extends React.Component<Props, State> {
         >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>
+        <Button style={{margin: '16px 0'}} onClick={this.handleNewPlanProdClick}>
+          Nouveau plan de production
+        </Button>
+        {this.state.preview ? (
+          <PlanProdViewer planProd={this.state.preview} width={1000} />
+        ) : (
+          <React.Fragment />
+        )}
       </Page>
     );
   }

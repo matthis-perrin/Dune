@@ -8,6 +8,7 @@ import {
   stocksStore,
   operationsStore,
   plansProductionStore,
+  cadencierStore,
 } from '@root/stores/list_store';
 
 export interface Refreshable {
@@ -27,6 +28,7 @@ export class StoreManager {
     bobinesQuantitiesStore,
     colorsStore,
     plansProductionStore,
+    cadencierStore,
   ];
 
   constructor(private readonly stores: Refreshable[]) {}

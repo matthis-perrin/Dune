@@ -23,6 +23,7 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState, getStockTerme, getStockReel} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {computePlanProdRef} from '@root/lib/plan_prod';
 import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
@@ -38,6 +39,8 @@ import {
   BobineState,
   Stock,
   BobineQuantities,
+  PlanProductionData,
+  PlanProductionStatus,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 900;
@@ -94,17 +97,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobineQuantities: bobinesQuantitiesStore.getData(),
     });
   };
-
-  private computePlanProdRef(planProduction: PlanProductionState): string {
-    const date = new Date(planProduction.day);
-    const fullYearStr = date.getFullYear().toString();
-    const lastTwoDigitYear = fullYearStr.slice(2, fullYearStr.length);
-    const month = padNumber(date.getMonth() + 1, 2);
-    const day = padNumber(date.getDate(), 2);
-    const index = planProduction.indexInDay + 1;
-    const planProdRef = `${lastTwoDigitYear}${month}${day}_${index}`;
-    return planProdRef;
-  }
 
   private computeTourCount(newPlanProduction: PlanProductionState): number | undefined {
     const {tourCount, selectedBobines} = newPlanProduction;
@@ -195,6 +187,84 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   private readonly handleSpeedChange = (speed: number): void => {
     this.setState({speed});
   };
+
+  private readonly handleDownload = (): void => {
+    const {planProduction} = this.state;
+    if (!planProduction) {
+      return;
+    }
+    const {day, indexInDay} = planProduction;
+    bridge.saveToPDF(`plan_prod_${computePlanProdRef(day, indexInDay)}.pdf`).catch(console.error);
+  };
+
+  private readonly handleSave = (): void => {
+    const {planProduction, bobinesMinimums, reorderedEncriers, speed} = this.state;
+    if (!planProduction) {
+      return;
+    }
+    const {
+      couleursEncrier,
+      selectedBobines,
+      selectedPapier,
+      selectedPerfo,
+      selectedPolypro,
+      selectedRefente,
+      day,
+      indexInDay,
+      tourCount,
+    } = planProduction;
+
+    if (
+      selectedPolypro === undefined ||
+      selectedPapier === undefined ||
+      selectedPerfo === undefined ||
+      selectedRefente === undefined ||
+      tourCount === undefined
+    ) {
+      return;
+    }
+
+    const data: PlanProductionData = {
+      day,
+      indexInDay,
+      isBeginningOfDay: false,
+
+      polypro: selectedPolypro,
+      papier: selectedPapier,
+      perfo: selectedPerfo,
+      refente: selectedRefente,
+      bobines: selectedBobines,
+      bobinesMini: Array.from(bobinesMinimums.entries()),
+      encriers: reorderedEncriers || couleursEncrier[0],
+
+      tourCount,
+      speed,
+      status: PlanProductionStatus.PLANNED,
+    };
+
+    const serializedData = JSON.stringify(data);
+    bridge
+      .savePlanProduction(undefined, serializedData)
+      .then(() => bridge.closeApp())
+      .catch(console.error);
+  };
+
+  private isComplete(): boolean {
+    const {planProduction, speed} = this.state;
+    if (!planProduction) {
+      return false;
+    }
+    return (
+      planProduction.tourCount !== undefined &&
+      planProduction.tourCount > 0 &&
+      speed > 0 &&
+      planProduction.selectablePapiers.length === 0 &&
+      planProduction.selectableBobines.length === 0 &&
+      planProduction.selectablePerfos.length === 0 &&
+      planProduction.selectablePolypros.length === 0 &&
+      planProduction.selectableRefentes.length === 0
+    );
+  }
 
   private removeRefente(): void {
     bridge.setPlanRefente(undefined).catch(console.error);
@@ -481,19 +551,23 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment />
             );
 
-          const planProductionRef = this.computePlanProdRef(planProduction);
+          const planProductionRef = computePlanProdRef(
+            planProduction.day,
+            planProduction.indexInDay
+          );
 
           return (
             <PlanProdEditorContainer>
               <TopBar
+                planProdRef={planProductionRef}
+                bobines={planProduction.selectedBobines}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
                 onSpeedChange={this.handleSpeedChange}
-                planProdRef={planProductionRef}
-                planProduction={planProduction}
-                bobinesMinimums={bobinesMinimums}
-                reorderedEncriers={reorderedEncriers}
+                onSave={this.handleSave}
+                onDownload={this.handleDownload}
+                isComplete={this.isComplete()}
                 isPrinting={isPrinting}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
@@ -523,7 +597,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 const PlanProdEditorContainer = styled.div`
   width: 100%;
   margin: auto;
-  padding-top: ${theme.planProd.topBarHeight}px;
   background-color: ${theme.planProd.contentBackgroundColor};
 `;
 

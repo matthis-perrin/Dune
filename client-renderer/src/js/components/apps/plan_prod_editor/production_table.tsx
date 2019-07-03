@@ -24,7 +24,7 @@ import {Stock, BobineQuantities, PlanProductionState, BobineFilleWithPose} from 
 
 interface ProductionTableProps {
   width: number;
-  planProduction: PlanProductionState;
+  planProduction: Pick<PlanProductionState, 'selectedBobines' | 'tourCount'>;
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
