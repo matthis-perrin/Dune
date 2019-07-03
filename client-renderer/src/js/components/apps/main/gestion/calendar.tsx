@@ -1,20 +1,23 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {SVGIcon} from '@root/components/core/svg_icon';
 import {getDayOfWeek, isWeekDay} from '@root/lib/utils';
 import {theme} from '@root/theme';
-
-interface Props {
-  month: number;
-  year: number;
-  children(date: Date): JSX.Element;
-}
 
 const MONTH_IN_YEAR = 12;
 const DAY_IN_WEEK = 7;
 const DAY_IN_WORK_WEEK = 5;
 
-export class Calendar extends React.Component<Props, {}> {
+interface CalendarProps {
+  month: number;
+  year: number;
+  children(date: Date): JSX.Element;
+  onPreviousClick(): void;
+  onNextClick(): void;
+}
+
+export class Calendar extends React.Component<CalendarProps, {}> {
   public static displayName = 'Calendar';
 
   private getDates(): Date[] {
@@ -47,18 +50,47 @@ export class Calendar extends React.Component<Props, {}> {
     const weeks: Date[][] = [];
     while (dates.length > 0) {
       const week = dates.slice(0, DAY_IN_WORK_WEEK);
-      weeks.push(week);
+      if (
+        week[0].getMonth() === this.props.month ||
+        week[week.length - 1].getMonth() === this.props.month
+      ) {
+        weeks.push(week);
+      }
       dates = dates.slice(DAY_IN_WORK_WEEK, dates.length);
     }
     return weeks;
   }
 
   public render(): JSX.Element {
-    const {children} = this.props;
+    const {children, year, month, onPreviousClick, onNextClick} = this.props;
+    const weeks = this.getWeeks();
+    const firstWeek = weeks[0] || [];
     return (
       <CalendarTable>
+        <CalendarHeader>
+          <tr>
+            <td colSpan={firstWeek.length}>
+              <MonthYear>
+                <SVGIcon name="caret-left" width={12} height={12} onClick={onPreviousClick} />
+                <CalendarHeaderValue>
+                  {new Date(year, month).toLocaleString('fr-FR', {month: 'long', year: 'numeric'})}
+                </CalendarHeaderValue>
+                <SVGIcon name="caret-right" width={12} height={12} onClick={onNextClick} />
+              </MonthYear>
+            </td>
+          </tr>
+          <tr>
+            {firstWeek.map(date => (
+              <td>
+                <CalendarHeaderValue>
+                  {date.toLocaleString('fr-FR', {weekday: 'long'})}
+                </CalendarHeaderValue>
+              </td>
+            ))}
+          </tr>
+        </CalendarHeader>
         <tbody>
-          {this.getWeeks().map(week => (
+          {weeks.map(week => (
             <tr>
               {week.map(date => (
                 <CalendarCell>
@@ -80,6 +112,29 @@ const CalendarTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+`;
+
+const CalendarHeader = styled.thead`
+  background-color: ${theme.calendar.headerBackgroundColor};
+  color: ${theme.calendar.headerTextColor};
+`;
+
+const MonthYear = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 23px;
+  & > svg {
+    fill: ${theme.calendar.headerTextColor};
+    padding: 8px;
+    cursor: pointer;
+  }
+`;
+
+const CalendarHeaderValue = styled.div`
+  text-transform: capitalize;
+  text-align: center;
+  padding: 4px 0;
 `;
 
 const CalendarCell = styled.td`

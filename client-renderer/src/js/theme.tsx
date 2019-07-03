@@ -248,6 +248,8 @@ export const theme = {
     smallSize: 16,
   },
   calendar: {
+    headerBackgroundColor: Colors.SecondaryDark,
+    headerTextColor: Colors.TextOnSecondary,
     dayBackgroundColor: Palette.Clouds,
     dayBorderColor: Colors.SecondaryDark,
     dayCircleSize: 32,

@@ -13,6 +13,8 @@ interface Props {}
 
 interface State {
   plansProduction?: Map<number, PlanProduction[]>;
+  month: number;
+  year: number;
 }
 
 export class GestionPage extends React.Component<Props, State> {
@@ -20,7 +22,10 @@ export class GestionPage extends React.Component<Props, State> {
 
   public constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {
+      month: new Date().getMonth(),
+      year: new Date().getFullYear(),
+    };
   }
 
   public componentDidMount(): void {
@@ -35,6 +40,14 @@ export class GestionPage extends React.Component<Props, State> {
     this.setState({
       plansProduction: plansProductionStore.getIndex(),
     });
+  };
+
+  private readonly goToNextMonth = (): void => {
+    this.setState({month: this.state.month + 1});
+  };
+
+  private readonly goToPreviousMonth = (): void => {
+    this.setState({month: this.state.month - 1});
   };
 
   private readonly handleNewPlanProdClick = () => {
@@ -60,10 +73,16 @@ export class GestionPage extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
+    const {month, year} = this.state;
     return (
       <Page>
         {/* <Button onClick={this.handleNewPlanProdClick}>Nouveau plan de production</Button> */}
-        <Calendar month={new Date().getMonth()} year={new Date().getFullYear()}>
+        <Calendar
+          month={month}
+          year={year}
+          onNextClick={this.goToNextMonth}
+          onPreviousClick={this.goToPreviousMonth}
+        >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>
       </Page>
