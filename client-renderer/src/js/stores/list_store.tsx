@@ -228,6 +228,9 @@ class PlansProductionStore extends ListStore<PlanProduction> {
     }
     const byDay = new Map<number, PlanProduction[]>();
     plans.forEach(p => {
+      if (p.sommeil) {
+        return;
+      }
       const date = new Date(p.data.day);
       date.setHours(0);
       date.setMinutes(0);

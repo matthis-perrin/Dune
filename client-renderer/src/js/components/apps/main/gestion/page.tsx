@@ -1,7 +1,7 @@
-import {range} from 'lodash-es';
 import * as React from 'react';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
+import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
@@ -53,7 +53,7 @@ export class GestionPage extends React.Component<Props, State> {
     return (
       <div>
         {planForDay.map(p => (
-          <div>{`${p.data.refente.ref}`}</div>
+          <PlanProdTile data={p.data} />
         ))}
       </div>
     );

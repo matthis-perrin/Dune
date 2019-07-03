@@ -521,7 +521,7 @@ export const MULTI_POSE_COLUMN = (
 ): ColumnMetadata<BobineFilleWithMultiPose, string> => {
   return {
     title: 'POSES',
-    width: 165,
+    width: 180,
     renderCell: bobine => (
       <AddPoseButtons
         bobine={bobine}
