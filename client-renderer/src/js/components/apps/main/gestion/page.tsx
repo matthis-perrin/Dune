@@ -43,11 +43,17 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private readonly goToNextMonth = (): void => {
-    this.setState({month: this.state.month + 1});
+    const {year, month} = this.state;
+    const newYear = month === 11 ? year + 1 : year;
+    const newMonth = month === 11 ? 0 : month + 1;
+    this.setState({year: newYear, month: newMonth});
   };
 
   private readonly goToPreviousMonth = (): void => {
-    this.setState({month: this.state.month - 1});
+    const {year, month} = this.state;
+    const newYear = month === 0 ? year - 1 : year;
+    const newMonth = month === 0 ? 11 : month - 1;
+    this.setState({year: newYear, month: newMonth});
   };
 
   private readonly handleNewPlanProdClick = () => {

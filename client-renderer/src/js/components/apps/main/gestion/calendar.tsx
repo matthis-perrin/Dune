@@ -71,11 +71,15 @@ export class Calendar extends React.Component<CalendarProps, {}> {
           <tr>
             <td colSpan={firstWeek.length}>
               <MonthYear>
-                <SVGIcon name="caret-left" width={12} height={12} onClick={onPreviousClick} />
+                <div onClick={onPreviousClick}>
+                  <SVGIcon name="caret-left" width={12} height={12} />
+                </div>
                 <CalendarHeaderValue>
                   {new Date(year, month).toLocaleString('fr-FR', {month: 'long', year: 'numeric'})}
                 </CalendarHeaderValue>
-                <SVGIcon name="caret-right" width={12} height={12} onClick={onNextClick} />
+                <div onClick={onNextClick}>
+                  <SVGIcon name="caret-right" width={12} height={12} />
+                </div>
               </MonthYear>
             </td>
           </tr>
@@ -117,6 +121,7 @@ const CalendarTable = styled.table`
 const CalendarHeader = styled.thead`
   background-color: ${theme.calendar.headerBackgroundColor};
   color: ${theme.calendar.headerTextColor};
+  user-select: none;
 `;
 
 const MonthYear = styled.div`
@@ -124,7 +129,7 @@ const MonthYear = styled.div`
   align-items: center;
   justify-content: space-between;
   font-size: 23px;
-  & > svg {
+  svg {
     fill: ${theme.calendar.headerTextColor};
     padding: 8px;
     cursor: pointer;
