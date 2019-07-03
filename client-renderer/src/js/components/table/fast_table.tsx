@@ -139,8 +139,6 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       this.getColumnWidth(index, adjustedWidth, shouldAssumeScrollbar)
     );
 
-    console.log(width, columnWidths, columnWidths.reduce((acc, curr) => acc + curr, 0));
-
     let scrollOffset = 0;
     if (this.tableContainerRef.current) {
       scrollOffset = this.tableContainerRef.current.scrollTop;

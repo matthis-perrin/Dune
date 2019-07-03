@@ -16,7 +16,7 @@ export class TopBottom extends React.Component<TopBottomProps> {
 
   public render(): JSX.Element {
     const {top, bottom} = this.props;
-    const rest = omit(this.props, ['top', 'bottom']);
+    const rest = omit(this.props, ['top', 'bottom', 'ref']);
     return (
       <TopBottomWrapper {...rest}>
         {top}

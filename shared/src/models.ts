@@ -176,6 +176,8 @@ export interface PlanProductionState {
   couleursEncrier: EncrierColor[][];
   tourCount?: number;
   calculationTime: number;
+  day: number;
+  indexInDay: number;
 }
 
 interface PlanProductionBase {
@@ -204,8 +206,8 @@ export interface PlanProductionData {
   perfo: Perfo;
   refente: Refente;
   bobines: BobineFilleWithPose[];
+  bobinesMini: [string, number][];
   encriers: EncrierColor[];
-  allEncriers: EncrierColor[][];
 
   tourCount: number;
   speed: number;

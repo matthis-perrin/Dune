@@ -57,6 +57,8 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
+    private readonly day: number,
+    private readonly indexInDay: number,
     bobinesFilles: BobineFille[],
     bobinesMeres: BobineMere[],
     cliches: Cliche[],
@@ -129,6 +131,8 @@ export class PlanProductionEngine {
       couleursEncrier: this.getValidCouleursEncriers(),
       tourCount: this.tourCount,
       calculationTime: this.calculationTime,
+      day: this.day,
+      indexInDay: this.indexInDay,
     };
   }
 

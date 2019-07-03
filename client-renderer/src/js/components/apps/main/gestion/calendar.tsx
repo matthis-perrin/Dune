@@ -10,6 +10,10 @@ interface Props {
   children(date: Date): JSX.Element;
 }
 
+const MONTH_IN_YEAR = 12;
+const DAY_IN_WEEK = 7;
+const DAY_IN_WORK_WEEK = 5;
+
 export class Calendar extends React.Component<Props, {}> {
   public static displayName = 'Calendar';
 
@@ -18,8 +22,13 @@ export class Calendar extends React.Component<Props, {}> {
     const begginingOfMonth = new Date(year, month, 1);
     const endOfMonth = new Date(year, month + 1, 0);
 
-    const firstDate = new Date(year, month, -getDayOfWeek(begginingOfMonth) + 1, 12);
-    const endDate = new Date(year, month, endOfMonth.getDate() + 6 - getDayOfWeek(endOfMonth), 12);
+    const firstDate = new Date(year, month, -getDayOfWeek(begginingOfMonth) + 1, MONTH_IN_YEAR);
+    const endDate = new Date(
+      year,
+      month,
+      endOfMonth.getDate() + DAY_IN_WEEK - 1 - getDayOfWeek(endOfMonth),
+      MONTH_IN_YEAR
+    );
 
     const dates: Date[] = [];
     let currentDate = firstDate;
@@ -37,9 +46,9 @@ export class Calendar extends React.Component<Props, {}> {
     let dates = this.getDates();
     const weeks: Date[][] = [];
     while (dates.length > 0) {
-      const week = dates.slice(0, 5);
+      const week = dates.slice(0, DAY_IN_WORK_WEEK);
       weeks.push(week);
-      dates = dates.slice(5, dates.length);
+      dates = dates.slice(DAY_IN_WORK_WEEK, dates.length);
     }
     return weeks;
   }

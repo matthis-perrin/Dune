@@ -18,6 +18,7 @@ import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createRefentesTable} from '@shared/db/refentes';
 import {createStocksTable} from '@shared/db/stocks';
+import {createPlansProductionTable} from '@shared/db/plan_production';
 
 export async function setupSqliteDB(db: knex): Promise<void> {
   await Promise.all([
@@ -32,6 +33,7 @@ export async function setupSqliteDB(db: knex): Promise<void> {
     createOperationsTable(db),
     createBobinesQuantitiesTable(db),
     createColorsTable(db),
+    createPlansProductionTable(db),
   ]);
 }
 

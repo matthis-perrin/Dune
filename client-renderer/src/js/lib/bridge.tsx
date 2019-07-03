@@ -35,6 +35,7 @@ import {
   SaveToPDF,
   Print,
   ListPlansProduction,
+  SavePlanProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -132,9 +133,13 @@ class Bridge {
     return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
   }
 
-  public async createNewPlanProduction(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CreateNewPlanProduction);
+  public async createNewPlanProduction(day: number, indexInDay: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CreateNewPlanProduction, {day, indexInDay});
   }
+  public async savePlanProduction(id: number | undefined, data: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SavePlanProduction, {id, data});
+  }
+
   public async getPlanProduction(): Promise<PlanProductionState> {
     return this.bridgeTransport.sendBridgeCommand<PlanProductionState>(GetNewPlanProduction);
   }

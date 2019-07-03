@@ -47,7 +47,6 @@ const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 interface Props {}
 
 interface State {
-  planProductionRef: string;
   planProduction?: PlanProductionState;
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
@@ -61,24 +60,12 @@ interface State {
   speed: number;
 }
 
-function createPlanProductionRef(): string {
-  const now = new Date();
-  const fullYearStr = now.getFullYear().toString();
-  const lastTwoDigitYear = fullYearStr.slice(2, fullYearStr.length);
-  const month = padNumber(now.getMonth() + 1, 2);
-  const day = padNumber(now.getDate(), 2);
-  const index = padNumber(Math.round(Math.random() * 100), 2);
-  const planProdRef = `${lastTwoDigitYear}${month}${day}_${index}`;
-  return planProdRef;
-}
-
 export class PlanProdEditorApp extends React.Component<Props, State> {
   public static displayName = 'PlanProdEditorApp';
 
   public constructor(props: Props) {
     super(props);
     this.state = {
-      planProductionRef: createPlanProductionRef(),
       tourCountSetByUser: false,
       speed: INITIAL_SPEED,
       bobinesMinimums: new Map<string, number>(),
@@ -107,6 +94,17 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobineQuantities: bobinesQuantitiesStore.getData(),
     });
   };
+
+  private computePlanProdRef(planProduction: PlanProductionState): string {
+    const date = new Date(planProduction.day);
+    const fullYearStr = date.getFullYear().toString();
+    const lastTwoDigitYear = fullYearStr.slice(2, fullYearStr.length);
+    const month = padNumber(date.getMonth() + 1, 2);
+    const day = padNumber(date.getDate(), 2);
+    const index = planProduction.indexInDay + 1;
+    const planProdRef = `${lastTwoDigitYear}${month}${day}_${index}`;
+    return planProdRef;
+  }
 
   private computeTourCount(newPlanProduction: PlanProductionState): number | undefined {
     const {tourCount, selectedBobines} = newPlanProduction;
@@ -294,7 +292,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {
       planProduction,
-      planProductionRef,
       reorderedBobines,
       reorderedEncriers,
       stocks,
@@ -484,6 +481,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment />
             );
 
+          const planProductionRef = this.computePlanProdRef(planProduction);
+
           return (
             <PlanProdEditorContainer>
               <TopBar
@@ -493,6 +492,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 onSpeedChange={this.handleSpeedChange}
                 planProdRef={planProductionRef}
                 planProduction={planProduction}
+                bobinesMinimums={bobinesMinimums}
+                reorderedEncriers={reorderedEncriers}
                 isPrinting={isPrinting}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>

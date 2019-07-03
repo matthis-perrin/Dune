@@ -9,7 +9,13 @@ import {bridge} from '@root/lib/bridge';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {PlanProductionState, BobineFilleWithPose} from '@shared/models';
+import {EncrierColor} from '@shared/lib/encrier';
+import {
+  PlanProductionState,
+  BobineFilleWithPose,
+  PlanProductionData,
+  PlanProductionStatus,
+} from '@shared/models';
 
 const MAX_SPEED_RATIO = 0.82;
 
@@ -18,6 +24,8 @@ interface TopBarProps {
   planProduction: PlanProductionState;
   tourCount?: number;
   speed: number;
+  bobinesMinimums: Map<string, number>;
+  reorderedEncriers?: EncrierColor[];
   onTourCountChange(tourCount?: number): void;
   onSpeedChange(speed: number): void;
   isPrinting: boolean;
@@ -42,13 +50,54 @@ export class TopBar extends React.Component<TopBarProps> {
     }
   };
 
-  private readonly handleSave = (): void => {
+  private readonly handleDownload = (): void => {
     bridge.saveToPDF(`plan_prod_${this.props.planProdRef}.pdf`).catch(console.error);
   };
 
-  // private readonly handlePrint = (): void => {
-  //   bridge.print().catch(console.error);
-  // };
+  private readonly handleSave = (): void => {
+    const {planProduction, tourCount, speed, bobinesMinimums, reorderedEncriers} = this.props;
+    const {
+      couleursEncrier,
+      selectedBobines,
+      selectedPapier,
+      selectedPerfo,
+      selectedPolypro,
+      selectedRefente,
+      day,
+      indexInDay,
+    } = planProduction;
+
+    if (
+      selectedPolypro === undefined ||
+      selectedPapier === undefined ||
+      selectedPerfo === undefined ||
+      selectedRefente === undefined ||
+      tourCount === undefined
+    ) {
+      return;
+    }
+
+    const data: PlanProductionData = {
+      day,
+      indexInDay,
+      isBeginningOfDay: false,
+
+      polypro: selectedPolypro,
+      papier: selectedPapier,
+      perfo: selectedPerfo,
+      refente: selectedRefente,
+      bobines: selectedBobines,
+      bobinesMini: Array.from(bobinesMinimums.entries()),
+      encriers: reorderedEncriers || couleursEncrier[0],
+
+      tourCount,
+      speed,
+      status: PlanProductionStatus.PLANNED,
+    };
+
+    const serializedData = JSON.stringify(data);
+    bridge.savePlanProduction(undefined, serializedData).catch(console.error);
+  };
 
   private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const {onSpeedChange} = this.props;
@@ -95,10 +144,12 @@ export class TopBar extends React.Component<TopBarProps> {
     }
     return (
       <ButtonsContainer>
-        <Button style={{marginRight: 8}} onClick={this.handleSave}>
+        <Button style={{marginRight: 8}} onClick={this.handleDownload}>
           Télécharger
         </Button>
-        {/* <Button onClick={this.handlePrint}>Imprimer</Button> */}
+        <Button style={{marginRight: 8}} onClick={this.handleSave}>
+          Sauvegarder
+        </Button>
       </ButtonsContainer>
     );
   }
@@ -167,12 +218,6 @@ const TopBarWrapper = styled(TopBarWrapperBase)`
   color: ${theme.planProd.topBarTextColor};
 `;
 
-const TopBarWrapperWhenPrinting = styled(TopBarWrapperBase)`
-  background-color: ${Palette.Transparent};
-  color: ${Palette.Black};
-  border: ${theme.planProd.printingBorder};
-`;
-
 const ContainerBase = styled.div`
   display: flex;
   flex-direction: column;
@@ -207,11 +252,6 @@ const TopBarTitle = styled.div`
   font-weight: ${theme.planProd.topBarTitleFontWeight};
 `;
 
-const PrintingTopBarTitle = styled.div`
-  font-size: 30px;
-  font-weight: ${FontWeight.SemiBold};
-`;
-
 const TopBarValueContainer = styled(TopBottom)`
   font-size: 12px;
   font-weight: ${FontWeight.SemiBold};
@@ -230,20 +270,4 @@ const TopBarInput = styled(TopBarInputBase)``;
 const StaticTopBarInput = styled(TopBarInputBase)`
   background-color: ${Palette.Transparent};
   color: ${Colors.TextOnPrimary};
-`;
-
-const LargeValue = styled.div`
-  font-size: 20px;
-  font-weight: ${FontWeight.SemiBold};
-`;
-
-const SmallValue = styled.div`
-  font-size: 14px;
-  font-weight: ${FontWeight.Regular};
-`;
-
-const PrintingLeftContainerBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 `;

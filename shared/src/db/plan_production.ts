@@ -19,10 +19,25 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
         .increments(PlansProductionColumn.ID_COLUMN)
         .notNullable()
         .primary();
-      table.string(PlansProductionColumn.DATA).notNullable();
+      table.text(PlansProductionColumn.DATA).notNullable();
       table.boolean(PlansProductionColumn.SOMMEIL_COLUMN);
       table.dateTime(PlansProductionColumn.LOCAL_UPDATE_COLUMN);
     });
+  }
+}
+
+export async function savePlanProduction(
+  db: knex,
+  id: number | undefined,
+  data: string
+): Promise<void> {
+  const localUpdate = new Date();
+  if (id === undefined) {
+    await db(PLANS_PRODUCTION_TABLE_NAME).insert({id: null, data, sommeil: false, localUpdate});
+  } else {
+    await db(PLANS_PRODUCTION_TABLE_NAME)
+      .where(PlansProductionColumn.ID_COLUMN, id)
+      .update({data, localUpdate});
   }
 }
 
@@ -36,7 +51,7 @@ export async function listPlansProduction(
     .map(planProductionLine => {
       const r = asMap(planProductionLine);
       return {
-        ref: asString(r[PlansProductionColumn.ID_COLUMN], ''),
+        id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
         data: asString(r[PlansProductionColumn.DATA], ''),
         sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
         localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),

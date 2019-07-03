@@ -35,6 +35,7 @@ import {
   ListColors,
   SaveToPDF,
   ListPlansProduction,
+  SavePlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -43,7 +44,7 @@ import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
-import {listPlansProduction} from '@shared/db/plan_production';
+import {listPlansProduction, savePlanProduction} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType} from '@shared/models';
@@ -130,8 +131,14 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
-    return planProductionStore.createNewPlan();
+    const {day, indexInDay} = asMap(params);
+    return planProductionStore.createNewPlan(asNumber(day, 0), asNumber(indexInDay, 0));
   }
+  if (command === SavePlanProduction) {
+    const {id, data} = asMap(params);
+    return savePlanProduction(db, asNumber(id, undefined), asString(data, '{}'));
+  }
+
   if (command === GetNewPlanProduction) {
     const engine = planProductionStore.getEngine();
     if (!engine) {

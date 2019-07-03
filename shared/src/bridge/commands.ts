@@ -21,6 +21,8 @@ export const SaveToPDF = 'save-to-pdf' as BridgeCommand;
 export const Print = 'print' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
+export const SavePlanProduction = 'save-plan-production' as BridgeCommand;
+
 export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;
 export const SetPlanTourCount = 'set-plan-tour-count' as BridgeCommand;
 export const SetPlanPerfo = 'set-plan-perfo' as BridgeCommand;

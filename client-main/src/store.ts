@@ -11,7 +11,7 @@ import {BaseStore} from '@shared/store';
 class PlanProductionStore extends BaseStore {
   private planProductionEngine: PlanProductionEngine | undefined;
 
-  public async createNewPlan(): Promise<void> {
+  public async createNewPlan(day: number, indexInDay: number): Promise<void> {
     const [bobinesFilles, bobinesMeres, cliches, perfos, refentes] = await Promise.all([
       listBobinesFilles(db, 0),
       listBobinesMeres(db, 0),
@@ -21,6 +21,8 @@ class PlanProductionStore extends BaseStore {
     ]);
 
     this.planProductionEngine = new PlanProductionEngine(
+      day,
+      indexInDay,
       bobinesFilles,
       bobinesMeres,
       cliches,
