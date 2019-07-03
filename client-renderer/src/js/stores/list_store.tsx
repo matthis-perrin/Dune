@@ -221,6 +221,28 @@ class PlansProductionStore extends ListStore<PlanProduction> {
   public getId(element: PlanProduction): string {
     return element.id.toString();
   }
+  public getIndex(): Map<number, PlanProduction[]> | undefined {
+    const plans = this.getData();
+    if (plans === undefined) {
+      return undefined;
+    }
+    const byDay = new Map<number, PlanProduction[]>();
+    plans.forEach(p => {
+      const date = new Date(p.data.day);
+      date.setHours(0);
+      date.setMinutes(0);
+      date.setSeconds(0);
+      date.setMilliseconds(0);
+      const ts = date.getTime();
+      const plans = byDay.get(ts);
+      if (plans === undefined) {
+        byDay.set(ts, [p]);
+      } else {
+        plans.push(p);
+      }
+    });
+    return byDay;
+  }
 }
 export const plansProductionStore = new PlansProductionStore();
 

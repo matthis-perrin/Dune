@@ -96,7 +96,10 @@ export class TopBar extends React.Component<TopBarProps> {
     };
 
     const serializedData = JSON.stringify(data);
-    bridge.savePlanProduction(undefined, serializedData).catch(console.error);
+    bridge
+      .savePlanProduction(undefined, serializedData)
+      .then(() => bridge.closeApp())
+      .catch(console.error);
   };
 
   private readonly handleSpeedInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {

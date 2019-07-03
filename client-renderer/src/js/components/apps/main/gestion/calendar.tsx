@@ -19,10 +19,10 @@ export class Calendar extends React.Component<Props, {}> {
 
   private getDates(): Date[] {
     const {month, year} = this.props;
-    const begginingOfMonth = new Date(year, month, 1);
+    const startOfMonth = new Date(year, month, 1);
     const endOfMonth = new Date(year, month + 1, 0);
 
-    const firstDate = new Date(year, month, -getDayOfWeek(begginingOfMonth) + 1, MONTH_IN_YEAR);
+    const firstDate = new Date(year, month, -getDayOfWeek(startOfMonth) + 1, MONTH_IN_YEAR);
     const endDate = new Date(
       year,
       month,
