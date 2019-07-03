@@ -62,7 +62,7 @@ export class GestionPage extends React.Component<Props, State> {
   public render(): JSX.Element {
     return (
       <Page>
-        <Button onClick={this.handleNewPlanProdClick}>Nouveau plan de production</Button>
+        {/* <Button onClick={this.handleNewPlanProdClick}>Nouveau plan de production</Button> */}
         <Calendar month={new Date().getMonth()} year={new Date().getFullYear()}>
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>

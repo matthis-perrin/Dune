@@ -25,6 +25,7 @@ export class PlanProdTile extends React.Component<Props> {
             style={{
               backgroundColor: color.backgroundHex,
               color: color.textHex,
+              border: `solid 1px ${color.hasBorder ? color.textHex : 'transparent'}`,
             }}
           >
             {data.refente.ref}

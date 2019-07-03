@@ -92,7 +92,7 @@ const CalendarCell = styled.td`
 `;
 
 const CalendarCellHeader = styled.div`
-  height: 40px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
