@@ -25,6 +25,10 @@ export type HTMLDivProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 >;
+export type HTMLImgProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLImageElement>,
+  HTMLImageElement
+>;
 export type DivProps = Omit<ReactProps & HTMLDivProps, 'ref'>;
 
 function asPixelString(value: number | string): string {

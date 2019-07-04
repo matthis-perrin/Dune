@@ -21,6 +21,15 @@ export function getRefenteSize(refente: Refente): number {
   return size;
 }
 
+export function getRefenteLabel(refente: Refente): string {
+  const laizes = getRefenteLaizes(refente);
+  const refenteValues = laizes.map(l => `${Math.round(l)}`);
+  if (refente.chute) {
+    refenteValues.push(`(${refente.chute})`);
+  }
+  return refenteValues.join('-');
+}
+
 function applyBobineOnCurrentAtIndex(
   bobine: BobineFilleWithPose,
   current: (BobineFilleWithPose | number)[],

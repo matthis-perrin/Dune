@@ -32,6 +32,8 @@ interface PlanProdViewerState {
   bobineQuantities?: BobineQuantities[];
 }
 
+const TOP_BAR_MIN_WIDTH = 1100;
+
 export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanProdViewerState> {
   public static displayName = 'PlanProdViewer';
 
@@ -184,10 +186,17 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       );
 
     const planProductionRef = computePlanProdRef(day, indexInDay);
+    const adjustedWidth = Math.max(TOP_BAR_MIN_WIDTH, width);
+    const scale = width / adjustedWidth;
 
     return (
       <PlanProdEditorContainer style={{width}}>
         <TopBar
+          style={{
+            transformOrigin: 'top left',
+            transform: `scale(${scale})`,
+          }}
+          width={adjustedWidth}
           bobines={bobines}
           isComplete
           isPrinting

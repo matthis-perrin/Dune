@@ -559,6 +559,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           return (
             <PlanProdEditorContainer>
               <TopBar
+                width={width}
                 planProdRef={planProductionRef}
                 bobines={planProduction.selectedBobines}
                 tourCount={tourCount}

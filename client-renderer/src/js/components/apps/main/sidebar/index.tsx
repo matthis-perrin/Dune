@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Herisson} from '@root/components/apps/main/sidebar/herisson';
 import {SidebarItem} from '@root/components/apps/main/sidebar/sidebar_item';
 import {FlexParent} from '@root/components/core/flex';
 import {AppPage, appStore} from '@root/stores/app_store';
@@ -22,6 +23,8 @@ const Pages: {[key: string]: SidebarItemData} = {
 };
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
+
+const logoSize = 100;
 
 export class Sidebar extends React.Component<Props, State> {
   public static displayName = 'Sidebar';
@@ -50,7 +53,9 @@ export class Sidebar extends React.Component<Props, State> {
     const pageIndex = SidebarPages.indexOf(currentPage) || 0;
     return (
       <SidebarContainer>
-        <SidebarTitle>DUNE</SidebarTitle>
+        <SidebarTitle>
+          <Herisson style={{width: logoSize}} />
+        </SidebarTitle>
         <FlexParent alignItems="stretch">
           <SidebarSelectedIndicator index={pageIndex} />
           <SidebarItemContainer flexDirection="column">

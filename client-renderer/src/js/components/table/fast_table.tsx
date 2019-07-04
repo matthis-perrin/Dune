@@ -42,6 +42,11 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   private readonly tableContainerRef = React.createRef<HTMLDivElement>();
   private readonly rows = new Map<string, {data: T; rowIndex?: number}>();
 
+  public constructor(props: FastTableProps<T>) {
+    super(props);
+    props.data.forEach((data, rowIndex) => this.rows.set(data.ref, {data: {...data}, rowIndex}));
+  }
+
   private dataIsEqual(data1: T[], data2: T[]): boolean {
     if (data1.length !== data2.length) {
       return false;
@@ -126,6 +131,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
 
   public render(): JSX.Element {
     const {columns, height, renderColumn, rowHeight, rowStyles, style, width, data} = this.props;
+    console.log(data);
 
     const rowCount = data.length;
     const columnCount = columns.length;
@@ -160,15 +166,24 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       <React.Fragment />
     );
 
+    const scale = adjustedWidth > width ? width / adjustedWidth : 1;
+
     return (
-      <div style={{width}}>
+      <div
+        style={{
+          width: adjustedWidth,
+          height,
+          transformOrigin: 'top left',
+          transform: `scale(${scale})`,
+        }}
+      >
         {header}
         <div
           ref={this.tableContainerRef}
           style={{
             ...style,
             width: adjustedWidth,
-            height: height - (renderColumn ? theme.table.headerHeight : 0),
+            height: (height - (renderColumn ? theme.table.headerHeight : 0)) / scale,
             overflow: 'auto',
           }}
         >

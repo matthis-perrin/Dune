@@ -13,6 +13,8 @@ import {BobineFilleWithPose} from '@shared/models';
 const MAX_SPEED_RATIO = 0.82;
 
 interface TopBarProps {
+  style?: React.CSSProperties;
+  width: number;
   planProdRef: string;
   bobines: BobineFilleWithPose[];
   tourCount?: number;
@@ -86,7 +88,7 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 
   public render(): JSX.Element {
-    const {planProdRef, tourCount, speed, isPrinting, bobines} = this.props;
+    const {planProdRef, tourCount, speed, isPrinting, bobines, width, style = {}} = this.props;
 
     const productionTimeInSec =
       bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
@@ -99,7 +101,7 @@ export class TopBar extends React.Component<TopBarProps> {
     const InputClass = isPrinting ? StaticTopBarInput : TopBarInput;
 
     return (
-      <TopBarWrapper>
+      <TopBarWrapper style={{...style, width}}>
         <LeftContainer>
           <TopBarValueContainer
             style={{marginRight: 22}}
@@ -130,16 +132,12 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 }
 
-const TopBarWrapperBase = styled.div`
-  width: 100%;
+const TopBarWrapper = styled.div`
   height: ${theme.planProd.topBarHeight}px;
   box-sizing: border-box;
   display: flex;
   padding: 0 32px;
   z-index: 100;
-`;
-
-const TopBarWrapper = styled(TopBarWrapperBase)`
   background-color: ${theme.planProd.topBarBackgroundColor};
   color: ${theme.planProd.topBarTextColor};
 `;
