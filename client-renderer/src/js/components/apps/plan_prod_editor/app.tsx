@@ -370,7 +370,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     const {stocks, planProduction} = this.state;
     const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
 
-    const grammageStr = `${grammage}${isPolypro ? 'μg' : 'g'}`;
+    const grammageStr = `${grammage}${isPolypro ? 'g/m²' : 'g'}`;
     const longueurStr = `${numberWithSeparator(longueur)} m`;
     const stockReel = stocks ? getStockReel(ref, stocks) : 0;
     const stockTerme = stocks ? getStockTerme(ref, stocks) : 0;
