@@ -1,7 +1,8 @@
 import {Socket} from 'net';
-import {addError} from '@root/state';
-import {sendCommand, CONNECT_COMMAND, GET_SPEED_COMMAND} from '@root/automate/command';
+
 import {aggregator} from '@root/automate/aggregator';
+import {sendCommand, CONNECT_COMMAND, GET_SPEED_COMMAND} from '@root/automate/command';
+import {addError} from '@root/state';
 
 const AUTOMATE_IP = '192.168.0.50';
 const AUTOMATE_PORT = 9600;
@@ -10,14 +11,15 @@ const WAIT_ON_SUCCESS = 500;
 const DURATION_BEFORE_RESTART = 10000;
 
 class AutomateWatcher {
-  private socket = new Socket();
+  private readonly socket = new Socket();
   private isStopping = false;
   private isStarting = false;
   private lastReceived = 0;
   private checkBlockedTimeout: NodeJS.Timeout | undefined;
 
-  public constructor() {
+  public constructor(private readonly emulate: boolean = false) {
     this.socket.on('data', buffer => {
+      // tslint:disable-next-line:no-magic-numbers
       const value = buffer.readUInt32BE(buffer.length - 4);
       this.handleSpeed(value);
     });
@@ -36,8 +38,7 @@ class AutomateWatcher {
     this.socket.destroy();
   }
 
-  private connect(): Promise<void> {
-    console.log('connect');
+  private async connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       try {
         this.socket.destroy();
@@ -57,8 +58,12 @@ class AutomateWatcher {
   }
 
   private restart(): void {
-    console.log('restart');
     if (this.isStarting || this.isStopping) {
+      return;
+    }
+
+    if (this.emulate) {
+      this.fetchOnce();
       return;
     }
 
@@ -69,7 +74,7 @@ class AutomateWatcher {
         this.fetchOnce();
       })
       .catch(err => {
-        addError(`Erreur lors de la connexion à l'automate`, err);
+        addError("Erreur lors de la connexion à l'automate", String(err));
         this.isStarting = false;
         setTimeout(() => {
           this.restart();
@@ -78,8 +83,7 @@ class AutomateWatcher {
   }
 
   private handleError(error: string): void {
-    console.log('handleError');
-    addError(`Erreur automate`, error);
+    addError('Erreur automate', error);
     setTimeout(() => this.fetchOnce(), WAIT_ON_ERROR);
   }
 
@@ -93,17 +97,24 @@ class AutomateWatcher {
   }
 
   private checkBlocked(): void {
-    console.log('checkBlocked');
     if (Date.now() - this.lastReceived > DURATION_BEFORE_RESTART) {
       addError('Socket automate bloquée ? Redémarrage.', '');
       this.restart();
     }
   }
 
-  public async fetchOnce(): Promise<void> {
+  public fetchOnce(): void {
+    if (this.emulate) {
+      // tslint:disable-next-line:no-magic-numbers
+      this.handleSpeed(183 - Math.round(Math.random() * 10));
+      return;
+    }
+    // tslint:disable-next-line:no-magic-numbers
     this.checkBlockedTimeout = setTimeout(() => this.checkBlocked(), DURATION_BEFORE_RESTART + 500);
-    await sendCommand(this.socket, GET_SPEED_COMMAND);
+    sendCommand(this.socket, GET_SPEED_COMMAND).catch(err => {
+      addError("Erreur lors de la récupération de la vitesse de l'automate", String(err));
+    });
   }
 }
 
-export const automateWatcher = new AutomateWatcher();
+export const automateWatcher = new AutomateWatcher(false);

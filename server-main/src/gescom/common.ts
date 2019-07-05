@@ -1,6 +1,7 @@
 import * as log from 'electron-log';
 import knex from 'knex';
 
+import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
 import {createBobinesFillesTable} from '@shared/db/bobines_filles';
@@ -18,9 +19,8 @@ import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createPlansProductionTable} from '@shared/db/plan_production';
 import {createRefentesTable} from '@shared/db/refentes';
-import {createStocksTable} from '@shared/db/stocks';
 import {createSpeedMinutesTable} from '@shared/db/speed_minutes';
-import {SQLITE_DB} from '@root/db';
+import {createStocksTable} from '@shared/db/stocks';
 
 export async function setupSqliteDB(): Promise<void> {
   await Promise.all([

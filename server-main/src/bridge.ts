@@ -1,24 +1,23 @@
 import {SQLITE_DB} from '@root/db';
 import {getErrors} from '@root/state';
 
-import {
-  BridgeCommand,
-  ServerGetStatus,
-  ServerRequestRefresh,
-  ServerClearErrors,
-} from '@shared/bridge/commands';
+import {BridgeCommand, ServerGetStatus} from '@shared/bridge/commands';
 import {getStatus} from '@shared/db/gescom_sync';
+import {getStats} from '@shared/db/speed_minutes';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 
 async function getServerStatus(): Promise<ServerStatus> {
-  const gescomData = await getStatus(SQLITE_DB.Gescom);
+  const [gescomData, automate] = await Promise.all([
+    getStatus(SQLITE_DB.Gescom),
+    getStats(SQLITE_DB.Automate),
+  ]);
   const gescom: {[key: string]: ServiceStatus} = {};
   gescomData.forEach(({name, lastUpdate, rowCount, rowCountSommeil}) => {
     gescom[name] = {lastUpdate, rowCount, rowCountSommeil};
   });
 
   return {
-    mondon: {speed: {rowCount: 0, lastUpdate: 0}},
+    automate,
     gescom,
     errors: getErrors(),
   };
@@ -28,9 +27,5 @@ async function getServerStatus(): Promise<ServerStatus> {
 export async function handleCommand(command: BridgeCommand, data: any): Promise<any> {
   if (command === ServerGetStatus) {
     return getServerStatus();
-  }
-  if (command === ServerRequestRefresh) {
-  }
-  if (command === ServerClearErrors) {
   }
 }

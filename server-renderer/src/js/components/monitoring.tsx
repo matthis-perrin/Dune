@@ -1,10 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {ServiceStatus} from '@shared/models';
+import {ServiceStatus, AutomateStatus} from '@shared/models';
 
 interface Props {
-  mondon: {[key: string]: ServiceStatus};
+  automate: AutomateStatus;
   gescom: {[key: string]: ServiceStatus};
 }
 
@@ -36,41 +36,92 @@ export class Monitoring extends React.Component<Props> {
     const rowCountSuffix = rowCountSommeil === undefined ? '' : ` / ${rowCount}`;
 
     return (
-      <ServiceWrapper key={title}>
-        <ServiceTitle>{title}</ServiceTitle>
-        <ServiceRowCount>{`${nonSommeilCount}${rowCountSuffix}`}</ServiceRowCount>
-        <ServiceLastUpdate>{this.agoToString(lastUpdateAgo / 1000)}</ServiceLastUpdate>
-      </ServiceWrapper>
+      <tr key={title}>
+        <td>
+          <ServiceTitle>{title}</ServiceTitle>
+        </td>
+        <td>
+          <ServiceRowCount>{`${nonSommeilCount}${rowCountSuffix}`}</ServiceRowCount>
+        </td>
+        <td>
+          <ServiceLastUpdate>{this.agoToString(lastUpdateAgo / 1000)}</ServiceLastUpdate>
+        </td>
+      </tr>
     );
   }
 
-  private renderSection(
-    sectionTitle: string,
+  private renderServices(
     services: {name: string; title: string}[],
     servicesStatus: {[key: string]: ServiceStatus}
-  ): JSX.Element {
-    const servicesElements: JSX.Element[] = services.map(({name, title}) => {
+  ): JSX.Element[] {
+    return services.map(({name, title}) => {
       const status = servicesStatus[name] || {
         lastUpdate: 0,
         rowCount: 0,
       };
       return this.renderService(title, status.rowCount, status.rowCountSommeil, status.lastUpdate);
     });
-    return (
-      <SectionWrapper>
-        <SectionTitle>{sectionTitle}</SectionTitle>
-        {servicesElements}
-      </SectionWrapper>
-    );
   }
 
   public render(): JSX.Element {
-    const {mondon, gescom} = this.props;
+    const {automate, gescom} = this.props;
+
+    const {lastMinute, firstMinute, rowCount} = automate;
+
     return (
-      <div>
-        {this.renderSection('Automate', [{name: 'speed', title: 'Vitesse'}], mondon)}
-        {this.renderSection(
-          'Gestion commerciale',
+      <table style={{width: '100%', borderCollapse: 'collapse'}}>
+        <tr>
+          <td colSpan={3}>
+            <SectionTitle>Automate</SectionTitle>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ServiceTitle>Vitesse</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>{lastMinute ? lastMinute.speed : '-'}</ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <ServiceTitle>Dernière vitesse</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>
+              {lastMinute ? new Date(lastMinute.minute).toLocaleString('fr') : '-'}
+            </ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <ServiceTitle>Première vitesse</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>
+              {firstMinute ? new Date(firstMinute.minute).toLocaleString('fr') : '-'}
+            </ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <ServiceTitle>Nombre de vitesse</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>{rowCount.toLocaleString('fr')}</ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+
+        <tr>
+          <td colSpan={3}>
+            <SectionTitle>Gestion commerciale</SectionTitle>
+          </td>
+        </tr>
+        {this.renderServices(
           [
             {name: 'bobines_meres', title: 'Bobines mères'},
             {name: 'cliches', title: 'Clichés'},
@@ -80,39 +131,33 @@ export class Monitoring extends React.Component<Props> {
           ],
           gescom
         )}
-      </div>
+      </table>
     );
   }
 }
 
-const SectionWrapper = styled.div`
-  margin-bottom: 22px;
-`;
-
 const SectionTitle = styled.div`
   font-weight: 600;
   display: inline-block;
-  margin-bottom: 8px;
+  margin: 8px 0;
   font-size: 22px;
 `;
 
-const ServiceWrapper = styled.div``;
-
 const ServiceTitle = styled.div`
+  width: 100%;
   display: inline-block;
   font-weight: 600;
-  width: 130px;
   font-size: 18px;
 `;
 
 const ServiceRowCount = styled.div`
+  width: 100%;
   display: inline-block;
-  width: 120px;
   text-align: right;
 `;
 
 const ServiceLastUpdate = styled.div`
+  width: 100%;
   display: inline-block;
-  width: calc(100% - 250px);
   text-align: right;
 `;

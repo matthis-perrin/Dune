@@ -269,9 +269,15 @@ export interface ServiceStatus {
 }
 
 export interface ServerStatus {
-  mondon: {[key: string]: ServiceStatus};
+  automate: AutomateStatus;
   gescom: {[key: string]: ServiceStatus};
   errors: ServerErrorData[];
+}
+
+export interface AutomateStatus {
+  firstMinute?: MinuteSpeed;
+  lastMinute?: MinuteSpeed;
+  rowCount: number;
 }
 
 export interface ClientAppInfo {
@@ -293,4 +299,9 @@ export enum ClientAppType {
   PerfoPickerApp = 'PerfoPickerApp',
   PapierPickerApp = 'PapierPickerApp',
   PolyproPickerApp = 'PolyproPickerApp',
+}
+
+export interface MinuteSpeed {
+  minute: number;
+  speed?: number;
 }

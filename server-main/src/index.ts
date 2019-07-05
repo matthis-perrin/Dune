@@ -1,6 +1,7 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
+import {aggregator} from '@root/automate/aggregator';
 import {automateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
 import {gescomDB, SQLITE_DB} from '@root/db';
@@ -24,18 +25,20 @@ async function startServer(): Promise<void> {
   const gescomCliches = new GescomWatcherCliches(gescomDB, SQLITE_DB.Gescom);
   const gescomStocks = new GescomWatcherStocks(gescomDB, SQLITE_DB.Gescom);
   const gescomCadencier = new GescomWatcherCadencier(gescomDB, SQLITE_DB.Gescom);
-  log.info('Starting Bobine Filles watcher');
-  await gescomBobinesFilles.start();
-  log.info('Starting Bobine Meres watcher');
-  await gescomBobinesMeres.start();
-  log.info('Starting Cliches watcher');
-  await gescomCliches.start();
-  log.info('Starting Stocks watcher');
-  await gescomStocks.start();
-  log.info('Starting Cadencier watcher');
-  await gescomCadencier.start();
+  // log.info('Starting Bobine Filles watcher');
+  // await gescomBobinesFilles.start();
+  // log.info('Starting Bobine Meres watcher');
+  // await gescomBobinesMeres.start();
+  // log.info('Starting Cliches watcher');
+  // await gescomCliches.start();
+  // log.info('Starting Stocks watcher');
+  // await gescomStocks.start();
+  // log.info('Starting Cadencier watcher');
+  // await gescomCadencier.start();
+  log.info('Starting Automate aggregator');
+  await aggregator.start();
   log.info('Starting Automate watcher');
-  await automateWatcher.start();
+  automateWatcher.start();
 }
 
 startServer();
@@ -47,8 +50,8 @@ app.on('ready', () => {
     });
   }
   const browserWindow = createBrowserWindow({
-    width: 900,
-    height: 600,
+    width: 620,
+    height: 420,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>

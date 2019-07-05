@@ -1,7 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {Errors} from '@root/components/errors';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Monitoring} from '@root/components/monitoring';
 import {bridge} from '@root/lib/bridge';
@@ -48,38 +47,14 @@ export class App extends React.Component<Props, State> {
     }
     return (
       <AppWrapper>
-        <MonitoringWrapper>
-          <Monitoring mondon={status.mondon} gescom={status.gescom} />
-        </MonitoringWrapper>
-        <ErrorsWrapper>
-          <Errors errors={status.errors} />
-        </ErrorsWrapper>
+        <Monitoring automate={status.automate} gescom={status.gescom} />
         <GlobalStyle />
       </AppWrapper>
     );
   }
 }
 
-const padding = 16;
-
 const AppWrapper = styled.div`
   font-family: Segoe UI, sans-serif;
-`;
-
-const MonitoringWrapper = styled.div`
-  position: fixed;
-  top: ${padding}px;
-  right: calc(50% + ${padding / 2}px);
-  bottom: ${padding}px;
-  left: ${padding}px;
-  overflow: auto;
-`;
-
-const ErrorsWrapper = styled.div`
-  position: fixed;
-  top: ${padding}px;
-  right: ${padding}px;
-  bottom: ${padding}px;
-  left: calc(50% + ${padding / 2}px);
-  overflow: auto;
+  padding: 16px;
 `;
