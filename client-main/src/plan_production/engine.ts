@@ -227,6 +227,25 @@ export class PlanProductionEngine {
     this.recalculate();
   }
 
+  public autoComplete(): void {
+    if (this.isComputing) {
+      return;
+    }
+    if (this.selectables.selectablePolypros.length === 1) {
+      this.planProduction.polypro = this.selectables.selectablePolypros[0];
+    }
+    if (this.selectables.selectablePapiers.length === 1) {
+      this.planProduction.papier = this.selectables.selectablePapiers[0];
+    }
+    if (this.selectables.selectablePerfos.length === 1) {
+      this.planProduction.perfo = this.selectables.selectablePerfos[0];
+    }
+    if (this.selectables.selectableRefentes.length === 1) {
+      this.planProduction.refente = this.selectables.selectableRefentes[0];
+    }
+    this.recalculate();
+  }
+
   public recalculate(): void {
     setTimeout(() => {
       this.selectables = this.computeSelectables();

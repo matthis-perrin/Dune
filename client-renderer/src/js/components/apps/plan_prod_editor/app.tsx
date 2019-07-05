@@ -326,27 +326,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     if (!planProduction) {
       return false;
     }
-    const {
-      selectableRefentes,
-      selectablePapiers,
-      selectablePerfos,
-      selectablePolypros,
-    } = planProduction;
-
-    const promises: Promise<void>[] = [];
-    if (selectablePapiers.length === 1) {
-      promises.push(bridge.setPlanPapier(selectablePapiers[0].ref));
-    }
-    if (selectablePolypros.length === 1) {
-      promises.push(bridge.setPlanPolypro(selectablePolypros[0].ref));
-    }
-    if (selectablePerfos.length === 1) {
-      promises.push(bridge.setPlanPerfo(selectablePerfos[0].ref));
-    }
-    if (selectableRefentes.length === 1) {
-      promises.push(bridge.setPlanRefente(selectableRefentes[0].ref));
-    }
-    Promise.all(promises).catch(console.error);
+    bridge.autocompletePlan().catch(console.error);
   };
 
   private renderBobineMereContent(
