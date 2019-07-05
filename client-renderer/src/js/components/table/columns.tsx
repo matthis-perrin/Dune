@@ -296,7 +296,12 @@ const STOCK_COLUMN = (
 ): ColumnMetadata<{ref: string}, number> => ({
   title,
   width,
-  renderCell: row => renderNumber(getStock(row.ref, stocks, type)),
+  renderCell: row => {
+    const stock = getStock(row.ref, stocks, type);
+    const color = stock < 0 ? Colors.Danger : undefined;
+    const fontWeight = stock < 0 ? FontWeight.Bold : undefined;
+    return <span style={{color, fontWeight}}>{renderNumber(stock)}</span>;
+  },
   justifyContent: 'center',
   sortFunction: getStocksSortFunction(stocks, type),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
