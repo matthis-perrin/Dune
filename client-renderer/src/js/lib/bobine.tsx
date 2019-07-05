@@ -143,6 +143,16 @@ export function getBobineState(
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
+  if (currentStock < 0) {
+    return {
+      state: BobineState.Imperatif,
+      quantity,
+      yearSell: lastYearSelling,
+      stock: currentStock,
+      info: `${numberWithSeparator(currentStock)}`,
+      infoValue: currentStock,
+    };
+  }
   if (currentStock < averageSellingByMonth) {
     return {
       state: BobineState.Rupture,

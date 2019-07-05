@@ -31,10 +31,11 @@ export interface BobineFilleWithMultiPose extends BobineFilleWithColor {
 }
 
 export enum BobineState {
-  Rupture = 1,
-  Alerte = 2,
-  Neutre = 3,
-  Surstock = 4,
+  Imperatif = 1,
+  Rupture = 2,
+  Alerte = 3,
+  Neutre = 4,
+  Surstock = 5,
 }
 
 export interface BobineQuantities {

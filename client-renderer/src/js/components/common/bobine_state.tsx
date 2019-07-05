@@ -12,6 +12,10 @@ interface StateUI {
 }
 
 const stateUI = new Map<BobineStateModel, StateUI>([
+  [
+    BobineStateModel.Imperatif,
+    {title: 'IMPÉRATIF', color: Palette.Black, fontWeight: FontWeight.Bold},
+  ],
   [BobineStateModel.Rupture, {title: 'RUPTURE', color: Colors.Danger, fontWeight: FontWeight.Bold}],
   [BobineStateModel.Alerte, {title: 'ALERTE', color: Colors.Danger, fontWeight: FontWeight.Bold}],
   [
