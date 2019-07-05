@@ -199,6 +199,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.saveToPDF(`plan_prod_${computePlanProdRef(day, indexInDay)}.pdf`).catch(console.error);
   };
 
+  private readonly handleClear = (): void => {
+    bridge.clearPlan().catch(console.error);
+  };
+
   private readonly handleSave = (): void => {
     const {planProduction, bobinesMinimums, reorderedEncriers, speed} = this.state;
     if (!planProduction) {
@@ -283,33 +287,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   private removePolypro(): void {
     bridge.setPlanPolypro(undefined).catch(console.error);
   }
-
-  // private canClear(): boolean {
-  //   const {planProduction} = this.state;
-  //   if (!planProduction) {
-  //     return false;
-  //   }
-
-  //   const {
-  //     selectedRefente,
-  //     selectedPapier,
-  //     selectedPerfo,
-  //     selectedPolypro,
-  //     selectedBobines,
-  //   } = planProduction;
-
-  //   return (
-  //     selectedRefente !== undefined ||
-  //     selectedPapier !== undefined ||
-  //     selectedPerfo !== undefined ||
-  //     selectedPolypro !== undefined ||
-  //     selectedBobines.length > 0
-  //   );
-  // }
-
-  // private clear(): void {
-  //   bridge.clearPlan().catch(console.error);
-  // }
 
   private canAutoComplete(): boolean {
     const {planProduction} = this.state;
@@ -611,6 +588,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 onSpeedChange={this.handleSpeedChange}
                 onSave={this.handleSave}
                 onDownload={this.handleDownload}
+                onClear={this.handleClear}
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
               />

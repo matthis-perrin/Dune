@@ -24,6 +24,7 @@ interface TopBarProps {
   onSpeedChange(speed: number): void;
   onSave?(): void;
   onDownload?(): void;
+  onClear?(): void;
   isComplete: boolean;
   isPrinting: boolean;
 }
@@ -72,18 +73,26 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 
   private renderButtons(): JSX.Element {
-    const {isPrinting, isComplete, onDownload, onSave} = this.props;
-    if (!isComplete || isPrinting) {
+    const {isPrinting, isComplete, onDownload, onSave, onClear} = this.props;
+
+    if (isPrinting) {
       return <React.Fragment />;
     }
     return (
       <ButtonsContainer>
-        <Button style={{marginRight: 8}} onClick={onDownload}>
-          Télécharger
+        {isComplete ? (
+          <Button style={{marginRight: 8}} onClick={onDownload}>
+            Télécharger
+          </Button>
+        ) : (
+          <React.Fragment />
+        )}
+        <Button style={{marginRight: 8}} onClick={onClear}>
+          Effacer
         </Button>
-        <Button style={{marginRight: 8}} onClick={onSave}>
+        {/* <Button style={{marginRight: 8}} onClick={onSave}>
           Sauvegarder
-        </Button>
+        </Button> */}
       </ButtonsContainer>
     );
   }
