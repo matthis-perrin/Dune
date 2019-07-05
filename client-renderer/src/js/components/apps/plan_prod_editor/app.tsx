@@ -110,7 +110,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       return tourCount;
     }
     for (const bobine of selectedBobines) {
-      const {state, quantity} = getBobineState(bobine.ref, stocks, cadencier, bobineQuantities);
+      const {state, quantity, stock} = getBobineState(
+        bobine.ref,
+        stocks,
+        cadencier,
+        bobineQuantities
+      );
+      if (state === BobineState.Imperatif) {
+        const poses = selectedBobines
+          .filter(b => b.ref === bobine.ref)
+          .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
+        return Math.ceil(-stock / poses);
+      }
       if (state === BobineState.Rupture || state === BobineState.Alerte) {
         const poses = selectedBobines
           .filter(b => b.ref === bobine.ref)
