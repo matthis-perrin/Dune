@@ -1,4 +1,4 @@
-import {db} from '@root/db';
+import {SQLITE_DB} from '@root/db';
 import {PlanProductionEngine} from '@root/plan_production/engine';
 
 import {listBobinesFilles} from '@shared/db/bobines_filles';
@@ -13,11 +13,11 @@ class PlanProductionStore extends BaseStore {
 
   public async createNewPlan(day: number, indexInDay: number): Promise<void> {
     const [bobinesFilles, bobinesMeres, cliches, perfos, refentes] = await Promise.all([
-      listBobinesFilles(db, 0),
-      listBobinesMeres(db, 0),
-      listCliches(db, 0),
-      listPerfos(db, 0),
-      listRefentes(db, 0),
+      listBobinesFilles(SQLITE_DB.Gescom, 0),
+      listBobinesMeres(SQLITE_DB.Gescom, 0),
+      listCliches(SQLITE_DB.Gescom, 0),
+      listPerfos(SQLITE_DB.Params, 0),
+      listRefentes(SQLITE_DB.Params, 0),
     ]);
 
     this.planProductionEngine = new PlanProductionEngine(

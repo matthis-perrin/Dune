@@ -24,7 +24,7 @@ import {getBobineState, getStockTerme, getStockReel} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {computePlanProdRef} from '@root/lib/plan_prod';
-import {padNumber} from '@root/lib/utils';
+import {padNumber, numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -41,6 +41,8 @@ import {
   BobineQuantities,
   PlanProductionData,
   PlanProductionStatus,
+  BobineMere,
+  Color,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 900;
@@ -359,6 +361,74 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     Promise.all(promises).catch(console.error);
   };
 
+  private renderBobineMereContent(
+    color: Color,
+    pixelPerMM: number,
+    bobine: BobineMere,
+    isPolypro: boolean
+  ): JSX.Element {
+    const {stocks, planProduction} = this.state;
+    const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
+
+    const grammageStr = `${grammage}${isPolypro ? 'μg' : 'g'}`;
+    const longueurStr = `${numberWithSeparator(longueur)} m`;
+    const stockReel = stocks ? getStockReel(ref, stocks) : 0;
+    const stockTerme = stocks ? getStockTerme(ref, stocks) : 0;
+    const tourCount = planProduction ? planProduction.tourCount || 0 : 0;
+    const longueurBobineFille =
+      planProduction && planProduction.selectedBobines.length > 0
+        ? planProduction.selectedBobines[0].longueur || 0
+        : 0;
+    const withDecimal = (value: number): number => Math.round(value * 10) / 10;
+    const prod = withDecimal(longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0);
+
+    const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
+    const stockActuel = `${stockReel} (à terme ${stockTerme})`;
+    const stockPrevisionel = '? (à terme ?)';
+    const stockAfterProd = `${withDecimal(stockReel - prod)} (à terme ${withDecimal(
+      stockTerme - prod
+    )})`;
+
+    const large = theme.planProd.elementsBaseLargeFontSize * pixelPerMM;
+    const medium = theme.planProd.elementsBaseMediumFontSize * pixelPerMM;
+    const small = theme.planProd.elementsBaseSmallFontSize * pixelPerMM;
+    const colorStyle = {color: color.textHex};
+
+    return (
+      <BobineMereContent>
+        <AutoFontWeight style={colorStyle} fontSize={large}>
+          <BobineMereContentTitle>{title}</BobineMereContentTitle>
+        </AutoFontWeight>
+        <BobineMereContentStocks>
+          <BobineMereContentStock>
+            <AutoFontWeight style={colorStyle} fontSize={small}>
+              <BobineMereContentStockTitle>STOCK ACTUEL</BobineMereContentStockTitle>
+            </AutoFontWeight>
+            <AutoFontWeight style={colorStyle} fontSize={medium}>
+              <BobineMereContentStockContent>{stockActuel}</BobineMereContentStockContent>
+            </AutoFontWeight>
+          </BobineMereContentStock>
+          <BobineMereContentStock>
+            <AutoFontWeight style={colorStyle} fontSize={small}>
+              <BobineMereContentStockTitle>PRÉVISIONNEL</BobineMereContentStockTitle>
+            </AutoFontWeight>
+            <AutoFontWeight style={colorStyle} fontSize={medium}>
+              <BobineMereContentStockContent>{stockPrevisionel}</BobineMereContentStockContent>
+            </AutoFontWeight>
+          </BobineMereContentStock>
+          <BobineMereContentStock>
+            <AutoFontWeight style={colorStyle} fontSize={small}>
+              <BobineMereContentStockTitle>APRÈS PROD</BobineMereContentStockTitle>
+            </AutoFontWeight>
+            <AutoFontWeight style={colorStyle} fontSize={medium}>
+              <BobineMereContentStockContent>{stockAfterProd}</BobineMereContentStockContent>
+            </AutoFontWeight>
+          </BobineMereContentStock>
+        </BobineMereContentStocks>
+      </BobineMereContent>
+    );
+  }
+
   public render(): JSX.Element {
     const {
       planProduction,
@@ -442,10 +512,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             />
           );
 
-          const selectedPapierStockReel =
-            selectedPapier && stocks ? getStockReel(selectedPapier.ref, stocks) : 0;
-          const selectedPapierStockTerme =
-            selectedPapier && stocks ? getStockTerme(selectedPapier.ref, stocks) : 0;
           const papierBlock = selectedPapier ? (
             <WithColor color={selectedPapier.couleurPapier}>
               {color => (
@@ -457,16 +523,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     color={color.backgroundHex}
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
-                    <AutoFontWeight
-                      style={{color: color.textHex, textAlign: 'center'}}
-                      fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                    >
-                      {`Bobine Papier ${selectedPapier.couleurPapier} ${
-                        selectedPapier.ref
-                      } - Largeur ${selectedPapier.laize} - ${
-                        selectedPapier.grammage
-                      }g - ${selectedPapierStockReel} (à terme ${selectedPapierStockTerme})`}
-                    </AutoFontWeight>
+                    {this.renderBobineMereContent(color, pixelPerMM, selectedPapier, false)}
                   </Bobine>
                 </Closable>
               )}
@@ -487,10 +544,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
           );
 
-          const selectedPolyproStockReel =
-            selectedPolypro && stocks ? getStockReel(selectedPolypro.ref, stocks) : 0;
-          const selectedPolyproStockTerme =
-            selectedPolypro && stocks ? getStockTerme(selectedPolypro.ref, stocks) : 0;
           const polyproBlock = selectedPolypro ? (
             <WithColor color={selectedPolypro.couleurPapier}>
               {color => (
@@ -502,16 +555,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     color={color.backgroundHex}
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
-                    <AutoFontWeight
-                      style={{color: color.textHex, textAlign: 'center'}}
-                      fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-                    >
-                      {`Bobine Polypro ${selectedPolypro.ref} - Largeur ${
-                        selectedPolypro.laize
-                      } - ${
-                        selectedPolypro.grammage
-                      }μg - ${selectedPolyproStockReel} (à terme ${selectedPolyproStockTerme})`}
-                    </AutoFontWeight>
+                    {this.renderBobineMereContent(color, pixelPerMM, selectedPolypro, true)}
                   </Bobine>
                 </Closable>
               )}
@@ -551,17 +595,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment />
             );
 
-          const planProductionRef = computePlanProdRef(
-            planProduction.day,
-            planProduction.indexInDay
-          );
+          const planProdTitle = 'NOUVELLE PRODUCTION';
 
           return (
             <PlanProdEditorContainer>
               <TopBar
-                width={width}
-                planProdRef={planProductionRef}
+                width={adjustedWidthForPrinting}
+                planProdTitle={planProdTitle}
                 bobines={planProduction.selectedBobines}
+                papier={planProduction.selectedPapier}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
@@ -613,3 +655,27 @@ const ClosableAlignRight = styled(Closable)`
   display: flex;
   justify-content: flex-end;
 `;
+
+const BobineMereContent = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+`;
+const BobineMereContentTitle = styled.div`
+  text-align: center;
+`;
+const BobineMereContentStocks = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+`;
+const BobineMereContentStock = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+const BobineMereContentStockTitle = styled.div``;
+const BobineMereContentStockContent = styled.div``;

@@ -1,22 +1,27 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE `colors` (`ref` TEXT, `name` TEXT, `background_hex` TEXT, `text_hex` TEXT, `close_hex` TEXT, `has_border` NUMERIC, `description` TEXT)
-
-INSERT INTO "colors" VALUES ('BLANC', 'BLANC', '#F6F6F6', '#000000', '#E74C3C', 1, '');
-INSERT INTO "colors" VALUES ('ECRU', 'ECRU', '#F7D794', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('ECRU ENDUIT', 'ECRU ENDUIT', '#F7D794', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('IVOIRE', 'IVOIRE', '#F7F1E3', '#000000', '#E74C3C', 1, '');
-INSERT INTO "colors" VALUES ('JAUNE', 'JAUNE', '#FFC700', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('MARRON', 'MARRON', '#784212', '#ffffff', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('NOIR', 'NOIR', '#3D3D3D', '#ffffff', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('ORANGE', 'ORANGE', '#E67E22', '#000000', '#000000', 0, '');
-INSERT INTO "colors" VALUES ('PRUNE', 'PRUNE', '#9B59B6', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('ROUGE', 'ROUGE', '#E74C3C', '#000000', '#000000', 0, '');
-INSERT INTO "colors" VALUES ('VERT', 'VERT', '#2ECC71', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('BLEU', 'BLEU', '#2E71CC', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('BISTRE', 'BISTRE', '#856D4D', '#ffffff', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('OR', 'OR', '#EED807', '#000000', '#E74C3C', 0, '');
-INSERT INTO "colors" VALUES ('POLYPRO', 'POLYPRO', '#F0F0F0', '#000000', '#E74C3C', 0, '');
+INSERT INTO "colors" VALUES ('BLANC', 'BLANC', '#F6F6F6', '#000000', '#E74C3C', '1', '');
+INSERT INTO "colors" VALUES ('ECRU', 'ECRU', '#F7D794', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('ECRU ENDUIT', 'ECRU ENDUIT', '#F7D794', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_11-700-300A', 'NOIR', '#3D3D3D', '#ffffff', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_11-950', 'BISTRE 477', '#856D4D', '#ffffff', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_11-951', 'VERT', '#2ECC71', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_11952', 'BISTRE 483', '#856D4D', '#ffffff', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_12-021-077', 'BLANC CV', '#F6F6F6', '#000000', '#E74C3C', '1', '');
+INSERT INTO "colors" VALUES ('E_12-072-787', 'ROUGE', '#E74C3C', '#000000', '#000000', '0', '');
+INSERT INTO "colors" VALUES ('E_12029855', 'BLANC U', '#F6F6F6', '#000000', '#E74C3C', '1', '');
+INSERT INTO "colors" VALUES ('E_16-998', 'BLEU', '#2E71CC', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('E_771155-01', 'JAUNE', '#FFC700', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('IVOIRE', 'IVOIRE', '#F7F1E3', '#000000', '#E74C3C', '1', '');
+INSERT INTO "colors" VALUES ('JAUNE', 'JAUNE', '#FFC700', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('MARRON', 'MARRON', '#784212', '#ffffff', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('NOIR', 'NOIR', '#3D3D3D', '#ffffff', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('OR', 'OR', '#EED807', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('ORANGE', 'ORANGE', '#E67E22', '#000000', '#000000', '0', '');
+INSERT INTO "colors" VALUES ('POLYPRO', 'POLYPRO', '#F0F0F0', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('PRUNE', 'PRUNE', '#9B59B6', '#000000', '#E74C3C', '0', '');
+INSERT INTO "colors" VALUES ('ROUGE', 'ROUGE', '#E74C3C', '#000000', '#000000', '0', '');
+INSERT INTO "colors" VALUES ('VERT', 'VERT', '#2ECC71', '#000000', '#E74C3C', '0', '');
 
 INSERT INTO "bobines_quantities" VALUES (0,10,0,10);
 INSERT INTO "bobines_quantities" VALUES (11,20,0,20);
@@ -73,7 +78,5 @@ INSERT INTO "perfos" VALUES ('P0004',240,0,80,85,80,130,80,130,80,130,80,NULL,NU
 INSERT INTO "perfos" VALUES ('P0005',240,0,80,140,80,210,80,180,80,'',NULL,NULL,NULL,NULL,NULL,0,1558005719000);
 INSERT INTO "perfos" VALUES ('P0006',240,50,80,100,80,90,80,95,80,75,80,60,80,NULL,NULL,0,1558005719000);
 INSERT INTO "perfos" VALUES ('P0007',240,50,80,85,80,60,80,50,80,50,80,50,80,50,80,0,1558005719000);
-
-CREATE TABLE `plan_production` (`id` integer not null primary key autoincrement, `data` text not null, `sommeil` boolean, `localUpdate` datetime)
 
 COMMIT;

@@ -2,8 +2,7 @@
   "name": "dune-client-renderer",
   "scripts": {
     "build": "node ../webpack/index --mode=production --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer",
-    "build:dev": "node ../webpack/index --mode=development --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer --lintAutoFix",
-    "build:prod": "node ../webpack/index --mode=production --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer"
+    "build:dev": "node ../webpack/index --mode=development --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer --lintAutoFix"
   },
   "dependencies": {
     "core-js": "^3.0.0",

@@ -110,7 +110,7 @@ export class PlanProdTile extends React.Component<Props> {
     viewerContainer.id = this.getViewerId();
     document.body.appendChild(viewerContainer);
     ReactDOM.render(
-      <PlanProdViewer planProd={this.props.planProd.data} width={best.width} />,
+      <PlanProdViewer planProd={this.props.planProd} width={best.width} />,
       viewerContainer
     );
   }

@@ -8,15 +8,16 @@ import {TopBottom} from '@root/components/core/top_bottom';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {BobineFilleWithPose} from '@shared/models';
+import {BobineFilleWithPose, BobineMere} from '@shared/models';
 
 const MAX_SPEED_RATIO = 0.82;
 
 interface TopBarProps {
   style?: React.CSSProperties;
   width: number;
-  planProdRef: string;
+  planProdTitle: string;
   bobines: BobineFilleWithPose[];
+  papier?: BobineMere;
   tourCount?: number;
   speed: number;
   onTourCountChange(tourCount?: number): void;
@@ -88,7 +89,16 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 
   public render(): JSX.Element {
-    const {planProdRef, tourCount, speed, isPrinting, bobines, width, style = {}} = this.props;
+    const {
+      planProdTitle,
+      tourCount,
+      speed,
+      isPrinting,
+      bobines,
+      width,
+      papier,
+      style = {},
+    } = this.props;
 
     const productionTimeInSec =
       bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
@@ -100,13 +110,28 @@ export class TopBar extends React.Component<TopBarProps> {
     const metrageLineaireStr = numberWithSeparator(bobineLength * tourCountValue);
     const InputClass = isPrinting ? StaticTopBarInput : TopBarInput;
 
+    const longueur = papier ? papier.longueur || 0 : 0;
+    const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
+    const prod =
+      Math.round((longueur !== 0 ? (tourCountValue * longueurBobineFille) / longueur : 0) * 10) /
+      10;
+
     return (
       <TopBarWrapper style={{...style, width}}>
         <LeftContainer>
+          <TopBarTitle>PRODUCTION 00013</TopBarTitle>
+          {this.renderButtons()}
+        </LeftContainer>
+        <CenterContainer>
           <TopBarValueContainer
-            style={{marginRight: 22}}
-            top={<InputClass value={speed} onChange={this.handleSpeedInputChange} />}
-            bottom={'M/MIN'}
+            style={{marginRight: 16}}
+            top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
+            bottom={'MÈTRES LINÉAIRES'}
+          />
+          <TopBarValueContainer
+            style={{marginRight: 16}}
+            top={<StaticTopBarInput value={prod} readOnly />}
+            bottom={'CONSO BOBINES MÈRES'}
           />
           <TopBarValueContainer
             style={{marginRight: 16}}
@@ -114,13 +139,10 @@ export class TopBar extends React.Component<TopBarProps> {
             bottom={'TOURS'}
           />
           <TopBarValueContainer
-            top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
-            bottom={'MÈTRES LINÉAIRES'}
+            style={{marginRight: 16}}
+            top={<InputClass value={speed} onChange={this.handleSpeedInputChange} />}
+            bottom={'M/MIN'}
           />
-        </LeftContainer>
-        <CenterContainer>
-          <TopBarTitle>{`PRODUCTION N°${planProdRef}`}</TopBarTitle>
-          {this.renderButtons()}
         </CenterContainer>
         <RightContainer>
           <div>
@@ -148,23 +170,21 @@ const ContainerBase = styled.div`
   justify-content: center;
 `;
 
-const LeftContainer = styled.div`
-  flex-basis: 1px;
+const LeftContainer = styled(ContainerBase)`
   flex-grow: 1;
-  display: flex;
-  align-items: center;
+  justify-content: space-evenly;
 `;
 
 const RightContainer = styled(ContainerBase)`
-  flex-basis: 1px;
-  flex-grow: 1;
-  align-items: flex-end;
+  flex-shrink: 0;
   font-size: ${theme.planProd.topBarDetailsFontSize}px;
 `;
 
-const CenterContainer = styled(ContainerBase)`
+const CenterContainer = styled.div`
+  display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  align-items: center;
+  flex-shrink: 0;
 `;
 
 const ButtonsContainer = styled.div`

@@ -24,7 +24,7 @@ const Pages: {[key: string]: SidebarItemData} = {
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
 
-const logoSize = 100;
+const logoSize = 140;
 
 export class Sidebar extends React.Component<Props, State> {
   public static displayName = 'Sidebar';

@@ -1,5 +1,5 @@
 import {cadencier} from '@root/cadencier';
-import {db} from '@root/db';
+import {SQLITE_DB} from '@root/db';
 import {planProductionStore} from '@root/store';
 import {windowManager} from '@root/window_manager';
 
@@ -55,27 +55,27 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   // Listing commands
   if (command === ListBobinesFilles) {
     const {localUpdate} = asMap(params);
-    return {data: await listBobinesFilles(db, asNumber(localUpdate, 0))};
+    return {data: await listBobinesFilles(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
   if (command === ListBobinesMeres) {
     const {localUpdate} = asMap(params);
-    return {data: await listBobinesMeres(db, asNumber(localUpdate, 0))};
+    return {data: await listBobinesMeres(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
   if (command === ListCliches) {
     const {localUpdate} = asMap(params);
-    return {data: await listCliches(db, asNumber(localUpdate, 0))};
+    return {data: await listCliches(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
   if (command === ListStocks) {
     const {localUpdate} = asMap(params);
-    return {data: await listStocks(db, asNumber(localUpdate, 0))};
+    return {data: await listStocks(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
   if (command === ListPerfos) {
     const {localUpdate} = asMap(params);
-    return {data: await listPerfos(db, asNumber(localUpdate, 0))};
+    return {data: await listPerfos(SQLITE_DB.Params, asNumber(localUpdate, 0))};
   }
   if (command === ListRefentes) {
     const {localUpdate} = asMap(params);
-    return {data: await listRefentes(db, asNumber(localUpdate, 0))};
+    return {data: await listRefentes(SQLITE_DB.Params, asNumber(localUpdate, 0))};
   }
   if (command === ListCadencier) {
     const {localUpdate} = asMap(params);
@@ -83,17 +83,17 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   }
   if (command === ListPlansProduction) {
     const {localUpdate} = asMap(params);
-    return {data: await listPlansProduction(db, asNumber(localUpdate, 0))};
+    return {data: await listPlansProduction(SQLITE_DB.Prod, asNumber(localUpdate, 0))};
   }
   if (command === ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
     return cadencier.listAllForBobine(asString(bobineRef, ''));
   }
   if (command === ListBobinesQuantities) {
-    return listBobinesQuantities(db);
+    return listBobinesQuantities(SQLITE_DB.Params);
   }
   if (command === ListColors) {
-    return listColors(db);
+    return listColors(SQLITE_DB.Params);
   }
 
   // Window Management
@@ -136,7 +136,7 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   }
   if (command === SavePlanProduction) {
     const {id, data} = asMap(params);
-    return savePlanProduction(db, asNumber(id, undefined), asString(data, '{}'));
+    return savePlanProduction(SQLITE_DB.Prod, asNumber(id, undefined), asString(data, '{}'));
   }
 
   if (command === GetNewPlanProduction) {
@@ -222,12 +222,12 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
   // Operations Management
   if (command === ListOperations) {
     const {localUpdate} = asMap(params);
-    return {data: await listOperations(db, asNumber(localUpdate, 0))};
+    return {data: await listOperations(SQLITE_DB.Params, asNumber(localUpdate, 0))};
   }
   if (command === CreateOrUpdateOperation) {
     const {operation} = asMap(params);
     // tslint:disable-next-line:no-unsafe-any
-    return createOrUpdateOperation(db, operation);
+    return createOrUpdateOperation(SQLITE_DB.Params, operation);
   }
 
   // Operateurs Management

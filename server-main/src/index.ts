@@ -1,8 +1,9 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
+import {automateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
-import {gescomDB, sqliteDB} from '@root/db';
+import {gescomDB, SQLITE_DB} from '@root/db';
 import {GescomWatcherBobinesFilles} from '@root/gescom/bobines_filles';
 import {GescomWatcherBobinesMeres} from '@root/gescom/bobines_meres';
 import {GescomWatcherCadencier} from '@root/gescom/cadencier';
@@ -17,12 +18,12 @@ configureLogs();
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
-  await setupSqliteDB(sqliteDB);
-  const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, sqliteDB);
-  const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, sqliteDB);
-  const gescomCliches = new GescomWatcherCliches(gescomDB, sqliteDB);
-  const gescomStocks = new GescomWatcherStocks(gescomDB, sqliteDB);
-  const gescomCadencier = new GescomWatcherCadencier(gescomDB, sqliteDB);
+  await setupSqliteDB();
+  const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, SQLITE_DB.Gescom);
+  const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, SQLITE_DB.Gescom);
+  const gescomCliches = new GescomWatcherCliches(gescomDB, SQLITE_DB.Gescom);
+  const gescomStocks = new GescomWatcherStocks(gescomDB, SQLITE_DB.Gescom);
+  const gescomCadencier = new GescomWatcherCadencier(gescomDB, SQLITE_DB.Gescom);
   log.info('Starting Bobine Filles watcher');
   await gescomBobinesFilles.start();
   log.info('Starting Bobine Meres watcher');
@@ -33,6 +34,8 @@ async function startServer(): Promise<void> {
   await gescomStocks.start();
   log.info('Starting Cadencier watcher');
   await gescomCadencier.start();
+  log.info('Starting Automate watcher');
+  await automateWatcher.start();
 }
 
 startServer();
@@ -56,5 +59,6 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
+  automateWatcher.stop();
   app.quit();
 });

@@ -328,7 +328,7 @@ export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, s
 
 export const REF_CLICHE1_COLUMN: ColumnMetadata<{refCliche1?: string}, string> = {
   title: 'REF CLICHÉ 1',
-  width: 90,
+  width: 95,
   renderCell: ({refCliche1}) => renderString(refCliche1),
   getSearchValue: row => row.refCliche1 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.refCliche1, row2.refCliche1),
@@ -337,7 +337,7 @@ export const REF_CLICHE1_COLUMN: ColumnMetadata<{refCliche1?: string}, string> =
 
 export const REF_CLICHE2_COLUMN: ColumnMetadata<{refCliche2?: string}, string> = {
   title: 'REF CLICHÉ 2',
-  width: 90,
+  width: 95,
   renderCell: ({refCliche2}) => renderString(refCliche2),
   getSearchValue: row => row.refCliche2 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.refCliche2, row2.refCliche2),

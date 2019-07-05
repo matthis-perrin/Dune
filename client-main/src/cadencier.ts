@@ -1,7 +1,7 @@
 import * as log from 'electron-log';
 import {sum} from 'lodash';
 
-import {db} from '@root/db';
+import {SQLITE_DB} from '@root/db';
 
 import {listCadencier} from '@shared/db/cadencier';
 import {aggregateByMonth, CadencierType} from '@shared/lib/cadencier';
@@ -46,7 +46,7 @@ class Cadencier {
   }
 
   private reload(): void {
-    listCadencier(db, this.localUpdate)
+    listCadencier(SQLITE_DB.Gescom, this.localUpdate)
       .then(data => {
         this.handleNewData(data);
         setTimeout(() => this.reload(), WAIT_ON_SUCCESS);

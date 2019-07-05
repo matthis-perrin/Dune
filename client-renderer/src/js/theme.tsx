@@ -168,7 +168,7 @@ export const theme = {
     basePadding: 24,
     elementsBaseSmallFontSize: 12,
     elementsBaseMediumFontSize: 20,
-    elementsBaseLargeFontSize: 28,
+    elementsBaseLargeFontSize: 26,
   },
   perfo: {
     hoverBackgroundColor: '#eeeeee',

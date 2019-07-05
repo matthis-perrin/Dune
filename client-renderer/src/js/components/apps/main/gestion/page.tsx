@@ -57,8 +57,12 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private readonly handleNewPlanProdClick = () => {
-    bridge.openApp(ClientAppType.PlanProductionEditorApp).catch(err => console.error);
-    bridge.createNewPlanProduction(Date.now(), 0).catch(err => console.error(err));
+    bridge
+      .createNewPlanProduction(Date.now(), 0)
+      .then(() => {
+        bridge.openApp(ClientAppType.PlanProductionEditorApp).catch(console.error);
+      })
+      .catch(err => console.error(err));
   };
 
   public renderDay(date: Date): JSX.Element {

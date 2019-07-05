@@ -15,14 +15,15 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getStockReel, getStockTerme} from '@root/lib/bobine';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {computePlanProdRef} from '@root/lib/plan_prod';
+import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
-import {Stock, BobineQuantities, PlanProductionData} from '@shared/models';
+import {Stock, BobineQuantities, PlanProduction} from '@shared/models';
 
 interface PlanProdViewerProps {
-  planProd: PlanProductionData;
+  planProd: PlanProduction;
   width: number;
 }
 
@@ -78,10 +79,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       polypro,
       tourCount,
       bobinesMini,
-      day,
-      indexInDay,
       speed,
-    } = planProd;
+    } = planProd.data;
 
     const leftPadding =
       (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
@@ -185,7 +184,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
         <React.Fragment />
       );
 
-    const planProductionRef = computePlanProdRef(day, indexInDay);
+    const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, 5)}`;
     const adjustedWidth = Math.max(TOP_BAR_MIN_WIDTH, width);
     const scale = width / adjustedWidth;
 
@@ -202,7 +201,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
           isPrinting
           onSpeedChange={() => {}}
           onTourCountChange={() => {}}
-          planProdRef={planProductionRef}
+          planProdTitle={planProdTitle}
           speed={speed}
           tourCount={tourCount}
         />

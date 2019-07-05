@@ -5,7 +5,6 @@ import {
   ARTICLE_REF_COLUMN,
   ARTICLE_DESIGNATION_COLUMN,
   ARTICLE_LAIZE_COLUMN,
-  ARTICLE_LONGUEUR_COLUMN,
   ARTICLE_COULEUR_PAPIER_COLUMN,
   ARTICLE_GRAMMAGE_COLUMN,
   ARTICLE_SOMMEIL_COLUMN,
@@ -53,7 +52,10 @@ export class GescomWatcherBobinesMeres extends GescomWatcher {
         undefined
       ),
       [BobineMereColumns.LAIZE_COLUMN]: asNumber(gescomLine[ARTICLE_LAIZE_COLUMN], undefined),
-      [BobineMereColumns.LONGUEUR_COLUMN]: asNumber(gescomLine[ARTICLE_LONGUEUR_COLUMN], undefined),
+      [BobineMereColumns.LONGUEUR_COLUMN]: asNumber(
+        gescomLine[ARTICLE_LONGUEUR_BM_COLUMN],
+        undefined
+      ),
       [BobineMereColumns.COULEUR_PAPIER_COLUMN]: asString(
         gescomLine[ARTICLE_COULEUR_PAPIER_COLUMN],
         undefined

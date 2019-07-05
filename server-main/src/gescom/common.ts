@@ -8,32 +8,35 @@ import {createBobinesMeresTable} from '@shared/db/bobines_meres';
 import {createBobinesQuantitiesTable} from '@shared/db/bobines_quantities';
 import {createCadencierTable} from '@shared/db/cadencier';
 import {createClichesTable} from '@shared/db/cliches';
+import {createColorsTable} from '@shared/db/colors';
 import {
   createGescomSyncTable,
   getGescomSyncData,
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
-import {createColorsTable} from '@shared/db/colors';
 import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
+import {createPlansProductionTable} from '@shared/db/plan_production';
 import {createRefentesTable} from '@shared/db/refentes';
 import {createStocksTable} from '@shared/db/stocks';
-import {createPlansProductionTable} from '@shared/db/plan_production';
+import {createSpeedMinutesTable} from '@shared/db/speed_minutes';
+import {SQLITE_DB} from '@root/db';
 
-export async function setupSqliteDB(db: knex): Promise<void> {
+export async function setupSqliteDB(): Promise<void> {
   await Promise.all([
-    createBobinesFillesTable(db),
-    createBobinesMeresTable(db),
-    createClichesTable(db),
-    createStocksTable(db),
-    createGescomSyncTable(db),
-    createPerfosTable(db),
-    createRefentesTable(db),
-    createCadencierTable(db),
-    createOperationsTable(db),
-    createBobinesQuantitiesTable(db),
-    createColorsTable(db),
-    createPlansProductionTable(db),
+    createBobinesFillesTable(SQLITE_DB.Gescom),
+    createBobinesMeresTable(SQLITE_DB.Gescom),
+    createClichesTable(SQLITE_DB.Gescom),
+    createStocksTable(SQLITE_DB.Gescom),
+    createGescomSyncTable(SQLITE_DB.Gescom),
+    createCadencierTable(SQLITE_DB.Gescom),
+    createPerfosTable(SQLITE_DB.Params),
+    createRefentesTable(SQLITE_DB.Params),
+    createOperationsTable(SQLITE_DB.Params),
+    createBobinesQuantitiesTable(SQLITE_DB.Params),
+    createColorsTable(SQLITE_DB.Params),
+    createPlansProductionTable(SQLITE_DB.Prod),
+    createSpeedMinutesTable(SQLITE_DB.Automate),
   ]);
 }
 

@@ -1,4 +1,4 @@
-import {sqliteDB} from '@root/db';
+import {SQLITE_DB} from '@root/db';
 import {getErrors} from '@root/state';
 
 import {
@@ -11,7 +11,7 @@ import {getStatus} from '@shared/db/gescom_sync';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 
 async function getServerStatus(): Promise<ServerStatus> {
-  const gescomData = await getStatus(sqliteDB);
+  const gescomData = await getStatus(SQLITE_DB.Gescom);
   const gescom: {[key: string]: ServiceStatus} = {};
   gescomData.forEach(({name, lastUpdate, rowCount, rowCountSommeil}) => {
     gescom[name] = {lastUpdate, rowCount, rowCountSommeil};
