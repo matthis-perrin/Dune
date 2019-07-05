@@ -30,6 +30,7 @@ interface ProductionTableProps {
   bobineQuantities: BobineQuantities[];
   onRemove?(ref: string): void;
   canRemove: boolean;
+  showQuantity: boolean;
   minimums?: Map<string, number>;
   onMiniUpdated?(ref: string, newMini: number): void;
 }
@@ -48,6 +49,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       canRemove,
       onMiniUpdated,
       minimums,
+      showQuantity,
     } = this.props;
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
@@ -117,8 +119,13 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       columns.splice(miniColumnIndex, 1);
     }
 
+    if (!showQuantity) {
+      const quantityColumnIndex = 4;
+      columns.splice(quantityColumnIndex, 1);
+    }
+
     if (!canRemove) {
-      columns = columns.slice(0, columns.length - 2);
+      columns = columns.slice(0, columns.length - 1);
     }
 
     return (

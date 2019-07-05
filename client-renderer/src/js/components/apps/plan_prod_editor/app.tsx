@@ -584,6 +584,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   cadencier={cadencier}
                   bobineQuantities={bobineQuantities}
                   canRemove={!isPrinting}
+                  showQuantity={!isPrinting}
                   onRemove={(ref: string) => {
                     bridge.removePlanBobine(ref).catch(console.error);
                   }}
