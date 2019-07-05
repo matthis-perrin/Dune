@@ -24,7 +24,7 @@ import {
 } from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {numberWithSeparator} from '@root/lib/utils';
-import {Colors} from '@root/theme';
+import {Colors, FontWeight} from '@root/theme';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {BobineColors as BobineColorsModel} from '@shared/lib/encrier';
@@ -859,7 +859,11 @@ export const QUANTITY_TO_PRODUCE = (
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PROD',
   width: 60,
-  renderCell: ({production}) => renderString(`+${production}`),
+  renderCell: ({production}) => (
+    <span style={{fontWeight: FontWeight.Bold, fontSize: 16}}>{`+${numberWithSeparator(
+      production
+    )}`}</span>
+  ),
   justifyContent: 'center',
   sortFunction: (row1, row2) => numberSort(row1.production, row2.production),
   shouldRerender: (row1, row2) => row1.production !== row2.production,
