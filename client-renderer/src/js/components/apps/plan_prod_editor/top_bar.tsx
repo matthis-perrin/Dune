@@ -90,9 +90,13 @@ export class TopBar extends React.Component<TopBarProps> {
         <Button style={{marginRight: 8}} onClick={onClear}>
           Effacer
         </Button>
-        <Button style={{marginRight: 8}} onClick={onSave}>
-          Sauvegarder
-        </Button>
+        {isComplete ? (
+          <Button style={{marginRight: 8}} onClick={onSave}>
+            Sauvegarder
+          </Button>
+        ) : (
+          <React.Fragment />
+        )}
       </ButtonsContainer>
     );
   }
