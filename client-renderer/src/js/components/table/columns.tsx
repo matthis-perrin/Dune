@@ -970,6 +970,24 @@ export function MINIMUM_COLUMN<T extends {ref: string; minimum: number}>(
     shouldRerender: (row1, row2) => row1 !== row2,
   };
 }
+
+export function MAXIMUM_COLUMN<T extends {ref: string; maximum: number}>(
+  onMaximumUpdated: (ref: string, newMinimum: number) => void
+): ColumnMetadata<T, void> {
+  return {
+    title: 'MAX',
+    width: 50,
+    renderCell: row => (
+      <Input
+        style={{padding: 4, textAlign: 'center', height: 26, lineHeight: 26}}
+        value={row.maximum || ''}
+        onChange={event => onMaximumUpdated(row.ref, parseFloat(event.target.value))}
+      />
+    ),
+    justifyContent: 'center',
+    shouldRerender: (row1, row2) => row1 !== row2,
+  };
+}
 // tslint:enable:no-magic-numbers
 
 export function toStaticColumn<T, U>(column: ColumnMetadata<T, U>): ColumnMetadata<T, U> {

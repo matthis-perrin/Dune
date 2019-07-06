@@ -79,6 +79,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       polypro,
       tourCount,
       bobinesMini,
+      bobinesMax,
       speed,
     } = planProd.data;
 
@@ -175,7 +176,9 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
             bobineQuantities={bobineQuantities}
             canRemove={false}
             minimums={new Map<string, number>(bobinesMini)}
+            maximums={new Map<string, number>(bobinesMax)}
             onMiniUpdated={() => {}}
+            onMaxUpdated={() => {}}
             showQuantity
           />
         </React.Fragment>

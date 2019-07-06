@@ -14,6 +14,7 @@ import {
   CLOSE_COLUMN,
   BOBINE_FILLE_REF_COLUMN,
   MINIMUM_COLUMN,
+  MAXIMUM_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {getStockTerme, getBobineState} from '@root/lib/bobine';
@@ -32,7 +33,9 @@ interface ProductionTableProps {
   canRemove: boolean;
   showQuantity: boolean;
   minimums?: Map<string, number>;
+  maximums?: Map<string, number>;
   onMiniUpdated?(ref: string, newMini: number): void;
+  onMaxUpdated?(ref: string, newMax: number): void;
 }
 
 export class ProductionTable extends React.Component<ProductionTableProps> {
@@ -48,7 +51,9 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       onRemove,
       canRemove,
       onMiniUpdated,
+      onMaxUpdated,
       minimums,
+      maximums,
       showQuantity,
     } = this.props;
 
@@ -92,6 +97,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         newState: newBobineState.state,
         newInfo: newBobineState.info,
         minimum: (minimums && minimums.get(bobine.ref)) || production,
+        maximum: (maximums && maximums.get(bobine.ref)) || 0,
       };
     });
 
@@ -103,10 +109,15 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       toStaticColumn(STATE_ACTUEL_COLUMN),
       toStaticColumn(QUANTITY_COLUMN),
       toStaticColumn(STOCK_ACTUEL_COLUMN),
-      toStaticColumn(PRODUCTION_COLUMN),
       MINIMUM_COLUMN<{ref: string; minimum: number}>((ref, newMinimum) => {
         if (onMiniUpdated) {
           onMiniUpdated(ref, isNaN(newMinimum) ? 0 : newMinimum);
+        }
+      }),
+      toStaticColumn(PRODUCTION_COLUMN),
+      MAXIMUM_COLUMN<{ref: string; maximum: number}>((ref, newMaximum) => {
+        if (onMaxUpdated) {
+          onMaxUpdated(ref, isNaN(newMaximum) ? 0 : newMaximum);
         }
       }),
       toStaticColumn(STOCK_PREVISIONEL_COLUMN),
@@ -114,8 +125,13 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       CLOSE_COLUMN<{ref: string}>(({ref}) => onRemove && onRemove(ref)),
     ];
 
+    if (!maximums) {
+      const maxColumnIndex = 8;
+      columns.splice(maxColumnIndex, 1);
+    }
+
     if (!minimums) {
-      const miniColumnIndex = 7;
+      const miniColumnIndex = 6;
       columns.splice(miniColumnIndex, 1);
     }
 

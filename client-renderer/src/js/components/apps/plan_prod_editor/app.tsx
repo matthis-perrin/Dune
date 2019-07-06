@@ -53,6 +53,7 @@ interface State {
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
   bobinesMinimums: Map<string, number>;
+  bobinesMaximums: Map<string, number>;
 
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
@@ -71,6 +72,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       tourCountSetByUser: false,
       speed: INITIAL_SPEED,
       bobinesMinimums: new Map<string, number>(),
+      bobinesMaximums: new Map<string, number>(),
     };
   }
 
@@ -181,6 +183,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     this.setState({bobinesMinimums: newBobinesMinimums});
   };
 
+  private readonly handleMaxUpdated = (ref: string, newMax: number): void => {
+    const currentBobinesMaximums = Array.from(this.state.bobinesMaximums.entries());
+    const newBobinesMaximums = new Map<string, number>(currentBobinesMaximums);
+    newBobinesMaximums.set(ref, newMax);
+    this.setState({bobinesMaximums: newBobinesMaximums});
+  };
+
   private readonly handleSpeedChange = (speed: number): void => {
     this.setState({speed});
   };
@@ -199,7 +208,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleSave = (): void => {
-    const {planProduction, bobinesMinimums, reorderedEncriers, speed} = this.state;
+    const {planProduction, bobinesMinimums, bobinesMaximums, reorderedEncriers, speed} = this.state;
     if (!planProduction) {
       return;
     }
@@ -236,6 +245,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       refente: selectedRefente,
       bobines: selectedBobines,
       bobinesMini: Array.from(bobinesMinimums.entries()),
+      bobinesMax: Array.from(bobinesMaximums.entries()),
       encriers: reorderedEncriers || couleursEncrier[0],
 
       tourCount,
@@ -293,6 +303,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobineQuantities,
       speed,
       bobinesMinimums,
+      bobinesMaximums,
     } = this.state;
 
     if (!planProduction || !stocks) {
@@ -459,7 +470,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     bridge.removePlanBobine(ref).catch(console.error);
                   }}
                   minimums={bobinesMinimums}
+                  maximums={bobinesMaximums}
                   onMiniUpdated={this.handleMiniUpdated}
+                  onMaxUpdated={this.handleMaxUpdated}
                 />
               </React.Fragment>
             ) : (

@@ -208,6 +208,7 @@ export interface PlanProductionData {
   refente: Refente;
   bobines: BobineFilleWithPose[];
   bobinesMini: [string, number][];
+  bobinesMax: [string, number][];
   encriers: EncrierColor[];
 
   tourCount: number;
