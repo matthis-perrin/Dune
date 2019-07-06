@@ -39,6 +39,9 @@ import {
   PlanProductionState,
 } from '@shared/models';
 
+// tslint:disable-next-line:no-any
+type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose, any>[];
+
 interface Props {}
 
 interface State {
@@ -56,7 +59,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   private lastPlanProd: PlanProductionState | undefined;
   private lastIsSelectionnable: ((element: BobineFilleWithMultiPose) => boolean) | undefined;
 
-  private lastColumns: ColumnMetadata<any, any>[] | undefined;
+  private lastColumns: AnyColumns | undefined;
   private lastRowStyles: ((element: BobineFilleWithMultiPose) => React.CSSProperties) | undefined;
 
   constructor(props: Props) {
@@ -89,7 +92,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     cadencier: Map<string, Map<number, number>>,
     bobineQuantities: BobineQuantities[],
     planProd: PlanProductionState
-  ): ColumnMetadata<any, any>[] {
+  ): AnyColumns {
     if (
       this.lastColumns &&
       this.lastStocks === stocks &&

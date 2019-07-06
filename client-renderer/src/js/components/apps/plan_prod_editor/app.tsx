@@ -13,18 +13,17 @@ import {
 } from '@root/components/apps/plan_prod_editor/select_buttons';
 import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
+import {BobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
-import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {Closable} from '@root/components/core/closable';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
-import {getBobineState, getStockTerme, getStockReel} from '@root/lib/bobine';
+import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {computePlanProdRef} from '@root/lib/plan_prod';
-import {numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -41,8 +40,6 @@ import {
   BobineQuantities,
   PlanProductionData,
   PlanProductionStatus,
-  BobineMere,
-  Color,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 900;
@@ -286,96 +283,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanPolypro(undefined).catch(console.error);
   }
 
-  private canAutoComplete(): boolean {
-    const {planProduction} = this.state;
-    if (!planProduction) {
-      return false;
-    }
-    const {
-      selectableRefentes,
-      selectablePapiers,
-      selectablePerfos,
-      selectablePolypros,
-    } = planProduction;
-
-    const allSelectableWithSingles = [
-      selectableRefentes,
-      selectablePapiers,
-      selectablePerfos,
-      selectablePolypros,
-    ].filter(arr => arr.length === 1);
-
-    return allSelectableWithSingles.length > 0;
-  }
-
-  private renderBobineMereContent(
-    color: Color,
-    pixelPerMM: number,
-    bobine: BobineMere,
-    isPolypro: boolean
-  ): JSX.Element {
-    const {stocks, planProduction} = this.state;
-    const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
-
-    const grammageStr = `${grammage}${isPolypro ? 'g/m²' : 'g'}`;
-    const longueurStr = `${numberWithSeparator(longueur)} m`;
-    const stockReel = stocks ? getStockReel(ref, stocks) : 0;
-    const stockTerme = stocks ? getStockTerme(ref, stocks) : 0;
-    const tourCount = planProduction ? planProduction.tourCount || 0 : 0;
-    const longueurBobineFille =
-      planProduction && planProduction.selectedBobines.length > 0
-        ? planProduction.selectedBobines[0].longueur || 0
-        : 0;
-    const withDecimal = (value: number): number => Math.round(value * 10) / 10;
-    const prod = withDecimal(longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0);
-
-    const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
-    const stockActuel = `${stockReel} (à terme ${stockTerme})`;
-    const stockPrevisionel = '? (à terme ?)';
-    const stockAfterProd = `${withDecimal(stockReel - prod)} (à terme ${withDecimal(
-      stockTerme - prod
-    )})`;
-
-    const large = theme.planProd.elementsBaseLargeFontSize * pixelPerMM;
-    const medium = theme.planProd.elementsBaseMediumFontSize * pixelPerMM;
-    const small = theme.planProd.elementsBaseSmallFontSize * pixelPerMM;
-    const colorStyle = {color: color.textHex};
-
-    return (
-      <BobineMereContent>
-        <AutoFontWeight style={colorStyle} fontSize={large}>
-          <BobineMereContentTitle>{title}</BobineMereContentTitle>
-        </AutoFontWeight>
-        <BobineMereContentStocks>
-          <BobineMereContentStock>
-            <AutoFontWeight style={colorStyle} fontSize={small}>
-              <BobineMereContentStockTitle>STOCK ACTUEL</BobineMereContentStockTitle>
-            </AutoFontWeight>
-            <AutoFontWeight style={colorStyle} fontSize={medium}>
-              <BobineMereContentStockContent>{stockActuel}</BobineMereContentStockContent>
-            </AutoFontWeight>
-          </BobineMereContentStock>
-          <BobineMereContentStock>
-            <AutoFontWeight style={colorStyle} fontSize={small}>
-              <BobineMereContentStockTitle>PRÉVISIONNEL</BobineMereContentStockTitle>
-            </AutoFontWeight>
-            <AutoFontWeight style={colorStyle} fontSize={medium}>
-              <BobineMereContentStockContent>{stockPrevisionel}</BobineMereContentStockContent>
-            </AutoFontWeight>
-          </BobineMereContentStock>
-          <BobineMereContentStock>
-            <AutoFontWeight style={colorStyle} fontSize={small}>
-              <BobineMereContentStockTitle>APRÈS PROD</BobineMereContentStockTitle>
-            </AutoFontWeight>
-            <AutoFontWeight style={colorStyle} fontSize={medium}>
-              <BobineMereContentStockContent>{stockAfterProd}</BobineMereContentStockContent>
-            </AutoFontWeight>
-          </BobineMereContentStock>
-        </BobineMereContentStocks>
-      </BobineMereContent>
-    );
-  }
-
   public render(): JSX.Element {
     const {
       planProduction,
@@ -388,7 +295,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobinesMinimums,
     } = this.state;
 
-    if (!planProduction) {
+    if (!planProduction || !stocks) {
       return <LoadingScreen />;
     }
 
@@ -470,7 +377,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     color={color.backgroundHex}
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
-                    {this.renderBobineMereContent(color, pixelPerMM, selectedPapier, false)}
+                    <BobineMereContent
+                      color={color}
+                      pixelPerMM={pixelPerMM}
+                      bobine={selectedPapier}
+                      isPolypro={false}
+                      stocks={stocks}
+                      tourCount={tourCount}
+                      selectedBobines={selectedBobines}
+                    />
                   </Bobine>
                 </Closable>
               )}
@@ -502,7 +417,15 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                     color={color.backgroundHex}
                     strokeWidth={theme.planProd.selectedStrokeWidth}
                   >
-                    {this.renderBobineMereContent(color, pixelPerMM, selectedPolypro, true)}
+                    <BobineMereContent
+                      color={color}
+                      pixelPerMM={pixelPerMM}
+                      bobine={selectedPolypro}
+                      isPolypro
+                      stocks={stocks}
+                      tourCount={tourCount}
+                      selectedBobines={selectedBobines}
+                    />
                   </Bobine>
                 </Closable>
               )}
@@ -521,7 +444,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           );
 
           const productionTable =
-            planProduction.selectedBobines.length > 0 && stocks && cadencier && bobineQuantities ? (
+            planProduction.selectedBobines.length > 0 && cadencier && bobineQuantities ? (
               <React.Fragment>
                 {padding}
                 <ProductionTable
@@ -604,27 +527,3 @@ const ClosableAlignRight = styled(Closable)`
   display: flex;
   justify-content: flex-end;
 `;
-
-const BobineMereContent = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-`;
-const BobineMereContentTitle = styled.div`
-  text-align: center;
-`;
-const BobineMereContentStocks = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-`;
-const BobineMereContentStock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-const BobineMereContentStockTitle = styled.div``;
-const BobineMereContentStockContent = styled.div``;

@@ -6,6 +6,7 @@ import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable
 import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
 import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
+import {BobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
@@ -109,8 +110,6 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       />
     );
 
-    const papierStockReel = getStockReel(papier.ref, stocks);
-    const papierStockTerme = getStockTerme(papier.ref, stocks);
     const papierBlock = (
       <WithColor color={papier.couleurPapier}>
         {color => (
@@ -121,14 +120,15 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
             color={color.backgroundHex}
             strokeWidth={theme.planProd.selectedStrokeWidth}
           >
-            <AutoFontWeight
-              style={{color: color.textHex, textAlign: 'center'}}
-              fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-            >
-              {`Bobine Papier ${papier.couleurPapier} ${papier.ref} - Largeur ${papier.laize} - ${
-                papier.grammage
-              }g - ${papierStockReel} (à terme ${papierStockTerme})`}
-            </AutoFontWeight>
+            <BobineMereContent
+              color={color}
+              pixelPerMM={pixelPerMM}
+              bobine={papier}
+              isPolypro={false}
+              stocks={stocks}
+              tourCount={tourCount}
+              selectedBobines={bobines}
+            />
           </Bobine>
         )}
       </WithColor>
@@ -136,8 +136,6 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
 
     const perfoBlock = <PerfoComponent perfo={perfo} pixelPerMM={pixelPerMM} />;
 
-    const polyproStockReel = getStockReel(polypro.ref, stocks);
-    const polyproStockTerme = getStockTerme(polypro.ref, stocks);
     const polyproBlock = (
       <WithColor color={polypro.couleurPapier}>
         {color => (
@@ -148,14 +146,15 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
             color={color.backgroundHex}
             strokeWidth={theme.planProd.selectedStrokeWidth}
           >
-            <AutoFontWeight
-              style={{color: color.textHex, textAlign: 'center'}}
-              fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}
-            >
-              {`Bobine Polypro ${polypro.ref} - Largeur ${polypro.laize} - ${
-                polypro.grammage
-              }μg - ${polyproStockReel} (à terme ${polyproStockTerme})`}
-            </AutoFontWeight>
+            <BobineMereContent
+              color={color}
+              pixelPerMM={pixelPerMM}
+              bobine={papier}
+              isPolypro
+              stocks={stocks}
+              tourCount={tourCount}
+              selectedBobines={bobines}
+            />
           </Bobine>
         )}
       </WithColor>
@@ -197,6 +196,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
           }}
           width={adjustedWidth}
           bobines={bobines}
+          papier={papier}
           isComplete
           isPrinting
           onSpeedChange={() => {}}
