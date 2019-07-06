@@ -10,11 +10,9 @@ import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {LoadingScreen} from '@root/components/core/loading_screen';
-import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
 import {getStockReel, getStockTerme} from '@root/lib/bobine';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {computePlanProdRef} from '@root/lib/plan_prod';
 import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
@@ -34,6 +32,7 @@ interface PlanProdViewerState {
 }
 
 const TOP_BAR_MIN_WIDTH = 1100;
+const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
 export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanProdViewerState> {
   public static displayName = 'PlanProdViewer';
@@ -178,13 +177,14 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
             canRemove={false}
             minimums={new Map<string, number>(bobinesMini)}
             onMiniUpdated={() => {}}
+            showQuantity
           />
         </React.Fragment>
       ) : (
         <React.Fragment />
       );
 
-    const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, 5)}`;
+    const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
     const adjustedWidth = Math.max(TOP_BAR_MIN_WIDTH, width);
     const scale = width / adjustedWidth;
 

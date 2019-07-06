@@ -237,11 +237,11 @@ class PlansProductionStore extends ListStore<PlanProduction> {
       date.setSeconds(0);
       date.setMilliseconds(0);
       const ts = date.getTime();
-      const plans = byDay.get(ts);
-      if (plans === undefined) {
+      const plansForDay = byDay.get(ts);
+      if (plansForDay === undefined) {
         byDay.set(ts, [p]);
       } else {
-        plans.push(p);
+        plansForDay.push(p);
       }
     });
     return byDay;

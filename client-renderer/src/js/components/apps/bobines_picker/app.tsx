@@ -129,6 +129,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     onRemove={(ref: string) => {
                       bridge.removePlanBobine(ref).catch(console.error);
                     }}
+                    showQuantity
                   />
                 ) : (
                   <React.Fragment />

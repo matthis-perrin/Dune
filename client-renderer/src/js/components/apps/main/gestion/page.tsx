@@ -9,6 +9,8 @@ import {plansProductionStore} from '@root/stores/list_store';
 
 import {ClientAppType, PlanProduction} from '@shared/models';
 
+const LAST_MONTH = 11;
+
 interface Props {}
 
 interface State {
@@ -44,15 +46,15 @@ export class GestionPage extends React.Component<Props, State> {
 
   private readonly goToNextMonth = (): void => {
     const {year, month} = this.state;
-    const newYear = month === 11 ? year + 1 : year;
-    const newMonth = month === 11 ? 0 : month + 1;
+    const newYear = month === LAST_MONTH ? year + 1 : year;
+    const newMonth = month === LAST_MONTH ? 0 : month + 1;
     this.setState({year: newYear, month: newMonth});
   };
 
   private readonly goToPreviousMonth = (): void => {
     const {year, month} = this.state;
     const newYear = month === 0 ? year - 1 : year;
-    const newMonth = month === 0 ? 11 : month - 1;
+    const newMonth = month === 0 ? LAST_MONTH : month - 1;
     this.setState({year: newYear, month: newMonth});
   };
 

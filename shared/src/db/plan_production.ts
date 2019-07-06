@@ -33,6 +33,7 @@ export async function savePlanProduction(
 ): Promise<void> {
   const localUpdate = new Date();
   if (id === undefined) {
+    // tslint:disable-next-line:no-null-keyword
     await db(PLANS_PRODUCTION_TABLE_NAME).insert({id: null, data, sommeil: false, localUpdate});
   } else {
     await db(PLANS_PRODUCTION_TABLE_NAME)

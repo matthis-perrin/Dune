@@ -90,24 +90,15 @@ export class TopBar extends React.Component<TopBarProps> {
         <Button style={{marginRight: 8}} onClick={onClear}>
           Effacer
         </Button>
-        {/* <Button style={{marginRight: 8}} onClick={onSave}>
+        <Button style={{marginRight: 8}} onClick={onSave}>
           Sauvegarder
-        </Button> */}
+        </Button>
       </ButtonsContainer>
     );
   }
 
   public render(): JSX.Element {
-    const {
-      planProdTitle,
-      tourCount,
-      speed,
-      isPrinting,
-      bobines,
-      width,
-      papier,
-      style = {},
-    } = this.props;
+    const {tourCount, speed, isPrinting, bobines, width, papier, style = {}} = this.props;
 
     const productionTimeInSec =
       bobines.length > 0 && speed > 0 && tourCount && tourCount > 0

@@ -24,7 +24,7 @@ import {getBobineState, getStockTerme, getStockReel} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {computePlanProdRef} from '@root/lib/plan_prod';
-import {padNumber, numberWithSeparator} from '@root/lib/utils';
+import {numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';

@@ -129,7 +129,8 @@ export class PlanProdTile extends React.Component<Props> {
       <WithColor color={planProd.data.papier.couleurPapier}>
         {color => (
           <TileWrapper
-            ref={this.wrapperRef}
+            // tslint:disable-next-line:no-any no-unsafe-any
+            ref={this.wrapperRef as any}
             onMouseEnter={() => this.showViewer()}
             onMouseLeave={() => this.hideViewer()}
             {...rest}
