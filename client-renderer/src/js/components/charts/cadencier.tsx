@@ -1,4 +1,3 @@
-import {min, max} from 'lodash-es';
 import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -7,15 +6,13 @@ import {createChartTooltip, CHART_TOOLTIP_ID} from '@root/components/charts/char
 import {PlottableCSS} from '@root/components/charts/plottable_css';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {bridge} from '@root/lib/bridge';
-import {numberWithSeparator} from '@root/lib/utils';
 import {colorsStore} from '@root/stores/data_store';
 import {theme} from '@root/theme';
 
-import {CadencierType, aggregateByMonth, createMonthsRange} from '@shared/lib/cadencier';
-import {MONTHS_STRING} from '@shared/lib/time';
+import {CadencierType} from '@shared/lib/cadencier';
 import {BobineFille, Vente} from '@shared/models';
 
-interface VenteDatum {
+export interface VenteDatum {
   time: Date;
   value: Vente[];
 }
@@ -28,14 +25,12 @@ enum DisplayMode {
 
 interface BobineCadencierChartProps {
   bobine?: BobineFille;
+  axisConfiguration: Plottable.Axes.TimeAxisTierConfiguration[][];
+  tooltipRenderer(datum: VenteDatum): string | JSX.Element;
+  getVenteData(cadencier: Vente[]): VenteDatum[];
 }
 
-interface BobineCadencierChartState {}
-
-export class BobineCadencierChart extends React.Component<
-  BobineCadencierChartProps,
-  BobineCadencierChartState
-> {
+export class BobineCadencierChart extends React.Component<BobineCadencierChartProps> {
   public static displayName = 'BobineCadencierChart';
   private readonly chartRef = React.createRef<HTMLDivElement>();
   private readonly loadingRef = React.createRef<HTMLDivElement>();
@@ -121,7 +116,7 @@ export class BobineCadencierChart extends React.Component<
     }
 
     // Data computation
-    const data = this.getVenteData(cadencier);
+    const data = this.props.getVenteData(cadencier);
     if (data.length === 0) {
       this.setDisplayMode(DisplayMode.EMPTY);
       return;
@@ -156,14 +151,7 @@ export class BobineCadencierChart extends React.Component<
 
     // Axis
     const xAxis = new Plottable.Axes.Time(xScale, 'bottom');
-    const axisConfiguration = [
-      [
-        {interval: 'month', step: 1, formatter: Plottable.Formatters.time('%b')},
-        {interval: 'year', step: 1, formatter: Plottable.Formatters.time('%Y')},
-      ],
-      [{interval: 'year', step: 1, formatter: Plottable.Formatters.time('%Y')}],
-    ];
-    xAxis.axisConfigurations(axisConfiguration);
+    xAxis.axisConfigurations(this.props.axisConfiguration);
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
 
     // Final Plot
@@ -174,21 +162,7 @@ export class BobineCadencierChart extends React.Component<
     if (tooltip) {
       tooltip.remove();
     }
-    createChartTooltip<VenteDatum>(bars, theme.cadencier.tooltipWidth, datum => {
-      const monthStr = MONTHS_STRING[datum.time.getMonth()];
-      const dateStr = `${monthStr} ${datum.time.getFullYear()}`;
-      const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);
-      const facturesSum = factures.reduce((acc, curr) => acc + curr.quantity, 0);
-      return (
-        <div>
-          {dateStr}
-          <br />
-          {`${numberWithSeparator(factures.length)} factures comptabilisées`}
-          <br />
-          {`Total : ${numberWithSeparator(facturesSum)}`}
-        </div>
-      );
-    });
+    createChartTooltip<VenteDatum>(bars, theme.cadencier.tooltipWidth, this.props.tooltipRenderer);
 
     // Gesture
     const pziXAxis = new Plottable.Interactions.PanZoom();
@@ -204,22 +178,6 @@ export class BobineCadencierChart extends React.Component<
     chartElement.innerHTML = '';
     this.plot.renderTo(chartElement);
   };
-
-  private getVenteData(cadencier: Vente[]): VenteDatum[] {
-    const facturesByMonth = aggregateByMonth(cadencier);
-    const allTs = Array.from(facturesByMonth.keys());
-    if (allTs.length === 0) {
-      return [];
-    }
-    const firstTs = min(allTs) || Date.now();
-    const lastTs = max(allTs) || Date.now();
-
-    const data = createMonthsRange(firstTs, lastTs, true).map(ts => ({
-      time: new Date(ts),
-      value: facturesByMonth.get(ts) || [],
-    }));
-    return data;
-  }
 
   public redrawChart(): void {
     if (this.plot) {

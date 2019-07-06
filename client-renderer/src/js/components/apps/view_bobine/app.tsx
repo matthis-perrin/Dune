@@ -4,6 +4,11 @@ import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
 import {BobineCadencierChart} from '@root/components/charts/cadencier';
+import {
+  BobineCadencierChartByDay,
+  BobineCadencierChartByMonth,
+  BobineCadencierChartByYear,
+} from '@root/components/charts/cadenciers';
 import {BasicInfo} from '@root/components/common/basic_info';
 import {BobineColors} from '@root/components/common/bobine_colors';
 import {BobineState} from '@root/components/common/bobine_state';
@@ -310,7 +315,9 @@ export class ViewBobineApp extends React.Component<Props, State> {
             <CardTitle>Historique des ventes</CardTitle>
           </CardHeader>
           <CadencierChartContainer>
-            <BobineCadencierChart ref={this.cadencier} bobine={bobine} />
+            {/* <BobineCadencierChartByDay chartRef={this.cadencier} bobine={bobine} /> */}
+            <BobineCadencierChartByMonth chartRef={this.cadencier} bobine={bobine} />
+            {/* <BobineCadencierChartByYear chartRef={this.cadencier} bobine={bobine} /> */}
           </CadencierChartContainer>
         </CandencierContainer>
       </AppWrapper>

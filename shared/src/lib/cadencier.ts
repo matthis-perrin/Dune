@@ -22,12 +22,24 @@ export const CadencierTypeDescription = new Map<CadencierType, string>([
   [CadencierType.FACTURE_COMPTABILISEE, 'Facture comptabilisée'],
 ]);
 
+const MIDDLE_OF_YEAR = 6;
 const MIDDLE_OF_MONTH = 15;
+const MIDDLE_OF_DAY = 12;
 const LAST_MONTH = 11;
+
+export function roundToYear(timestamp: number): number {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), MIDDLE_OF_YEAR).getTime();
+}
 
 export function roundToMonth(timestamp: number): number {
   const date = new Date(timestamp);
   return new Date(date.getFullYear(), date.getMonth(), MIDDLE_OF_MONTH).getTime();
+}
+
+export function roundToDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), MIDDLE_OF_DAY).getTime();
 }
 
 export function getLastYear(): number {
@@ -38,6 +50,20 @@ export function getLastYear(): number {
 export function getLastMonth(): number {
   const date = new Date();
   return new Date(date.getFullYear(), date.getMonth() - 1, MIDDLE_OF_MONTH).getTime();
+}
+
+export function aggregateByYear(cadencier: Vente[]): Map<number, Vente[]> {
+  const data = new Map<number, Vente[]>();
+  cadencier.forEach(v => {
+    const ts = roundToYear(v.date);
+    const current = data.get(ts);
+    if (!current) {
+      data.set(ts, [v]);
+    } else {
+      current.push(v);
+    }
+  });
+  return data;
 }
 
 export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
@@ -52,6 +78,35 @@ export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
     }
   });
   return data;
+}
+
+export function aggregateByDay(cadencier: Vente[]): Map<number, Vente[]> {
+  const data = new Map<number, Vente[]>();
+  cadencier.forEach(v => {
+    const ts = roundToDay(v.date);
+    const current = data.get(ts);
+    if (!current) {
+      data.set(ts, [v]);
+    } else {
+      current.push(v);
+    }
+  });
+  return data;
+}
+
+export function createYearsRange(startTs: number, endTs: number): number[] {
+  if (startTs >= endTs) {
+    return [];
+  }
+  let current = startTs;
+  const minutes = [];
+  while (current <= endTs) {
+    minutes.push(current);
+    const currentDate = new Date(current);
+    currentDate.setFullYear(currentDate.getFullYear() + 1);
+    current = currentDate.getTime();
+  }
+  return minutes;
 }
 
 export function createMonthsRange(
@@ -72,4 +127,19 @@ export function createMonthsRange(
     }
   }
   return res;
+}
+
+export function createDaysRange(startTs: number, endTs: number): number[] {
+  if (startTs >= endTs) {
+    return [];
+  }
+  let current = startTs;
+  const minutes = [];
+  while (current <= endTs) {
+    minutes.push(current);
+    const currentDate = new Date(current);
+    currentDate.setDate(currentDate.getDate() + 1);
+    current = currentDate.getTime();
+  }
+  return minutes;
 }
