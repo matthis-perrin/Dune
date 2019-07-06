@@ -117,7 +117,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
 
     const hasDataChanged = !this.dataIsEqual(this.props.data, nextProps.data);
 
-    if (hasChanged || hasDataChanged) {
+    if (hasDataChanged) {
       for (const row of this.rows.values()) {
         row.rowIndex = undefined;
       }
@@ -182,7 +182,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
           style={{
             ...style,
             width: adjustedWidth,
-            height: (height - (renderColumn ? theme.table.headerHeight : 0)) / scale,
+            height: height / scale - (renderColumn ? theme.table.headerHeight : 0),
             overflow: 'auto',
           }}
         >

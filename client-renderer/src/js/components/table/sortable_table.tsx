@@ -87,11 +87,6 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
     }
   }
 
-  // // tslint-disable-next-line:no-any
-  // private getColumn(name: string): ColumnMetadata<T, any> | undefined {
-  //   return this.props.columns.find(c => c.name === name);
-  // }
-
   private sortData(sortInfo?: SortInfo): T[] {
     const {data} = this.props;
 
