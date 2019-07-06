@@ -15,6 +15,7 @@ import {BobineState} from '@root/components/common/bobine_state';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {Select, Option} from '@root/components/core/select';
 import {
   getStockTerme,
   getStockReserve,
@@ -35,6 +36,12 @@ import {theme} from '@root/theme';
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
 import {BobineFille, Cliche, Stock, BobineQuantities} from '@shared/models';
 
+enum CadencierMode {
+  Day = 'day',
+  Month = 'month',
+  Year = 'year',
+}
+
 interface Props {
   bobineRef: string;
 }
@@ -43,6 +50,7 @@ interface State {
   bobine?: BobineFille;
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
+  cadencierMode: CadencierMode;
   bobineQuantities?: BobineQuantities[];
   cliche1?: Cliche;
   cliche2?: Cliche;
@@ -55,7 +63,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
 
   public constructor(props: Props) {
     super(props);
-    this.state = {clicheLoaded: false};
+    this.state = {clicheLoaded: false, cadencierMode: CadencierMode.Month};
     document.title = `Bobine ${props.bobineRef}`;
   }
 
@@ -287,6 +295,33 @@ export class ViewBobineApp extends React.Component<Props, State> {
     );
   }
 
+  private renderCadencier(): JSX.Element {
+    const {cadencierMode, bobine} = this.state;
+    if (cadencierMode === CadencierMode.Day) {
+      return <BobineCadencierChartByDay chartRef={this.cadencier} bobine={bobine} />;
+    } else if (cadencierMode === CadencierMode.Month) {
+      return <BobineCadencierChartByMonth chartRef={this.cadencier} bobine={bobine} />;
+    } else if (cadencierMode === CadencierMode.Year) {
+      return <BobineCadencierChartByYear chartRef={this.cadencier} bobine={bobine} />;
+    }
+    return <React.Fragment />;
+  }
+
+  private renderCadencierSelect(): JSX.Element {
+    const {cadencierMode} = this.state;
+    return (
+      <Select
+        style={{width: 180}}
+        onChange={event => this.setState({cadencierMode: event.target.value as CadencierMode})}
+        value={cadencierMode}
+      >
+        <Option value={CadencierMode.Day}>Par jours</Option>
+        <Option value={CadencierMode.Month}>Par mois</Option>
+        <Option value={CadencierMode.Year}>Par année</Option>
+      </Select>
+    );
+  }
+
   public componentDidUpdate(): void {
     setTimeout(() => {
       if (this.cadencier.current) {
@@ -313,12 +348,9 @@ export class ViewBobineApp extends React.Component<Props, State> {
         <CandencierContainer>
           <CardHeader>
             <CardTitle>Historique des ventes</CardTitle>
+            {this.renderCadencierSelect()}
           </CardHeader>
-          <CadencierChartContainer>
-            {/* <BobineCadencierChartByDay chartRef={this.cadencier} bobine={bobine} /> */}
-            <BobineCadencierChartByMonth chartRef={this.cadencier} bobine={bobine} />
-            {/* <BobineCadencierChartByYear chartRef={this.cadencier} bobine={bobine} /> */}
-          </CadencierChartContainer>
+          <CadencierChartContainer>{this.renderCadencier()}</CadencierChartContainer>
         </CandencierContainer>
       </AppWrapper>
     );
