@@ -84,6 +84,9 @@ export class AdministrationPage extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {bobinesFilles, bobinesMeres, cliches} = this.state;
 
+    const papiers = bobinesMeres && bobinesMeres.filter(b => b.couleurPapier !== 'POLYPRO');
+    const polypros = bobinesMeres && bobinesMeres.filter(b => b.couleurPapier === 'POLYPRO');
+
     return (
       <Page>
         <Title style={{marginTop: 0}}>GESCOM</Title>
@@ -92,7 +95,8 @@ export class AdministrationPage extends React.Component<Props, State> {
           ClientAppType.ListBobinesFillesApp,
           bobinesFilles
         )}
-        {this.renderListAppButton('Bobines Mères', ClientAppType.ListBobinesMeresApp, bobinesMeres)}
+        {this.renderListAppButton('Bobines Papiers', ClientAppType.ListPapiersApp, papiers)}
+        {this.renderListAppButton('Bobines Polypros', ClientAppType.ListPolyprosApp, polypros)}
         {this.renderListAppButton('Clichés', ClientAppType.ListClichesApp, cliches)}
       </Page>
     );

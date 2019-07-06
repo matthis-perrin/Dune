@@ -292,7 +292,8 @@ export interface ClientAppInfo {
 export enum ClientAppType {
   MainApp = 'MainApp',
   ListBobinesFillesApp = 'ListBobinesFillesApp',
-  ListBobinesMeresApp = 'ListBobinesMeresApp',
+  ListPolyprosApp = 'ListPolyprosApp',
+  ListPapiersApp = 'ListPapiersApp',
   ListClichesApp = 'ListClichesApp',
   ViewBobineApp = 'ViewBobineApp',
   ViewOperationApp = 'ViewOperationApp',

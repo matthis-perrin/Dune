@@ -183,8 +183,11 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ListBobinesFillesApp) {
       return {id: 'list-bobines-filles-app', size: listAppSize};
     }
-    if (appInfo.type === ClientAppType.ListBobinesMeresApp) {
-      return {id: 'list-bobines-meres-app', size: listAppSize};
+    if (appInfo.type === ClientAppType.ListPapiersApp) {
+      return {id: 'list-papiers-app', size: listAppSize};
+    }
+    if (appInfo.type === ClientAppType.ListPolyprosApp) {
+      return {id: 'list-polypros-app', size: listAppSize};
     }
     if (appInfo.type === ClientAppType.ListClichesApp) {
       return {id: 'list-cliches-app', size: listAppSize};

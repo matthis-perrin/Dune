@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 import {BobinesPickerApp} from '@root/components/apps/bobines_picker/app';
 import {ListBobinesFillesApp} from '@root/components/apps/list_bobines_filles/app';
-import {ListBobinesMeresApp} from '@root/components/apps/list_bobines_meres/app';
 import {ListClichesApp} from '@root/components/apps/list_cliches/app';
+import {ListPapiersApp} from '@root/components/apps/list_papiers/app';
+import {ListPolyprosApp} from '@root/components/apps/list_polypros/app';
 import {MainApp} from '@root/components/apps/main/app';
 import {PapierPickerApp} from '@root/components/apps/papier_picker/app';
 import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
@@ -70,7 +71,10 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ListBobinesFillesApp) {
       return [bobinesFillesStore, stocksStore, colorsStore];
     }
-    if (type === ClientAppType.ListBobinesMeresApp) {
+    if (type === ClientAppType.ListPapiersApp) {
+      return [bobinesMeresStore, stocksStore, colorsStore];
+    }
+    if (type === ClientAppType.ListPolyprosApp) {
       return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListClichesApp) {
@@ -130,8 +134,11 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ListBobinesFillesApp) {
       return <ListBobinesFillesApp />;
     }
-    if (type === ClientAppType.ListBobinesMeresApp) {
-      return <ListBobinesMeresApp />;
+    if (type === ClientAppType.ListPapiersApp) {
+      return <ListPapiersApp />;
+    }
+    if (type === ClientAppType.ListPolyprosApp) {
+      return <ListPolyprosApp />;
     }
     if (type === ClientAppType.ListClichesApp) {
       return <ListClichesApp />;

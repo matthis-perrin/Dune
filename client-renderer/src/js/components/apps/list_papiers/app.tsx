@@ -20,12 +20,12 @@ import {BobineMere, Stock} from '@shared/models';
 interface Props {}
 
 interface State {
-  bobinesMeres?: BobineMere[];
+  papiers?: BobineMere[];
   stocks?: Map<string, Stock[]>;
 }
 
-export class ListBobinesMeresApp extends React.Component<Props, State> {
-  public static displayName = 'ListBobinesMeresApp';
+export class ListPapiersApp extends React.Component<Props, State> {
+  public static displayName = 'ListPapiersApp';
 
   public constructor(props: Props) {
     super(props);
@@ -43,9 +43,10 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
   }
 
   private readonly handleBobinesMeresChange = (): void => {
-    const bobinesMeres = bobinesMeresStore.getData();
-    document.title = `Liste des bobines mères (${bobinesMeres ? bobinesMeres.length : 0})`;
-    this.setState({bobinesMeres});
+    const bobineMeres = bobinesMeresStore.getData();
+    const papiers = bobineMeres && bobineMeres.filter(b => b.couleurPapier !== 'POLYPRO');
+    document.title = `Liste des papiers (${papiers ? papiers.length : 0})`;
+    this.setState({papiers});
   };
 
   private readonly handleStocksChange = (): void => {
@@ -55,15 +56,15 @@ export class ListBobinesMeresApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {bobinesMeres, stocks} = this.state;
+    const {papiers, stocks} = this.state;
 
-    if (!bobinesMeres || !stocks) {
+    if (!papiers || !stocks) {
       return <LoadingScreen />;
     }
 
     return (
       <AdminTable
-        data={bobinesMeres}
+        data={papiers}
         columns={[
           BOBINE_MERE_REF_COLUMN,
           DESIGNATION_COLUMN,
