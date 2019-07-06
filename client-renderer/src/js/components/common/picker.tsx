@@ -31,7 +31,6 @@ interface State<T extends {localUpdate: number; sommeil: boolean}> {
   allElements?: T[];
   planProd?: PlanProductionState;
   filteredElements?: T[];
-  filteredSearchedElements?: T[];
 }
 
 export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends React.Component<
@@ -85,17 +84,9 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     this.setState({planProd: planProduction});
   };
 
-  private readonly handleElementsFiltered = (filteredElements: T[]): void => {
-    this.setState({filteredElements});
-  };
-
-  private readonly handleElementsFilteredAndSearched = (filteredSearchedElements: T[]): void => {
-    this.setState({filteredSearchedElements});
-  };
-
   public render(): JSX.Element {
     const {children, dataFilter, searchColumns, getSelectable, getHash, title} = this.props;
-    const {allElements, planProd, filteredElements = [], filteredSearchedElements} = this.state;
+    const {allElements, planProd} = this.state;
 
     if (!allElements || !planProd) {
       return <LoadingScreen />;
@@ -110,17 +101,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
       return index === -1 ? e : selectables[index];
     });
 
-    const header = searchColumns ? (
-      <SearchBar
-        data={filteredElements}
-        columns={searchColumns}
-        onChange={this.handleElementsFilteredAndSearched}
-      />
-    ) : (
-      <React.Fragment />
-    );
-
-    const footer = (
+    return (
       <FilterBar
         data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
         filters={[
@@ -135,16 +116,17 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
             shouldShowElement: this.shouldShowNotSelectionnable,
           },
         ]}
-        onChange={this.handleElementsFiltered}
-      />
-    );
+      >
+        {(filterBar, filteredData) => (
+          <SearchBar data={filteredData} columns={searchColumns}>
+            {(searchBar, searchedData) => {
+              const header = searchColumns ? searchBar : <React.Fragment />;
 
-    return children(
-      filteredSearchedElements || filteredElements,
-      this.isSelectionnable,
-      planProd,
-      header,
-      footer
+              return children(searchedData, this.isSelectionnable, planProd, header, filterBar);
+            }}
+          </SearchBar>
+        )}
+      </FilterBar>
     );
   }
 }

@@ -8,23 +8,24 @@ import {theme} from '@root/theme';
 interface SearchBarProps<T> {
   data: T[];
   // tslint:disable-next-line:no-any
-  columns: ColumnMetadata<T, any>[];
-  onChange(newData: T[]): void;
+  columns?: ColumnMetadata<T, any>[];
+  children(searchBar: JSX.Element, data: T[]): JSX.Element;
 }
 
-interface SearchState {
+interface SearchState<T> {
   searchValue: string;
+  filteredData: T[];
 }
 
-export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState> {
+export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState<T>> {
   public static displayName = 'SearchBar';
 
   public constructor(props: SearchBarProps<T>) {
     super(props);
     this.state = {
       searchValue: '',
+      filteredData: props.data,
     };
-    this.props.onChange(this.props.data);
   }
 
   public componentDidUpdate(prevProps: SearchBarProps<T>): void {
@@ -36,16 +37,15 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
   private readonly handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const searchValue = event.target.value;
     this.filter(searchValue);
-    this.setState({searchValue});
   };
 
   private filter(searchValue: string): void {
-    const {onChange, data, columns} = this.props;
+    const {data, columns} = this.props;
 
     const filteredData = data.filter(d => {
       if (searchValue.length > 0) {
         let hasMatch = false;
-        for (const column of columns) {
+        for (const column of columns || []) {
           if (column.getSearchValue) {
             const value = column.getSearchValue(d);
             if (value.toUpperCase().includes(searchValue.toUpperCase())) {
@@ -58,12 +58,13 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
       return true;
     });
 
-    onChange(filteredData);
+    this.setState({filteredData, searchValue});
   }
 
   public render(): JSX.Element {
-    const {searchValue} = this.state;
-    return (
+    const {children} = this.props;
+    const {searchValue, filteredData} = this.state;
+    return children(
       <React.Fragment>
         <SearchContainer>
           <SearchInput
@@ -75,7 +76,8 @@ export class SearchBar<T> extends React.Component<SearchBarProps<T>, SearchState
           />
         </SearchContainer>
         <Padding />
-      </React.Fragment>
+      </React.Fragment>,
+      filteredData
     );
   }
 }

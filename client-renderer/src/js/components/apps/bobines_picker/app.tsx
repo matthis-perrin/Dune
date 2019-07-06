@@ -22,7 +22,7 @@ import {
   withWidth,
   MONTHLY_SELLING,
 } from '@root/components/table/columns';
-import {SortableTable} from '@root/components/table/sortable_table';
+import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
@@ -32,7 +32,12 @@ import {
 } from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
-import {Stock, BobineFilleWithMultiPose, BobineQuantities} from '@shared/models';
+import {
+  Stock,
+  BobineFilleWithMultiPose,
+  BobineQuantities,
+  PlanProductionState,
+} from '@shared/models';
 
 interface Props {}
 
@@ -44,6 +49,15 @@ interface State {
 
 export class BobinesPickerApp extends React.Component<Props, State> {
   public static displayName = 'BobinesPickerApp';
+
+  private lastStocks: Map<string, Stock[]> | undefined;
+  private lastCadencier: Map<string, Map<number, number>> | undefined;
+  private lastBobineQuantities: BobineQuantities[] | undefined;
+  private lastPlanProd: PlanProductionState | undefined;
+  private lastIsSelectionnable: ((element: BobineFilleWithMultiPose) => boolean) | undefined;
+
+  private lastColumns: ColumnMetadata<any, any>[] | undefined;
+  private lastRowStyles: ((element: BobineFilleWithMultiPose) => React.CSSProperties) | undefined;
 
   constructor(props: Props) {
     super(props);
@@ -70,6 +84,60 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     });
   };
 
+  private getColumns(
+    stocks: Map<string, Stock[]>,
+    cadencier: Map<string, Map<number, number>>,
+    bobineQuantities: BobineQuantities[],
+    planProd: PlanProductionState
+  ): ColumnMetadata<any, any>[] {
+    if (
+      this.lastColumns &&
+      this.lastStocks === stocks &&
+      this.lastCadencier === cadencier &&
+      this.lastBobineQuantities === bobineQuantities &&
+      this.lastPlanProd === planProd
+    ) {
+      return this.lastColumns;
+    }
+    this.lastStocks = stocks;
+    this.lastCadencier = cadencier;
+    this.lastBobineQuantities = bobineQuantities;
+    this.lastPlanProd = planProd;
+    this.lastColumns = [
+      withWidth(BOBINE_FILLE_REF_COLUMN, undefined),
+      LAIZE_COLUMN,
+      LONGUEUR_COLUMN,
+      COULEUR_PAPIER_COLUMN,
+      GRAMMAGE_COLUMN,
+      MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),
+      COULEURS_IMPRESSION_COLUMN,
+      TYPE_IMPRESSION_COLUMN,
+      QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
+      LAST_YEAR_SELLING(cadencier),
+      MONTHLY_SELLING(cadencier),
+      STOCK_REEL_COLUMN(stocks),
+      STOCK_TERME_COLUMN(stocks),
+      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
+    ];
+    return this.lastColumns;
+  }
+
+  private getRowStyles(
+    isSelectionnable: (element: BobineFilleWithMultiPose) => boolean
+  ): (element: BobineFilleWithMultiPose) => React.CSSProperties {
+    if (this.lastRowStyles && this.lastIsSelectionnable === isSelectionnable) {
+      return this.lastRowStyles;
+    }
+    this.lastIsSelectionnable = isSelectionnable;
+    this.lastRowStyles = bobine => {
+      const selectable = isSelectionnable(bobine);
+      return {
+        opacity: selectable ? 1 : theme.table.disabledOpacity,
+      };
+    };
+    return this.lastRowStyles;
+  }
+
   public render(): JSX.Element {
     const {stocks, cadencier, bobineQuantities} = this.state;
 
@@ -92,22 +160,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
-              const columns = [
-                withWidth(BOBINE_FILLE_REF_COLUMN, undefined),
-                LAIZE_COLUMN,
-                LONGUEUR_COLUMN,
-                COULEUR_PAPIER_COLUMN,
-                GRAMMAGE_COLUMN,
-                MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),
-                COULEURS_IMPRESSION_COLUMN,
-                TYPE_IMPRESSION_COLUMN,
-                QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
-                LAST_YEAR_SELLING(cadencier),
-                MONTHLY_SELLING(cadencier),
-                STOCK_REEL_COLUMN(stocks),
-                STOCK_TERME_COLUMN(stocks),
-                STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
-              ];
+              const columns = this.getColumns(stocks, cadencier, bobineQuantities, planProd);
 
               const selectedTableHeight =
                 planProd.selectedBobines.length > 0
@@ -148,12 +201,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       index: columns.length - 1,
                       asc: true,
                     }}
-                    rowStyles={bobine => {
-                      const selectable = isSelectionnable(bobine);
-                      return {
-                        opacity: selectable ? 1 : theme.table.disabledOpacity,
-                      };
-                    }}
+                    rowStyles={this.getRowStyles(isSelectionnable)}
                   />
                   {footer}
                 </React.Fragment>

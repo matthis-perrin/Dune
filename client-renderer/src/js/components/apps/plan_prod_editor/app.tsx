@@ -137,16 +137,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge
       .getPlanProduction()
       .then(planProduction => {
-        let hasRemoved = false;
-        const oldPlanProduction = this.state.planProduction;
-        if (oldPlanProduction) {
-          hasRemoved =
-            oldPlanProduction.selectedBobines.length > planProduction.selectedBobines.length ||
-            Boolean(oldPlanProduction.selectedPapier && !planProduction.selectedPapier) ||
-            Boolean(oldPlanProduction.selectedPerfo && !planProduction.selectedPerfo) ||
-            Boolean(oldPlanProduction.selectedPolypro && !planProduction.selectedPolypro) ||
-            Boolean(oldPlanProduction.selectedRefente && !planProduction.selectedRefente);
-        }
         const newState = {
           ...this.state,
           planProduction,
@@ -165,9 +155,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             if (newTourCount !== newState.planProduction.tourCount) {
               bridge.setPlanTourCount(newTourCount).catch(console.error);
             }
-          }
-          if (!hasRemoved && this.canAutoComplete()) {
-            this.autoComplete();
           }
         });
         if (planProduction.selectableBobines.length === 0) {
@@ -320,14 +307,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
     return allSelectableWithSingles.length > 0;
   }
-
-  private readonly autoComplete = () => {
-    const {planProduction} = this.state;
-    if (!planProduction) {
-      return false;
-    }
-    bridge.autocompletePlan().catch(console.error);
-  };
 
   private renderBobineMereContent(
     color: Color,

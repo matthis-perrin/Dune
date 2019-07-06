@@ -36,7 +36,6 @@ import {
   SaveToPDF,
   ListPlansProduction,
   SavePlanProduction,
-  AutocompletePlan,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -217,14 +216,6 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
       return Promise.reject('No plan production in progress');
     }
     engine.clearPlan();
-    return Promise.resolve();
-  }
-  if (command === AutocompletePlan) {
-    const engine = planProductionStore.getEngine();
-    if (!engine) {
-      return Promise.reject('No plan production in progress');
-    }
-    engine.autoComplete();
     return Promise.resolve();
   }
 

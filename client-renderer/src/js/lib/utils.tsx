@@ -1,3 +1,5 @@
+import {memoize} from 'lodash-es';
+
 const MONTHS_IN_YEAR = 12;
 
 export function padNumber(value: number, padding: number): string {
@@ -21,9 +23,7 @@ export function formatMonthCount(monthCount: number): string {
   return `${yearStr} et ${monthCountWithoutYear} mois`;
 }
 
-export function numberWithSeparator(value: number): string {
-  return value.toLocaleString('fr');
-}
+export const numberWithSeparator = memoize((value: number): string => value.toLocaleString('fr'));
 
 const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 // Monday = 0

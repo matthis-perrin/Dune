@@ -36,7 +36,6 @@ import {
   Print,
   ListPlansProduction,
   SavePlanProduction,
-  AutocompletePlan,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -167,9 +166,6 @@ class Bridge {
   }
   public async clearPlan(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(ClearPlan);
-  }
-  public async autocompletePlan(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(AutocompletePlan);
   }
 
   public async viewBobine(bobineRef: string): Promise<void> {

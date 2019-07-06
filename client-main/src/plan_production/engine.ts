@@ -153,7 +153,13 @@ export class PlanProductionEngine {
       return;
     }
     this.planProduction.perfo = this.getByRef(this.selectables.selectablePerfos, ref);
-    this.recalculate();
+    if (this.planProduction.perfo) {
+      this.recalculate(false);
+      this.autoComplete();
+      this.changeHandler();
+    } else {
+      this.recalculate();
+    }
   }
 
   public setRefente(ref?: string): void {
@@ -161,7 +167,13 @@ export class PlanProductionEngine {
       return;
     }
     this.planProduction.refente = this.getByRef(this.selectables.selectableRefentes, ref);
-    this.recalculate();
+    if (this.planProduction.refente) {
+      this.recalculate(false);
+      this.autoComplete();
+      this.changeHandler();
+    } else {
+      this.recalculate();
+    }
   }
 
   public setPapier(ref?: string): void {
@@ -169,7 +181,13 @@ export class PlanProductionEngine {
       return;
     }
     this.planProduction.papier = this.getByRef(this.selectables.selectablePapiers, ref);
-    this.recalculate();
+    if (this.planProduction.papier) {
+      this.recalculate(false);
+      this.autoComplete();
+      this.changeHandler();
+    } else {
+      this.recalculate();
+    }
   }
 
   public setPolypro(ref?: string): void {
@@ -177,7 +195,13 @@ export class PlanProductionEngine {
       return;
     }
     this.planProduction.polypro = this.getByRef(this.selectables.selectablePolypros, ref);
-    this.recalculate();
+    if (this.planProduction.polypro) {
+      this.recalculate(false);
+      this.autoComplete();
+      this.changeHandler();
+    } else {
+      this.recalculate();
+    }
   }
 
   public addBobine(ref: string, pose: number): void {
@@ -190,7 +214,9 @@ export class PlanProductionEngine {
     if (firstSelectableBobine) {
       this.planProduction.bobinesFilles.push(firstSelectableBobine);
     }
-    this.recalculate();
+    this.recalculate(false);
+    this.autoComplete();
+    this.changeHandler();
   }
 
   public removeBobine(ref: string, pose?: number): void {
@@ -231,26 +257,33 @@ export class PlanProductionEngine {
     if (this.isComputing) {
       return;
     }
+    let hasChanged = false;
     if (this.selectables.selectablePolypros.length === 1) {
+      hasChanged = true;
       this.planProduction.polypro = this.selectables.selectablePolypros[0];
     }
     if (this.selectables.selectablePapiers.length === 1) {
+      hasChanged = true;
       this.planProduction.papier = this.selectables.selectablePapiers[0];
     }
     if (this.selectables.selectablePerfos.length === 1) {
+      hasChanged = true;
       this.planProduction.perfo = this.selectables.selectablePerfos[0];
     }
     if (this.selectables.selectableRefentes.length === 1) {
+      hasChanged = true;
       this.planProduction.refente = this.selectables.selectableRefentes[0];
     }
-    this.recalculate();
+    if (hasChanged) {
+      this.recalculate(false);
+    }
   }
 
-  public recalculate(): void {
-    setTimeout(() => {
-      this.selectables = this.computeSelectables();
+  public recalculate(notifyChangeHandler: boolean = true): void {
+    this.selectables = this.computeSelectables();
+    if (notifyChangeHandler) {
       this.changeHandler();
-    }, 0);
+    }
   }
 
   private getSelectedPerfo(): Perfo | undefined {

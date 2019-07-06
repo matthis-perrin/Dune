@@ -131,7 +131,6 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
 
   public render(): JSX.Element {
     const {columns, height, renderColumn, rowHeight, rowStyles, style, width, data} = this.props;
-    console.log(data);
 
     const rowCount = data.length;
     const columnCount = columns.length;

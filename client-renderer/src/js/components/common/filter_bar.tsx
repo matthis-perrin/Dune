@@ -16,7 +16,7 @@ export interface Filter<T> {
 interface FilterBarProps<T> {
   data: T[];
   filters?: Filter<T>[];
-  onChange(newData: T[]): void;
+  children(filterBar: JSX.Element, newData: T[]): JSX.Element;
 }
 
 interface FilterState<T> {
@@ -37,7 +37,6 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
       enabledFilters,
       filteredData,
     };
-    this.props.onChange(filteredData);
   }
 
   public componentDidUpdate(prevProps: FilterBarProps<T>): void {
@@ -46,13 +45,11 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
       const filteredData = this.filterData(enabledFilters, this.state.filteredData);
       if (filteredData !== this.state.filteredData) {
         this.setState({filteredData});
-        this.props.onChange(filteredData);
       }
     }
   }
 
   private toggleFilter(filter: Filter<T>): void {
-    const {onChange} = this.props;
     const {enabledFilters} = this.state;
 
     const fn = filter.shouldShowElement;
@@ -62,7 +59,6 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
     const filteredData = this.filterData(newEnabledFilters, this.state.filteredData);
 
     this.setState({enabledFilters: newEnabledFilters, filteredData});
-    onChange(filteredData);
   }
 
   private filterData(enabledFilters: FilterFn<T>[], current: T[]): T[] {
@@ -97,16 +93,17 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
 
   public render(): JSX.Element {
     const {filteredData} = this.state;
-    const {filters = []} = this.props;
+    const {filters = [], children} = this.props;
     const formTitle = filters.length > 0 ? 'Afficher: ' : '';
-    return (
+    return children(
       <FooterContainer>
         <FooterForm>
           {formTitle}
           {filters.map(filter => this.renderFilter(filter))}
         </FooterForm>
         <FooterStats>{`Total : ${filteredData.length}`}</FooterStats>
-      </FooterContainer>
+      </FooterContainer>,
+      filteredData
     );
   }
 }
