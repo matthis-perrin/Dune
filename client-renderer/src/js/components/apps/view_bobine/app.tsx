@@ -130,7 +130,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
     }
 
     const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities);
-    const {state, quantity, info, yearSell} = bobineState;
+    const {state, quantity, info, yearSell, threshold, minSell, maxSell} = bobineState;
     const MONTHS_IN_YEAR = 12;
     const monthSell = Math.ceil(yearSell / MONTHS_IN_YEAR);
     const stockTerme = getStockTerme(bobineRef, stocks);
@@ -189,6 +189,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
             },
             {
               title: withPopup(
+                <div style={{width: titleWidth}}>Seuil d'alerte</div>,
+                <div>{`Seuil d'alerte définit pour une vente annuelle comprise entre ${minSell} et ${maxSell}`}</div>
+              ),
+              value: numberWithSeparator(threshold),
+            },
+            {
+              title: withPopup(
                 <div style={{width: titleWidth}}>Ventes mensuelle</div>,
                 <div>Moyenne mensuelle des ventes sur les 12 derniers mois.</div>
               ),
@@ -197,7 +204,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
             {
               title: withPopup(
                 <div style={{width: titleWidth}}>Quantité à produire</div>,
-                <div>Quantité idéale de production basée sur les ventes des 12 dernier mois.</div>
+                <div>{`Quantité à produire idéale définit pour une vente annuelle comprise entre ${minSell} et ${maxSell}`}</div>
               ),
               value: numberWithSeparator(quantity),
             },

@@ -105,9 +105,9 @@ function getDistanceToQuantityRange(value: number, quantity: BobineQuantities): 
 export function getQuantityToProduce(
   lastYearSelling: number,
   bobinesQuantities: BobineQuantities[]
-): {threshold: number; quantity: number} {
+): {threshold: number; quantity: number; minSell: number; maxSell: number} {
   if (bobinesQuantities.length === 0) {
-    return {threshold: 0, quantity: 1};
+    return {threshold: 0, quantity: 1, minSell: 0, maxSell: 0};
   }
   let closest: BobineQuantities = bobinesQuantities[0];
   let closestDistance = getDistanceToQuantityRange(lastYearSelling, bobinesQuantities[0]);
@@ -121,7 +121,12 @@ export function getQuantityToProduce(
       break;
     }
   }
-  return {threshold: closest.threshold, quantity: closest.qtyToProduce};
+  return {
+    threshold: closest.threshold,
+    quantity: closest.qtyToProduce,
+    minSell: closest.soldMin,
+    maxSell: closest.soldMax,
+  };
 }
 
 const INFINITE_STOCK = 1e10;
@@ -134,6 +139,9 @@ export function getBobineState(
 ): {
   state: BobineState;
   quantity: number;
+  minSell: number;
+  maxSell: number;
+  threshold: number;
   yearSell: number;
   stock: number;
   info: string;
@@ -142,12 +150,21 @@ export function getBobineState(
   const currentStock = getStockTerme(ref, stocks) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
-  const {threshold, quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
+  const {threshold, quantity, minSell, maxSell} = getQuantityToProduce(
+    lastYearSelling,
+    bobineQuantities
+  );
+  const common = {
+    quantity,
+    yearSell: lastYearSelling,
+    threshold,
+    minSell,
+    maxSell,
+  };
   if (currentStock < 0) {
     return {
+      ...common,
       state: BobineState.Imperatif,
-      quantity,
-      yearSell: lastYearSelling,
       stock: currentStock,
       info: `${numberWithSeparator(currentStock)}`,
       infoValue: currentStock,
@@ -155,9 +172,8 @@ export function getBobineState(
   }
   if (currentStock < averageSellingByMonth) {
     return {
+      ...common,
       state: BobineState.Rupture,
-      quantity,
-      yearSell: lastYearSelling,
       stock: currentStock,
       info: `${numberWithSeparator(currentStock - averageSellingByMonth)}`,
       infoValue: currentStock - averageSellingByMonth,
@@ -165,9 +181,8 @@ export function getBobineState(
   }
   if (currentStock > lastYearSelling) {
     return {
+      ...common,
       state: BobineState.Surstock,
-      quantity,
-      yearSell: lastYearSelling,
       stock: currentStock,
       info: `+${numberWithSeparator(currentStock - lastYearSelling)}`,
       infoValue: currentStock - lastYearSelling,
@@ -175,18 +190,16 @@ export function getBobineState(
   }
   if (currentStock < threshold) {
     return {
+      ...common,
       state: BobineState.Alerte,
-      quantity,
-      yearSell: lastYearSelling,
       stock: currentStock,
       info: `${numberWithSeparator(currentStock - threshold)}`,
       infoValue: currentStock - threshold,
     };
   }
   return {
+    ...common,
     state: BobineState.Neutre,
-    quantity,
-    yearSell: lastYearSelling,
     stock: currentStock,
     info:
       averageSellingByMonth === 0
