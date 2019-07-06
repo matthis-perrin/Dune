@@ -213,6 +213,7 @@ export interface PlanProductionData {
 
   tourCount: number;
   speed: number;
+  comment: string;
   status: PlanProductionStatus;
 }
 

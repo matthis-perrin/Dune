@@ -15,10 +15,12 @@ import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {BobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
+import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Closable} from '@root/components/core/closable';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
+import {Textarea} from '@root/components/core/textarea';
 import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
@@ -42,7 +44,7 @@ import {
   PlanProductionStatus,
 } from '@shared/models';
 
-const MAX_PLAN_PROD_WIDTH = 900;
+const MAX_PLAN_PROD_WIDTH = 1050;
 const INITIAL_SPEED = 180;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 
@@ -61,6 +63,7 @@ interface State {
 
   tourCountSetByUser: boolean;
   speed: number;
+  comment: string;
 }
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
@@ -73,6 +76,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       speed: INITIAL_SPEED,
       bobinesMinimums: new Map<string, number>(),
       bobinesMaximums: new Map<string, number>(),
+      comment: '',
     };
   }
 
@@ -208,7 +212,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleSave = (): void => {
-    const {planProduction, bobinesMinimums, bobinesMaximums, reorderedEncriers, speed} = this.state;
+    const {
+      planProduction,
+      bobinesMinimums,
+      bobinesMaximums,
+      reorderedEncriers,
+      speed,
+      comment,
+    } = this.state;
     if (!planProduction) {
       return;
     }
@@ -250,6 +261,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
       tourCount,
       speed,
+      comment,
       status: PlanProductionStatus.PLANNED,
     };
 
@@ -304,6 +316,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       speed,
       bobinesMinimums,
       bobinesMaximums,
+      comment,
     } = this.state;
 
     if (!planProduction || !stocks) {
@@ -459,7 +472,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment>
                 {padding}
                 <ProductionTable
-                  width={adjustedAvailableWidth + leftPadding}
+                  width={adjustedAvailableWidth}
                   planProduction={planProduction}
                   stocks={stocks}
                   cadencier={cadencier}
@@ -499,6 +512,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isPrinting={isPrinting}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
+                <PlanProdComment
+                  padding={padding}
+                  comment={comment}
+                  width={adjustedAvailableWidth}
+                  isPrinting={isPrinting}
+                  onChange={event => this.setState({comment: event.target.value})}
+                />
                 {productionTable}
                 {padding}
                 <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>

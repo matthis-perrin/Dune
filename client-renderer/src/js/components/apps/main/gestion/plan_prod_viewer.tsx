@@ -8,11 +8,11 @@ import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
 import {BobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
+import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
-import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {LoadingScreen} from '@root/components/core/loading_screen';
+import {Textarea} from '@root/components/core/textarea';
 import {WithColor} from '@root/components/core/with_colors';
-import {getStockReel, getStockTerme} from '@root/lib/bobine';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -32,8 +32,8 @@ interface PlanProdViewerState {
   bobineQuantities?: BobineQuantities[];
 }
 
-const TOP_BAR_MIN_WIDTH = 1100;
 const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
+const RENDERING_WIDTH = 1100;
 
 export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanProdViewerState> {
   public static displayName = 'PlanProdViewer';
@@ -81,12 +81,14 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       bobinesMini,
       bobinesMax,
       speed,
+      comment,
     } = planProd.data;
 
+    const INNER_PADDING = (1.5 * (theme.planProd.basePadding * RENDERING_WIDTH)) / CAPACITE_MACHINE;
     const leftPadding =
-      (CURVE_EXTRA_SPACE * (width - 2 * theme.page.padding)) / (1 - 2 * CURVE_EXTRA_SPACE);
-    const availableWidth = width - 2 * theme.page.padding - leftPadding;
-    const pixelPerMM = availableWidth / CAPACITE_MACHINE;
+      (CURVE_EXTRA_SPACE * (width - 2 * INNER_PADDING)) / (1 - 2 * CURVE_EXTRA_SPACE);
+    const INNER_RENDERING_WIDTH = RENDERING_WIDTH - INNER_PADDING - leftPadding;
+    const pixelPerMM = INNER_RENDERING_WIDTH / CAPACITE_MACHINE;
 
     const bobinesBlock = (
       <BobinesForm
@@ -169,7 +171,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
         <React.Fragment>
           {padding}
           <ProductionTable
-            width={availableWidth + leftPadding}
+            width={INNER_RENDERING_WIDTH}
             planProduction={{selectedBobines: bobines, tourCount}}
             stocks={stocks}
             cadencier={cadencier}
@@ -187,17 +189,12 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
       );
 
     const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
-    const adjustedWidth = Math.max(TOP_BAR_MIN_WIDTH, width);
-    const scale = width / adjustedWidth;
+    const scale = width / RENDERING_WIDTH;
 
     return (
-      <PlanProdEditorContainer style={{width}}>
+      <PlanProdEditorContainer style={{transformOrigin: 'left top', transform: `scale(${scale})`}}>
         <TopBar
-          style={{
-            transformOrigin: 'top left',
-            transform: `scale(${scale})`,
-          }}
-          width={adjustedWidth}
+          width={RENDERING_WIDTH}
           bobines={bobines}
           papier={papier}
           isComplete
@@ -208,7 +205,13 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
           speed={speed}
           tourCount={tourCount}
         />
-        <Wrapper style={{width: availableWidth + leftPadding}}>
+        <Wrapper style={{width: INNER_RENDERING_WIDTH}}>
+          <PlanProdComment
+            padding={padding}
+            comment={comment}
+            width={INNER_RENDERING_WIDTH}
+            isPrinting
+          />
           {productionTable}
           {padding}
           <div style={{alignSelf: 'flex-end'}}>{bobinesBlock}</div>
@@ -238,6 +241,5 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 ${theme.page.padding}px;
   margin: auto;
 `;
