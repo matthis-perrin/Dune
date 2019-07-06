@@ -13,21 +13,10 @@ interface Props<T extends {ref: string; sommeil: boolean}> {
   columns: ColumnMetadata<T, any>[];
 }
 
-interface State<T extends {ref: string; sommeil: boolean}> {
-  filteredElements?: T[];
-  filteredSearchedElements?: T[];
-}
-
 export class AdminTable<T extends {ref: string; sommeil: boolean}> extends React.Component<
-  Props<T>,
-  State<T>
+  Props<T>
 > {
   public static displayName = 'AdminTable';
-
-  public constructor(props: Props<T>) {
-    super(props);
-    this.state = {};
-  }
 
   private readonly isActif = (v: T, e: boolean): boolean => {
     return e && !v.sommeil;
@@ -36,40 +25,13 @@ export class AdminTable<T extends {ref: string; sommeil: boolean}> extends React
     return e && v.sommeil;
   };
 
-  private readonly handleElementsFiltered = (filteredElements: T[]): void => {
-    this.setState({filteredElements});
-  };
-
-  private readonly handleElementsFilteredAndSearched = (filteredSearchedElements: T[]): void => {
-    this.setState({filteredSearchedElements});
-  };
-
   public render(): JSX.Element {
     const {data, columns} = this.props;
-    const {filteredElements = [], filteredSearchedElements} = this.state;
 
     return (
       <SizeMonitor>
         {(width, height) => (
           <TableContainer>
-            <SearchBar
-              data={filteredElements}
-              columns={columns}
-              onChange={this.handleElementsFilteredAndSearched}
-            />
-            <SortableTable<T>
-              data={filteredSearchedElements || filteredElements}
-              columns={columns}
-              initialSort={{
-                index: 0,
-                asc: true,
-              }}
-              width={width}
-              height={height - theme.table.footerHeight - theme.table.searchBarHeight}
-              rowStyles={row => ({
-                opacity: row.sommeil ? theme.table.disabledOpacity : 1,
-              })}
-            />
             <FilterBar
               data={data}
               filters={[
@@ -84,8 +46,31 @@ export class AdminTable<T extends {ref: string; sommeil: boolean}> extends React
                   shouldShowElement: this.isEnSommeil,
                 },
               ]}
-              onChange={this.handleElementsFiltered}
-            />
+            >
+              {(filterBar, filteredData) => (
+                <SearchBar data={filteredData} columns={columns}>
+                  {(searchBar, searchedData) => (
+                    <React.Fragment>
+                      {searchBar}
+                      <SortableTable<T>
+                        data={searchedData}
+                        columns={columns}
+                        initialSort={{
+                          index: 0,
+                          asc: true,
+                        }}
+                        width={width}
+                        height={height - theme.table.footerHeight - theme.table.searchBarHeight}
+                        rowStyles={row => ({
+                          opacity: row.sommeil ? theme.table.disabledOpacity : 1,
+                        })}
+                      />
+                      {filterBar}
+                    </React.Fragment>
+                  )}
+                </SearchBar>
+              )}
+            </FilterBar>
           </TableContainer>
         )}
       </SizeMonitor>
