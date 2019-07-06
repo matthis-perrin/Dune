@@ -116,6 +116,16 @@ export class TopBar extends React.Component<TopBarProps> {
       Math.round((longueur !== 0 ? (tourCountValue * longueurBobineFille) / longueur : 0) * 10) /
       10;
 
+    const tourCountStyles = isPrinting
+      ? {
+          fontSize: 26,
+          fontWeight: FontWeight.Bold,
+          backgroundColor: Palette.White,
+          borderWidth: 2,
+          color: Palette.Black,
+        }
+      : {};
+
     return (
       <TopBarWrapper style={{...style, width}}>
         <LeftContainer>
@@ -135,7 +145,13 @@ export class TopBar extends React.Component<TopBarProps> {
           />
           <TopBarValueContainer
             style={{marginRight: 16}}
-            top={<InputClass value={tourCountStr} onChange={this.handleTourCountInputChange} />}
+            top={
+              <InputClass
+                style={tourCountStyles}
+                value={tourCountStr}
+                onChange={this.handleTourCountInputChange}
+              />
+            }
             bottom={'TOURS'}
           />
           <TopBarValueContainer
