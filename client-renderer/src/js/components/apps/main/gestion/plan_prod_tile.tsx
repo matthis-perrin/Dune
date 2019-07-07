@@ -136,22 +136,22 @@ export class PlanProdTile extends React.Component<Props> {
         viewerLeft = left - best.width - distanceFromTile - 2 * viewerPadding;
         viewerTop = top + height / 2 - best.height / 2;
       } else if (best.position === 'right') {
-        viewerLeft = left + width + distanceFromTile + 2 * viewerPadding;
+        viewerLeft = left + width + distanceFromTile;
         viewerTop = top + height / 2 - best.height / 2;
       } else if (best.position === 'top') {
         viewerLeft = left + width / 2 - best.width / 2;
         viewerTop = top - distanceFromTile - 2 * viewerPadding - best.height;
       } else if (best.position === 'bottom') {
         viewerLeft = left + width / 2 - best.width / 2;
-        viewerTop = top + height + distanceFromTile + 2 * viewerPadding;
+        viewerTop = top + height + distanceFromTile;
       }
 
       viewerLeft = Math.max(
-        viewerMargin / 2,
+        viewerMargin,
         Math.min(availableWidth - best.width + distanceFromTile, viewerLeft)
       );
       viewerTop = Math.max(
-        viewerMargin / 2,
+        viewerMargin,
         Math.min(availableHeight - best.height + distanceFromTile, viewerTop)
       );
 
