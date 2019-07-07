@@ -122,6 +122,7 @@ const CalendarHeader = styled.thead`
   background-color: ${theme.calendar.headerBackgroundColor};
   color: ${theme.calendar.headerTextColor};
   user-select: none;
+  border: solid 2px ${theme.calendar.dayBorderColor};
 `;
 
 const MonthYear = styled.div`
