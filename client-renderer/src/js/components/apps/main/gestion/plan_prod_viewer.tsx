@@ -11,7 +11,6 @@ import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {LoadingScreen} from '@root/components/core/loading_screen';
-import {Textarea} from '@root/components/core/textarea';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';

@@ -181,6 +181,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
               value: numberWithSeparator(stockReel),
             },
             {
+              title: withPopup(
+                <div style={{width: titleWidth}}>Seuil d'alerte</div>,
+                <div>{`Seuil d'alerte définit pour une vente annuelle comprise entre ${minSell} et ${maxSell}`}</div>
+              ),
+              value: numberWithSeparator(threshold),
+            },
+            {
               title: <div style={{width: titleWidth}}>Commande en cours</div>,
               value: numberWithSeparator(stockReserve),
             },
@@ -199,13 +206,6 @@ export class ViewBobineApp extends React.Component<Props, State> {
                 <div>Total des ventes sur les 12 derniers mois.</div>
               ),
               value: numberWithSeparator(yearSell),
-            },
-            {
-              title: withPopup(
-                <div style={{width: titleWidth}}>Seuil d'alerte</div>,
-                <div>{`Seuil d'alerte définit pour une vente annuelle comprise entre ${minSell} et ${maxSell}`}</div>
-              ),
-              value: numberWithSeparator(threshold),
             },
             {
               title: withPopup(
