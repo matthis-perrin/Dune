@@ -288,6 +288,18 @@ export const GRAMMAGE_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
   shouldRerender: (row1, row2) => row1.grammage !== row2.grammage,
 };
 
+export const GRAMMAGE_M2_COLUMN: ColumnMetadata<{grammage?: number}, number> = {
+  title: 'G/M²',
+  width: 55,
+  renderCell: ({grammage}) => renderNumber(grammage),
+  justifyContent: 'center',
+  sortFunction: (row1, row2) => optionalNumberSort(row1.grammage, row2.grammage),
+  filter: {
+    getValue: (row: {grammage?: number}) => row.grammage || 0,
+  },
+  shouldRerender: (row1, row2) => row1.grammage !== row2.grammage,
+};
+
 const STOCK_COLUMN = (
   title: string,
   type: StockType,

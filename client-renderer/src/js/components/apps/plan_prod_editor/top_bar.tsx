@@ -123,10 +123,10 @@ export class TopBar extends React.Component<TopBarProps> {
     const tourCountStyles = isPrinting
       ? {
           fontSize: 26,
-          fontWeight: FontWeight.Bold,
+          fontWeight: FontWeight.SemiBold,
           backgroundColor: Palette.White,
-          borderWidth: 2,
-          color: Palette.Black,
+          borderWidth: 3,
+          color: Colors.SecondaryDark,
         }
       : {};
 
@@ -223,7 +223,7 @@ const TopBarValueContainer = styled(TopBottom)`
 
 const TopBarInputBase = styled(Input)`
   margin-bottom: 4px;
-  width: 90px;
+  width: 93px;
   height: 40px;
   font-size: 20px;
   text-align: center;
