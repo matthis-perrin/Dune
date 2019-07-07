@@ -10,12 +10,9 @@ import {BobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
-import {LoadingScreen} from '@root/components/core/loading_screen';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
-import {bobinesQuantitiesStore} from '@root/stores/data_store';
-import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
 import {Stock, BobineQuantities, PlanProduction} from '@shared/models';
@@ -23,52 +20,35 @@ import {Stock, BobineQuantities, PlanProduction} from '@shared/models';
 interface PlanProdViewerProps {
   planProd: PlanProduction;
   width: number;
-}
-
-interface PlanProdViewerState {
-  stocks?: Map<string, Stock[]>;
-  cadencier?: Map<string, Map<number, number>>;
-  bobineQuantities?: BobineQuantities[];
+  stocks: Map<string, Stock[]>;
+  cadencier: Map<string, Map<number, number>>;
+  bobineQuantities: BobineQuantities[];
+  onHeightAvailable?(height: number): void;
 }
 
 const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 const RENDERING_WIDTH = 1100;
 
-export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanProdViewerState> {
+export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
   public static displayName = 'PlanProdViewer';
+  private readonly containerRef = React.createRef<HTMLDivElement>();
 
   public constructor(props: PlanProdViewerProps) {
     super(props);
     this.state = {};
   }
 
-  public componentDidMount(): void {
-    stocksStore.addListener(this.handleStoresChanged);
-    cadencierStore.addListener(this.handleStoresChanged);
-    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
+  public componentDidMount() {
+    const {onHeightAvailable, width} = this.props;
+    const container = this.containerRef.current;
+    if (onHeightAvailable) {
+      const height = container ? container.getBoundingClientRect().height : width;
+      onHeightAvailable(height);
+    }
   }
-
-  public componentWillUnmount(): void {
-    stocksStore.removeListener(this.handleStoresChanged);
-    cadencierStore.removeListener(this.handleStoresChanged);
-    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-  }
-
-  private readonly handleStoresChanged = (): void => {
-    this.setState({
-      stocks: stocksStore.getStockIndex(),
-      cadencier: cadencierStore.getCadencierIndex(),
-      bobineQuantities: bobinesQuantitiesStore.getData(),
-    });
-  };
 
   public render(): JSX.Element {
-    const {bobineQuantities, cadencier, stocks} = this.state;
-    if (!bobineQuantities || !cadencier || !stocks) {
-      return <LoadingScreen />;
-    }
-
-    const {width, planProd} = this.props;
+    const {width, planProd, bobineQuantities, cadencier, stocks, onHeightAvailable} = this.props;
     const {
       bobines,
       refente,
@@ -189,9 +169,12 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps, PlanPro
 
     const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
     const scale = width / RENDERING_WIDTH;
+    const scalingStyles = onHeightAvailable
+      ? {transformOrigin: 'left top', transform: `scale(${scale})`}
+      : {zoom: scale};
 
     return (
-      <PlanProdEditorContainer style={{transformOrigin: 'left top', transform: `scale(${scale})`}}>
+      <PlanProdEditorContainer ref={this.containerRef} style={scalingStyles}>
         <TopBar
           width={RENDERING_WIDTH}
           bobines={bobines}

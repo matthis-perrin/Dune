@@ -5,9 +5,10 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
-import {plansProductionStore} from '@root/stores/list_store';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
-import {ClientAppType, PlanProduction} from '@shared/models';
+import {ClientAppType, PlanProduction, Stock, BobineQuantities} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -15,6 +16,9 @@ interface Props {}
 
 interface State {
   plansProduction?: Map<number, PlanProduction[]>;
+  stocks?: Map<string, Stock[]>;
+  cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
   month: number;
   year: number;
 }
@@ -31,15 +35,24 @@ export class GestionPage extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
+    stocksStore.addListener(this.handleStoresChanged);
+    cadencierStore.addListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
+    stocksStore.removeListener(this.handleStoresChanged);
+    cadencierStore.removeListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.handleStoresChanged);
   }
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
+      stocks: stocksStore.getStockIndex(),
+      cadencier: cadencierStore.getCadencierIndex(),
+      bobineQuantities: bobinesQuantitiesStore.getData(),
       plansProduction: plansProductionStore.getIndex(),
     });
   };
@@ -68,8 +81,8 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   public renderDay(date: Date): JSX.Element {
-    const {plansProduction} = this.state;
-    if (!plansProduction) {
+    const {plansProduction, stocks, cadencier, bobineQuantities} = this.state;
+    if (!plansProduction || !stocks || !cadencier || !bobineQuantities) {
       return <div />;
     }
     const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
@@ -78,7 +91,12 @@ export class GestionPage extends React.Component<Props, State> {
     return (
       <div>
         {planForDay.map(p => (
-          <PlanProdTile planProd={p} />
+          <PlanProdTile
+            planProd={p}
+            stocks={stocks}
+            cadencier={cadencier}
+            bobineQuantities={bobineQuantities}
+          />
         ))}
       </div>
     );

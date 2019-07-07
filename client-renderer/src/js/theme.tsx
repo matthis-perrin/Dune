@@ -258,4 +258,10 @@ export const theme = {
     dayCircleFontSize: 14,
     dayCircleFontWeight: FontWeight.SemiBold,
   },
+  viewer: {
+    margin: 32,
+    padding: 16,
+    distanceFromElement: 16,
+    shadow: '0px 0px 16px 0px rgba(0,0,0,0.75)',
+  },
 };
