@@ -5,10 +5,11 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
+import {getStockReel, getStockTerme} from '@root/lib/bobine';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {BobineFilleWithPose, BobineMere} from '@shared/models';
+import {BobineFilleWithPose, BobineMere, Stock} from '@shared/models';
 
 const MAX_SPEED_RATIO = 0.82;
 
@@ -18,6 +19,7 @@ interface TopBarProps {
   planProdTitle: string;
   bobines: BobineFilleWithPose[];
   papier?: BobineMere;
+  polypro?: BobineMere;
   tourCount?: number;
   speed: number;
   onTourCountChange(tourCount?: number): void;
@@ -27,6 +29,7 @@ interface TopBarProps {
   onClear?(): void;
   isComplete: boolean;
   isPrinting: boolean;
+  stocks: Map<string, Stock[]>;
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -101,8 +104,54 @@ export class TopBar extends React.Component<TopBarProps> {
     );
   }
 
+  private getAlert(bobineMere: BobineMere | undefined, type: string): JSX.Element | undefined {
+    if (!bobineMere) {
+      return undefined;
+    }
+    const {ref, longueur = 0} = bobineMere;
+    const {stocks, bobines, tourCount = 0} = this.props;
+
+    const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
+    const prod = longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0;
+
+    const stockReel = getStockReel(ref, stocks);
+    const stockTerme = getStockTerme(ref, stocks);
+
+    const stockActuel = stockReel;
+    const stockActuelTerme = stockTerme;
+    const stockPrevisionel = 0;
+    const stockPrevisionelTerme = 0;
+    const stockAfterProd = stockReel - prod;
+    const stockAfterProdTerme = stockTerme - prod;
+
+    const label = `${type} ${bobineMere.ref}`;
+    const withDecimal = (value: number): number => Math.round(value * 10) / 10;
+
+    let message: string | undefined;
+    if (stockActuel < 0) {
+      const value = withDecimal(stockActuel);
+      message = `Le stock actuel du ${label} est négatif (${value}) !`;
+    } else if (stockPrevisionel < 0) {
+      const value = withDecimal(stockPrevisionel);
+      message = `Le stock prévisionel du ${label} est négatif (${value}) !`;
+    } else if (stockAfterProd < 0) {
+      const value = withDecimal(stockAfterProd);
+      message = `Le stock du ${label} après production est négatif (${value}) !`;
+    } else if (stockActuelTerme < 0) {
+      const value = withDecimal(stockActuelTerme);
+      message = `Le stock actuel à terme du ${label} est négatif (${value}) !`;
+    } else if (stockPrevisionelTerme < 0) {
+      const value = withDecimal(stockPrevisionelTerme);
+      message = `Le stock prévisionel à terme du ${label} est négatif (${value}) !`;
+    } else if (stockAfterProdTerme < 0) {
+      const value = withDecimal(stockAfterProdTerme);
+      message = `Le stock du ${label} après production à terme est négatif (${value}) !`;
+    }
+    return message ? <div>{message}</div> : undefined;
+  }
+
   public render(): JSX.Element {
-    const {tourCount, speed, isPrinting, bobines, width, papier, style = {}} = this.props;
+    const {tourCount, speed, isPrinting, bobines, width, papier, polypro, style = {}} = this.props;
 
     const productionTimeInSec =
       bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
@@ -116,9 +165,20 @@ export class TopBar extends React.Component<TopBarProps> {
 
     const longueur = papier ? papier.longueur || 0 : 0;
     const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
-    const prod =
-      Math.round((longueur !== 0 ? (tourCountValue * longueurBobineFille) / longueur : 0) * 10) /
-      10;
+    const prod = longueur !== 0 ? (tourCountValue * longueurBobineFille) / longueur : 0;
+    const roundedProd = Math.round(prod * 10) / 10;
+
+    const papierAlert = this.getAlert(papier, 'papier');
+    const polyproAlert = this.getAlert(polypro, 'polypro');
+    const alerts =
+      papierAlert || polyproAlert ? (
+        <AlertContainer>
+          {papierAlert}
+          {polyproAlert}
+        </AlertContainer>
+      ) : (
+        <React.Fragment />
+      );
 
     const tourCountStyles = isPrinting
       ? {
@@ -131,45 +191,48 @@ export class TopBar extends React.Component<TopBarProps> {
       : {};
 
     return (
-      <TopBarWrapper style={{...style, width}}>
-        <LeftContainer>
-          <TopBarTitle>PRODUCTION 00013</TopBarTitle>
-          {this.renderButtons()}
-        </LeftContainer>
-        <CenterContainer>
-          <TopBarValueContainer
-            style={{marginRight: 16}}
-            top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
-            bottom={'MÈTRES LINÉAIRES'}
-          />
-          <TopBarValueContainer
-            style={{marginRight: 16}}
-            top={<StaticTopBarInput value={prod} readOnly />}
-            bottom={'CONSO BOBINES MÈRES'}
-          />
-          <TopBarValueContainer
-            style={{marginRight: 16}}
-            top={
-              <InputClass
-                style={tourCountStyles}
-                value={tourCountStr}
-                onChange={this.handleTourCountInputChange}
-              />
-            }
-            bottom={'TOURS'}
-          />
-          <TopBarValueContainer
-            style={{marginRight: 16}}
-            top={<InputClass value={speed} onChange={this.handleSpeedInputChange} />}
-            bottom={'M/MIN'}
-          />
-        </CenterContainer>
-        <RightContainer>
-          <div>
-            Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
-          </div>
-        </RightContainer>
-      </TopBarWrapper>
+      <React.Fragment>
+        <TopBarWrapper style={{...style, width}}>
+          <LeftContainer>
+            <TopBarTitle>PRODUCTION 00013</TopBarTitle>
+            {this.renderButtons()}
+          </LeftContainer>
+          <CenterContainer>
+            <TopBarValueContainer
+              style={{marginRight: 16}}
+              top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
+              bottom={'MÈTRES LINÉAIRES'}
+            />
+            <TopBarValueContainer
+              style={{marginRight: 16}}
+              top={<StaticTopBarInput value={roundedProd} readOnly />}
+              bottom={'CONSO BOBINES MÈRES'}
+            />
+            <TopBarValueContainer
+              style={{marginRight: 16}}
+              top={
+                <InputClass
+                  style={tourCountStyles}
+                  value={tourCountStr}
+                  onChange={this.handleTourCountInputChange}
+                />
+              }
+              bottom={'TOURS'}
+            />
+            <TopBarValueContainer
+              style={{marginRight: 16}}
+              top={<InputClass value={speed} onChange={this.handleSpeedInputChange} />}
+              bottom={'M/MIN'}
+            />
+          </CenterContainer>
+          <RightContainer>
+            <div>
+              Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
+            </div>
+          </RightContainer>
+        </TopBarWrapper>
+        {alerts}
+      </React.Fragment>
     );
   }
 }
@@ -234,4 +297,14 @@ const TopBarInput = styled(TopBarInputBase)``;
 const StaticTopBarInput = styled(TopBarInputBase)`
   background-color: ${Palette.Transparent};
   color: ${Colors.TextOnPrimary};
+`;
+
+const AlertContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: ${Colors.Danger};
+  color: ${Palette.White};
+  font-weight: ${FontWeight.SemiBold};
+  padding: 16px 32px;
 `;

@@ -501,6 +501,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 planProdTitle={planProdTitle}
                 bobines={planProduction.selectedBobines}
                 papier={planProduction.selectedPapier}
+                polypro={planProduction.selectedPolypro}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
@@ -510,6 +511,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 onClear={this.handleClear}
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
+                stocks={stocks}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
                 <PlanProdComment

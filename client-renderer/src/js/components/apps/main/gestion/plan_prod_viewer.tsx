@@ -176,9 +176,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
     return (
       <PlanProdEditorContainer ref={this.containerRef} style={scalingStyles}>
         <TopBar
+          stocks={stocks}
           width={RENDERING_WIDTH}
           bobines={bobines}
           papier={papier}
+          polypro={polypro}
           isComplete
           isPrinting
           onSpeedChange={() => {}}
