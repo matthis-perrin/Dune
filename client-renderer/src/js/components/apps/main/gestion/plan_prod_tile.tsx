@@ -12,6 +12,8 @@ import {Palette, theme} from '@root/theme';
 import {getRefenteLabel} from '@shared/lib/refentes';
 import {PlanProduction, Stock, BobineQuantities} from '@shared/models';
 
+const SHOW_VIEWER_TIMEOUT_MS = 100;
+
 interface Props extends HTMLDivProps {
   planProd: PlanProduction;
   stocks: Map<string, Stock[]>;
@@ -22,6 +24,7 @@ interface Props extends HTMLDivProps {
 export class PlanProdTile extends React.Component<Props> {
   public static displayName = 'PlanProdTile';
   private readonly wrapperRef = React.createRef<HTMLDivElement>();
+  private showViewerTimeout: number | undefined;
 
   public constructor(props: Props) {
     super(props);
@@ -82,6 +85,9 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private removeViewer(): void {
+    if (this.showViewerTimeout) {
+      clearTimeout(this.showViewerTimeout);
+    }
     const element = document.getElementById(this.getViewerId());
     if (element) {
       element.remove();
@@ -89,6 +95,9 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private showViewer(): void {
+    if (this.showViewerTimeout) {
+      clearTimeout(this.showViewerTimeout);
+    }
     this.getViewerWidthHeightRatio(ratio => {
       const element = this.wrapperRef.current;
       if (!element) {
@@ -154,6 +163,11 @@ export class PlanProdTile extends React.Component<Props> {
       viewerContainer.style.backgroundColor = Palette.White;
       viewerContainer.style.padding = `${viewerPadding}px`;
       viewerContainer.style.boxShadow = theme.viewer.shadow;
+      viewerContainer.style.transition = 'opacity 100ms ease-in';
+      viewerContainer.style.opacity = '0';
+      this.showViewerTimeout = setTimeout(() => {
+        viewerContainer.style.opacity = '1';
+      }, SHOW_VIEWER_TIMEOUT_MS);
     });
   }
 
@@ -189,4 +203,5 @@ const TileWrapper = styled.div`
   border-radius: 4px;
   font-weight: 500;
   text-align: center;
+  cursor: pointer;
 `;
