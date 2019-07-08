@@ -2,11 +2,23 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
-import {getStockReel, getStockTerme} from '@root/lib/stocks';
+import {
+  getStockReel,
+  getStockTerme,
+  getStockReelPrevisionel,
+  getStockTermePrevisionel,
+} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
-import {BobineMere, Stock, Color, BobineFilleWithPose} from '@shared/models';
+import {
+  BobineMere,
+  Stock,
+  Color,
+  BobineFilleWithPose,
+  PlanProductionInfo,
+  PlanProduction,
+} from '@shared/models';
 
 interface BobineMereContentProps {
   color: Color;
@@ -16,6 +28,8 @@ interface BobineMereContentProps {
   stocks: Map<string, Stock[]>;
   tourCount?: number;
   selectedBobines: BobineFilleWithPose[];
+  plansProd: PlanProduction[];
+  info: PlanProductionInfo;
 }
 
 export class BobineMereContent extends React.Component<BobineMereContentProps> {
@@ -30,22 +44,29 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
       stocks,
       tourCount = 0,
       selectedBobines,
+      plansProd,
+      info,
     } = this.props;
     const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
 
     const grammageStr = `${grammage}${isPolypro ? 'g/m²' : 'g'}`;
     const longueurStr = `${numberWithSeparator(longueur)} m`;
-    const stockReel = stocks ? getStockReel(ref, stocks) : 0;
-    const stockTerme = stocks ? getStockTerme(ref, stocks) : 0;
     const longueurBobineFille = selectedBobines.length > 0 ? selectedBobines[0].longueur || 0 : 0;
     const withDecimal = (value: number): number => Math.round(value * 10) / 10;
     const prod = withDecimal(longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0);
 
+    const stockReel = getStockReel(ref, stocks);
+    const stockTerme = getStockTerme(ref, stocks);
+    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, plansProd, info);
+    const stockPrevisionelTerme = getStockTermePrevisionel(ref, stocks, plansProd, info);
+
     const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
     const stockActuel = `${stockReel} (à terme ${stockTerme})`;
-    const stockPrevisionel = '? (à terme ?)';
-    const stockAfterProd = `${withDecimal(stockReel - prod)} (à terme ${withDecimal(
-      stockTerme - prod
+    const stockPrevisionel = `${withDecimal(stockPrevisionelReel)} (à terme ${withDecimal(
+      stockPrevisionelTerme
+    )})`;
+    const stockAfterProd = `${withDecimal(stockPrevisionelReel - prod)} (à terme ${withDecimal(
+      stockPrevisionelTerme - prod
     )})`;
 
     const large = theme.planProd.elementsBaseLargeFontSize * pixelPerMM;

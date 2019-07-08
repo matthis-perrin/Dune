@@ -28,6 +28,7 @@ import {
   refentesStore,
   bobinesFillesWithMultiPoseStore,
   cadencierStore,
+  plansProductionStore,
 } from '@root/stores/list_store';
 import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
@@ -69,20 +70,26 @@ export class AppManager extends React.Component<Props, State> {
       return StoreManager.AllStores;
     }
     if (type === ClientAppType.ListBobinesFillesApp) {
-      return [bobinesFillesStore, stocksStore, colorsStore];
+      return [bobinesFillesStore, stocksStore, colorsStore, plansProductionStore];
     }
     if (type === ClientAppType.ListPapiersApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
     }
     if (type === ClientAppType.ListPolyprosApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
     }
     if (type === ClientAppType.ListClichesApp) {
       return [clichesStore, colorsStore];
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [stocksStore, cadencierStore, bobinesQuantitiesStore, colorsStore];
+      return [
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        colorsStore,
+        plansProductionStore,
+      ];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [
@@ -93,6 +100,7 @@ export class AppManager extends React.Component<Props, State> {
         cadencierStore,
         bobinesQuantitiesStore,
         colorsStore,
+        plansProductionStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -102,10 +110,10 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
     }
 
     if (type === ClientAppType.ViewBobineApp) {

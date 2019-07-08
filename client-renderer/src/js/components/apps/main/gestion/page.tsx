@@ -5,6 +5,7 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
+import {countRetraitCliche} from '@root/lib/plan_prod';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
@@ -16,6 +17,7 @@ interface Props {}
 
 interface State {
   plansProduction?: Map<number, PlanProduction[]>;
+  plansProductionFlattened?: PlanProduction[];
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
@@ -54,7 +56,17 @@ export class GestionPage extends React.Component<Props, State> {
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
       plansProduction: plansProductionStore.getIndex(),
+      plansProductionFlattened: plansProductionStore.getActivePlansProd(),
     });
+    const p = plansProductionStore.getActivePlansProd();
+    if (p && p.length >= 2) {
+      console.log(
+        countRetraitCliche(
+          {bobines: p[0].data.bobines, encrierColors: p[0].data.encriers},
+          {bobines: p[1].data.bobines, encrierColors: p[1].data.encriers}
+        )
+      );
+    }
   };
 
   private readonly goToNextMonth = (): void => {
@@ -108,8 +120,8 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   public renderDay(date: Date): JSX.Element {
-    const {stocks, cadencier, bobineQuantities} = this.state;
-    if (!stocks || !cadencier || !bobineQuantities) {
+    const {stocks, cadencier, bobineQuantities, plansProductionFlattened} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities || !plansProductionFlattened) {
       return <div />;
     }
     return (
@@ -117,6 +129,7 @@ export class GestionPage extends React.Component<Props, State> {
         {this.getPlanProdsForDate(date).map(p => (
           <PlanProdTile
             planProd={p}
+            plansProd={plansProductionFlattened}
             stocks={stocks}
             cadencier={cadencier}
             bobineQuantities={bobineQuantities}

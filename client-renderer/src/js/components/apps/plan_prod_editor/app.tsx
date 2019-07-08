@@ -26,7 +26,7 @@ import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
-import {stocksStore, cadencierStore} from '@root/stores/list_store';
+import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
@@ -42,6 +42,7 @@ import {
   PlanProductionData,
   PlanProductionStatus,
   PlanProductionInfo,
+  PlanProduction,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
@@ -62,6 +63,7 @@ interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
+  plansProd?: PlanProduction[];
 
   tourCountSetByUser: boolean;
   speed: number;
@@ -87,6 +89,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     stocksStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
+    plansProductionStore.addListener(this.handleStoresChanged);
     this.refreshPlanProduction();
   }
 
@@ -95,6 +98,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     stocksStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
+    plansProductionStore.removeListener(this.handleStoresChanged);
   }
 
   private readonly handleStoresChanged = (): void => {
@@ -102,6 +106,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
+      plansProd: plansProductionStore.getActivePlansProd(),
     });
   };
 
@@ -219,6 +224,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobinesMinimums,
       bobinesMaximums,
       reorderedEncriers,
+      reorderedBobines,
       speed,
       comment,
     } = this.state;
@@ -256,7 +262,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       papier: selectedPapier,
       perfo: selectedPerfo,
       refente: selectedRefente,
-      bobines: selectedBobines,
+      bobines: reorderedBobines || selectedBobines,
       bobinesMini: Array.from(bobinesMinimums.entries()),
       bobinesMax: Array.from(bobinesMaximums.entries()),
       encriers: reorderedEncriers || couleursEncrier[0],
@@ -316,13 +322,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       stocks,
       cadencier,
       bobineQuantities,
+      plansProd,
       speed,
       bobinesMinimums,
       bobinesMaximums,
       comment,
     } = this.state;
 
-    if (!planProduction || !stocks) {
+    if (!planProduction || !stocks || !plansProd) {
       return <LoadingScreen />;
     }
 
@@ -410,6 +417,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPapier}
                       isPolypro={false}
                       stocks={stocks}
+                      plansProd={plansProd}
+                      info={planProduction}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
                     />
@@ -450,6 +459,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPolypro}
                       isPolypro
                       stocks={stocks}
+                      plansProd={plansProd}
+                      info={planProduction}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
                     />

@@ -11,7 +11,7 @@ interface OperationConstraintProps {
 export const ConstraintDescriptions = new Map<OperationConstraintModel, string>([
   [OperationConstraintModel.None, 'Aucune'],
   [OperationConstraintModel.ChangementPerforation, 'Changement de perforation'],
-  [OperationConstraintModel.ChangeRefente, 'Changement de refente'],
+  [OperationConstraintModel.ChangementRefente, 'Changement de refente'],
   [OperationConstraintModel.ChangementBobinesMerePapier, 'Changement de bobine mère papier'],
   [OperationConstraintModel.ChangementBobinesMerePolypro, 'Changement de bobine mère polypro'],
   // retirer un ou plusieurs cliche d'une meme couleur (n'inclus pas poser le nouveau cliche)
@@ -20,8 +20,8 @@ export const ConstraintDescriptions = new Map<OperationConstraintModel, string>(
     "Cliché du plan de production précédent n'est plus utilisé",
   ],
   [OperationConstraintModel.AjoutCliche, 'Nouveau cliché est utilisé'],
-  [OperationConstraintModel.ChangementCouleur, 'Changement de couleur encrier'],
-  [OperationConstraintModel.ChangementNombreCouleurs, "Changement du nombre d'encriers utilisé"],
+  [OperationConstraintModel.VidageEncrier, "Vidage d'un encrier"],
+  [OperationConstraintModel.RemplissageEncrier, "Remplissage d'un encrier"],
   [OperationConstraintModel.AugmentationRefentes, 'Augmentation du nombre de refentes'],
 ]);
 

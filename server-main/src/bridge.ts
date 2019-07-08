@@ -1,3 +1,5 @@
+import {BrowserWindow} from 'electron';
+
 import {SQLITE_DB} from '@root/db';
 import {getErrors} from '@root/state';
 
@@ -24,7 +26,11 @@ async function getServerStatus(): Promise<ServerStatus> {
 }
 
 // tslint:disable-next-line:no-any
-export async function handleCommand(command: BridgeCommand, data: any): Promise<any> {
+export async function handleCommand(
+  browserWindow: BrowserWindow,
+  command: BridgeCommand,
+  data: any
+): Promise<any> {
   if (command === ServerGetStatus) {
     return getServerStatus();
   }

@@ -237,13 +237,13 @@ export interface Operation {
 export enum OperationConstraint {
   None = 'none',
   ChangementPerforation = 'changement-perforation',
-  ChangeRefente = 'changement-refente',
+  ChangementRefente = 'changement-refente',
   ChangementBobinesMerePapier = 'changement-bobine-mere-papier',
   ChangementBobinesMerePolypro = 'changement-bobine-mere-polypro',
   RetraitCliche = 'retrait-cliche',
   AjoutCliche = 'ajout-cliche',
-  ChangementCouleur = 'changement-couleur',
-  ChangementNombreCouleurs = 'changement-nombre-couleurs',
+  VidageEncrier = 'vidage-encrier',
+  RemplissageEncrier = 'remplissage-encrier',
   AugmentationRefentes = 'augmentation-refentes',
 }
 

@@ -147,7 +147,7 @@ async function updateIndexInDay(
               });
           })
         )
-          .then(() => resolve())
+          .then(resolve)
           .catch(reject);
       })
       .catch(reject);

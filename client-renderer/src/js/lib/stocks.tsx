@@ -103,7 +103,7 @@ export function getStockPrevisionel(
   );
   const stockDiffs = futurPlansProd.map(planProd => getStockDiff(ref, planProd.data));
   const totalDiff = stockDiffs.reduce((acc, curr) => acc + curr, 0);
-  return startStock - totalDiff;
+  return startStock + totalDiff;
 }
 
 export function getStockReel(ref: string, stocks: Map<string, Stock[]>): number {

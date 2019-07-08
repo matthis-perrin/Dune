@@ -21,6 +21,7 @@ interface PlanProdViewerProps {
   planProd: PlanProduction;
   width: number;
   stocks: Map<string, Stock[]>;
+  plansProd: PlanProduction[];
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   onHeightAvailable?(height: number): void;
@@ -47,7 +48,15 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
   }
 
   public render(): JSX.Element {
-    const {width, planProd, bobineQuantities, cadencier, stocks, onHeightAvailable} = this.props;
+    const {
+      width,
+      planProd,
+      bobineQuantities,
+      cadencier,
+      stocks,
+      plansProd,
+      onHeightAvailable,
+    } = this.props;
     const {
       bobines,
       refente,
@@ -110,6 +119,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
               bobine={papier}
               isPolypro={false}
               stocks={stocks}
+              plansProd={plansProd}
+              info={planProd}
               tourCount={tourCount}
               selectedBobines={bobines}
             />
@@ -133,9 +144,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
             <BobineMereContent
               color={color}
               pixelPerMM={pixelPerMM}
-              bobine={papier}
+              bobine={polypro}
               isPolypro
               stocks={stocks}
+              plansProd={plansProd}
+              info={planProd}
               tourCount={tourCount}
               selectedBobines={bobines}
             />

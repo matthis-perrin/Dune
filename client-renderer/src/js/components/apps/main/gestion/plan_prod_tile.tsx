@@ -22,6 +22,7 @@ interface Props extends HTMLDivProps {
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
+  plansProd: PlanProduction[];
 }
 
 export class PlanProdTile extends React.Component<Props> {
@@ -58,7 +59,7 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private createViewer(width: number, heightCallback?: (height: number) => void): HTMLDivElement {
-    const {planProd, stocks, cadencier, bobineQuantities} = this.props;
+    const {planProd, stocks, cadencier, bobineQuantities, plansProd} = this.props;
 
     this.removeViewer();
 
@@ -80,6 +81,7 @@ export class PlanProdTile extends React.Component<Props> {
         bobineQuantities={bobineQuantities}
         cadencier={cadencier}
         stocks={stocks}
+        plansProd={plansProd}
         onHeightAvailable={heightCallback}
       />,
       viewerContainer
@@ -195,7 +197,7 @@ export class PlanProdTile extends React.Component<Props> {
       .deletePlanProduction(planProd.year, planProd.month, planProd.day, planProd.indexInDay)
       .then(() => {
         this.removeViewer();
-        plansProductionStore.refresh();
+        plansProductionStore.refresh().catch(() => {});
       })
       .catch(console.error);
   }
