@@ -1,7 +1,7 @@
 import knex from 'knex';
 
 import {PLANS_PRODUCTION_TABLE_NAME, SQLITE_SEQUENCE} from '@shared/db/table_names';
-import {PlanProductionRaw} from '@shared/models';
+import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray} from '@shared/type_utils';
 
 export const PlansProductionColumn = {
@@ -37,18 +37,15 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
 export async function savePlanProduction(
   db: knex,
   id: number | undefined,
-  year: number,
-  month: number,
-  day: number,
-  indexInDay: number,
+  info: PlanProductionInfo,
   data: string
 ): Promise<void> {
   const localUpdate = new Date();
   const fields = {
-    [PlansProductionColumn.YEAR_COLUMN]: year,
-    [PlansProductionColumn.MONTH_COLUMN]: month,
-    [PlansProductionColumn.DAY_COLUMN]: day,
-    [PlansProductionColumn.INDEX_IN_DAY_COLUMN]: indexInDay,
+    [PlansProductionColumn.YEAR_COLUMN]: info.year,
+    [PlansProductionColumn.MONTH_COLUMN]: info.month,
+    [PlansProductionColumn.DAY_COLUMN]: info.day,
+    [PlansProductionColumn.INDEX_IN_DAY_COLUMN]: info.indexInDay,
     [PlansProductionColumn.DATA_COLUMN]: data,
     [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: localUpdate,
   };
@@ -64,7 +61,7 @@ export async function savePlanProduction(
 
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
-      updateIndexInDay(db, tx, year, month, day, indexInDay, '>=', 1)
+      updateIndexInDay(db, tx, info, '>=', 1)
         .then(() => {
           insertOrUpdate(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
             .then(() => {
@@ -84,28 +81,22 @@ export async function savePlanProduction(
   });
 }
 
-export async function deletePlanProduction(
-  db: knex,
-  year: number,
-  month: number,
-  day: number,
-  indexInDay: number
-): Promise<void> {
+export async function deletePlanProduction(db: knex, info: PlanProductionInfo): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
       db(PLANS_PRODUCTION_TABLE_NAME)
         .transacting(tx)
-        .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
-        .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
-        .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
-        .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, '=', indexInDay)
+        .where(PlansProductionColumn.YEAR_COLUMN, '=', info.year)
+        .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', info.month)
+        .andWhere(PlansProductionColumn.DAY_COLUMN, '=', info.day)
+        .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, '=', info.indexInDay)
         .update({
           [PlansProductionColumn.SOMMEIL_COLUMN]: 1,
           [PlansProductionColumn.INDEX_IN_DAY_COLUMN]: -1,
           [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: Date.now(),
         })
         .then(() => {
-          updateIndexInDay(db, tx, year, month, day, indexInDay, '>', -1)
+          updateIndexInDay(db, tx, info, '>', -1)
             .then(() => {
               tx.commit();
               resolve();
@@ -126,10 +117,7 @@ export async function deletePlanProduction(
 async function updateIndexInDay(
   db: knex,
   tx: knex.Transaction,
-  year: number,
-  month: number,
-  day: number,
-  indexInDay: number,
+  info: PlanProductionInfo,
   indexInDayOperator: string,
   offset: number
 ): Promise<void> {
@@ -137,10 +125,10 @@ async function updateIndexInDay(
     const localUpdate = Date.now();
     db(PLANS_PRODUCTION_TABLE_NAME)
       .transacting(tx)
-      .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
-      .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
-      .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
-      .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, indexInDayOperator, indexInDay)
+      .where(PlansProductionColumn.YEAR_COLUMN, '=', info.year)
+      .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', info.month)
+      .andWhere(PlansProductionColumn.DAY_COLUMN, '=', info.day)
+      .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, indexInDayOperator, info.indexInDay)
       .then(data => {
         Promise.all(
           asArray(data).map(async line => {

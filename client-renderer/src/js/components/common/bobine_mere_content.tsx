@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
-import {getStockReel, getStockTerme} from '@root/lib/bobine';
+import {getStockReel, getStockTerme} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme} from '@root/theme';
 

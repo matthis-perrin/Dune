@@ -5,7 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
-import {getStockReel, getStockTerme} from '@root/lib/bobine';
+import {getStockReel, getStockTerme} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 

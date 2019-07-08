@@ -17,7 +17,8 @@ import {
   MAXIMUM_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
-import {getStockTerme, getBobineState} from '@root/lib/bobine';
+import {getBobineState} from '@root/lib/bobine';
+import {getStockTerme} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';

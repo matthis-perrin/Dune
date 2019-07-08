@@ -1,6 +1,7 @@
 import {sum, min} from 'lodash-es';
 
 import {ButtonMode} from '@root/components/core/button';
+import {getStockTerme} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
@@ -8,47 +9,6 @@ import {getPoseSize} from '@shared/lib/cliches';
 import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
 
 const MONTHS_IN_YEAR = 12;
-
-export enum StockType {
-  REEL,
-  COMMANDE,
-  RESERVE,
-  TERME,
-}
-
-function getStockValue(stock: Stock, type: StockType): number {
-  if (type === StockType.REEL) {
-    return stock.reel;
-  } else if (type === StockType.COMMANDE) {
-    return stock.commande;
-  } else if (type === StockType.RESERVE) {
-    return stock.reserve;
-  } else if (type === StockType.TERME) {
-    return stock.reel + stock.commande - stock.reserve;
-  }
-  return 0;
-}
-
-export function getStock(ref: string, stocks: Map<string, Stock[]>, type: StockType): number {
-  const stock = stocks.get(ref) || [];
-  return sum(stock.map(s => getStockValue(s, type)));
-}
-
-export function getStockReel(ref: string, stocks: Map<string, Stock[]>): number {
-  return getStock(ref, stocks, StockType.REEL);
-}
-
-export function getStockCommande(ref: string, stocks: Map<string, Stock[]>): number {
-  return getStock(ref, stocks, StockType.COMMANDE);
-}
-
-export function getStockReserve(ref: string, stocks: Map<string, Stock[]>): number {
-  return getStock(ref, stocks, StockType.RESERVE);
-}
-
-export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number {
-  return getStock(ref, stocks, StockType.TERME);
-}
 
 export function getBobineMonthlySelling(cadencier?: Map<number, number>): number {
   return Math.ceil(getBobineSellingPastYear(cadencier) / MONTHS_IN_YEAR);

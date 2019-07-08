@@ -15,14 +15,9 @@ import {RefLink} from '@root/components/common/ref_link';
 import {Input} from '@root/components/core/input';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
-import {
-  getBobineSellingPastYear,
-  getBobineState,
-  getBobineMonthlySelling,
-  StockType,
-  getStock,
-} from '@root/lib/bobine';
+import {getBobineSellingPastYear, getBobineState, getBobineMonthlySelling} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
+import {StockType, getStock} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {Colors, FontWeight} from '@root/theme';
 

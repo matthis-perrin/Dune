@@ -35,3 +35,12 @@ export function isWeekDay(date: Date): boolean {
   const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
   return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
 }
+
+export function startOfDay(): Date {
+  const date = new Date();
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date;
+}

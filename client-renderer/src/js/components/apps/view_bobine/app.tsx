@@ -16,13 +16,8 @@ import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {Select, Option} from '@root/components/core/select';
-import {
-  getStockTerme,
-  getStockReserve,
-  getStockReel,
-  getBobineState,
-  getBobineTotalSell,
-} from '@root/lib/bobine';
+import {getBobineState, getBobineTotalSell} from '@root/lib/bobine';
+import {getStockTerme, getStockReel, getStockReserve} from '@root/lib/stocks';
 import {formatMonthCount, numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {

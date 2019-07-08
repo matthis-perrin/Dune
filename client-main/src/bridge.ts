@@ -158,26 +158,14 @@ export async function handleCommand(
   }
   if (command === DeletePlanProduction) {
     const {year, month, day, indexInDay} = asMap(params);
-    const id = await deletePlanProduction(
-      SQLITE_DB.Prod,
-      asNumber(year, 0),
-      asNumber(month, 0),
-      asNumber(day, 0),
-      asNumber(indexInDay, 0)
-    );
+    const info = {year, month, day, indexInDay};
+    const id = await deletePlanProduction(SQLITE_DB.Prod, info);
     return {id};
   }
   if (command === SavePlanProduction) {
     const {id, year, month, day, indexInDay, data} = asMap(params);
-    return savePlanProduction(
-      SQLITE_DB.Prod,
-      asNumber(id, undefined),
-      asNumber(year, 0),
-      asNumber(month, 0),
-      asNumber(day, 0),
-      asNumber(indexInDay, 0),
-      asString(data, '{}')
-    );
+    const info = {year, month, day, indexInDay};
+    return savePlanProduction(SQLITE_DB.Prod, asNumber(id, undefined), info, asString(data, '{}'));
   }
 
   if (command === GetNewPlanProduction) {
