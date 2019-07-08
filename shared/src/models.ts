@@ -309,3 +309,9 @@ export interface MinuteSpeed {
   minute: number;
   speed?: number;
 }
+
+export interface ContextMenuForBridge {
+  id: string;
+  label: string;
+  submenus?: ContextMenuForBridge[];
+}

@@ -5,6 +5,7 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
+import {contextMenuManager} from '@root/lib/context_menu';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
@@ -71,6 +72,16 @@ export class GestionPage extends React.Component<Props, State> {
     this.setState({year: newYear, month: newMonth});
   };
 
+  private getPlanProdsForDate(date: Date): PlanProduction[] {
+    const {plansProduction} = this.state;
+    if (!plansProduction) {
+      return [];
+    }
+    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const planForDay = plansProduction.get(startOfDay) || [];
+    return planForDay;
+  }
+
   private readonly handleNewPlanProdClick = () => {
     bridge
       .createNewPlanProduction(Date.now(), 0)
@@ -80,17 +91,33 @@ export class GestionPage extends React.Component<Props, State> {
       .catch(err => console.error(err));
   };
 
+  private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
+    if (event.type === 'contextmenu') {
+      contextMenuManager.open([
+        {
+          label: 'Nouveau plan de production',
+          callback: () => {
+            const plansForDate = this.getPlanProdsForDate(date);
+            bridge
+              .createNewPlanProduction(date.getTime(), plansForDate.length)
+              .then(() => {
+                bridge.openApp(ClientAppType.PlanProductionEditorApp).catch(console.error);
+              })
+              .catch(err => console.error(err));
+          },
+        },
+      ]);
+    }
+  };
+
   public renderDay(date: Date): JSX.Element {
-    const {plansProduction, stocks, cadencier, bobineQuantities} = this.state;
-    if (!plansProduction || !stocks || !cadencier || !bobineQuantities) {
+    const {stocks, cadencier, bobineQuantities} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities) {
       return <div />;
     }
-    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    const planForDay = plansProduction.get(startOfDay) || [];
-    planForDay.sort((p1, p2) => p1.data.indexInDay - p2.data.indexInDay);
     return (
       <div>
-        {planForDay.map(p => (
+        {this.getPlanProdsForDate(date).map(p => (
           <PlanProdTile
             planProd={p}
             stocks={stocks}
@@ -111,6 +138,7 @@ export class GestionPage extends React.Component<Props, State> {
           year={year}
           onNextClick={this.goToNextMonth}
           onPreviousClick={this.goToPreviousMonth}
+          onDayContextMenu={this.handleDayContextMenu}
         >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>

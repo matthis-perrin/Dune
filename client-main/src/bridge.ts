@@ -1,8 +1,12 @@
+import {BrowserWindow} from 'electron';
+
 import {cadencier} from '@root/cadencier';
+import {openContextMenu} from '@root/context_menu';
 import {SQLITE_DB} from '@root/db';
 import {planProductionStore} from '@root/store';
 import {windowManager} from '@root/window_manager';
 
+import {sendBridgeEvent} from '@shared/bridge/bridge_main';
 import {
   AddPlanBobine,
   BridgeCommand,
@@ -36,6 +40,9 @@ import {
   SaveToPDF,
   ListPlansProduction,
   SavePlanProduction,
+  OpenContextMenu,
+  ContextMenuClosed,
+  ContextMenuClicked,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -47,11 +54,15 @@ import {listPerfos} from '@shared/db/perfos';
 import {listPlansProduction, savePlanProduction} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
-import {ClientAppType} from '@shared/models';
+import {ClientAppType, ContextMenuForBridge} from '@shared/models';
 import {asMap, asNumber, asString} from '@shared/type_utils';
 
 // tslint:disable-next-line:no-any
-export async function handleCommand(command: BridgeCommand, params: any): Promise<any> {
+export async function handleCommand(
+  browserWindow: BrowserWindow,
+  command: BridgeCommand,
+  params: any
+): Promise<any> {
   // Listing commands
   if (command === ListBobinesFilles) {
     const {localUpdate} = asMap(params);
@@ -217,6 +228,16 @@ export async function handleCommand(command: BridgeCommand, params: any): Promis
     }
     engine.clearPlan();
     return Promise.resolve();
+  }
+
+  if (command === OpenContextMenu) {
+    const {menuId, menuForBridge} = asMap(params);
+    openContextMenu(
+      browserWindow,
+      (menuForBridge as unknown) as ContextMenuForBridge[],
+      () => sendBridgeEvent(browserWindow, ContextMenuClosed, {menuId}),
+      id => sendBridgeEvent(browserWindow, ContextMenuClicked, {menuId, menuItemId: id})
+    );
   }
 
   // Operations Management

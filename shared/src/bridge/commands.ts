@@ -43,6 +43,10 @@ export const ServerGetStatus = 'server-get-status' as BridgeCommand;
 export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;
 export const ServerClearErrors = 'server-clear-errors' as BridgeCommand;
 
+export const OpenContextMenu = 'open-context-menu' as BridgeCommand;
+
 export type BridgeEvent = string & {_: 'bridgeEvent'};
 
 export const PlanProductionChanged = 'plan-production-changed' as BridgeEvent;
+export const ContextMenuClicked = 'context-menu-clicked' as BridgeEvent;
+export const ContextMenuClosed = 'context-menu-closed' as BridgeEvent;

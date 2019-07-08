@@ -20,7 +20,11 @@ function sendMessage(browserWindow: BrowserWindow, message: string): void {
 }
 
 // tslint:disable-next-line:no-any
-export type BridgeCommandHandler = (command: BridgeCommand, data: any) => Promise<any>;
+export type BridgeCommandHandler = (
+  browserWindow: BrowserWindow,
+  command: BridgeCommand,
+  data: any
+) => Promise<any>;
 
 // tslint:disable-next-line:no-any
 export function sendBridgeEvent(browserWindow: BrowserWindow, event: BridgeEvent, data: any): void {
@@ -50,7 +54,7 @@ export function setupBridge(
           sendError(browserWindow, id, 'Invalid message command');
           return;
         }
-        handleCommand(command, msgJSON.data)
+        handleCommand(browserWindow, command, msgJSON.data)
           .then(result => sendResponse(browserWindow, id, result))
           .catch(err => {
             let errorString = asString(err, undefined);

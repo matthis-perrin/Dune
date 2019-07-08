@@ -244,6 +244,7 @@ class PlansProductionStore extends ListStore<PlanProduction> {
         plansForDay.push(p);
       }
     });
+    byDay.forEach(plans => plans.sort((p1, p2) => p1.data.indexInDay - p2.data.indexInDay));
     return byDay;
   }
 }

@@ -36,6 +36,7 @@ import {
   Print,
   ListPlansProduction,
   SavePlanProduction,
+  OpenContextMenu,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -53,6 +54,7 @@ import {
   BobineQuantities,
   Color,
   PlanProductionRaw,
+  ContextMenuForBridge,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -63,7 +65,7 @@ export interface BridgeListResponse<T> {
 // tslint:disable-next-line:no-any
 type EventData = any;
 
-class Bridge {
+export class Bridge {
   private readonly bridgeTransport = new BridgeTransport(this.handleEvent.bind(this));
   private readonly eventListeners = new Map<BridgeEvent, ((data: EventData) => void)[]>();
 
@@ -200,6 +202,13 @@ class Bridge {
   }
   public async print(): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(Print, {windowId: getWindowId()});
+  }
+
+  public async openContextMenu(
+    menuId: string,
+    menuForBridge: ContextMenuForBridge[]
+  ): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(OpenContextMenu, {menuId, menuForBridge});
   }
 }
 
