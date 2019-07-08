@@ -9,6 +9,7 @@ import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
+import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
@@ -188,6 +189,17 @@ export class PlanProdTile extends React.Component<Props> {
       .catch(console.error);
   }
 
+  private deletePlanProd(): void {
+    const {planProd} = this.props;
+    bridge
+      .deletePlanProduction(planProd.year, planProd.month, planProd.day, planProd.indexInDay)
+      .then(() => {
+        this.removeViewer();
+        plansProductionStore.refresh();
+      })
+      .catch(console.error);
+  }
+
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
@@ -200,6 +212,10 @@ export class PlanProdTile extends React.Component<Props> {
         {
           label: 'Nouveau plan de production après',
           callback: () => this.newPlanProd(false),
+        },
+        {
+          label: 'Supprimer ce plan de production',
+          callback: () => this.deletePlanProd(),
         },
       ])
       .catch(console.error);

@@ -37,6 +37,7 @@ import {
   ListPlansProduction,
   SavePlanProduction,
   OpenContextMenu,
+  DeletePlanProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -143,6 +144,19 @@ export class Bridge {
     indexInDay: number
   ): Promise<{id: number}> {
     return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {
+      year,
+      month,
+      day,
+      indexInDay,
+    });
+  }
+  public async deletePlanProduction(
+    year: number,
+    month: number,
+    day: number,
+    indexInDay: number
+  ): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {
       year,
       month,
       day,

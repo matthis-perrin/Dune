@@ -64,41 +64,12 @@ export async function savePlanProduction(
 
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
-      db(PLANS_PRODUCTION_TABLE_NAME)
-        .transacting(tx)
-        .select([PlansProductionColumn.ID_COLUMN, PlansProductionColumn.INDEX_IN_DAY_COLUMN])
-        .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
-        .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
-        .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
-        .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, '>=', indexInDay)
-        .then(data => {
-          Promise.all(
-            asArray(data).map(async line => {
-              const lineData = asMap(line);
-              await db(PLANS_PRODUCTION_TABLE_NAME)
-                .transacting(tx)
-                .where(
-                  PlansProductionColumn.ID_COLUMN,
-                  '=',
-                  asNumber(lineData[PlansProductionColumn.ID_COLUMN], 0)
-                )
-                .update({
-                  [PlansProductionColumn.INDEX_IN_DAY_COLUMN]:
-                    asNumber(lineData[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0) + 1,
-                  [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: localUpdate,
-                });
-            })
-          )
+      updateIndexInDay(db, tx, year, month, day, indexInDay, '>=', 1)
+        .then(() => {
+          insertOrUpdate(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
             .then(() => {
-              insertOrUpdate(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
-                .then(() => {
-                  tx.commit();
-                  resolve();
-                })
-                .catch(err => {
-                  tx.rollback();
-                  reject(err);
-                });
+              tx.commit();
+              resolve();
             })
             .catch(err => {
               tx.rollback();
@@ -110,6 +81,88 @@ export async function savePlanProduction(
           reject(err);
         });
     });
+  });
+}
+
+export async function deletePlanProduction(
+  db: knex,
+  year: number,
+  month: number,
+  day: number,
+  indexInDay: number
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    db.transaction(tx => {
+      db(PLANS_PRODUCTION_TABLE_NAME)
+        .transacting(tx)
+        .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
+        .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
+        .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
+        .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, '=', indexInDay)
+        .update({
+          [PlansProductionColumn.SOMMEIL_COLUMN]: 1,
+          [PlansProductionColumn.INDEX_IN_DAY_COLUMN]: -1,
+          [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: Date.now(),
+        })
+        .then(() => {
+          updateIndexInDay(db, tx, year, month, day, indexInDay, '>', -1)
+            .then(() => {
+              tx.commit();
+              resolve();
+            })
+            .catch(err => {
+              tx.rollback();
+              reject(err);
+            });
+        })
+        .catch(err => {
+          tx.rollback();
+          reject(err);
+        });
+    });
+  });
+}
+
+async function updateIndexInDay(
+  db: knex,
+  tx: knex.Transaction,
+  year: number,
+  month: number,
+  day: number,
+  indexInDay: number,
+  indexInDayOperator: string,
+  offset: number
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const localUpdate = Date.now();
+    db(PLANS_PRODUCTION_TABLE_NAME)
+      .transacting(tx)
+      .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
+      .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
+      .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
+      .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, indexInDayOperator, indexInDay)
+      .then(data => {
+        Promise.all(
+          asArray(data).map(async line => {
+            const lineData = asMap(line);
+            await db(PLANS_PRODUCTION_TABLE_NAME)
+              .transacting(tx)
+              .where(
+                PlansProductionColumn.ID_COLUMN,
+                '=',
+                asNumber(lineData[PlansProductionColumn.ID_COLUMN], 0)
+              )
+              .update({
+                [PlansProductionColumn.INDEX_IN_DAY_COLUMN]:
+                  asNumber(lineData[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0) + offset,
+                [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: localUpdate,
+              });
+          })
+        )
+          .then(() => resolve())
+          .catch(reject);
+      })
+      .catch(reject);
   });
 }
 

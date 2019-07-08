@@ -43,6 +43,7 @@ import {
   OpenContextMenu,
   ContextMenuClosed,
   ContextMenuClicked,
+  DeletePlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -51,7 +52,11 @@ import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
-import {listPlansProduction, savePlanProduction} from '@shared/db/plan_production';
+import {
+  listPlansProduction,
+  savePlanProduction,
+  deletePlanProduction,
+} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType, ContextMenuForBridge} from '@shared/models';
@@ -144,6 +149,17 @@ export async function handleCommand(
   if (command === CreateNewPlanProduction) {
     const {year, month, day, indexInDay} = asMap(params);
     const id = await planProductionStore.createNewPlan(
+      asNumber(year, 0),
+      asNumber(month, 0),
+      asNumber(day, 0),
+      asNumber(indexInDay, 0)
+    );
+    return {id};
+  }
+  if (command === DeletePlanProduction) {
+    const {year, month, day, indexInDay} = asMap(params);
+    const id = await deletePlanProduction(
+      SQLITE_DB.Prod,
       asNumber(year, 0),
       asNumber(month, 0),
       asNumber(day, 0),
