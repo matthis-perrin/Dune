@@ -1,4 +1,5 @@
 import {zip} from 'lodash-es';
+import {number} from 'prop-types';
 
 import {padNumber} from '@root/lib/utils';
 
@@ -47,7 +48,7 @@ export function countChangementBobinesMerePolypro(
   before: PlanProdStateLight,
   after: PlanProdStateLight
 ): number {
-  return 0;
+  return before.polypro.ref !== after.polypro.ref ? 1 : 0;
 }
 
 function getClicheEncrierIndexes(
@@ -149,6 +150,45 @@ export function countChangementsCouleurs(
   return {vidage, remplissage};
 }
 
+function getPositionsByDistance(positions: ClichePosition[]): Map<number, ClichePosition[]> {
+  const positionsByDistance = new Map<number, ClichePosition[]>();
+  positions.forEach(afterPosition => {
+    const positionsForDistance = positionsByDistance.get(afterPosition.distance);
+    if (positionsForDistance === undefined) {
+      positionsByDistance.set(afterPosition.distance, [afterPosition]);
+    } else {
+      positionsForDistance.push(afterPosition);
+    }
+  });
+  return positionsByDistance;
+}
+
+export function countNewMultiCouleursCliches(
+  before: PlanProdStateLight,
+  after: PlanProdStateLight
+): number {
+  const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encrierColors);
+  const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encrierColors);
+
+  let newMultiCouleursClichesCount = 0;
+  afterClichePosePositions.forEach((positions, clichePose) => {
+    const afterPositionByDistance = getPositionsByDistance(positions);
+    const beforePositionByDistance = getPositionsByDistance(
+      beforeClichePosePositions.get(clichePose) || []
+    );
+    afterPositionByDistance.forEach((poses, distance) => {
+      const alreadyHereCount = Math.min(
+        0,
+        (beforePositionByDistance.get(distance) || []).length - 1
+      );
+      const extraMultiCouleursCount = poses.length - alreadyHereCount - 1;
+      newMultiCouleursClichesCount += extraMultiCouleursCount;
+    });
+  });
+
+  return newMultiCouleursClichesCount;
+}
+
 export function countIncreaseRefenteCount(
   before: PlanProdStateLight,
   after: PlanProdStateLight
@@ -183,6 +223,10 @@ export function getConstraints(
   constraints.set(
     OperationConstraint.AugmentationRefentes,
     countIncreaseRefenteCount(before, after)
+  );
+  constraints.set(
+    OperationConstraint.ClicheMultiCouleurs,
+    countNewMultiCouleursCliches(before, after)
   );
 
   return constraints;
