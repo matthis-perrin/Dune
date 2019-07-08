@@ -151,7 +151,17 @@ export class TopBar extends React.Component<TopBarProps> {
   }
 
   public render(): JSX.Element {
-    const {tourCount, speed, isPrinting, bobines, width, papier, polypro, style = {}} = this.props;
+    const {
+      tourCount,
+      speed,
+      isPrinting,
+      planProdTitle,
+      bobines,
+      width,
+      papier,
+      polypro,
+      style = {},
+    } = this.props;
 
     const productionTimeInSec =
       bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
@@ -194,7 +204,7 @@ export class TopBar extends React.Component<TopBarProps> {
       <React.Fragment>
         <TopBarWrapper style={{...style, width}}>
           <LeftContainer>
-            <TopBarTitle>PRODUCTION 00013</TopBarTitle>
+            <TopBarTitle>{planProdTitle}</TopBarTitle>
             {this.renderButtons()}
           </LeftContainer>
           <CenterContainer>

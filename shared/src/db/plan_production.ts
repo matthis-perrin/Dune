@@ -1,8 +1,8 @@
 import knex from 'knex';
 
-import {PLANS_PRODUCTION_TABLE_NAME} from '@shared/db/table_names';
+import {PLANS_PRODUCTION_TABLE_NAME, SQLITE_SEQUENCE} from '@shared/db/table_names';
 import {PlanProductionRaw} from '@shared/models';
-import {asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString, asArray} from '@shared/type_utils';
 
 export const PlansProductionColumn = {
   ID_COLUMN: 'id',
@@ -60,4 +60,9 @@ export async function listPlansProduction(
     });
 }
 
-// export async function getNextPlanProductionId()
+export async function getNextPlanProductionId(db: knex): Promise<number> {
+  const res = await db(SQLITE_SEQUENCE)
+    .select('seq')
+    .where('name', '=', PLANS_PRODUCTION_TABLE_NAME);
+  return asNumber(asMap(asArray(res)[0])['seq'], 0) + 1;
+}

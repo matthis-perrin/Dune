@@ -135,8 +135,11 @@ export class Bridge {
     return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
   }
 
-  public async createNewPlanProduction(day: number, indexInDay: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CreateNewPlanProduction, {day, indexInDay});
+  public async createNewPlanProduction(day: number, indexInDay: number): Promise<{id: number}> {
+    return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {
+      day,
+      indexInDay,
+    });
   }
   public async savePlanProduction(id: number | undefined, data: string): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(SavePlanProduction, {id, data});

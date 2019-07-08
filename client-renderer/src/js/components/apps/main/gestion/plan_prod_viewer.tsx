@@ -12,7 +12,7 @@ import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {padNumber} from '@root/lib/utils';
+import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {theme} from '@root/theme';
 
 import {Stock, BobineQuantities, PlanProduction} from '@shared/models';
@@ -26,7 +26,6 @@ interface PlanProdViewerProps {
   onHeightAvailable?(height: number): void;
 }
 
-const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 const RENDERING_WIDTH = 1100;
 
 export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
@@ -167,7 +166,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
         <React.Fragment />
       );
 
-    const planProdTitle = `PRODUCTION N°${padNumber(planProd.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
+    const planProdTitle = getPlanProdTitle(planProd.id);
     const scale = width / RENDERING_WIDTH;
     const scalingStyles = onHeightAvailable
       ? {transformOrigin: 'left top', transform: `scale(${scale})`}

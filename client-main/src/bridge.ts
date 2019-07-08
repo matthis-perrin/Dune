@@ -143,7 +143,8 @@ export async function handleCommand(
   // Plan Production
   if (command === CreateNewPlanProduction) {
     const {day, indexInDay} = asMap(params);
-    return planProductionStore.createNewPlan(asNumber(day, 0), asNumber(indexInDay, 0));
+    const id = await planProductionStore.createNewPlan(asNumber(day, 0), asNumber(indexInDay, 0));
+    return {id};
   }
   if (command === SavePlanProduction) {
     const {id, data} = asMap(params);

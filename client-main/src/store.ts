@@ -7,17 +7,19 @@ import {listCliches} from '@shared/db/cliches';
 import {listPerfos} from '@shared/db/perfos';
 import {listRefentes} from '@shared/db/refentes';
 import {BaseStore} from '@shared/store';
+import {getNextPlanProductionId} from '@shared/db/plan_production';
 
 class PlanProductionStore extends BaseStore {
   private planProductionEngine: PlanProductionEngine | undefined;
 
-  public async createNewPlan(day: number, indexInDay: number): Promise<void> {
-    const [bobinesFilles, bobinesMeres, cliches, perfos, refentes] = await Promise.all([
+  public async createNewPlan(day: number, indexInDay: number): Promise<number> {
+    const [bobinesFilles, bobinesMeres, cliches, perfos, refentes, id] = await Promise.all([
       listBobinesFilles(SQLITE_DB.Gescom, 0),
       listBobinesMeres(SQLITE_DB.Gescom, 0),
       listCliches(SQLITE_DB.Gescom, 0),
       listPerfos(SQLITE_DB.Params, 0),
       listRefentes(SQLITE_DB.Params, 0),
+      getNextPlanProductionId(SQLITE_DB.Prod),
     ]);
 
     this.planProductionEngine = new PlanProductionEngine(
@@ -30,6 +32,8 @@ class PlanProductionStore extends BaseStore {
       perfos,
       () => this.emit()
     );
+
+    return id;
   }
 
   public getEngine(): PlanProductionEngine | undefined {

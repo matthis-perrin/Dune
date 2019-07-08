@@ -82,15 +82,6 @@ export class GestionPage extends React.Component<Props, State> {
     return planForDay;
   }
 
-  private readonly handleNewPlanProdClick = () => {
-    bridge
-      .createNewPlanProduction(Date.now(), 0)
-      .then(() => {
-        bridge.openApp(ClientAppType.PlanProductionEditorApp).catch(console.error);
-      })
-      .catch(err => console.error(err));
-  };
-
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
     if (event.type === 'contextmenu') {
       contextMenuManager.open([
@@ -100,8 +91,8 @@ export class GestionPage extends React.Component<Props, State> {
             const plansForDate = this.getPlanProdsForDate(date);
             bridge
               .createNewPlanProduction(date.getTime(), plansForDate.length)
-              .then(() => {
-                bridge.openApp(ClientAppType.PlanProductionEditorApp).catch(console.error);
+              .then(data => {
+                bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
               })
               .catch(err => console.error(err));
           },
@@ -142,9 +133,6 @@ export class GestionPage extends React.Component<Props, State> {
         >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>
-        <Button style={{margin: '16px 0'}} onClick={this.handleNewPlanProdClick}>
-          Nouveau plan de production
-        </Button>
       </Page>
     );
   }

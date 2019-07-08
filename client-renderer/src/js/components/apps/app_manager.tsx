@@ -145,7 +145,8 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return <PlanProdEditorApp />;
+      const {id} = asMap(data);
+      return <PlanProdEditorApp id={id} />;
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return <BobinesPickerApp />;

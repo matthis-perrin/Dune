@@ -20,12 +20,11 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {Closable} from '@root/components/core/closable';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
-import {Textarea} from '@root/components/core/textarea';
 import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {computePlanProdRef} from '@root/lib/plan_prod';
+import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -48,7 +47,9 @@ const MAX_PLAN_PROD_WIDTH = 1050;
 const INITIAL_SPEED = 180;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 
-interface Props {}
+interface Props {
+  id: number;
+}
 
 interface State {
   planProduction?: PlanProductionState;
@@ -306,6 +307,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
+    const {id} = this.props;
     const {
       planProduction,
       reorderedBobines,
@@ -492,7 +494,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment />
             );
 
-          const planProdTitle = 'NOUVELLE PRODUCTION';
+          const planProdTitle = getPlanProdTitle(id);
 
           return (
             <PlanProdEditorContainer>
