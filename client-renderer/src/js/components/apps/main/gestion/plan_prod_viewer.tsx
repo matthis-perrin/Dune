@@ -37,7 +37,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
     this.state = {};
   }
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     const {onHeightAvailable, width} = this.props;
     const container = this.containerRef.current;
     if (onHeightAvailable) {
@@ -62,7 +62,10 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       comment,
     } = planProd.data;
 
-    const INNER_PADDING = (1.5 * (theme.planProd.basePadding * RENDERING_WIDTH)) / CAPACITE_MACHINE;
+    const INNER_PADDING_APPROXIMATION_RATIO = 1.5;
+    const INNER_PADDING =
+      (INNER_PADDING_APPROXIMATION_RATIO * (theme.planProd.basePadding * RENDERING_WIDTH)) /
+      CAPACITE_MACHINE;
     const leftPadding =
       (CURVE_EXTRA_SPACE * (width - 2 * INNER_PADDING)) / (1 - 2 * CURVE_EXTRA_SPACE);
     const INNER_RENDERING_WIDTH = RENDERING_WIDTH - INNER_PADDING - leftPadding;

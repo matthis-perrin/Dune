@@ -7,10 +7,12 @@ import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewe
 import {HTMLDivProps} from '@root/components/core/common';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
+import {bridge} from '@root/lib/bridge';
+import {contextMenuManager} from '@root/lib/context_menu';
 import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
-import {PlanProduction, Stock, BobineQuantities} from '@shared/models';
+import {PlanProduction, Stock, BobineQuantities, ClientAppType} from '@shared/models';
 
 const SHOW_VIEWER_TIMEOUT_MS = 100;
 
@@ -171,6 +173,38 @@ export class PlanProdTile extends React.Component<Props> {
     });
   }
 
+  private newPlanProd(before: boolean): void {
+    const {planProd} = this.props;
+    bridge
+      .createNewPlanProduction(
+        planProd.year,
+        planProd.month,
+        planProd.day,
+        planProd.indexInDay + (before ? 0 : 1)
+      )
+      .then(data => {
+        bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
+      })
+      .catch(console.error);
+  }
+
+  private readonly handleContextMenu = (event: React.MouseEvent): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    contextMenuManager
+      .open([
+        {
+          label: 'Nouveau plan de production avant',
+          callback: () => this.newPlanProd(true),
+        },
+        {
+          label: 'Nouveau plan de production après',
+          callback: () => this.newPlanProd(false),
+        },
+      ])
+      .catch(console.error);
+  };
+
   public render(): JSX.Element {
     const {planProd} = this.props;
     const rest = omit(this.props, ['data', 'ref']);
@@ -182,6 +216,7 @@ export class PlanProdTile extends React.Component<Props> {
             ref={this.wrapperRef as any}
             onMouseEnter={() => this.showViewer()}
             onMouseLeave={() => this.removeViewer()}
+            onContextMenu={this.handleContextMenu}
             {...rest}
             style={{
               backgroundColor: color.backgroundHex,

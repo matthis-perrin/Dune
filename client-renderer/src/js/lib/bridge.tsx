@@ -55,6 +55,7 @@ import {
   Color,
   PlanProductionRaw,
   ContextMenuForBridge,
+  PlanProductionInfo,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -135,18 +136,41 @@ export class Bridge {
     return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
   }
 
-  public async createNewPlanProduction(day: number, indexInDay: number): Promise<{id: number}> {
+  public async createNewPlanProduction(
+    year: number,
+    month: number,
+    day: number,
+    indexInDay: number
+  ): Promise<{id: number}> {
     return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {
+      year,
+      month,
       day,
       indexInDay,
     });
   }
-  public async savePlanProduction(id: number | undefined, data: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SavePlanProduction, {id, data});
+  public async savePlanProduction(
+    id: number | undefined,
+    year: number,
+    month: number,
+    day: number,
+    indexInDay: number,
+    data: string
+  ): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SavePlanProduction, {
+      id,
+      year,
+      month,
+      day,
+      indexInDay,
+      data,
+    });
   }
 
-  public async getPlanProduction(): Promise<PlanProductionState> {
-    return this.bridgeTransport.sendBridgeCommand<PlanProductionState>(GetNewPlanProduction);
+  public async getPlanProduction(): Promise<PlanProductionState & PlanProductionInfo> {
+    return this.bridgeTransport.sendBridgeCommand<PlanProductionState & PlanProductionInfo>(
+      GetNewPlanProduction
+    );
   }
   public async setPlanTourCount(tourCount?: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(SetPlanTourCount, {tourCount});

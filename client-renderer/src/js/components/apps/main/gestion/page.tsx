@@ -3,7 +3,6 @@ import * as React from 'react';
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
-import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -84,20 +83,27 @@ export class GestionPage extends React.Component<Props, State> {
 
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
     if (event.type === 'contextmenu') {
-      contextMenuManager.open([
-        {
-          label: 'Nouveau plan de production',
-          callback: () => {
-            const plansForDate = this.getPlanProdsForDate(date);
-            bridge
-              .createNewPlanProduction(date.getTime(), plansForDate.length)
-              .then(data => {
-                bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
-              })
-              .catch(err => console.error(err));
+      contextMenuManager
+        .open([
+          {
+            label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
+            callback: () => {
+              const plansForDate = this.getPlanProdsForDate(date);
+              bridge
+                .createNewPlanProduction(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  plansForDate.length
+                )
+                .then(data => {
+                  bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
+                })
+                .catch(err => console.error(err));
+            },
           },
-        },
-      ]);
+        ])
+        .catch(console.error);
     }
   };
 

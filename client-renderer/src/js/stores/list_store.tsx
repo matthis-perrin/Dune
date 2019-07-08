@@ -231,11 +231,7 @@ class PlansProductionStore extends ListStore<PlanProduction> {
       if (p.sommeil) {
         return;
       }
-      const date = new Date(p.data.day);
-      date.setHours(0);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
+      const date = new Date(p.year, p.month, p.day);
       const ts = date.getTime();
       const plansForDay = byDay.get(ts);
       if (plansForDay === undefined) {
@@ -244,7 +240,7 @@ class PlansProductionStore extends ListStore<PlanProduction> {
         plansForDay.push(p);
       }
     });
-    byDay.forEach(plans => plans.sort((p1, p2) => p1.data.indexInDay - p2.data.indexInDay));
+    byDay.forEach(plansForDay => plansForDay.sort((p1, p2) => p1.indexInDay - p2.indexInDay));
     return byDay;
   }
 }

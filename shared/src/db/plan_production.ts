@@ -6,7 +6,11 @@ import {asMap, asNumber, asString, asArray} from '@shared/type_utils';
 
 export const PlansProductionColumn = {
   ID_COLUMN: 'id',
-  DATA: 'data',
+  YEAR_COLUMN: 'year',
+  MONTH_COLUMN: 'month',
+  DAY_COLUMN: 'day',
+  INDEX_IN_DAY_COLUMN: 'index_in_day',
+  DATA_COLUMN: 'data',
   SOMMEIL_COLUMN: 'sommeil',
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
@@ -19,7 +23,11 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
         .increments(PlansProductionColumn.ID_COLUMN)
         .notNullable()
         .primary();
-      table.text(PlansProductionColumn.DATA).notNullable();
+      table.integer(PlansProductionColumn.YEAR_COLUMN).notNullable();
+      table.integer(PlansProductionColumn.MONTH_COLUMN).notNullable();
+      table.integer(PlansProductionColumn.DAY_COLUMN).notNullable();
+      table.integer(PlansProductionColumn.INDEX_IN_DAY_COLUMN).notNullable();
+      table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
       table.boolean(PlansProductionColumn.SOMMEIL_COLUMN);
       table.dateTime(PlansProductionColumn.LOCAL_UPDATE_COLUMN);
     });
@@ -29,17 +37,80 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
 export async function savePlanProduction(
   db: knex,
   id: number | undefined,
+  year: number,
+  month: number,
+  day: number,
+  indexInDay: number,
   data: string
 ): Promise<void> {
   const localUpdate = new Date();
-  if (id === undefined) {
-    // tslint:disable-next-line:no-null-keyword
-    await db(PLANS_PRODUCTION_TABLE_NAME).insert({id: null, data, sommeil: false, localUpdate});
-  } else {
-    await db(PLANS_PRODUCTION_TABLE_NAME)
-      .where(PlansProductionColumn.ID_COLUMN, id)
-      .update({data, localUpdate});
-  }
+  const fields = {
+    [PlansProductionColumn.YEAR_COLUMN]: year,
+    [PlansProductionColumn.MONTH_COLUMN]: month,
+    [PlansProductionColumn.DAY_COLUMN]: day,
+    [PlansProductionColumn.INDEX_IN_DAY_COLUMN]: indexInDay,
+    [PlansProductionColumn.DATA_COLUMN]: data,
+    [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: localUpdate,
+  };
+
+  const insertOrUpdate = (query: knex.QueryBuilder): knex.QueryBuilder => {
+    if (id === undefined) {
+      // tslint:disable-next-line:no-null-keyword
+      return query.insert({id: null, sommeil: false, ...fields});
+    } else {
+      return query.where(PlansProductionColumn.ID_COLUMN, id).update(fields);
+    }
+  };
+
+  return new Promise<void>((resolve, reject) => {
+    db.transaction(tx => {
+      db(PLANS_PRODUCTION_TABLE_NAME)
+        .transacting(tx)
+        .select([PlansProductionColumn.ID_COLUMN, PlansProductionColumn.INDEX_IN_DAY_COLUMN])
+        .where(PlansProductionColumn.YEAR_COLUMN, '=', year)
+        .andWhere(PlansProductionColumn.MONTH_COLUMN, '=', month)
+        .andWhere(PlansProductionColumn.DAY_COLUMN, '=', day)
+        .andWhere(PlansProductionColumn.INDEX_IN_DAY_COLUMN, '>=', indexInDay)
+        .then(data => {
+          Promise.all(
+            asArray(data).map(async line => {
+              const lineData = asMap(line);
+              await db(PLANS_PRODUCTION_TABLE_NAME)
+                .transacting(tx)
+                .where(
+                  PlansProductionColumn.ID_COLUMN,
+                  '=',
+                  asNumber(lineData[PlansProductionColumn.ID_COLUMN], 0)
+                )
+                .update({
+                  [PlansProductionColumn.INDEX_IN_DAY_COLUMN]:
+                    asNumber(lineData[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0) + 1,
+                  [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: localUpdate,
+                });
+            })
+          )
+            .then(() => {
+              insertOrUpdate(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
+                .then(() => {
+                  tx.commit();
+                  resolve();
+                })
+                .catch(err => {
+                  tx.rollback();
+                  reject(err);
+                });
+            })
+            .catch(err => {
+              tx.rollback();
+              reject(err);
+            });
+        })
+        .catch(err => {
+          tx.rollback();
+          reject(err);
+        });
+    });
+  });
 }
 
 export async function listPlansProduction(
@@ -53,7 +124,11 @@ export async function listPlansProduction(
       const r = asMap(planProductionLine);
       return {
         id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
-        data: asString(r[PlansProductionColumn.DATA], ''),
+        year: asNumber(r[PlansProductionColumn.YEAR_COLUMN], 0),
+        month: asNumber(r[PlansProductionColumn.MONTH_COLUMN], 0),
+        day: asNumber(r[PlansProductionColumn.DAY_COLUMN], 0),
+        indexInDay: asNumber(r[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0),
+        data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
         sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
         localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),
       };

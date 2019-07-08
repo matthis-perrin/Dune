@@ -177,11 +177,16 @@ export interface PlanProductionState {
   couleursEncrier: EncrierColor[][];
   tourCount?: number;
   calculationTime: number;
+}
+
+export interface PlanProductionInfo {
+  year: number;
+  month: number;
   day: number;
   indexInDay: number;
 }
 
-interface PlanProductionBase {
+interface PlanProductionBase extends PlanProductionInfo {
   id: number;
   sommeil: boolean;
   localUpdate: number;
@@ -198,8 +203,6 @@ export enum PlanProductionStatus {
 }
 
 export interface PlanProductionData {
-  day: number;
-  indexInDay: number;
   isBeginningOfDay: boolean;
 
   polypro: BobineMere;

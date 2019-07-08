@@ -142,13 +142,26 @@ export async function handleCommand(
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
-    const {day, indexInDay} = asMap(params);
-    const id = await planProductionStore.createNewPlan(asNumber(day, 0), asNumber(indexInDay, 0));
+    const {year, month, day, indexInDay} = asMap(params);
+    const id = await planProductionStore.createNewPlan(
+      asNumber(year, 0),
+      asNumber(month, 0),
+      asNumber(day, 0),
+      asNumber(indexInDay, 0)
+    );
     return {id};
   }
   if (command === SavePlanProduction) {
-    const {id, data} = asMap(params);
-    return savePlanProduction(SQLITE_DB.Prod, asNumber(id, undefined), asString(data, '{}'));
+    const {id, year, month, day, indexInDay, data} = asMap(params);
+    return savePlanProduction(
+      SQLITE_DB.Prod,
+      asNumber(id, undefined),
+      asNumber(year, 0),
+      asNumber(month, 0),
+      asNumber(day, 0),
+      asNumber(indexInDay, 0),
+      asString(data, '{}')
+    );
   }
 
   if (command === GetNewPlanProduction) {
@@ -156,7 +169,7 @@ export async function handleCommand(
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
-    return Promise.resolve(engine.getPlanProductionState());
+    return Promise.resolve({...engine.getPlanProductionState(), ...engine.getPlanProductionInfo()});
   }
 
   if (command === SetPlanPerfo) {

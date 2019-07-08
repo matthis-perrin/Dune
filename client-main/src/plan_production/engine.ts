@@ -27,6 +27,7 @@ import {
   PlanProductionState,
   BobineFilleWithPose,
   BobineFilleWithMultiPose,
+  PlanProductionInfo,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -57,6 +58,8 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
+    private readonly year: number,
+    private readonly month: number,
     private readonly day: number,
     private readonly indexInDay: number,
     bobinesFilles: BobineFille[],
@@ -131,6 +134,13 @@ export class PlanProductionEngine {
       couleursEncrier: this.getValidCouleursEncriers(),
       tourCount: this.tourCount,
       calculationTime: this.calculationTime,
+    };
+  }
+
+  public getPlanProductionInfo(): PlanProductionInfo {
+    return {
+      year: this.year,
+      month: this.month,
       day: this.day,
       indexInDay: this.indexInDay,
     };

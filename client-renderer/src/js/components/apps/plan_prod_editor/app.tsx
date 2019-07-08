@@ -41,6 +41,7 @@ import {
   BobineQuantities,
   PlanProductionData,
   PlanProductionStatus,
+  PlanProductionInfo,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
@@ -52,7 +53,7 @@ interface Props {
 }
 
 interface State {
-  planProduction?: PlanProductionState;
+  planProduction?: PlanProductionState & PlanProductionInfo;
   reorderedBobines?: BobineFilleWithPose[];
   reorderedEncriers?: EncrierColor[];
   bobinesMinimums: Map<string, number>;
@@ -204,8 +205,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     if (!planProduction) {
       return;
     }
-    const {day, indexInDay} = planProduction;
-    bridge.saveToPDF(`plan_prod_${computePlanProdRef(day, indexInDay)}.pdf`).catch(console.error);
+    const {year, month, day, indexInDay} = planProduction;
+    bridge.saveToPDF(`plan_prod_${year}_${month}_${day}_${indexInDay}.pdf`).catch(console.error);
   };
 
   private readonly handleClear = (): void => {
@@ -231,6 +232,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       selectedPerfo,
       selectedPolypro,
       selectedRefente,
+      year,
+      month,
       day,
       indexInDay,
       tourCount,
@@ -247,8 +250,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     }
 
     const data: PlanProductionData = {
-      day,
-      indexInDay,
       isBeginningOfDay: false,
 
       polypro: selectedPolypro,
@@ -268,7 +269,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
     const serializedData = JSON.stringify(data);
     bridge
-      .savePlanProduction(undefined, serializedData)
+      .savePlanProduction(undefined, year, month, day, indexInDay, serializedData)
       .then(() => bridge.closeApp())
       .catch(console.error);
   };

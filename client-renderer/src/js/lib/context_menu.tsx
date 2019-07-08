@@ -1,6 +1,6 @@
 import {uniqueId} from 'lodash-es';
 
-import {bridge, Bridge} from '@root/lib/bridge';
+import {bridge} from '@root/lib/bridge';
 
 import {ContextMenuClicked, ContextMenuClosed} from '@shared/bridge/commands';
 import {ContextMenuForBridge} from '@shared/models';
