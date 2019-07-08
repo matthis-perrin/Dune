@@ -79,4 +79,21 @@ INSERT INTO "perfos" VALUES ('P0005',240,0,80,140,80,210,80,180,80,'',NULL,NULL,
 INSERT INTO "perfos" VALUES ('P0006',240,50,80,100,80,90,80,95,80,75,80,60,80,NULL,NULL,0,1558005719000);
 INSERT INTO "perfos" VALUES ('P0007',240,50,80,85,80,60,80,50,80,50,80,50,80,50,80,0,1558005719000);
 
+INSERT INTO "operations" VALUES (1, "Reglage perforation", 1, "changement-perforation", 2400);
+INSERT INTO "operations" VALUES (2, "Reglage buses & bandes téflon", 1, "changement-refente", 900);
+INSERT INTO "operations" VALUES (3, "Réglage couteaux & passage produit sur axe enrouleur sup.", 1, "changement-refente", 900);
+INSERT INTO "operations" VALUES (4, "Réglage faisceau axes carton", 1, "changement-refente", 360);
+INSERT INTO "operations" VALUES (5, "Changement bobine mère papier", 1, "changement-bobine-mere-papier", 480);
+INSERT INTO "operations" VALUES (6, "Changement bobine mère polypro", 1, "changement-bobine-mere-polypro", 480);
+INSERT INTO "operations" VALUES (7, "Retirer clichets d'un groupe couleur", 1, "retrait-cliche", 300);
+INSERT INTO "operations" VALUES (8, "Montage de clichets", 1, "ajout-cliche", 270);
+INSERT INTO "operations" VALUES (9, "Réglage théorique", 1, "ajout-cliche", 120);
+INSERT INTO "operations" VALUES (10, "Nettoyage encrier", 1, "vidage-encrier", 120);
+INSERT INTO "operations" VALUES (11, "Remplissage encrier", 1, "remplissage-encrier", 120);
+INSERT INTO "operations" VALUES (12, "Callage à 25 m/min", 1, "cliche-multi-couleurs", 180);
+INSERT INTO "operations" VALUES (13, "Passage bandes sur 2 arbres enrouleurs", 1, "changement-refente", 360);
+INSERT INTO "operations" VALUES (14, "Second jog vérification couteau & buse", 1, "changement-refente", 180);
+INSERT INTO "operations" VALUES (15, "Temps de chauffe buse de colle à chaud", 1, "augmentation-refentes", 1800);
+INSERT INTO "operations" VALUES (16, "Temps de chauffe perforation", 1, "changement-perforation", 4800);
+
 COMMIT;

@@ -111,6 +111,9 @@ export async function handleCommand(
   if (command === ListColors) {
     return listColors(SQLITE_DB.Params);
   }
+  if (command === ListOperations) {
+    return listOperations(SQLITE_DB.Params);
+  }
 
   // Window Management
   if (command === GetAppInfo) {
@@ -256,27 +259,5 @@ export async function handleCommand(
       () => sendBridgeEvent(browserWindow, ContextMenuClosed, {menuId}),
       id => sendBridgeEvent(browserWindow, ContextMenuClicked, {menuId, menuItemId: id})
     );
-  }
-
-  // Operations Management
-  if (command === ListOperations) {
-    const {localUpdate} = asMap(params);
-    return {data: await listOperations(SQLITE_DB.Params, asNumber(localUpdate, 0))};
-  }
-  if (command === CreateOrUpdateOperation) {
-    const {operation} = asMap(params);
-    // tslint:disable-next-line:no-unsafe-any
-    return createOrUpdateOperation(SQLITE_DB.Params, operation);
-  }
-
-  // Operateurs Management
-  if (command === ListOperateurs) {
-    // const {localUpdate} = asMap(params);
-    // return {data: await listOperateurs(db, asNumber(localUpdate, 0))};
-  }
-  if (command === CreateOrUpdateOperateur) {
-    // const {operation} = asMap(params);
-    // // tslint:disable-next-line:no-unsafe-any
-    // return createOrUpdateOperateur(db, operation);
   }
 }

@@ -5,7 +5,6 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {countRetraitCliche} from '@root/lib/plan_prod';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
@@ -58,15 +57,6 @@ export class GestionPage extends React.Component<Props, State> {
       plansProduction: plansProductionStore.getIndex(),
       plansProductionFlattened: plansProductionStore.getActivePlansProd(),
     });
-    const p = plansProductionStore.getActivePlansProd();
-    if (p && p.length >= 2) {
-      console.log(
-        countRetraitCliche(
-          {bobines: p[0].data.bobines, encrierColors: p[0].data.encriers},
-          {bobines: p[1].data.bobines, encrierColors: p[1].data.encriers}
-        )
-      );
-    }
   };
 
   private readonly goToNextMonth = (): void => {

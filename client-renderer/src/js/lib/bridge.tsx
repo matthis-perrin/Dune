@@ -116,9 +116,6 @@ export class Bridge {
   public async listRefentes(localUpdate: number): Promise<BridgeListResponse<Refente>> {
     return this.listGeneric<Refente>(ListRefentes, localUpdate);
   }
-  public async listOperations(localUpdate: number): Promise<BridgeListResponse<Operation>> {
-    return this.listGeneric<Operation>(ListOperations, localUpdate);
-  }
   public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
     return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
   }
@@ -135,6 +132,9 @@ export class Bridge {
   }
   public async listColors(): Promise<Color[]> {
     return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
+  }
+  public async listOperations(): Promise<Operation[]> {
+    return this.bridgeTransport.sendBridgeCommand<Operation[]>(ListOperations);
   }
 
   public async createNewPlanProduction(

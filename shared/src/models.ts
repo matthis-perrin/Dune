@@ -230,8 +230,6 @@ export interface Operation {
   required: boolean;
   constraint: OperationConstraint;
   duration: number;
-  sommeil: boolean;
-  localUpdate: number;
 }
 
 export enum OperationConstraint {
@@ -244,6 +242,7 @@ export enum OperationConstraint {
   AjoutCliche = 'ajout-cliche',
   VidageEncrier = 'vidage-encrier',
   RemplissageEncrier = 'remplissage-encrier',
+  ClicheMultiCouleurs = 'cliche-multi-couleurs',
   AugmentationRefentes = 'augmentation-refentes',
 }
 

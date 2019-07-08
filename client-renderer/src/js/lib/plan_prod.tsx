@@ -1,5 +1,4 @@
 import {zip} from 'lodash-es';
-import {string} from 'prop-types';
 
 import {padNumber} from '@root/lib/utils';
 

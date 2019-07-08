@@ -23,6 +23,7 @@ export const ConstraintDescriptions = new Map<OperationConstraintModel, string>(
   [OperationConstraintModel.VidageEncrier, "Vidage d'un encrier"],
   [OperationConstraintModel.RemplissageEncrier, "Remplissage d'un encrier"],
   [OperationConstraintModel.AugmentationRefentes, 'Augmentation du nombre de refentes'],
+  [OperationConstraintModel.ClicheMultiCouleurs, 'Nouveau cliché multi-couleurs utilisé'],
 ]);
 
 export class OperationConstraint extends React.Component<OperationConstraintProps> {
