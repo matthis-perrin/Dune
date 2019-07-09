@@ -9,7 +9,7 @@ import {
   OperationSplit,
   splitOperations,
 } from '@root/lib/plan_prod';
-import {Colors} from '@root/theme';
+import {Colors, theme} from '@root/theme';
 
 import {Operation} from '@shared/models';
 
@@ -37,6 +37,8 @@ export class OperationTable extends React.Component<OperationTableProps> {
     if (operations.length === 0) {
       return [];
     }
+
+    let isEven = false;
     return [
       <tr>
         <OperationSplitHeader colSpan={4}>{title}</OperationSplitHeader>
@@ -48,24 +50,31 @@ export class OperationTable extends React.Component<OperationTableProps> {
         const {constraint, description, duration, quantity} = operation;
         const isPreviousSameConstraint =
           index > 0 && operations[index - 1].constraint === constraint;
+        isEven = isPreviousSameConstraint ? isEven : !isEven;
         return (
-          <tr>
-            <td>
+          <OperationSplitRow
+            style={{
+              backgroundColor: isEven
+                ? theme.table.rowEvenBackgroundColor
+                : theme.table.rowOddBackgroundColor,
+            }}
+          >
+            <OperationSplitCell>
               {isPreviousSameConstraint ? (
                 ''
               ) : (
                 <OperationConstraintComponent constraint={constraint} />
               )}
-            </td>
-            <td>{description}</td>
-            <td>
+            </OperationSplitCell>
+            <OperationSplitCell>{description}</OperationSplitCell>
+            <OperationSplitCell>
               <Duration durationMs={duration * 1000} />
-            </td>
-            <td>{`x${quantity}`}</td>
-            <td>
+            </OperationSplitCell>
+            <OperationSplitCell>{`x${quantity}`}</OperationSplitCell>
+            <OperationSplitCell>
               <Duration durationMs={duration * quantity * 1000} />
-            </td>
-          </tr>
+            </OperationSplitCell>
+          </OperationSplitRow>
         );
       }),
     ];
@@ -112,10 +121,32 @@ export class OperationTable extends React.Component<OperationTableProps> {
 }
 
 const OperationSplitHeader = styled.td`
-  background-color: ${Colors.PrimaryDark};
-  color: ${Colors.TextOnPrimary};
-  font-size: 16px;
-  padding: 8px 16px;
+  background-color: ${theme.table.headerBackgroundColor};
+  color: ${theme.table.headerColor};
+  font-size: ${theme.table.headerFontSize}px;
+  font-weight: ${theme.table.headerFontWeight};
+  padding: ${theme.table.headerPadding}px;
+  height: ${theme.table.headerHeight}px;
+  box-sizing: border-box;
+  text-transform: uppercase;
 `;
 
-const OperationSplitTable = styled.table``;
+const OperationSplitTable = styled.table`
+  border-collapse: collapse;
+`;
+
+const OperationSplitRow = styled.tr`
+  height: ${theme.table.rowHeight}px;
+  box-sizing: border-box;
+`;
+
+const OperationSplitCell = styled.td`
+  padding: ${theme.table.padding}px;
+  font-size: ${theme.table.rowFontSize}px;
+  font-weight: ${theme.table.rowFontWeight};
+`;
+// background={
+//     rowIndex !== undefined && rowIndex % 2 === 0
+//       ? theme.table.rowEvenBackgroundColor
+//       : theme.table.rowOddBackgroundColor
+//   }
