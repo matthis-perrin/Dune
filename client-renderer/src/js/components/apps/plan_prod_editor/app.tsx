@@ -25,7 +25,7 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getPlanProdTitle} from '@root/lib/plan_prod';
+import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
 import {compareTime} from '@root/lib/stocks';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
@@ -337,7 +337,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment,
     } = this.state;
 
-    if (!planProduction || !stocks || !plansProd) {
+    if (!planProduction || !stocks || !plansProd || !operations) {
       return <LoadingScreen />;
     }
 
@@ -515,9 +515,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
           let operationTable = <React.Fragment />;
-          const previousPlanProd = (this.state.plansProd || [])
-            .filter(p => compareTime(p, planProduction) < 0)
-            .sort((p1, p2) => compareTime(p2, p1))[0];
+          const previousPlanProd = getPreviousPlanProd(planProduction, this.state.plansProd || []);
+
           if (
             selectedPapier &&
             selectedPolypro &&
@@ -557,6 +556,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 bobines={selectedBobines}
                 papier={selectedPapier}
                 polypro={selectedPolypro}
+                refente={selectedRefente}
+                perfo={selectedPerfo}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
@@ -569,6 +570,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 stocks={stocks}
                 plansProd={plansProd}
                 planProdInfo={planProduction}
+                encriers={reorderedEncriers || couleursEncrier[0] || []}
+                operations={operations}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
                 <PlanProdComment

@@ -13,7 +13,7 @@ import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getPlanProdTitle} from '@root/lib/plan_prod';
+import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
 import {compareTime} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
@@ -186,9 +186,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
         <React.Fragment />
       );
 
-    const previousPlanProd = plansProd
-      .filter(p => compareTime(p, planProd) < 0)
-      .sort((p1, p2) => compareTime(p2, p1))[0];
+    const previousPlanProd = getPreviousPlanProd(planProd, plansProd || []);
 
     const operationTable = previousPlanProd ? (
       <React.Fragment>
@@ -218,6 +216,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
           bobines={bobines}
           papier={papier}
           polypro={polypro}
+          refente={refente}
+          perfo={perfo}
           isComplete
           isPrinting
           onSpeedChange={() => {}}
@@ -227,6 +227,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
           tourCount={tourCount}
           planProdInfo={planProd}
           plansProd={plansProd}
+          encriers={encriers}
+          operations={operations}
         />
         <Wrapper style={{width: INNER_RENDERING_WIDTH}}>
           <PlanProdComment

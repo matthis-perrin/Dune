@@ -5,6 +5,7 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
+import {getOperationTime, getPreviousPlanProd} from '@root/lib/plan_prod';
 import {
   getStockReel,
   getStockTerme,
@@ -14,12 +15,16 @@ import {
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
+import {EncrierColor} from '@shared/lib/encrier';
 import {
   BobineFilleWithPose,
   BobineMere,
   Stock,
   PlanProduction,
   PlanProductionInfo,
+  Operation,
+  Perfo,
+  Refente,
 } from '@shared/models';
 
 const MAX_SPEED_RATIO = 0.82;
@@ -29,8 +34,11 @@ interface TopBarProps {
   width: number;
   planProdTitle: string;
   bobines: BobineFilleWithPose[];
+  encriers: EncrierColor[];
   papier?: BobineMere;
   polypro?: BobineMere;
+  perfo?: Perfo;
+  refente?: Refente;
   tourCount?: number;
   speed: number;
   onTourCountChange(tourCount?: number): void;
@@ -43,6 +51,7 @@ interface TopBarProps {
   stocks: Map<string, Stock[]>;
   planProdInfo: PlanProductionInfo;
   plansProd: PlanProduction[];
+  operations: Operation[];
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -180,6 +189,12 @@ export class TopBar extends React.Component<TopBarProps> {
       width,
       papier,
       polypro,
+      plansProd,
+      planProdInfo,
+      operations,
+      encriers,
+      perfo,
+      refente,
       style = {},
     } = this.props;
 
@@ -219,6 +234,15 @@ export class TopBar extends React.Component<TopBarProps> {
           color: Colors.SecondaryDark,
         }
       : {};
+    const previousPlanProd = getPreviousPlanProd(planProdInfo, plansProd);
+    let operationTime: number | undefined;
+    console.log(previousPlanProd, encriers, papier, perfo, polypro, refente);
+    if (previousPlanProd && encriers && papier && perfo && polypro && refente) {
+      const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
+      operationTime = getOperationTime(operations, previousPlanProd.data, currentPlanProd);
+    }
+    const operationTimeElement =
+      operationTime !== undefined ? <Duration durationMs={operationTime * 1000} /> : '??:??:??';
 
     return (
       <React.Fragment>
@@ -256,9 +280,10 @@ export class TopBar extends React.Component<TopBarProps> {
             />
           </CenterContainer>
           <RightContainer>
-            <div>
+            <span>
               Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
-            </div>
+            </span>
+            <span>Réglage: {operationTimeElement}</span>
           </RightContainer>
         </TopBarWrapper>
         {alerts}
@@ -290,6 +315,10 @@ const LeftContainer = styled(ContainerBase)`
 
 const RightContainer = styled(ContainerBase)`
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
   font-size: ${theme.planProd.topBarDetailsFontSize}px;
 `;
 

@@ -1,5 +1,6 @@
-import {zip} from 'lodash-es';
+import {zip, max} from 'lodash-es';
 
+import {compareTime} from '@root/lib/stocks';
 import {padNumber} from '@root/lib/utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
@@ -13,6 +14,8 @@ import {
   BobineFilleWithPose,
   OperationGroup,
   Operation,
+  PlanProductionInfo,
+  PlanProduction,
 } from '@shared/models';
 
 const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
@@ -253,7 +256,7 @@ interface OperationDetail {
   duration: number;
 }
 
-interface OperationSplit {
+export interface OperationSplit {
   total: number;
   operations: OperationDetail[];
 }
@@ -379,4 +382,26 @@ export function splitOperations(
     chauffePerfo: chauffePerfoSplit,
     chauffeRefente: chauffeRefenteSplit,
   };
+}
+
+export function getOperationTime(
+  operations: Operation[],
+  before: PlanProdStateLight,
+  after: PlanProdStateLight
+): number {
+  const constraints = getConstraints(before, after);
+  const operationsSplits = splitOperations(operations, constraints);
+  const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = operationsSplits;
+  return (
+    max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) || 0
+  );
+}
+
+export function getPreviousPlanProd(
+  current: PlanProductionInfo,
+  allPlansProd: PlanProduction[]
+): PlanProduction | undefined {
+  return allPlansProd
+    .filter(p => compareTime(p, current) < 0)
+    .sort((p1, p2) => compareTime(p2, p1))[0];
 }

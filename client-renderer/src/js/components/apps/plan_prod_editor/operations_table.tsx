@@ -3,10 +3,15 @@ import styled from 'styled-components';
 
 import {Duration} from '@root/components/common/duration';
 import {OperationConstraint as OperationConstraintComponent} from '@root/components/common/operation_constraint';
-import {PlanProdStateLight, getConstraints} from '@root/lib/plan_prod';
-import {theme, Colors} from '@root/theme';
+import {
+  PlanProdStateLight,
+  getConstraints,
+  OperationSplit,
+  splitOperations,
+} from '@root/lib/plan_prod';
+import {Colors} from '@root/theme';
 
-import {Operation, OperationGroup, OperationConstraint} from '@shared/models';
+import {Operation} from '@shared/models';
 
 interface OperationTableProps {
   width: number;
@@ -70,7 +75,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
     const {width, planProduction, previousPlanProduction, operations} = this.props;
 
     const constraints = getConstraints(previousPlanProduction, planProduction);
-    const operationsSplits = this.splitOperations(operations, constraints);
+    const operationsSplits = splitOperations(operations, constraints);
 
     this.sortOperationSplit(operationsSplits.conducteur);
     this.sortOperationSplit(operationsSplits.aideConducteur);
@@ -102,7 +107,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
       );
     });
 
-    return <OperationSplitTable>{lines}</OperationSplitTable>;
+    return <OperationSplitTable style={{width}}>{lines}</OperationSplitTable>;
   }
 }
 
