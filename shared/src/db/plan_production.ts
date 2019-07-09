@@ -147,7 +147,8 @@ async function updateIndexInDay(
               });
           })
         )
-          .then(resolve)
+          // tslint:disable-next-line:no-unnecessary-callback-wrapper
+          .then(() => resolve())
           .catch(reject);
       })
       .catch(reject);

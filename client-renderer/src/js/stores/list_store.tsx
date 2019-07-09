@@ -8,7 +8,6 @@ import {
   Perfo,
   Refente,
   Stock,
-  Operation,
   BobineFilleWithMultiPose,
   Cadencier,
   PlanProduction,
@@ -183,16 +182,6 @@ class RefentesStore extends ListStore<Refente> {
   }
 }
 export const refentesStore = new RefentesStore();
-
-class OperationsStore extends ListStore<Operation> {
-  public async fetch(): Promise<BridgeListResponse<Operation>> {
-    return bridge.listOperations(this.getLastUpdate());
-  }
-  public getId(element: Operation): string {
-    return element.ref;
-  }
-}
-export const operationsStore = new OperationsStore();
 
 class PlansProductionStore extends ListStore<PlanProduction> {
   public async fetch(): Promise<BridgeListResponse<PlanProduction>> {

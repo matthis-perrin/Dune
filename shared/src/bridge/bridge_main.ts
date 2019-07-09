@@ -19,12 +19,13 @@ function sendMessage(browserWindow: BrowserWindow, message: string): void {
   }
 }
 
-// tslint:disable-next-line:no-any
+// tslint:disable:no-any
 export type BridgeCommandHandler = (
   browserWindow: BrowserWindow,
   command: BridgeCommand,
   data: any
 ) => Promise<any>;
+// tslint:enable:no-any
 
 // tslint:disable-next-line:no-any
 export function sendBridgeEvent(browserWindow: BrowserWindow, event: BridgeEvent, data: any): void {

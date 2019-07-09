@@ -6,7 +6,7 @@ export function openContextMenu(
   menuItemsData: ContextMenuForBridge[],
   onCloseCallback: () => void,
   onMenuItemClicked: (id: string) => void
-) {
+): void {
   const menu = new Menu();
   menuItemsData.forEach(menuItemData =>
     menu.append(new MenuItem(getMenuItemOptions(menuItemData, onMenuItemClicked)))

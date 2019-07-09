@@ -13,7 +13,6 @@ import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
-import {ViewOperationApp} from '@root/components/apps/view_operation/app';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
@@ -33,7 +32,7 @@ import {
 import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
-import {asMap, asString} from '@shared/type_utils';
+import {asMap, asString, asNumber} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -127,9 +126,6 @@ export class AppManager extends React.Component<Props, State> {
         cadencierStore,
       ];
     }
-    if (type === ClientAppType.ViewOperationApp) {
-      return [];
-    }
 
     return [];
   }
@@ -155,7 +151,7 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.PlanProductionEditorApp) {
       const {id} = asMap(data);
-      return <PlanProdEditorApp id={id} />;
+      return <PlanProdEditorApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return <BobinesPickerApp />;
@@ -176,10 +172,6 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ViewBobineApp) {
       const {bobineRef} = asMap(data);
       return <ViewBobineApp bobineRef={asString(bobineRef, '')} />;
-    }
-    if (type === ClientAppType.ViewOperationApp) {
-      const {operationRef} = asMap(data);
-      return <ViewOperationApp operationRef={asString(operationRef, undefined)} />;
     }
 
     return (

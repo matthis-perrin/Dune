@@ -214,9 +214,6 @@ export class Bridge {
   public async viewBobine(bobineRef: string): Promise<void> {
     return this.openApp(ClientAppType.ViewBobineApp, {bobineRef});
   }
-  public async viewOperation(ref: string | undefined): Promise<void> {
-    return this.openApp(ClientAppType.ViewOperationApp, {ref});
-  }
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
     return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});

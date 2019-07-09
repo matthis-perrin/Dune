@@ -14,15 +14,12 @@ import {
   CloseApp,
   CloseAppOfType,
   CreateNewPlanProduction,
-  CreateOrUpdateOperateur,
-  CreateOrUpdateOperation,
   GetAppInfo,
   GetNewPlanProduction,
   ListBobinesFilles,
   ListBobinesMeres,
   ListCadencier,
   ListCliches,
-  ListOperateurs,
   ListOperations,
   ListPerfos,
   ListRefentes,
@@ -50,7 +47,7 @@ import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
-import {listOperations, createOrUpdateOperation} from '@shared/db/operations';
+import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
   listPlansProduction,
@@ -62,11 +59,12 @@ import {listStocks} from '@shared/db/stocks';
 import {ClientAppType, ContextMenuForBridge} from '@shared/models';
 import {asMap, asNumber, asString} from '@shared/type_utils';
 
-// tslint:disable-next-line:no-any
 export async function handleCommand(
   browserWindow: BrowserWindow,
   command: BridgeCommand,
+  // tslint:disable-next-line:no-any
   params: any
+  // tslint:disable-next-line:no-any
 ): Promise<any> {
   // Listing commands
   if (command === ListBobinesFilles) {
@@ -162,8 +160,7 @@ export async function handleCommand(
   if (command === DeletePlanProduction) {
     const {year, month, day, indexInDay} = asMap(params);
     const info = {year, month, day, indexInDay};
-    const id = await deletePlanProduction(SQLITE_DB.Prod, info);
-    return {id};
+    await deletePlanProduction(SQLITE_DB.Prod, info);
   }
   if (command === SavePlanProduction) {
     const {id, year, month, day, indexInDay, data} = asMap(params);

@@ -298,7 +298,6 @@ export enum ClientAppType {
   ListPapiersApp = 'ListPapiersApp',
   ListClichesApp = 'ListClichesApp',
   ViewBobineApp = 'ViewBobineApp',
-  ViewOperationApp = 'ViewOperationApp',
   PlanProductionEditorApp = 'PlanProductionEditorApp',
   BobinesPickerApp = 'BobinesPickerApp',
   RefentePickerApp = 'RefentePickerApp',

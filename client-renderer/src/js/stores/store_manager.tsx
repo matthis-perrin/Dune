@@ -1,4 +1,4 @@
-import {bobinesQuantitiesStore, colorsStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, colorsStore, operationsStore} from '@root/stores/data_store';
 import {
   bobinesFillesStore,
   bobinesMeresStore,
@@ -6,7 +6,6 @@ import {
   perfosStore,
   refentesStore,
   stocksStore,
-  operationsStore,
   plansProductionStore,
   cadencierStore,
 } from '@root/stores/list_store';
