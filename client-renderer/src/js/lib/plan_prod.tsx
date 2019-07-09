@@ -113,9 +113,9 @@ function makeClichePosePositions(
 function hasPosition(positions: ClichePosition[], position: ClichePosition): boolean {
   for (const p of positions) {
     if (
-      position.color !== p.color &&
-      position.distance !== p.distance &&
-      position.encrierIndex !== p.distance
+      position.color === p.color &&
+      position.distance === p.distance &&
+      position.encrierIndex === p.encrierIndex
     ) {
       return true;
     }

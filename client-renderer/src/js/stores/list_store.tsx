@@ -105,6 +105,18 @@ class ClichesStore extends ListStore<Cliche> {
   public getId(element: Cliche): string {
     return element.ref;
   }
+  public get(ref: string): Cliche | undefined {
+    const allCliches = this.getData();
+    if (!allCliches) {
+      return undefined;
+    }
+    for (const cliche of allCliches) {
+      if (cliche.ref === ref) {
+        return cliche;
+      }
+    }
+    return undefined;
+  }
 }
 export const clichesStore = new ClichesStore();
 

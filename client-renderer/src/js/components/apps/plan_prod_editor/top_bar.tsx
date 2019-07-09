@@ -236,7 +236,7 @@ export class TopBar extends React.Component<TopBarProps> {
       : {};
     const previousPlanProd = getPreviousPlanProd(planProdInfo, plansProd);
     let operationTime: number | undefined;
-    console.log(previousPlanProd, encriers, papier, perfo, polypro, refente);
+
     if (previousPlanProd && encriers && papier && perfo && polypro && refente) {
       const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
       operationTime = getOperationTime(operations, previousPlanProd.data, currentPlanProd);

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {HorizontalCote} from '@root/components/common/cote';
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
 import {DivProps} from '@root/components/core/common';
+import {WithCliche} from '@root/components/core/with_cliche';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {theme} from '@root/theme';
@@ -19,6 +20,7 @@ interface EncrierProps extends DivProps {
   selectedBobines: BobineFilleWithPose[];
   selectedRefente?: Refente;
   encrierColor: EncrierColor;
+  // allCliche: Clich
 }
 
 export class Encrier extends React.Component<EncrierProps> {
@@ -86,6 +88,8 @@ export class Encrier extends React.Component<EncrierProps> {
           >
             <AutoFontWeight fontSize={theme.planProd.elementsBaseMediumFontSize * pixelPerMM}>
               {refCliche}
+              <br />
+              {`(${color.name})`}
               <br />
               {`${poseSize} poses`}
             </AutoFontWeight>
