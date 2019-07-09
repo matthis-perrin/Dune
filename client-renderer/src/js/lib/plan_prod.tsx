@@ -5,7 +5,15 @@ import {padNumber} from '@root/lib/utils';
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
 import {getRefenteLaizes} from '@shared/lib/refentes';
-import {Perfo, OperationConstraint, Refente, BobineMere, BobineFilleWithPose} from '@shared/models';
+import {
+  Perfo,
+  OperationConstraint,
+  Refente,
+  BobineMere,
+  BobineFilleWithPose,
+  OperationGroup,
+  Operation,
+} from '@shared/models';
 
 const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
@@ -236,4 +244,139 @@ export function getConstraints(
   );
 
   return constraints;
+}
+
+interface OperationDetail {
+  description: string;
+  constraint: OperationConstraint;
+  quantity: number;
+  duration: number;
+}
+
+interface OperationSplit {
+  total: number;
+  operations: OperationDetail[];
+}
+
+interface OperationSplits {
+  conducteur: OperationSplit;
+  aideConducteur: OperationSplit;
+  chauffePerfo: OperationSplit;
+  chauffeRefente: OperationSplit;
+}
+
+export function splitOperations(
+  operations: Operation[],
+  constraints: Map<OperationConstraint, number>
+): OperationSplits {
+  const conducteurSplit: OperationSplit = {total: 0, operations: []};
+  const aideConducteurSplit: OperationSplit = {total: 0, operations: []};
+
+  const conducteurOperations = operations.filter(o => o.group === OperationGroup.Conducteur);
+  const aideConducteurOperations = operations
+    .filter(o => o.group === OperationGroup.Aide)
+    .sort((o1, o2) => {
+      const o1Quantity = constraints.get(o1.constraint) || 0;
+      const o2Quantity = constraints.get(o2.constraint) || 0;
+      return o2Quantity * o2.duration - o1Quantity * o1.duration;
+    });
+  const repartissableOperations = operations.filter(o => o.group === OperationGroup.Repartissable);
+
+  conducteurOperations.forEach(o => {
+    const quantity = constraints.get(o.constraint) || 0;
+    if (quantity > 0) {
+      conducteurSplit.total += o.duration * quantity;
+      conducteurSplit.operations.push({
+        description: o.description,
+        constraint: o.constraint,
+        quantity,
+        duration: o.duration,
+      });
+    }
+  });
+
+  aideConducteurOperations.forEach(o => {
+    const quantity = constraints.get(o.constraint) || 0;
+    if (quantity > 0) {
+      const operationDetail = {
+        description: o.description,
+        constraint: o.constraint,
+        quantity,
+        duration: o.duration,
+      };
+      if (conducteurSplit.total < aideConducteurSplit.total) {
+        conducteurSplit.total += o.duration * quantity;
+        conducteurSplit.operations.push(operationDetail);
+      } else {
+        aideConducteurSplit.total += o.duration * quantity;
+        aideConducteurSplit.operations.push(operationDetail);
+      }
+    }
+  });
+
+  repartissableOperations.forEach(o => {
+    const quantity = constraints.get(o.constraint) || 0;
+    if (quantity > 0) {
+      const operationDetail = {
+        description: o.description,
+        constraint: o.constraint,
+        quantity,
+        duration: o.duration,
+      };
+      const duration = o.duration * quantity;
+      const diffBetweenOperators = aideConducteurSplit.total - conducteurSplit.total;
+      if (diffBetweenOperators > duration / 2) {
+        conducteurSplit.total += duration;
+        conducteurSplit.operations.push(operationDetail);
+      } else if (diffBetweenOperators < -duration / 2) {
+        aideConducteurSplit.total += duration;
+        aideConducteurSplit.operations.push(operationDetail);
+      } else {
+        const splittedOperationDetail = {...operationDetail, quantity: quantity / 2};
+        conducteurSplit.total += duration / 2;
+        conducteurSplit.operations.push(splittedOperationDetail);
+        aideConducteurSplit.total += duration / 2;
+        aideConducteurSplit.operations.push(splittedOperationDetail);
+      }
+    }
+  });
+
+  const chauffeRefenteSplit: OperationSplit = {total: 0, operations: []};
+  operations
+    .filter(o => o.group === OperationGroup.ChauffeRefente)
+    .forEach(o => {
+      const quantity = constraints.get(o.constraint) || 0;
+      if (quantity > 0) {
+        chauffeRefenteSplit.total += quantity * o.duration;
+        chauffeRefenteSplit.operations.push({
+          constraint: o.constraint,
+          description: o.description,
+          duration: o.duration,
+          quantity,
+        });
+      }
+    });
+
+  const chauffePerfoSplit: OperationSplit = {total: 0, operations: []};
+  operations
+    .filter(o => o.group === OperationGroup.ChauffePerfo)
+    .forEach(o => {
+      const quantity = constraints.get(o.constraint) || 0;
+      if (quantity > 0) {
+        chauffePerfoSplit.total += quantity * o.duration;
+        chauffePerfoSplit.operations.push({
+          constraint: o.constraint,
+          description: o.description,
+          duration: o.duration,
+          quantity,
+        });
+      }
+    });
+
+  return {
+    conducteur: conducteurSplit,
+    aideConducteur: aideConducteurSplit,
+    chauffePerfo: chauffePerfoSplit,
+    chauffeRefente: chauffeRefenteSplit,
+  };
 }

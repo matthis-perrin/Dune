@@ -15,106 +15,8 @@ interface OperationTableProps {
   operations: Operation[];
 }
 
-interface OperationDetail {
-  description: string;
-  constraint: OperationConstraint;
-  quantity: number;
-  duration: number;
-}
-
-interface OperationSplit {
-  total: number;
-  operations: OperationDetail[];
-}
-
-interface OperationSplits {
-  conducteur: OperationSplit;
-  aideConducteur: OperationSplit;
-}
-
 export class OperationTable extends React.Component<OperationTableProps> {
   public static displayName = 'OperationTable';
-
-  private splitOperations(
-    operations: Operation[],
-    constraints: Map<OperationConstraint, number>
-  ): OperationSplits {
-    const conducteurSplit: OperationSplit = {total: 0, operations: []};
-    const aideConducteurSplit: OperationSplit = {total: 0, operations: []};
-
-    const conducteurOperations = operations.filter(o => o.group === OperationGroup.Conducteur);
-    const aideConducteurOperations = operations
-      .filter(o => o.group === OperationGroup.Aide)
-      .sort((o1, o2) => {
-        const o1Quantity = constraints.get(o1.constraint) || 0;
-        const o2Quantity = constraints.get(o2.constraint) || 0;
-        return o2Quantity * o2.duration - o1Quantity * o1.duration;
-      });
-    const repartissableOperations = operations.filter(
-      o => o.group === OperationGroup.Repartissable
-    );
-
-    conducteurOperations.forEach(o => {
-      const quantity = constraints.get(o.constraint) || 0;
-      if (quantity > 0) {
-        conducteurSplit.total += o.duration * quantity;
-        conducteurSplit.operations.push({
-          description: o.description,
-          constraint: o.constraint,
-          quantity,
-          duration: o.duration,
-        });
-      }
-    });
-
-    aideConducteurOperations.forEach(o => {
-      const quantity = constraints.get(o.constraint) || 0;
-      if (quantity > 0) {
-        const operationDetail = {
-          description: o.description,
-          constraint: o.constraint,
-          quantity,
-          duration: o.duration,
-        };
-        if (conducteurSplit.total < aideConducteurSplit.total) {
-          conducteurSplit.total += o.duration * quantity;
-          conducteurSplit.operations.push(operationDetail);
-        } else {
-          aideConducteurSplit.total += o.duration * quantity;
-          aideConducteurSplit.operations.push(operationDetail);
-        }
-      }
-    });
-
-    repartissableOperations.forEach(o => {
-      const quantity = constraints.get(o.constraint) || 0;
-      if (quantity > 0) {
-        const operationDetail = {
-          description: o.description,
-          constraint: o.constraint,
-          quantity,
-          duration: o.duration,
-        };
-        const duration = o.duration * quantity;
-        const diffBetweenOperators = aideConducteurSplit.total - conducteurSplit.total;
-        if (diffBetweenOperators > duration / 2) {
-          conducteurSplit.total += duration;
-          conducteurSplit.operations.push(operationDetail);
-        } else if (diffBetweenOperators < -duration / 2) {
-          aideConducteurSplit.total += duration;
-          aideConducteurSplit.operations.push(operationDetail);
-        } else {
-          const splittedOperationDetail = {...operationDetail, quantity: quantity / 2};
-          conducteurSplit.total += duration / 2;
-          conducteurSplit.operations.push(splittedOperationDetail);
-          aideConducteurSplit.total += duration / 2;
-          aideConducteurSplit.operations.push(splittedOperationDetail);
-        }
-      }
-    });
-
-    return {conducteur: conducteurSplit, aideConducteur: aideConducteurSplit};
-  }
 
   private sortOperationSplit(operationSplit: OperationSplit): void {
     operationSplit.operations.sort((o1, o2) => {
@@ -170,9 +72,6 @@ export class OperationTable extends React.Component<OperationTableProps> {
     const constraints = getConstraints(previousPlanProduction, planProduction);
     const operationsSplits = this.splitOperations(operations, constraints);
 
-    console.log(operationsSplits);
-    console.log(constraints);
-
     this.sortOperationSplit(operationsSplits.conducteur);
     this.sortOperationSplit(operationsSplits.aideConducteur);
 
@@ -181,15 +80,18 @@ export class OperationTable extends React.Component<OperationTableProps> {
       ...this.renderOperationSplitLines('AIDE CONDUCTEUR', operationsSplits.aideConducteur),
     ];
 
-    const chauffeRefenteOperations = operations.filter(
-      o => o.group === OperationGroup.ChauffeRefente && (constraints.get(o.constraint) || 0) > 0
-    );
-    const chauffePerfoOperations = operations.filter(
-      o => o.group === OperationGroup.ChauffePerfo && (constraints.get(o.constraint) || 0) > 0
-    );
+    operationsSplits.chauffePerfo.operations.forEach(o => {
+      lines.push(
+        <tr>
+          <OperationSplitHeader colSpan={4}>{o.description}</OperationSplitHeader>
+          <OperationSplitHeader>
+            <Duration durationMs={(constraints.get(o.constraint) || 0) * o.duration * 1000} />
+          </OperationSplitHeader>
+        </tr>
+      );
+    });
 
-    const chauffeOperations = chauffeRefenteOperations.concat(chauffePerfoOperations);
-    chauffeOperations.forEach(o => {
+    operationsSplits.chauffeRefente.operations.forEach(o => {
       lines.push(
         <tr>
           <OperationSplitHeader colSpan={4}>{o.description}</OperationSplitHeader>
