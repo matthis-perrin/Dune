@@ -225,6 +225,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
           planProdTitle={planProdTitle}
           speed={speed}
           tourCount={tourCount}
+          planProdInfo={planProd}
+          plansProd={plansProd}
         />
         <Wrapper style={{width: INNER_RENDERING_WIDTH}}>
           <PlanProdComment

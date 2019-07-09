@@ -5,11 +5,22 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
-import {getStockReel, getStockTerme} from '@root/lib/stocks';
+import {
+  getStockReel,
+  getStockTerme,
+  getStockReelPrevisionel,
+  getStockTermePrevisionel,
+} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {BobineFilleWithPose, BobineMere, Stock} from '@shared/models';
+import {
+  BobineFilleWithPose,
+  BobineMere,
+  Stock,
+  PlanProduction,
+  PlanProductionInfo,
+} from '@shared/models';
 
 const MAX_SPEED_RATIO = 0.82;
 
@@ -30,6 +41,8 @@ interface TopBarProps {
   isComplete: boolean;
   isPrinting: boolean;
   stocks: Map<string, Stock[]>;
+  planProdInfo: PlanProductionInfo;
+  plansProd: PlanProduction[];
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -109,18 +122,25 @@ export class TopBar extends React.Component<TopBarProps> {
       return undefined;
     }
     const {ref, longueur = 0} = bobineMere;
-    const {stocks, bobines, tourCount = 0} = this.props;
+    const {stocks, bobines, plansProd, planProdInfo, tourCount = 0} = this.props;
 
     const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
     const prod = longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0;
 
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
+    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, plansProd, planProdInfo);
+    const stockPrevisionelReelTerme = getStockTermePrevisionel(
+      ref,
+      stocks,
+      plansProd,
+      planProdInfo
+    );
 
     const stockActuel = stockReel;
     const stockActuelTerme = stockTerme;
-    const stockPrevisionel = 0;
-    const stockPrevisionelTerme = 0;
+    const stockPrevisionel = stockPrevisionelReel;
+    const stockPrevisionelTerme = stockPrevisionelReelTerme;
     const stockAfterProd = stockReel - prod;
     const stockAfterProdTerme = stockTerme - prod;
 

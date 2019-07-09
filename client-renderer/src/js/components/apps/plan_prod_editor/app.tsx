@@ -567,6 +567,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
                 stocks={stocks}
+                plansProd={plansProd}
+                planProdInfo={planProduction}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
                 <PlanProdComment
