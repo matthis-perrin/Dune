@@ -26,7 +26,6 @@ import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
-import {compareTime} from '@root/lib/stocks';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -118,12 +117,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private computeTourCount(newPlanProduction: PlanProductionState): number | undefined {
+    const {plansProd, planProduction} = this.state;
     const {tourCount, selectedBobines} = newPlanProduction;
     if (tourCount !== undefined && this.state.tourCountSetByUser) {
       return tourCount;
     }
     const {stocks, cadencier, bobineQuantities} = this.state;
-    if (!stocks || !cadencier || !bobineQuantities) {
+    if (!stocks || !cadencier || !bobineQuantities || !plansProd || !planProduction) {
       return tourCount;
     }
     for (const bobine of selectedBobines) {
@@ -131,7 +131,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         bobine.ref,
         stocks,
         cadencier,
-        bobineQuantities
+        bobineQuantities,
+        0,
+        plansProd,
+        planProduction
       );
       if (state === BobineState.Imperatif) {
         const poses = selectedBobines
@@ -508,6 +511,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   maximums={bobinesMaximums}
                   onMiniUpdated={this.handleMiniUpdated}
                   onMaxUpdated={this.handleMaxUpdated}
+                  planInfo={planProduction}
+                  plansProd={plansProd}
                 />
               </React.Fragment>
             ) : (

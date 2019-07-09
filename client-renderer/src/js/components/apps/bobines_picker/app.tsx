@@ -29,6 +29,7 @@ import {
   bobinesFillesWithMultiPoseStore,
   stocksStore,
   cadencierStore,
+  plansProductionStore,
 } from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
@@ -37,6 +38,8 @@ import {
   BobineFilleWithMultiPose,
   BobineQuantities,
   PlanProductionState,
+  PlanProduction,
+  PlanProductionInfo,
 } from '@shared/models';
 
 // tslint:disable-next-line:no-any
@@ -48,6 +51,7 @@ interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
+  plansProd?: PlanProduction[];
 }
 
 export class BobinesPickerApp extends React.Component<Props, State> {
@@ -56,6 +60,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   private lastStocks: Map<string, Stock[]> | undefined;
   private lastCadencier: Map<string, Map<number, number>> | undefined;
   private lastBobineQuantities: BobineQuantities[] | undefined;
+  private readonly lastPlansProd: PlanProduction[] | undefined;
   private lastPlanProd: PlanProductionState | undefined;
   private lastIsSelectionnable: ((element: BobineFilleWithMultiPose) => boolean) | undefined;
 
@@ -71,12 +76,14 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     stocksStore.addListener(this.handleValuesChanged);
     cadencierStore.addListener(this.handleValuesChanged);
     bobinesQuantitiesStore.addListener(this.handleValuesChanged);
+    plansProductionStore.addListener(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
     cadencierStore.removeListener(this.handleValuesChanged);
     bobinesQuantitiesStore.removeListener(this.handleValuesChanged);
+    plansProductionStore.removeListener(this.handleValuesChanged);
   }
 
   private readonly handleValuesChanged = (): void => {
@@ -84,6 +91,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
+      plansProd: plansProductionStore.getData(),
     });
   };
 
@@ -91,13 +99,15 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     stocks: Map<string, Stock[]>,
     cadencier: Map<string, Map<number, number>>,
     bobineQuantities: BobineQuantities[],
-    planProd: PlanProductionState
+    plansProd: PlanProduction[],
+    planProd: PlanProductionState & PlanProductionInfo
   ): AnyColumns {
     if (
       this.lastColumns &&
       this.lastStocks === stocks &&
       this.lastCadencier === cadencier &&
       this.lastBobineQuantities === bobineQuantities &&
+      this.lastPlansProd === plansProd &&
       this.lastPlanProd === planProd
     ) {
       return this.lastColumns;
@@ -112,15 +122,15 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       LONGUEUR_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
-      MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, planProd),
+      MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, plansProd, planProd),
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
-      QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities),
+      QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities, plansProd, planProd),
       LAST_YEAR_SELLING(cadencier),
       MONTHLY_SELLING(cadencier),
       STOCK_REEL_COLUMN(stocks),
       STOCK_TERME_COLUMN(stocks),
-      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities),
+      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities, plansProd, planProd),
     ];
     return this.lastColumns;
   }
@@ -142,9 +152,9 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const {stocks, cadencier, bobineQuantities} = this.state;
+    const {stocks, cadencier, bobineQuantities, plansProd} = this.state;
 
-    if (!stocks || !cadencier || !bobineQuantities) {
+    if (!stocks || !cadencier || !bobineQuantities || !plansProd) {
       return <LoadingScreen />;
     }
 
@@ -163,7 +173,13 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
-              const columns = this.getColumns(stocks, cadencier, bobineQuantities, planProd);
+              const columns = this.getColumns(
+                stocks,
+                cadencier,
+                bobineQuantities,
+                plansProd,
+                planProd
+              );
 
               const selectedTableHeight =
                 planProd.selectedBobines.length > 0
@@ -186,6 +202,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       bridge.removePlanBobine(ref).catch(console.error);
                     }}
                     showQuantity
+                    planInfo={planProd}
+                    plansProd={plansProd}
                   />
                 ) : (
                   <React.Fragment />

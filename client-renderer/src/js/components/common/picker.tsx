@@ -5,10 +5,10 @@ import {SearchBar} from '@root/components/common/search_bar';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
-import {ListStore} from '@root/stores/list_store';
+import {ListStore, plansProductionStore} from '@root/stores/list_store';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {PlanProductionState} from '@shared/models';
+import {PlanProductionState, PlanProductionInfo, PlanProduction} from '@shared/models';
 
 interface Props<T extends {localUpdate: number; sommeil: boolean}> {
   getSelectable(planProd: PlanProductionState): T[];
@@ -16,7 +16,7 @@ interface Props<T extends {localUpdate: number; sommeil: boolean}> {
   children(
     elements: T[],
     isSelectionnable: (element: T) => boolean,
-    planProduction: PlanProductionState,
+    planProduction: PlanProductionState & PlanProductionInfo,
     header: JSX.Element,
     footer: JSX.Element
   ): JSX.Element;
@@ -29,7 +29,8 @@ interface Props<T extends {localUpdate: number; sommeil: boolean}> {
 
 interface State<T extends {localUpdate: number; sommeil: boolean}> {
   allElements?: T[];
-  planProd?: PlanProductionState;
+  planProd?: PlanProductionState & PlanProductionInfo;
+  plansProd?: PlanProduction[];
   filteredElements?: T[];
 }
 
@@ -66,17 +67,22 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
 
   public componentDidMount(): void {
     bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    plansProductionStore.addListener(this.handleValuesChanged);
     this.props.store.addListener(this.handleValuesChanged);
     this.refreshPlanProduction().catch(console.error);
   }
 
   public componentWillUnmount(): void {
     bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    plansProductionStore.removeListener(this.handleValuesChanged);
     this.props.store.removeListener(this.handleValuesChanged);
   }
 
   private readonly handleValuesChanged = (): void => {
-    this.setState({allElements: this.props.store.getData()});
+    this.setState({
+      allElements: this.props.store.getData(),
+      plansProd: plansProductionStore.getActivePlansProd() || [],
+    });
   };
 
   private readonly refreshPlanProduction = async (): Promise<void> => {

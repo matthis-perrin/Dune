@@ -22,7 +22,14 @@ import {getStockTerme} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
-import {Stock, BobineQuantities, PlanProductionState, BobineFilleWithPose} from '@shared/models';
+import {
+  Stock,
+  BobineQuantities,
+  PlanProductionState,
+  BobineFilleWithPose,
+  PlanProduction,
+  PlanProductionInfo,
+} from '@shared/models';
 
 interface ProductionTableProps {
   width: number;
@@ -30,6 +37,8 @@ interface ProductionTableProps {
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
+  plansProd: PlanProduction[];
+  planInfo: PlanProductionInfo;
   onRemove?(ref: string): void;
   canRemove: boolean;
   showQuantity: boolean;
@@ -46,9 +55,11 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     const {
       width,
       planProduction,
+      planInfo,
       stocks,
       cadencier,
       bobineQuantities,
+      plansProd,
       onRemove,
       canRemove,
       onMiniUpdated,
@@ -74,7 +85,9 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         stocks,
         cadencier,
         bobineQuantities,
-        0
+        0,
+        plansProd,
+        planInfo
       );
       const newStock = stock + production;
       const newBobineState = getBobineState(
@@ -82,7 +95,9 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         stocks,
         cadencier,
         bobineQuantities,
-        production
+        production,
+        plansProd,
+        planInfo
       );
 
       return {

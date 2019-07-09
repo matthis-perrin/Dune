@@ -11,6 +11,8 @@ import {
   PlanProductionState,
   POSE_NEUTRE,
   Stock,
+  PlanProductionInfo,
+  PlanProduction,
 } from '@shared/models';
 
 interface AddPoseButtonsProps {
@@ -19,6 +21,8 @@ interface AddPoseButtonsProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   planProd: PlanProductionState;
+  plansProd: PlanProduction[];
+  planInfo: PlanProductionInfo;
 }
 
 export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
@@ -30,7 +34,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
   };
 
   public render(): JSX.Element {
-    const {bobine, planProd, stocks, cadencier, bobineQuantities} = this.props;
+    const {bobine, planProd, stocks, cadencier, bobineQuantities, plansProd, planInfo} = this.props;
     const poses = bobine.availablePoses;
     const filteredPoses = dedupePoseNeutre(poses);
     const tourCount = planProd.tourCount;
@@ -42,7 +46,9 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       tourCount,
       stocks,
       cadencier,
-      bobineQuantities
+      bobineQuantities,
+      plansProd,
+      planInfo
     ).map(({pose, mode, reason}, index) => {
       return (
         <Button

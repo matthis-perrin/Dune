@@ -9,7 +9,7 @@ import {
   OperationSplit,
   splitOperations,
 } from '@root/lib/plan_prod';
-import {Colors, theme} from '@root/theme';
+import {theme} from '@root/theme';
 
 import {Operation} from '@shared/models';
 
@@ -40,7 +40,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
 
     let isEven = false;
     return [
-      <tr>
+      <tr key={title}>
         <OperationSplitHeader colSpan={4}>{title}</OperationSplitHeader>
         <OperationSplitHeader>
           <Duration durationMs={total * 1000} />
@@ -53,6 +53,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
         isEven = isPreviousSameConstraint ? isEven : !isEven;
         return (
           <OperationSplitRow
+            key={`${title}_${description}`}
             style={{
               backgroundColor: isEven
                 ? theme.table.rowEvenBackgroundColor
@@ -145,8 +146,3 @@ const OperationSplitCell = styled.td`
   font-size: ${theme.table.rowFontSize}px;
   font-weight: ${theme.table.rowFontWeight};
 `;
-// background={
-//     rowIndex !== undefined && rowIndex % 2 === 0
-//       ? theme.table.rowEvenBackgroundColor
-//       : theme.table.rowOddBackgroundColor
-//   }

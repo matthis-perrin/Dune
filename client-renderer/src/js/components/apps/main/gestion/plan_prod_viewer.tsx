@@ -14,7 +14,6 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
-import {compareTime} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
 import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
@@ -180,6 +179,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
             onMiniUpdated={() => {}}
             onMaxUpdated={() => {}}
             showQuantity
+            planInfo={planProd}
+            plansProd={plansProd}
           />
         </React.Fragment>
       ) : (

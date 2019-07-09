@@ -29,7 +29,7 @@ import {
 import {theme} from '@root/theme';
 
 import {getCouleursForCliche, getPosesForCliche} from '@shared/lib/cliches';
-import {BobineFille, Cliche, Stock, BobineQuantities} from '@shared/models';
+import {BobineFille, Cliche, Stock, BobineQuantities, PlanProduction} from '@shared/models';
 
 enum CadencierMode {
   Day = 'day',
@@ -47,6 +47,7 @@ interface State {
   cadencier?: Map<string, Map<number, number>>;
   cadencierMode: CadencierMode;
   bobineQuantities?: BobineQuantities[];
+  plansProd?: PlanProduction[];
   cliche1?: Cliche;
   cliche2?: Cliche;
   clicheLoaded: boolean;
@@ -137,7 +138,12 @@ export class ViewBobineApp extends React.Component<Props, State> {
       return <LoadingIndicator size="medium" />;
     }
 
-    const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities);
+    const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities, 0, [], {
+      day: 0,
+      month: 0,
+      year: 0,
+      indexInDay: 0,
+    });
     const {state, quantity, info, yearSell, threshold, minSell, maxSell} = bobineState;
     const MONTHS_IN_YEAR = 12;
     const monthSell = Math.ceil(yearSell / MONTHS_IN_YEAR);

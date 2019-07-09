@@ -1,12 +1,19 @@
 import {sum, min} from 'lodash-es';
 
 import {ButtonMode} from '@root/components/core/button';
-import {getStockTerme} from '@root/lib/stocks';
+import {getStockTermePrevisionel} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
-import {Stock, BobineQuantities, BobineState, POSE_NEUTRE} from '@shared/models';
+import {
+  Stock,
+  BobineQuantities,
+  BobineState,
+  POSE_NEUTRE,
+  PlanProduction,
+  PlanProductionInfo,
+} from '@shared/models';
 
 const MONTHS_IN_YEAR = 12;
 
@@ -95,7 +102,9 @@ export function getBobineState(
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
-  additionalStock: number = 0
+  additionalStock: number,
+  plansProd: PlanProduction[],
+  currentPlanProd: PlanProductionInfo
 ): {
   state: BobineState;
   quantity: number;
@@ -107,7 +116,8 @@ export function getBobineState(
   info: string;
   infoValue: number;
 } {
-  const currentStock = getStockTerme(ref, stocks) + additionalStock;
+  const currentStock =
+    getStockTermePrevisionel(ref, stocks, plansProd, currentPlanProd) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity, minSell, maxSell} = getQuantityToProduce(
@@ -179,13 +189,16 @@ export function getBobinePoseState(
   tourCount: number | undefined,
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
-  bobineQuantities: BobineQuantities[]
+  bobineQuantities: BobineQuantities[],
+  plansProd: PlanProduction[],
+  currentPlanProd: PlanProductionInfo
 ): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
     .filter(
       b =>
         [BobineState.Rupture, BobineState.Alerte].indexOf(
-          getBobineState(b.ref, stocks, cadencier, bobineQuantities).state
+          getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, plansProd, currentPlanProd)
+            .state
         ) !== -1
     )
     .map(b => b.ref)[0];
@@ -200,7 +213,9 @@ export function getBobinePoseState(
         stocks,
         cadencier,
         bobineQuantities,
-        additionalStock
+        additionalStock,
+        plansProd,
+        currentPlanProd
       );
       const poseStr = pose === POSE_NEUTRE ? 'neutre' : pose;
       if (firstRuptureOrAlertBobine === ref) {
