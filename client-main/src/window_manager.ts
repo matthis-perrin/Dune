@@ -193,10 +193,6 @@ class WindowManager {
       return {id: 'list-cliches-app', size: listAppSize};
     }
 
-    if (appInfo.type === ClientAppType.ViewOperationApp) {
-      const {operationRef = 'create'} = asMap(appInfo.data);
-      return {id: `view-operation-app--${operationRef}`, size: {width: 535, height: 250}};
-    }
     if (appInfo.type === ClientAppType.ViewBobineApp) {
       const {bobineRef = ''} = asMap(appInfo.data);
       return {id: `view-bobine-app--${bobineRef}`, size: {width: 1300, height: 750}};

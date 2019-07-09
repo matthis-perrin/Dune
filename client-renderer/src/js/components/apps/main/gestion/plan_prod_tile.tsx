@@ -13,7 +13,7 @@ import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
-import {PlanProduction, Stock, BobineQuantities, ClientAppType} from '@shared/models';
+import {PlanProduction, Stock, BobineQuantities, ClientAppType, Operation} from '@shared/models';
 
 const SHOW_VIEWER_TIMEOUT_MS = 100;
 
@@ -23,6 +23,7 @@ interface Props extends HTMLDivProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   plansProd: PlanProduction[];
+  operations: Operation[];
 }
 
 export class PlanProdTile extends React.Component<Props> {
@@ -59,7 +60,7 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private createViewer(width: number, heightCallback?: (height: number) => void): HTMLDivElement {
-    const {planProd, stocks, cadencier, bobineQuantities, plansProd} = this.props;
+    const {planProd, stocks, cadencier, bobineQuantities, plansProd, operations} = this.props;
 
     this.removeViewer();
 
@@ -82,6 +83,7 @@ export class PlanProdTile extends React.Component<Props> {
         cadencier={cadencier}
         stocks={stocks}
         plansProd={plansProd}
+        operations={operations}
         onHeightAvailable={heightCallback}
       />,
       viewerContainer

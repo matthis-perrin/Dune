@@ -18,7 +18,7 @@ export interface PlanProdStateLight {
   refente: Refente;
   papier: BobineMere;
   polypro: BobineMere;
-  encrierColors: EncrierColor[];
+  encriers: EncrierColor[];
   bobines: BobineFilleWithPose[];
 }
 
@@ -52,10 +52,10 @@ export function countChangementBobinesMerePolypro(
 
 function getClicheEncrierIndexes(
   refCliche: string,
-  encrierColors: EncrierColor[]
+  encriers: EncrierColor[]
 ): {index: number; color: string}[] {
   const indexes: {index: number; color: string}[] = [];
-  encrierColors.forEach((encrier, index) => {
+  encriers.forEach((encrier, index) => {
     if (encrier.refsCliche.indexOf(refCliche) !== -1) {
       indexes.push({index, color: encrier.color});
     }
@@ -71,7 +71,7 @@ interface ClichePosition {
 
 function makeClichePosePositions(
   bobines: BobineFilleWithPose[],
-  encrierColors: EncrierColor[]
+  encriers: EncrierColor[]
 ): Map<string, ClichePosition[]> {
   const clichePosePositions = new Map<string, ClichePosition[]>();
   let distance = 0;
@@ -80,7 +80,7 @@ function makeClichePosePositions(
     const poseSize = getPoseSize(pose);
     const processCliche = (clicheRef?: string): void => {
       if (clicheRef) {
-        const indexes = getClicheEncrierIndexes(clicheRef, encrierColors);
+        const indexes = getClicheEncrierIndexes(clicheRef, encriers);
         indexes.forEach(({index, color}) => {
           const clichePose = `${clicheRef}_${poseSize}`;
           const positions = clichePosePositions.get(clichePose);
@@ -99,27 +99,31 @@ function makeClichePosePositions(
   return clichePosePositions;
 }
 
+function hasPosition(positions: ClichePosition[], position: ClichePosition): boolean {
+  for (const p of positions) {
+    if (
+      position.color !== p.color &&
+      position.distance !== p.distance &&
+      position.encrierIndex !== p.distance
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function countClicheDiff(before: PlanProdStateLight, after: PlanProdStateLight): number {
-  const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encrierColors);
-  const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encrierColors);
+  const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encriers);
+  const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encriers);
 
   let retraitClicheCount = 0;
   beforeClichePosePositions.forEach((positions, clichePose) => {
     positions.forEach(position => {
       const afterPositions = afterClichePosePositions.get(clichePose);
-      if (!afterPositions) {
+      if (!afterPositions || !hasPosition(afterPositions, position)) {
         retraitClicheCount++;
         return;
       }
-      afterPositions.forEach(afterPosition => {
-        if (
-          position.color !== afterPosition.color ||
-          position.distance !== afterPosition.distance ||
-          position.encrierIndex !== afterPosition.distance
-        ) {
-          retraitClicheCount++;
-        }
-      });
     });
   });
 
@@ -130,8 +134,8 @@ export function countChangementsCouleurs(
   before: PlanProdStateLight,
   after: PlanProdStateLight
 ): {vidage: number; remplissage: number} {
-  const beforeCouleurs = before.encrierColors.map(({color}) => color);
-  const afterCouleurs = after.encrierColors.map(({color}) => color);
+  const beforeCouleurs = before.encriers.map(({color}) => color);
+  const afterCouleurs = after.encriers.map(({color}) => color);
   let vidage = 0;
   let remplissage = 0;
   zip(beforeCouleurs, afterCouleurs).forEach(([beforeCouleur, afterCouleur]) => {
@@ -149,15 +153,20 @@ export function countChangementsCouleurs(
   return {vidage, remplissage};
 }
 
-function getPositionsByDistance(positions: ClichePosition[]): Map<number, ClichePosition[]> {
-  const positionsByDistance = new Map<number, ClichePosition[]>();
-  positions.forEach(afterPosition => {
-    const positionsForDistance = positionsByDistance.get(afterPosition.distance);
-    if (positionsForDistance === undefined) {
-      positionsByDistance.set(afterPosition.distance, [afterPosition]);
-    } else {
-      positionsForDistance.push(afterPosition);
-    }
+function convertPosePositionsToPositionsByDistance(
+  posePositions: Map<string, ClichePosition[]>
+): Map<number, string[]> {
+  const positionsByDistance = new Map<number, string[]>();
+  posePositions.forEach((positions, clichePose) => {
+    positions.forEach(position => {
+      const positionsForDistance = positionsByDistance.get(position.distance);
+      const additionalPosition = `${position.encrierIndex}_${position.color}_${clichePose}`;
+      if (!positionsForDistance) {
+        positionsByDistance.set(position.distance, [additionalPosition]);
+      } else {
+        positionsForDistance.push(additionalPosition);
+      }
+    });
   });
   return positionsByDistance;
 }
@@ -166,25 +175,23 @@ export function countNewMultiCouleursCliches(
   before: PlanProdStateLight,
   after: PlanProdStateLight
 ): number {
-  const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encrierColors);
-  const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encrierColors);
+  const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encriers);
+  const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encriers);
+  const beforePositionsByDistance = convertPosePositionsToPositionsByDistance(
+    beforeClichePosePositions
+  );
+  const afterPositionsByDistance = convertPosePositionsToPositionsByDistance(
+    afterClichePosePositions
+  );
 
   let newMultiCouleursClichesCount = 0;
-  afterClichePosePositions.forEach((positions, clichePose) => {
-    const afterPositionByDistance = getPositionsByDistance(positions);
-    const beforePositionByDistance = getPositionsByDistance(
-      beforeClichePosePositions.get(clichePose) || []
-    );
-    afterPositionByDistance.forEach((poses, distance) => {
-      const alreadyHereCount = Math.min(
-        0,
-        (beforePositionByDistance.get(distance) || []).length - 1
-      );
-      const extraMultiCouleursCount = poses.length - alreadyHereCount - 1;
-      newMultiCouleursClichesCount += extraMultiCouleursCount;
-    });
+  afterPositionsByDistance.forEach((positions, distance) => {
+    const beforePositionsForDistance = beforePositionsByDistance.get(distance) || [];
+    const alreadyHereCount = positions.filter(p => beforePositionsForDistance.indexOf(p) !== -1)
+      .length;
+    const extraMultiCouleursCount = positions.length - Math.max(alreadyHereCount - 1, 0) - 1;
+    newMultiCouleursClichesCount += extraMultiCouleursCount;
   });
-
   return newMultiCouleursClichesCount;
 }
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
+import {OperationTable} from '@root/components/apps/plan_prod_editor/operations_table';
 import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable_encrier';
 import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
 import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
@@ -13,9 +14,10 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
+import {compareTime} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
-import {Stock, BobineQuantities, PlanProduction} from '@shared/models';
+import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
 
 interface PlanProdViewerProps {
   planProd: PlanProduction;
@@ -24,6 +26,7 @@ interface PlanProdViewerProps {
   plansProd: PlanProduction[];
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
+  operations: Operation[];
   onHeightAvailable?(height: number): void;
 }
 
@@ -55,6 +58,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       cadencier,
       stocks,
       plansProd,
+      operations,
       onHeightAvailable,
     } = this.props;
     const {
@@ -182,6 +186,24 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
         <React.Fragment />
       );
 
+    const previousPlanProd = plansProd
+      .filter(p => compareTime(p, planProd) < 0)
+      .sort((p1, p2) => compareTime(p2, p1))[0];
+
+    const operationTable = previousPlanProd ? (
+      <React.Fragment>
+        <OperationTable
+          width={INNER_RENDERING_WIDTH}
+          planProduction={planProd.data}
+          previousPlanProduction={previousPlanProd.data}
+          operations={operations}
+        />
+        {padding}
+      </React.Fragment>
+    ) : (
+      <React.Fragment />
+    );
+
     const planProdTitle = getPlanProdTitle(planProd.id);
     const scale = width / RENDERING_WIDTH;
     const scalingStyles = onHeightAvailable
@@ -225,6 +247,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
           {padding}
           <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
           {padding}
+          {operationTable}
         </Wrapper>
       </PlanProdEditorContainer>
     );

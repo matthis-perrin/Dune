@@ -224,12 +224,21 @@ export interface PlanProduction extends PlanProductionBase {
   data: PlanProductionData;
 }
 
+export enum OperationGroup {
+  Repartissable = 'repartissable',
+  Aide = 'aide',
+  Conducteur = 'conducteur',
+  ChauffePerfo = 'chauffe-perfo',
+  ChauffeRefente = 'chauffe-refente',
+}
+
 export interface Operation {
   ref: string;
   description: string;
   required: boolean;
   constraint: OperationConstraint;
   duration: number;
+  group: string;
 }
 
 export enum OperationConstraint {

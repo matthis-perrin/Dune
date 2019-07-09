@@ -3,6 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
+import {OperationTable} from '@root/components/apps/plan_prod_editor/operations_table';
 import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable_encrier';
 import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
 import {
@@ -25,7 +26,8 @@ import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
-import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {compareTime} from '@root/lib/stocks';
+import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
 
@@ -43,6 +45,7 @@ import {
   PlanProductionStatus,
   PlanProductionInfo,
   PlanProduction,
+  Operation,
 } from '@shared/models';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
@@ -64,6 +67,7 @@ interface State {
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
   plansProd?: PlanProduction[];
+  operations?: Operation[];
 
   tourCountSetByUser: boolean;
   speed: number;
@@ -90,6 +94,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.handleStoresChanged);
+    operationsStore.addListener(this.handleStoresChanged);
     this.refreshPlanProduction();
   }
 
@@ -99,6 +104,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.handleStoresChanged);
+    operationsStore.removeListener(this.handleStoresChanged);
   }
 
   private readonly handleStoresChanged = (): void => {
@@ -107,6 +113,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
       plansProd: plansProductionStore.getActivePlansProd(),
+      operations: operationsStore.getData(),
     });
   };
 
@@ -323,6 +330,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       cadencier,
       bobineQuantities,
       plansProd,
+      operations,
       speed,
       bobinesMinimums,
       bobinesMaximums,
@@ -506,6 +514,39 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <React.Fragment />
             );
 
+          let operationTable = <React.Fragment />;
+          const previousPlanProd = (this.state.plansProd || [])
+            .filter(p => compareTime(p, planProduction) < 0)
+            .sort((p1, p2) => compareTime(p2, p1))[0];
+          if (
+            selectedPapier &&
+            selectedPolypro &&
+            selectedPerfo &&
+            selectedRefente &&
+            previousPlanProd &&
+            operations
+          ) {
+            const planProdLight = {
+              papier: selectedPapier,
+              polypro: selectedPolypro,
+              refente: selectedRefente,
+              perfo: selectedPerfo,
+              bobines: reorderedBobines || selectedBobines,
+              encriers: reorderedEncriers || couleursEncrier[0],
+            };
+            operationTable = (
+              <React.Fragment>
+                <OperationTable
+                  width={adjustedAvailableWidth}
+                  planProduction={planProdLight}
+                  previousPlanProduction={previousPlanProd.data}
+                  operations={operations}
+                />
+                {padding}
+              </React.Fragment>
+            );
+          }
+
           const planProdTitle = getPlanProdTitle(id);
 
           return (
@@ -513,9 +554,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <TopBar
                 width={adjustedWidthForPrinting}
                 planProdTitle={planProdTitle}
-                bobines={planProduction.selectedBobines}
-                papier={planProduction.selectedPapier}
-                polypro={planProduction.selectedPolypro}
+                bobines={selectedBobines}
+                papier={selectedPapier}
+                polypro={selectedPolypro}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
@@ -549,6 +590,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 {padding}
                 <div style={{alignSelf: 'flex-end'}}>{polyproBlock}</div>
                 {padding}
+                {operationTable}
               </Wrapper>
             </PlanProdEditorContainer>
           );

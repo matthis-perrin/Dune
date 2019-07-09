@@ -760,23 +760,6 @@ export const CHUTE_COLUMN: ColumnMetadata<{chute?: number}, number> = {
   shouldRerender: (row1, row2) => row1.chute !== row2.chute,
 };
 
-export const OPERATION_CONSTRAINT_COLUMN: ColumnMetadata<
-  {constraint: OperationConstraintModel},
-  string
-> = {
-  title: 'CONTRAINTE',
-  renderCell: ({constraint}) => <OperationConstraint constraint={constraint} />,
-  sortFunction: (row1, row2) =>
-    optionalStringSort(
-      ConstraintDescriptions.get(row1.constraint),
-      ConstraintDescriptions.get(row2.constraint)
-    ),
-  filter: {
-    getValue: ({constraint}) => ConstraintDescriptions.get(constraint) || '?',
-  },
-  shouldRerender: (row1, row2) => row1.constraint !== row2.constraint,
-};
-
 export const DURATION_SECONDS_COLUMN: ColumnMetadata<{duration: number}, string> = {
   title: 'TEMPS',
   width: 90,
@@ -930,6 +913,57 @@ export const STATE_PREVISIONEL_COLUMN: ColumnMetadata<
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => numberSort(row1.newState, row2.newState),
   shouldRerender: (row1, row2) => row1.newState !== row2.newState,
+};
+
+export const OPERATION_DESCRIPTION_COLUMN: ColumnMetadata<{description: string}, string> = {
+  title: 'OPÉRATION',
+  renderCell: ({description}) => renderString(description),
+  sortFunction: (row1, row2) => stringSort(row1.description, row2.description),
+  shouldRerender: (row1, row2) => row1.description !== row2.description,
+};
+
+export const OPERATION_DURATION_COLUMN: ColumnMetadata<{duration: number}, number> = {
+  title: 'DURÉE',
+  width: 50,
+  renderCell: ({duration}) => renderNumber(duration / 60),
+  justifyContent: 'center',
+  sortFunction: (row1, row2) => numberSort(row1.duration, row2.duration),
+  shouldRerender: (row1, row2) => row1.duration !== row2.duration,
+};
+
+export const OPERATION_CONSTRAINT_COLUMN: ColumnMetadata<
+  {constraint: OperationConstraintModel},
+  string
+> = {
+  title: 'CONTRAINTE',
+  renderCell: ({constraint}) => <OperationConstraint constraint={constraint} />,
+  sortFunction: (row1, row2) =>
+    optionalStringSort(
+      ConstraintDescriptions.get(row1.constraint),
+      ConstraintDescriptions.get(row2.constraint)
+    ),
+  filter: {
+    getValue: ({constraint}) => ConstraintDescriptions.get(constraint) || '?',
+  },
+  shouldRerender: (row1, row2) => row1.constraint !== row2.constraint,
+};
+
+export const OPERATION_QUANTITY_COLUMN: ColumnMetadata<{count: number}, number> = {
+  title: 'QTÉ',
+  width: 40,
+  renderCell: ({count}) => renderNumber(count),
+  justifyContent: 'center',
+  sortFunction: (row1, row2) => numberSort(row1.count, row2.count),
+  shouldRerender: (row1, row2) => row1.count !== row2.count,
+};
+
+export const OPERATION_DURATION_TOTAL_COLUMN: ColumnMetadata<{durationTotal: number}, number> = {
+  title: 'TOTAL',
+  width: 50,
+  renderCell: ({durationTotal}) => renderNumber(durationTotal / 60),
+  justifyContent: 'center',
+  sortFunction: (row1, row2) => numberSort(row1.durationTotal, row2.durationTotal),
+  shouldRerender: (row1, row2) => row1.durationTotal !== row2.durationTotal,
 };
 
 const CloseButton = styled.div`

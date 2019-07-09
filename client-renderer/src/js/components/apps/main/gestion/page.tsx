@@ -5,10 +5,10 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
-import {ClientAppType, PlanProduction, Stock, BobineQuantities} from '@shared/models';
+import {ClientAppType, PlanProduction, Stock, BobineQuantities, Operation} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -20,6 +20,7 @@ interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
+  operations?: Operation[];
   month: number;
   year: number;
 }
@@ -40,6 +41,7 @@ export class GestionPage extends React.Component<Props, State> {
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.handleStoresChanged);
+    operationsStore.addListener(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
@@ -47,6 +49,7 @@ export class GestionPage extends React.Component<Props, State> {
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.handleStoresChanged);
+    operationsStore.removeListener(this.handleStoresChanged);
   }
 
   private readonly handleStoresChanged = (): void => {
@@ -56,6 +59,7 @@ export class GestionPage extends React.Component<Props, State> {
       bobineQuantities: bobinesQuantitiesStore.getData(),
       plansProduction: plansProductionStore.getIndex(),
       plansProductionFlattened: plansProductionStore.getActivePlansProd(),
+      operations: operationsStore.getData(),
     });
   };
 
@@ -110,8 +114,8 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   public renderDay(date: Date): JSX.Element {
-    const {stocks, cadencier, bobineQuantities, plansProductionFlattened} = this.state;
-    if (!stocks || !cadencier || !bobineQuantities || !plansProductionFlattened) {
+    const {stocks, cadencier, bobineQuantities, plansProductionFlattened, operations} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities || !plansProductionFlattened || !operations) {
       return <div />;
     }
     return (
@@ -123,6 +127,7 @@ export class GestionPage extends React.Component<Props, State> {
             stocks={stocks}
             cadencier={cadencier}
             bobineQuantities={bobineQuantities}
+            operations={operations}
           />
         ))}
       </div>
