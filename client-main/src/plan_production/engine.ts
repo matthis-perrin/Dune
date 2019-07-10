@@ -392,7 +392,8 @@ export class PlanProductionEngine {
   private getValidCouleursEncriers(): EncrierColor[][] {
     return generateAllAcceptableColorsOrder(
       this.planProduction.bobinesFilles.map(b => b.couleursImpression),
-      MAX_COULEURS_IMPRESSIONS
+      MAX_COULEURS_IMPRESSIONS,
+      this.previousPlanProd && this.previousPlanProd.data.encriers
     );
   }
 

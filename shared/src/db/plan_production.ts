@@ -194,6 +194,7 @@ export async function getClosestPlanProdBefore(
 ): Promise<PlanProductionRaw | undefined> {
   return (await db(PLANS_PRODUCTION_TABLE_NAME)
     .select()
+    .where(PlansProductionColumn.SOMMEIL_COLUMN, '=', 0)
     .map(mapLineToPlanProductionRaw))
     .filter(p => compareTime(p, info) < 0)
     .sort((p1, p2) => compareTime(p2, p1))[0];

@@ -266,6 +266,17 @@ function indexFirstEmptyEncrier(encrierColors: EncrierColor[]): number {
   return encrierColors.length;
 }
 
+function colorDifferencesCount(encrier1: EncrierColor[], encrier2: EncrierColor[]): number {
+  let differenceCount = 0;
+  encrier1.forEach((c1, i) => {
+    const c2 = encrier2[i];
+    if (c1.color !== (c2 && c2.color)) {
+      differenceCount++;
+    }
+  });
+  return differenceCount;
+}
+
 function getCombiWithOrderedAndNonOrdered(
   ordered: EncrierColor[][],
   nonOrdered: EncrierColor[]
@@ -289,7 +300,8 @@ function getCombiWithOrderedAndNonOrdered(
 
 export function generateAllAcceptableColorsOrder(
   bobineColors: BobineColors[],
-  maxColors: number
+  maxColors: number,
+  previousPlanColors?: EncrierColor[]
 ): EncrierColor[][] {
   const ordered = allSmallestArrangementsFromOrderedColors(bobineColors.map(c => c.ordered));
   const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
@@ -323,6 +335,14 @@ export function generateAllAcceptableColorsOrder(
 
   const deduped = dedup(finalArrangements);
   const sorted = deduped.sort((a1, a2) => {
+    if (previousPlanColors) {
+      const differenceWithPrevious1 = colorDifferencesCount(a1, previousPlanColors);
+      const differenceWithPrevious2 = colorDifferencesCount(a2, previousPlanColors);
+      if (differenceWithPrevious1 !== differenceWithPrevious2) {
+        // Prefer arrangements with the least difference with the previous plan prod encriers
+        return differenceWithPrevious1 - differenceWithPrevious2;
+      }
+    }
     // Prefer arrangements with the first empty encrier as high as possible
     // (i.e. as close as possible to the end of the array).
     const firstEmptyIndex1 = indexFirstEmptyEncrier(a1);
