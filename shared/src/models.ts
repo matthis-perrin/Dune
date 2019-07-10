@@ -180,10 +180,11 @@ export interface PlanProductionState {
 }
 
 export interface PlanProductionInfo {
-  year: number;
-  month: number;
-  day: number;
-  indexInDay: number;
+  index?: number;
+  startTime?: number;
+  endTime?: number;
+  stopTime?: number;
+  repriseTime?: number;
 }
 
 interface PlanProductionBase extends PlanProductionInfo {

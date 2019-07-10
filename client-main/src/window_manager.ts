@@ -47,7 +47,7 @@ class WindowManager {
   private readonly windows = new Map<string, WindowInfo>();
 
   public constructor() {
-    planProductionStore.addListener(this.handlePlanProductionChanged, false);
+    planProductionStore.setListener(this.handlePlanProductionChanged);
   }
 
   public async openWindow(appInfo: ClientAppInfo): Promise<void> {
@@ -146,9 +146,9 @@ class WindowManager {
     return windowInfo.appInfo;
   }
 
-  private readonly handlePlanProductionChanged = () => {
+  private readonly handlePlanProductionChanged = (id: number) => {
     Array.from(this.windows.values()).forEach(w =>
-      sendBridgeEvent(w.browserWindow, PlanProductionChanged, undefined)
+      sendBridgeEvent(w.browserWindow, PlanProductionChanged, {id})
     );
   };
 

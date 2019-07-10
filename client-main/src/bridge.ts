@@ -15,7 +15,6 @@ import {
   CloseAppOfType,
   CreateNewPlanProduction,
   GetAppInfo,
-  GetNewPlanProduction,
   ListBobinesFilles,
   ListBobinesMeres,
   ListCadencier,
@@ -36,11 +35,13 @@ import {
   ListColors,
   SaveToPDF,
   ListPlansProduction,
-  SavePlanProduction,
   OpenContextMenu,
   ContextMenuClosed,
   ContextMenuClicked,
   DeletePlanProduction,
+  GetPlanProductionEngineInfo,
+  SaveNewPlanProduction,
+  UpdatePlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -51,8 +52,9 @@ import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
   listPlansProduction,
-  savePlanProduction,
   deletePlanProduction,
+  createPlanProduction,
+  updatePlanProductionData,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
@@ -144,28 +146,31 @@ export async function handleCommand(
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
-    const {year, month, day, indexInDay} = asMap(params);
-    const id = await planProductionStore.createNewPlan({
-      year: asNumber(year, 0),
-      month: asNumber(month, 0),
-      day: asNumber(day, 0),
-      indexInDay: asNumber(indexInDay, 0),
-    });
+    const {index} = asMap(params);
+    const id = await planProductionStore.createNewPlan(asNumber(index, 0));
     return {id};
   }
   if (command === DeletePlanProduction) {
-    const {year, month, day, indexInDay} = asMap(params);
-    const info = {year, month, day, indexInDay};
-    await deletePlanProduction(SQLITE_DB.Prod, info);
+    const {index} = asMap(params);
+    await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
   }
-  if (command === SavePlanProduction) {
-    const {id, year, month, day, indexInDay, data} = asMap(params);
-    const info = {year, month, day, indexInDay};
-    return savePlanProduction(SQLITE_DB.Prod, asNumber(id, undefined), info, asString(data, '{}'));
+  if (command === SaveNewPlanProduction) {
+    const {id, index, data} = asMap(params);
+    return createPlanProduction(
+      SQLITE_DB.Prod,
+      asNumber(id, 0),
+      asNumber(index, 0),
+      asString(data, '{}')
+    );
+  }
+  if (command === UpdatePlanProduction) {
+    const {id, data} = asMap(params);
+    return updatePlanProductionData(SQLITE_DB.Prod, asNumber(id, 0), asString(data, '{}'));
   }
 
-  if (command === GetNewPlanProduction) {
-    const engine = planProductionStore.getEngine();
+  if (command === GetPlanProductionEngineInfo) {
+    const {id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -173,8 +178,8 @@ export async function handleCommand(
   }
 
   if (command === SetPlanPerfo) {
-    const {ref} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -182,8 +187,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanTourCount) {
-    const {tourCount} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {tourCount, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -191,8 +196,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanRefente) {
-    const {ref} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -200,8 +205,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanPapier) {
-    const {ref} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -209,8 +214,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanPolypro) {
-    const {ref} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -218,8 +223,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === AddPlanBobine) {
-    const {ref, pose} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, pose, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -227,8 +232,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === RemovePlanBobine) {
-    const {ref, pose} = asMap(params);
-    const engine = planProductionStore.getEngine();
+    const {ref, pose, id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }
@@ -236,7 +241,8 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === ClearPlan) {
-    const engine = planProductionStore.getEngine();
+    const {id} = asMap(params);
+    const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
       return Promise.reject('No plan production in progress');
     }

@@ -13,6 +13,7 @@ import {getRefenteLaizes} from '@shared/lib/refentes';
 import {BobineFilleWithPose, Refente} from '@shared/models';
 
 interface OrderableBobinesProps extends DivProps {
+  planId: number;
   pixelPerMM: number;
   bobines: BobineFilleWithPose[];
   refente: Refente;
@@ -205,10 +206,11 @@ export class OrderableBobines extends React.Component<
     negativeMargin: boolean,
     style?: React.CSSProperties
   ): JSX.Element {
-    const {pixelPerMM} = this.props;
+    const {pixelPerMM, planId} = this.props;
     return (
       <BobineWithPoseWrapper key={`${bobine.ref}-${index}`} style={style}>
         <BobineWithPose
+          planId={planId}
           pixelPerMM={pixelPerMM}
           bobine={bobine}
           style={{zIndex: index + 1}}

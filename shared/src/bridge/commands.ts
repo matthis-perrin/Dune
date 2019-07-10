@@ -22,9 +22,10 @@ export const Print = 'print' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
 export const DeletePlanProduction = 'delete-plan-production' as BridgeCommand;
-export const SavePlanProduction = 'save-plan-production' as BridgeCommand;
+export const SaveNewPlanProduction = 'save-new-plan-production' as BridgeCommand;
+export const UpdatePlanProduction = 'update-plan-production' as BridgeCommand;
 
-export const GetNewPlanProduction = 'get-new-plan-production' as BridgeCommand;
+export const GetPlanProductionEngineInfo = 'get-plan-prod-engine-info' as BridgeCommand;
 export const SetPlanTourCount = 'set-plan-tour-count' as BridgeCommand;
 export const SetPlanPerfo = 'set-plan-perfo' as BridgeCommand;
 export const SetPlanRefente = 'set-plan-refente' as BridgeCommand;

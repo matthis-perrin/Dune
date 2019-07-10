@@ -16,6 +16,7 @@ import {
 } from '@shared/models';
 
 interface AddPoseButtonsProps {
+  id: number;
   bobine: BobineFilleWithMultiPose;
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
@@ -29,8 +30,8 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
   public static displayName = 'AddPoseButtons';
 
   private readonly handleClick = (pose: number) => {
-    const {bobine} = this.props;
-    bridge.addPlanBobine(bobine.ref, pose).catch(console.error);
+    const {bobine, id} = this.props;
+    bridge.addPlanBobine(id, bobine.ref, pose).catch(console.error);
   };
 
   public render(): JSX.Element {

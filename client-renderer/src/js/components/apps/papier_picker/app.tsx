@@ -20,7 +20,9 @@ import {theme} from '@root/theme';
 
 import {BobineMere, Stock} from '@shared/models';
 
-interface Props {}
+interface Props {
+  id: number;
+}
 
 interface State {
   stocks?: Map<string, Stock[]>;
@@ -36,7 +38,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
 
   private readonly handlePapierSelected = (bobineMere: BobineMere) => {
     bridge
-      .setPlanPapier(bobineMere.ref)
+      .setPlanPapier(this.props.id, bobineMere.ref)
       .then(() => {
         bridge.closeApp().catch(console.error);
       })
@@ -56,6 +58,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
+    const {id} = this.props;
     const {stocks} = this.state;
     if (!stocks) {
       return <LoadingScreen />;
@@ -73,6 +76,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
     ];
     return (
       <Picker<BobineMere>
+        id={id}
         getHash={r => r.ref}
         getSelectable={p => p.selectablePapiers}
         store={bobinesMeresStore}

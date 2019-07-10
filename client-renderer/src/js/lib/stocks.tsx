@@ -1,7 +1,8 @@
 import {sum} from 'lodash-es';
 
+import {startOfDay} from '@root/lib/utils';
+
 import {getPoseSize} from '@shared/lib/cliches';
-import {compareTime} from '@shared/lib/plan_prod';
 import {
   Stock,
   PlanProduction,
@@ -58,16 +59,6 @@ export function getStockDiff(
   return pistes * tourCount;
 }
 
-function startOfDayAsPlanProdInfo(): PlanProductionInfo {
-  const now = new Date();
-  return {
-    year: now.getFullYear(),
-    month: now.getMonth(),
-    day: now.getDate(),
-    indexInDay: -1,
-  };
-}
-
 export function getStockPrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
@@ -76,9 +67,11 @@ export function getStockPrevisionel(
   type: StockType
 ): number {
   const startStock = getStock(ref, stocks, type);
-  const start = startOfDayAsPlanProdInfo();
-  const futurPlansProd = plansProd.filter(
-    planProd => compareTime(planProd, start) > 0 && compareTime(planProd, limit) < 0
+  const startOfToday = startOfDay().getTime();
+  const futurPlansProd = plansProd.filter(planProd =>
+    planProd.index === undefined
+      ? (planProd.startTime || 0) > startOfToday
+      : planProd.index < (limit.index || 0)
   );
   const stockDiffs = futurPlansProd.map(planProd => getStockDiff(ref, planProd.data));
   const totalDiff = stockDiffs.reduce((acc, curr) => acc + curr, 0);

@@ -528,6 +528,7 @@ export const POSE_COLUMN: ColumnMetadata<{pose?: number}, number> = {
 };
 
 export const MULTI_POSE_COLUMN = (
+  id: number,
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
@@ -539,6 +540,7 @@ export const MULTI_POSE_COLUMN = (
     width: 180,
     renderCell: bobine => (
       <AddPoseButtons
+        id={id}
         bobine={bobine}
         stocks={stocks}
         cadencier={cadencier}

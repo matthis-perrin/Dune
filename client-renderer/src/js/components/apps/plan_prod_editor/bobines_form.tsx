@@ -13,6 +13,7 @@ import {firstBobinePlacementAvailableOnRefente} from '@shared/lib/refentes';
 import {BobineFilleWithPose, BobineFilleWithMultiPose, Refente} from '@shared/models';
 
 interface BobinesFormProps extends DivProps {
+  planId: number;
   pixelPerMM: number;
   selectedBobines: BobineFilleWithPose[];
   selectableBobines: BobineFilleWithMultiPose[];
@@ -24,9 +25,10 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
   public static displayName = 'BobinesForm';
 
   private renderSelectBobineButton(size: number, index: number): JSX.Element {
-    const {selectableBobines, pixelPerMM} = this.props;
+    const {selectableBobines, pixelPerMM, planId} = this.props;
     return selectableBobines.length > 0 ? (
       <SelectBobineButton
+        id={planId}
         key={`select-button-${index}`}
         selectable={selectableBobines}
         pixelPerMM={pixelPerMM}
@@ -42,9 +44,10 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
     index: number,
     negativeMargin: boolean
   ): JSX.Element {
-    const {pixelPerMM} = this.props;
+    const {pixelPerMM, planId} = this.props;
     return (
       <BobineWithPose
+        planId={planId}
         key={`${bobine.ref}-${index}`}
         pixelPerMM={pixelPerMM}
         bobine={bobine}
@@ -55,13 +58,14 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
   }
 
   private renderWithRefente(refente: Refente): JSX.Element {
-    const {pixelPerMM, selectedBobines, selectableBobines, onReorder} = this.props;
+    const {pixelPerMM, selectedBobines, selectableBobines, onReorder, planId} = this.props;
     const placement = firstBobinePlacementAvailableOnRefente(selectedBobines, refente);
     const elements: JSX.Element[] = [];
 
     if (selectableBobines.length === 0) {
       elements.push(
         <OrderableBobines
+          planId={planId}
           bobines={
             (placement.filter(p => typeof p !== 'number') as unknown) as BobineFilleWithPose[]
           }

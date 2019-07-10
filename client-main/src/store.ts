@@ -7,20 +7,23 @@ import {listCliches} from '@shared/db/cliches';
 import {listPerfos} from '@shared/db/perfos';
 import {getNextPlanProductionId, getClosestPlanProdBefore} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {PlanProductionInfo, PlanProductionData, PlanProduction} from '@shared/models';
-import {BaseStore} from '@shared/store';
+import {PlanProductionData, PlanProduction} from '@shared/models';
 
-class PlanProductionStore extends BaseStore {
-  private planProductionEngine: PlanProductionEngine | undefined;
+class PlanProductionStore {
+  private readonly engines = new Map<number, PlanProductionEngine>();
+  private listener: ((id: number) => void) | undefined;
 
-  public async createNewPlan(info: PlanProductionInfo): Promise<number> {
+  public setListener(listener: (id: number) => void): void {
+    this.listener = listener;
+  }
+
+  public async createEngine(id: number, index: number): Promise<void> {
     const [
       bobinesFilles,
       bobinesMeres,
       cliches,
       perfos,
       refentes,
-      id,
       previousPlanProdRaw,
     ] = await Promise.all([
       listBobinesFilles(SQLITE_DB.Gescom, 0),
@@ -28,8 +31,7 @@ class PlanProductionStore extends BaseStore {
       listCliches(SQLITE_DB.Gescom, 0),
       listPerfos(SQLITE_DB.Params, 0),
       listRefentes(SQLITE_DB.Params, 0),
-      getNextPlanProductionId(SQLITE_DB.Prod),
-      getClosestPlanProdBefore(SQLITE_DB.Prod, info),
+      getClosestPlanProdBefore(SQLITE_DB.Prod, index),
     ]);
 
     let previousPlanProd: PlanProduction | undefined;
@@ -42,22 +44,33 @@ class PlanProductionStore extends BaseStore {
       } catch {}
     }
 
-    this.planProductionEngine = new PlanProductionEngine(
-      info,
-      previousPlanProd,
-      bobinesFilles,
-      bobinesMeres,
-      cliches,
-      refentes,
-      perfos,
-      () => this.emit()
+    this.engines.set(
+      id,
+      new PlanProductionEngine(
+        index,
+        previousPlanProd,
+        bobinesFilles,
+        bobinesMeres,
+        cliches,
+        refentes,
+        perfos,
+        () => {
+          if (this.listener) {
+            this.listener(id);
+          }
+        }
+      )
     );
+  }
 
+  public async createNewPlan(index: number): Promise<number> {
+    const id = await getNextPlanProductionId(SQLITE_DB.Prod);
+    await this.createEngine(id, index);
     return id;
   }
 
-  public getEngine(): PlanProductionEngine | undefined {
-    return this.planProductionEngine;
+  public getEngine(id: number): PlanProductionEngine | undefined {
+    return this.engines.get(id);
   }
 }
 

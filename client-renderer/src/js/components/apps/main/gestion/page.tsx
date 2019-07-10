@@ -4,19 +4,23 @@ import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 // import {Button} from '@root/components/core/button';
-import {bridge} from '@root/lib/bridge';
-import {contextMenuManager} from '@root/lib/context_menu';
+// import {bridge} from '@root/lib/bridge';
+// import {contextMenuManager} from '@root/lib/context_menu';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
-import {ClientAppType, PlanProduction, Stock, BobineQuantities, Operation} from '@shared/models';
+import {
+  /*ClientAppType, */ PlanProduction,
+  Stock,
+  BobineQuantities,
+  Operation,
+} from '@shared/models';
 
 const LAST_MONTH = 11;
 
 interface Props {}
 
 interface State {
-  plansProduction?: Map<number, PlanProduction[]>;
   plansProductionFlattened?: PlanProduction[];
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
@@ -58,7 +62,6 @@ export class GestionPage extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
-      plansProduction: plansProductionStore.getIndex(),
       plansProductionFlattened: plansProductionStore.getActivePlansProd(),
       operations: operationsStore.getData(),
     });
@@ -79,39 +82,41 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private getPlanProdsForDate(date: Date): PlanProduction[] {
-    const {plansProduction} = this.state;
-    if (!plansProduction) {
-      return [];
-    }
-    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    const planForDay = plansProduction.get(startOfDay) || [];
-    return planForDay;
+    // const {plansProduction} = this.state;
+    // if (!plansProduction) {
+    //   return [];
+    // }
+    // const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    // const planForDay = plansProduction.get(startOfDay) || [];
+    // return planForDay;
+    return [];
   }
 
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
-    if (event.type === 'contextmenu') {
-      contextMenuManager
-        .open([
-          {
-            label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
-            callback: () => {
-              const plansForDate = this.getPlanProdsForDate(date);
-              bridge
-                .createNewPlanProduction(
-                  date.getFullYear(),
-                  date.getMonth(),
-                  date.getDate(),
-                  plansForDate.length
-                )
-                .then(data => {
-                  bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
-                })
-                .catch(err => console.error(err));
-            },
-          },
-        ])
-        .catch(console.error);
-    }
+    // if (event.type === 'contextmenu') {
+    //   contextMenuManager
+    //     .open([
+    //       {
+    //         label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
+    //         callback: () => {
+    //           const plansForDate = this.getPlanProdsForDate(date);
+    //           bridge
+    //             .createNewPlanProduction(
+    //               date.getFullYear(),
+    //               date.getMonth(),
+    //               date.getDate(),
+    //               plansForDate.length
+    //             )
+    //             .then(data => {
+    //               const id = asNumber(asMap(data).id, 0);
+    //               bridge.openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true}).catch(console.error);
+    //             })
+    //             .catch(err => console.error(err));
+    //         },
+    //       },
+    //     ])
+    //     .catch(console.error);
+    // }
   };
 
   public renderDay(date: Date): JSX.Element {
@@ -154,7 +159,8 @@ export class GestionPage extends React.Component<Props, State> {
             bridge
               .createNewPlanProduction(date.getFullYear(), date.getMonth(), date.getDate(), 0)
               .then(data => {
-                bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
+                const id = asNumber(asMap(data).id, 0);
+                bridge.openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true}).catch(console.error);
               })
               .catch(err => console.error(err));
           }}

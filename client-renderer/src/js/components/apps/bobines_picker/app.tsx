@@ -45,7 +45,9 @@ import {
 // tslint:disable-next-line:no-any
 type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose, any>[];
 
-interface Props {}
+interface Props {
+  id: number;
+}
 
 interface State {
   stocks?: Map<string, Stock[]>;
@@ -122,7 +124,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       LONGUEUR_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
-      MULTI_POSE_COLUMN(stocks, cadencier, bobineQuantities, plansProd, planProd),
+      MULTI_POSE_COLUMN(this.props.id, stocks, cadencier, bobineQuantities, plansProd, planProd),
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
       QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities, plansProd, planProd),
@@ -152,6 +154,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
+    const {id} = this.props;
     const {stocks, cadencier, bobineQuantities, plansProd} = this.state;
 
     if (!stocks || !cadencier || !bobineQuantities || !plansProd) {
@@ -162,6 +165,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       <SizeMonitor>
         {(width, height) => (
           <Picker<BobineFilleWithMultiPose>
+            id={id}
             getHash={r => r.ref}
             getSelectable={p => p.selectableBobines}
             store={bobinesFillesWithMultiPoseStore}
@@ -199,7 +203,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     bobineQuantities={bobineQuantities}
                     canRemove
                     onRemove={(ref: string) => {
-                      bridge.removePlanBobine(ref).catch(console.error);
+                      bridge.removePlanBobine(id, ref).catch(console.error);
                     }}
                     showQuantity
                     planInfo={planProd}

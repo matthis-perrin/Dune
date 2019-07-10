@@ -229,25 +229,6 @@ class PlansProductionStore extends ListStore<PlanProduction> {
     }
     return plans.filter(p => !p.sommeil);
   }
-  public getIndex(): Map<number, PlanProduction[]> | undefined {
-    const plans = this.getActivePlansProd();
-    if (plans === undefined) {
-      return undefined;
-    }
-    const byDay = new Map<number, PlanProduction[]>();
-    plans.forEach(p => {
-      const date = new Date(p.year, p.month, p.day);
-      const ts = date.getTime();
-      const plansForDay = byDay.get(ts);
-      if (plansForDay === undefined) {
-        byDay.set(ts, [p]);
-      } else {
-        plansForDay.push(p);
-      }
-    });
-    byDay.forEach(plansForDay => plansForDay.sort((p1, p2) => p1.indexInDay - p2.indexInDay));
-    return byDay;
-  }
 }
 export const plansProductionStore = new PlansProductionStore();
 

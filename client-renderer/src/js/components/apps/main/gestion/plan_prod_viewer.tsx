@@ -85,6 +85,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
 
     const bobinesBlock = (
       <BobinesForm
+        planId={planProd.id}
         selectedBobines={bobines}
         selectableBobines={[]}
         selectedRefente={refente}

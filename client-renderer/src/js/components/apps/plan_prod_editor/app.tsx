@@ -25,7 +25,12 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
+import {
+  getPlanProdTitle,
+  getPreviousPlanProd,
+  PLAN_PROD_NUMBER_DIGIT_COUNT,
+} from '@root/lib/plan_prod';
+import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme} from '@root/theme';
@@ -46,6 +51,7 @@ import {
   PlanProduction,
   Operation,
 } from '@shared/models';
+import {asMap, asNumber} from '@shared/type_utils';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
 const INITIAL_SPEED = 180;
@@ -53,6 +59,7 @@ const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 
 interface Props {
   id: number;
+  isCreating: boolean;
 }
 
 interface State {
@@ -88,7 +95,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    bridge.addEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
     stocksStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
@@ -98,13 +105,21 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    bridge.removeEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
     stocksStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.handleStoresChanged);
     operationsStore.removeListener(this.handleStoresChanged);
   }
+
+  // tslint:disable-next-line:no-any
+  private readonly handlePlanProductionChangedEvent = (data: any): void => {
+    const id = asNumber(asMap(data).id, 0);
+    if (id === this.props.id) {
+      this.refreshPlanProduction();
+    }
+  };
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
@@ -153,9 +168,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   private readonly refreshPlanProduction = () => {
+    const {id} = this.props;
     document.title = 'Plan de production';
     bridge
-      .getPlanProduction()
+      .getPlanProduction(id)
       .then(planProduction => {
         const newState = {
           ...this.state,
@@ -173,7 +189,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           if (newState.planProduction) {
             const newTourCount = this.computeTourCount(newState.planProduction);
             if (newTourCount !== newState.planProduction.tourCount) {
-              bridge.setPlanTourCount(newTourCount).catch(console.error);
+              bridge.setPlanTourCount(id, newTourCount).catch(console.error);
             }
           }
         });
@@ -193,8 +209,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleTourCountChange = (newTourCount?: number): void => {
+    const {id} = this.props;
     this.setState({tourCountSetByUser: true});
-    bridge.setPlanTourCount(newTourCount).catch(console.error);
+    bridge.setPlanTourCount(id, newTourCount).catch(console.error);
   };
 
   private readonly handleMiniUpdated = (ref: string, newMini: number): void => {
@@ -217,14 +234,18 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
   private readonly handleDownload = (): void => {
     const {id} = this.props;
-    bridge.saveToPDF(`plan_prod_${id}.pdf`).catch(console.error);
+    bridge
+      .saveToPDF(`plan_prod_${padNumber(id, PLAN_PROD_NUMBER_DIGIT_COUNT)}.pdf`)
+      .catch(console.error);
   };
 
   private readonly handleClear = (): void => {
-    bridge.clearPlan().catch(console.error);
+    const {id} = this.props;
+    bridge.clearPlan(id).catch(console.error);
   };
 
   private readonly handleSave = (): void => {
+    const {id, isCreating} = this.props;
     const {
       planProduction,
       bobinesMinimums,
@@ -244,10 +265,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       selectedPerfo,
       selectedPolypro,
       selectedRefente,
-      year,
-      month,
-      day,
-      indexInDay,
+      index,
       tourCount,
     } = planProduction;
 
@@ -280,10 +298,21 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     };
 
     const serializedData = JSON.stringify(data);
-    bridge
-      .savePlanProduction(undefined, year, month, day, indexInDay, serializedData)
-      .then(() => bridge.closeApp())
-      .catch(console.error);
+    if (isCreating) {
+      if (index) {
+        bridge
+          .saveNewPlanProduction(id, index, serializedData)
+          .then(() => bridge.closeApp())
+          .catch(console.error);
+      } else {
+        console.error('Trying to create a plan prod without an index!');
+      }
+    } else {
+      bridge
+        .updatePlanProduction(id, serializedData)
+        .then(() => bridge.closeApp())
+        .catch(console.error);
+    }
   };
 
   private isComplete(): boolean {
@@ -304,19 +333,19 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   }
 
   private removeRefente(): void {
-    bridge.setPlanRefente(undefined).catch(console.error);
+    bridge.setPlanRefente(this.props.id, undefined).catch(console.error);
   }
 
   private removePerfo(): void {
-    bridge.setPlanPerfo(undefined).catch(console.error);
+    bridge.setPlanPerfo(this.props.id, undefined).catch(console.error);
   }
 
   private removePapier(): void {
-    bridge.setPlanPapier(undefined).catch(console.error);
+    bridge.setPlanPapier(this.props.id, undefined).catch(console.error);
   }
 
   private removePolypro(): void {
-    bridge.setPlanPolypro(undefined).catch(console.error);
+    bridge.setPlanPolypro(this.props.id, undefined).catch(console.error);
   }
 
   public render(): JSX.Element {
@@ -377,6 +406,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
           const bobinesBlock = (
             <BobinesForm
+              planId={id}
               selectedBobines={reorderedBobines || selectedBobines}
               selectableBobines={selectableBobines}
               selectedRefente={selectedRefente}
@@ -393,7 +423,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <RefenteComponent refente={selectedRefente} pixelPerMM={pixelPerMM} />
             </ClosableAlignRight>
           ) : (
-            <SelectRefenteButton selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
+            <SelectRefenteButton id={id} selectable={selectableRefentes} pixelPerMM={pixelPerMM} />
           );
 
           const encriersBlock = (
@@ -435,6 +465,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             </WithColor>
           ) : (
             <SelectPapierButton
+              id={id}
               selectedRefente={selectedRefente}
               selectable={selectablePapiers}
               pixelPerMM={pixelPerMM}
@@ -446,7 +477,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
               <PerfoComponent perfo={selectedPerfo} pixelPerMM={pixelPerMM} />
             </Closable>
           ) : (
-            <SelectPerfoButton selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
+            <SelectPerfoButton id={id} selectable={selectablePerfos} pixelPerMM={pixelPerMM} />
           );
 
           const polyproBlock = selectedPolypro ? (
@@ -477,6 +508,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             </WithColor>
           ) : (
             <SelectPolyproButton
+              id={id}
               selectedRefente={selectedRefente}
               selectable={selectablePolypros}
               pixelPerMM={pixelPerMM}
@@ -501,7 +533,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   canRemove={!isPrinting}
                   showQuantity={!isPrinting}
                   onRemove={(ref: string) => {
-                    bridge.removePlanBobine(ref).catch(console.error);
+                    bridge.removePlanBobine(id, ref).catch(console.error);
                   }}
                   minimums={bobinesMinimums}
                   maximums={bobinesMaximums}

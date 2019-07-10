@@ -63,7 +63,7 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
-    private readonly info: PlanProductionInfo,
+    private readonly index: number,
     private readonly previousPlanProd: PlanProductionModel | undefined,
     bobinesFilles: BobineFille[],
     bobinesMeres: BobineMere[],
@@ -145,7 +145,7 @@ export class PlanProductionEngine {
   }
 
   public getPlanProductionInfo(): PlanProductionInfo {
-    return this.info;
+    return {index: this.index};
   }
 
   private getByRef<T extends {ref: string}>(all: T[], ref?: string): T | undefined {

@@ -16,6 +16,7 @@ import {getPoseSize} from '@shared/lib/cliches';
 import {BobineFilleWithPose} from '@shared/models';
 
 interface BobineWithPoseProps extends DivProps {
+  planId: number;
   pixelPerMM: number;
   bobine: BobineFilleWithPose;
   negativeMargin: boolean;
@@ -25,8 +26,8 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
   public static displayName = 'BobineWithPose';
 
   private readonly handleClose = (): void => {
-    const {bobine} = this.props;
-    bridge.removePlanBobine(bobine.ref, bobine.pose).catch(console.error);
+    const {bobine, planId} = this.props;
+    bridge.removePlanBobine(planId, bobine.ref, bobine.pose).catch(console.error);
   };
 
   public render(): JSX.Element {

@@ -20,6 +20,3 @@ export const PLANS_PRODUCTION_TABLE_NAME = 'plan_production';
 
 // Speed
 export const SPEED_MINUTES_TABLE_NAME = 'minutes';
-
-// General
-export const SQLITE_SEQUENCE = 'sqlite_sequence';

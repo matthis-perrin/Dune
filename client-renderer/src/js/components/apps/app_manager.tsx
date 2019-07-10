@@ -32,7 +32,7 @@ import {
 import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
 import {ClientAppInfo, ClientAppType} from '@shared/models';
-import {asMap, asString, asNumber} from '@shared/type_utils';
+import {asMap, asString, asNumber, asBoolean} from '@shared/type_utils';
 
 interface Props {
   windowId: string;
@@ -150,23 +150,28 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      const {id} = asMap(data);
-      return <PlanProdEditorApp id={asNumber(id, 0)} />;
+      const {id, isCreating} = asMap(data);
+      return <PlanProdEditorApp id={asNumber(id, 0)} isCreating={asBoolean(isCreating)} />;
     }
     if (type === ClientAppType.BobinesPickerApp) {
-      return <BobinesPickerApp />;
+      const {id} = asMap(data);
+      return <BobinesPickerApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.RefentePickerApp) {
-      return <RefentePickerApp />;
+      const {id} = asMap(data);
+      return <RefentePickerApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.PerfoPickerApp) {
-      return <PerfoPickerApp />;
+      const {id} = asMap(data);
+      return <PerfoPickerApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return <PapierPickerApp />;
+      const {id} = asMap(data);
+      return <PapierPickerApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return <PolyproPickerApp />;
+      const {id} = asMap(data);
+      return <PolyproPickerApp id={asNumber(id, 0)} />;
     }
 
     if (type === ClientAppType.ViewBobineApp) {

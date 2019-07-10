@@ -11,12 +11,11 @@ import {
 } from '@root/components/charts/cadenciers';
 import {BasicInfo} from '@root/components/common/basic_info';
 import {BobineColors} from '@root/components/common/bobine_colors';
-import {BobineState} from '@root/components/common/bobine_state';
 import {ViewerTopBar} from '@root/components/common/viewers/top_bar';
 import {Card1} from '@root/components/core/card';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {Select, Option} from '@root/components/core/select';
-import {getBobineState, getBobineTotalSell} from '@root/lib/bobine';
+import {getBobineTotalSell, getBobineSellingPastYear, getQuantityToProduce} from '@root/lib/bobine';
 import {getStockTerme, getStockReel, getStockReserve} from '@root/lib/stocks';
 import {formatMonthCount, numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -138,14 +137,12 @@ export class ViewBobineApp extends React.Component<Props, State> {
       return <LoadingIndicator size="medium" />;
     }
 
-    const bobineState = getBobineState(bobineRef, stocks, cadencier, bobineQuantities, 0, [], {
-      day: 0,
-      month: 0,
-      year: 0,
-      indexInDay: 0,
-    });
-    const {state, quantity, info, yearSell, threshold, minSell, maxSell} = bobineState;
     const MONTHS_IN_YEAR = 12;
+    const yearSell = getBobineSellingPastYear(cadencier.get(bobineRef));
+    const {threshold, quantity, minSell, maxSell} = getQuantityToProduce(
+      yearSell,
+      bobineQuantities
+    );
     const monthSell = Math.ceil(yearSell / MONTHS_IN_YEAR);
     const stockTerme = getStockTerme(bobineRef, stocks);
     const stockReel = getStockReel(bobineRef, stocks);
@@ -172,7 +169,6 @@ export class ViewBobineApp extends React.Component<Props, State> {
       <React.Fragment>
         <CardHeader>
           <CardTitle>{'État'}</CardTitle>
-          <BobineState info={info} state={state} />
         </CardHeader>
         <BasicInfo
           style={{marginBottom: 8}}

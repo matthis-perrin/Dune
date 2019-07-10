@@ -58,6 +58,7 @@ const SelectButtonWrapper = styled.div`
 `;
 
 interface SelectBobineButtonProps {
+  id: number;
   selectable: BobineFilleWithMultiPose[];
   size: number;
   pixelPerMM: number;
@@ -69,7 +70,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
   public static displayName = 'SelectBobineButton';
 
   public render(): JSX.Element {
-    const {selectable, pixelPerMM, size} = this.props;
+    const {selectable, pixelPerMM, size, id} = this.props;
     const width = size * pixelPerMM;
     const plural = selectable.length > 1 ? 's' : '';
 
@@ -80,7 +81,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
 
     return (
       <SelectBobineButtonWrapper
-        onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp)}
+        onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp, {id})}
         style={{width, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
       >
         <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
@@ -94,6 +95,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
 const SelectBobineButtonWrapper = styled(SelectButtonWrapper)``;
 
 interface SelectRefenteProps {
+  id: number;
   selectable: Refente[];
   pixelPerMM: number;
 }
@@ -102,12 +104,15 @@ export const SelectRefenteButton = (props: SelectRefenteProps) => (
   <SelectButton
     title="une refente"
     selectable={props.selectable}
-    onClick={() => bridge.openApp(ClientAppType.RefentePickerApp).catch(console.error)}
+    onClick={() =>
+      bridge.openApp(ClientAppType.RefentePickerApp, {id: props.id}).catch(console.error)
+    }
     pixelPerMM={props.pixelPerMM}
   />
 );
 
 interface SelectPerfoProps {
+  id: number;
   selectable: Perfo[];
   pixelPerMM: number;
 }
@@ -116,7 +121,9 @@ export const SelectPerfoButton = (props: SelectPerfoProps) => (
   <SelectButton
     title="une perfo"
     selectable={props.selectable}
-    onClick={() => bridge.openApp(ClientAppType.PerfoPickerApp).catch(console.error)}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PerfoPickerApp, {id: props.id}).catch(console.error)
+    }
     pixelPerMM={props.pixelPerMM}
   />
 );
@@ -181,6 +188,7 @@ const BobineMereWrapper = styled(Bobine)`
 `;
 
 interface SelectPapierPolyproProps {
+  id: number;
   selectable: BobineMere[];
   selectedRefente?: Refente;
   pixelPerMM: number;
@@ -192,7 +200,9 @@ export const SelectPapierButton = (props: SelectPapierPolyproProps) => (
     selectable={props.selectable}
     selectedRefente={props.selectedRefente}
     pixelPerMM={props.pixelPerMM}
-    onClick={() => bridge.openApp(ClientAppType.PapierPickerApp).catch(console.error)}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PapierPickerApp, {id: props.id}).catch(console.error)
+    }
   />
 );
 
@@ -202,6 +212,8 @@ export const SelectPolyproButton = (props: SelectPapierPolyproProps) => (
     selectable={props.selectable}
     selectedRefente={props.selectedRefente}
     pixelPerMM={props.pixelPerMM}
-    onClick={() => bridge.openApp(ClientAppType.PolyproPickerApp).catch(console.error)}
+    onClick={() =>
+      bridge.openApp(ClientAppType.PolyproPickerApp, {id: props.id}).catch(console.error)
+    }
   />
 );

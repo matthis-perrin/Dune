@@ -14,6 +14,7 @@ import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
 import {PlanProduction, Stock, BobineQuantities, ClientAppType, Operation} from '@shared/models';
+import {asMap, asNumber} from '@shared/type_utils';
 
 const SHOW_VIEWER_TIMEOUT_MS = 100;
 
@@ -181,27 +182,27 @@ export class PlanProdTile extends React.Component<Props> {
   private newPlanProd(before: boolean): void {
     const {planProd} = this.props;
     bridge
-      .createNewPlanProduction(
-        planProd.year,
-        planProd.month,
-        planProd.day,
-        planProd.indexInDay + (before ? 0 : 1)
-      )
+      .createNewPlanProduction((planProd.index || 0) + (before ? 0 : 1))
       .then(data => {
-        bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
+        const id = asNumber(asMap(data).id, 0);
+        bridge
+          .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true})
+          .catch(console.error);
       })
       .catch(console.error);
   }
 
   private deletePlanProd(): void {
     const {planProd} = this.props;
-    bridge
-      .deletePlanProduction(planProd.year, planProd.month, planProd.day, planProd.indexInDay)
-      .then(() => {
-        this.removeViewer();
-        plansProductionStore.refresh().catch(() => {});
-      })
-      .catch(console.error);
+    if (planProd.index) {
+      bridge
+        .deletePlanProduction(planProd.index)
+        .then(() => {
+          this.removeViewer();
+          plansProductionStore.refresh().catch(() => {});
+        })
+        .catch(console.error);
+    }
   }
 
   private readonly handleContextMenu = (event: React.MouseEvent): void => {

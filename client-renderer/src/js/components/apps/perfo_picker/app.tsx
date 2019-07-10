@@ -11,7 +11,9 @@ import {theme} from '@root/theme';
 
 import {Perfo} from '@shared/models';
 
-interface Props {}
+interface Props {
+  id: number;
+}
 
 export class PerfoPickerApp extends React.Component<Props> {
   public static displayName = 'PerfoPickerApp';
@@ -22,7 +24,7 @@ export class PerfoPickerApp extends React.Component<Props> {
 
   private readonly handlePerfoSelected = (perfo: Perfo) => {
     bridge
-      .setPlanPerfo(perfo.ref)
+      .setPlanPerfo(this.props.id, perfo.ref)
       .then(() => {
         bridge.closeApp().catch(console.error);
       })
@@ -30,8 +32,10 @@ export class PerfoPickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
+    const {id} = this.props;
     return (
       <Picker<Perfo>
+        id={id}
         getHash={r => r.ref}
         getSelectable={p => p.selectablePerfos}
         store={perfosStore}

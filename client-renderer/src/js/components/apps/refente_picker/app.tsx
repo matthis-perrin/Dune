@@ -11,7 +11,9 @@ import {theme} from '@root/theme';
 
 import {Refente} from '@shared/models';
 
-interface Props {}
+interface Props {
+  id: number;
+}
 
 export class RefentePickerApp extends React.Component<Props> {
   public static displayName = 'RefentePickerApp';
@@ -22,7 +24,7 @@ export class RefentePickerApp extends React.Component<Props> {
 
   private readonly handleRefenteSelected = (refente: Refente) => {
     bridge
-      .setPlanRefente(refente.ref)
+      .setPlanRefente(this.props.id, refente.ref)
       .then(() => {
         bridge.closeApp().catch(console.error);
       })
@@ -30,8 +32,10 @@ export class RefentePickerApp extends React.Component<Props> {
   };
 
   public render(): JSX.Element {
+    const {id} = this.props;
     return (
       <Picker<Refente>
+        id={id}
         getHash={r => r.ref}
         getSelectable={p => p.selectableRefentes}
         store={refentesStore}

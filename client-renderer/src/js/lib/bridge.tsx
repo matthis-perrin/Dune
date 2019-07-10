@@ -13,7 +13,7 @@ import {
   CreateNewPlanProduction,
   CreateOrUpdateOperation,
   GetAppInfo,
-  GetNewPlanProduction,
+  GetPlanProductionEngineInfo,
   ListBobinesFilles,
   ListBobinesMeres,
   ListCliches,
@@ -35,9 +35,10 @@ import {
   SaveToPDF,
   Print,
   ListPlansProduction,
-  SavePlanProduction,
   OpenContextMenu,
   DeletePlanProduction,
+  SaveNewPlanProduction,
+  UpdatePlanProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -137,78 +138,48 @@ export class Bridge {
     return this.bridgeTransport.sendBridgeCommand<Operation[]>(ListOperations);
   }
 
-  public async createNewPlanProduction(
-    year: number,
-    month: number,
-    day: number,
-    indexInDay: number
-  ): Promise<{id: number}> {
-    return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {
-      year,
-      month,
-      day,
-      indexInDay,
-    });
+  public async createNewPlanProduction(index: number): Promise<{id: number}> {
+    return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {index});
   }
-  public async deletePlanProduction(
-    year: number,
-    month: number,
-    day: number,
-    indexInDay: number
-  ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {
-      year,
-      month,
-      day,
-      indexInDay,
-    });
+  public async deletePlanProduction(index: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {index});
   }
-  public async savePlanProduction(
-    id: number | undefined,
-    year: number,
-    month: number,
-    day: number,
-    indexInDay: number,
-    data: string
-  ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SavePlanProduction, {
-      id,
-      year,
-      month,
-      day,
-      indexInDay,
-      data,
-    });
+  public async saveNewPlanProduction(id: number, index: number, data: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SaveNewPlanProduction, {id, index, data});
+  }
+  public async updatePlanProduction(id: number, data: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProduction, {id, data});
   }
 
-  public async getPlanProduction(): Promise<PlanProductionState & PlanProductionInfo> {
+  public async getPlanProduction(id: number): Promise<PlanProductionState & PlanProductionInfo> {
     return this.bridgeTransport.sendBridgeCommand<PlanProductionState & PlanProductionInfo>(
-      GetNewPlanProduction
+      GetPlanProductionEngineInfo,
+      {id}
     );
   }
-  public async setPlanTourCount(tourCount?: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanTourCount, {tourCount});
+  public async setPlanTourCount(id: number, tourCount?: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanTourCount, {id, tourCount});
   }
-  public async setPlanPerfo(ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPerfo, {ref});
+  public async setPlanPerfo(id: number, ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPerfo, {id, ref});
   }
-  public async setPlanRefente(ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanRefente, {ref});
+  public async setPlanRefente(id: number, ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanRefente, {id, ref});
   }
-  public async setPlanPapier(ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPapier, {ref});
+  public async setPlanPapier(id: number, ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPapier, {id, ref});
   }
-  public async setPlanPolypro(ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPolypro, {ref});
+  public async setPlanPolypro(id: number, ref?: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPolypro, {id, ref});
   }
-  public async addPlanBobine(ref: string, pose: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {ref, pose});
+  public async addPlanBobine(id: number, ref: string, pose: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {id, ref, pose});
   }
-  public async removePlanBobine(ref: string, pose?: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {ref, pose});
+  public async removePlanBobine(id: number, ref: string, pose?: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {id, ref, pose});
   }
-  public async clearPlan(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(ClearPlan);
+  public async clearPlan(id: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(ClearPlan, {id});
   }
 
   public async viewBobine(bobineRef: string): Promise<void> {

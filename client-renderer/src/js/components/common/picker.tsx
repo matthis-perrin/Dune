@@ -9,8 +9,10 @@ import {ListStore, plansProductionStore} from '@root/stores/list_store';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {PlanProductionState, PlanProductionInfo, PlanProduction} from '@shared/models';
+import {asNumber, asMap} from '@shared/type_utils';
 
 interface Props<T extends {localUpdate: number; sommeil: boolean}> {
+  id: number;
   getSelectable(planProd: PlanProductionState): T[];
   getHash(value: T): string;
   children(
@@ -66,17 +68,25 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
   };
 
   public componentDidMount(): void {
-    bridge.addEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    bridge.addEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
     plansProductionStore.addListener(this.handleValuesChanged);
     this.props.store.addListener(this.handleValuesChanged);
     this.refreshPlanProduction().catch(console.error);
   }
 
   public componentWillUnmount(): void {
-    bridge.removeEventListener(PlanProductionChanged, this.refreshPlanProduction);
+    bridge.removeEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
     plansProductionStore.removeListener(this.handleValuesChanged);
     this.props.store.removeListener(this.handleValuesChanged);
   }
+
+  // tslint:disable-next-line:no-any
+  private readonly handlePlanProductionChangedEvent = (data: any): void => {
+    const id = asNumber(asMap(data).id, 0);
+    if (id === this.props.id) {
+      this.refreshPlanProduction().catch(console.error);
+    }
+  };
 
   private readonly handleValuesChanged = (): void => {
     this.setState({
@@ -86,7 +96,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
   };
 
   private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction();
+    const planProduction = await bridge.getPlanProduction(this.props.id);
     this.setState({planProd: planProduction});
   };
 
