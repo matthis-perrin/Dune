@@ -3,6 +3,7 @@ import * as React from 'react';
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
+// import {Button} from '@root/components/core/button';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
@@ -147,6 +148,19 @@ export class GestionPage extends React.Component<Props, State> {
         >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>
+        {/* <Button
+          onClick={() => {
+            const date = new Date();
+            bridge
+              .createNewPlanProduction(date.getFullYear(), date.getMonth(), date.getDate(), 0)
+              .then(data => {
+                bridge.openApp(ClientAppType.PlanProductionEditorApp, data).catch(console.error);
+              })
+              .catch(err => console.error(err));
+          }}
+        >
+          Créer un plan de production
+        </Button> */}
       </Page>
     );
   }

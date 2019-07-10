@@ -11,7 +11,11 @@ import {
   isValidPapier,
 } from '@root/plan_production/data_extraction/bobine_mere';
 import {getPerfos, isValidPerfo} from '@root/plan_production/data_extraction/perfo';
-import {getRefentes, isValidRefente} from '@root/plan_production/data_extraction/refente';
+import {
+  getRefentes,
+  isValidRefente,
+  getRefenteAlgo,
+} from '@root/plan_production/data_extraction/refente';
 import {filterAll} from '@root/plan_production/master_filter';
 import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
 
@@ -28,6 +32,7 @@ import {
   BobineFilleWithPose,
   BobineFilleWithMultiPose,
   PlanProductionInfo,
+  PlanProduction as PlanProductionModel,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -58,10 +63,8 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
-    private readonly year: number,
-    private readonly month: number,
-    private readonly day: number,
-    private readonly indexInDay: number,
+    private readonly info: PlanProductionInfo,
+    private readonly previousPlanProd: PlanProductionModel | undefined,
     bobinesFilles: BobineFille[],
     bobinesMeres: BobineMere[],
     cliches: Cliche[],
@@ -69,7 +72,11 @@ export class PlanProductionEngine {
     perfos: Perfo[],
     private readonly changeHandler: () => void
   ) {
-    this.planProduction = {bobinesFilles: []};
+    this.planProduction = {
+      bobinesFilles: [],
+      refente: previousPlanProd && getRefenteAlgo(previousPlanProd.data.refente),
+      perfo: previousPlanProd && previousPlanProd.data.perfo,
+    };
     this.allClicheByRef = new Map<string, Cliche>();
     cliches.forEach(c => this.allClicheByRef.set(c.ref, c));
 
@@ -138,12 +145,7 @@ export class PlanProductionEngine {
   }
 
   public getPlanProductionInfo(): PlanProductionInfo {
-    return {
-      year: this.year,
-      month: this.month,
-      day: this.day,
-      indexInDay: this.indexInDay,
-    };
+    return this.info;
   }
 
   private getByRef<T extends {ref: string}>(all: T[], ref?: string): T | undefined {

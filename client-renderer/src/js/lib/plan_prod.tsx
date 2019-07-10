@@ -1,10 +1,10 @@
 import {zip, max} from 'lodash-es';
 
-import {compareTime} from '@root/lib/stocks';
 import {padNumber} from '@root/lib/utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
+import {compareTime} from '@shared/lib/plan_prod';
 import {getRefenteLaizes} from '@shared/lib/refentes';
 import {
   Perfo,

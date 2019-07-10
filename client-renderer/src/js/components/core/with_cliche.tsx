@@ -22,7 +22,7 @@ export class WithCliche extends React.Component<Props, State> {
   }
 
   public componentDidUpdate(nextProps: Props, nextState: State): void {
-    if (this.props.children !== nextProps.children || this.props.color !== nextProps.color) {
+    if (this.props.children !== nextProps.children || this.props.ref !== nextProps.ref) {
       this.handleColorsChanged();
     }
   }

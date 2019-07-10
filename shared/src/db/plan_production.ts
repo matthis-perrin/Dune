@@ -1,6 +1,7 @@
 import knex from 'knex';
 
 import {PLANS_PRODUCTION_TABLE_NAME, SQLITE_SEQUENCE} from '@shared/db/table_names';
+import {compareTime} from '@shared/lib/plan_prod';
 import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray} from '@shared/type_utils';
 
@@ -155,6 +156,21 @@ async function updateIndexInDay(
   });
 }
 
+// tslint:disable-next-line:no-any
+function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
+  const r = asMap(line);
+  return {
+    id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
+    year: asNumber(r[PlansProductionColumn.YEAR_COLUMN], 0),
+    month: asNumber(r[PlansProductionColumn.MONTH_COLUMN], 0),
+    day: asNumber(r[PlansProductionColumn.DAY_COLUMN], 0),
+    indexInDay: asNumber(r[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0),
+    data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
+    sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
+    localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),
+  };
+}
+
 export async function listPlansProduction(
   db: knex,
   sinceLocalUpdate: number
@@ -162,19 +178,7 @@ export async function listPlansProduction(
   return db(PLANS_PRODUCTION_TABLE_NAME)
     .select()
     .where(PlansProductionColumn.LOCAL_UPDATE_COLUMN, '>', new Date(sinceLocalUpdate))
-    .map(planProductionLine => {
-      const r = asMap(planProductionLine);
-      return {
-        id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
-        year: asNumber(r[PlansProductionColumn.YEAR_COLUMN], 0),
-        month: asNumber(r[PlansProductionColumn.MONTH_COLUMN], 0),
-        day: asNumber(r[PlansProductionColumn.DAY_COLUMN], 0),
-        indexInDay: asNumber(r[PlansProductionColumn.INDEX_IN_DAY_COLUMN], 0),
-        data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
-        sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
-        localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),
-      };
-    });
+    .map(mapLineToPlanProductionRaw);
 }
 
 export async function getNextPlanProductionId(db: knex): Promise<number> {
@@ -182,4 +186,15 @@ export async function getNextPlanProductionId(db: knex): Promise<number> {
     .select('seq')
     .where('name', '=', PLANS_PRODUCTION_TABLE_NAME);
   return asNumber(asMap(asArray(res)[0])['seq'], 0) + 1;
+}
+
+export async function getClosestPlanProdBefore(
+  db: knex,
+  info: PlanProductionInfo
+): Promise<PlanProductionRaw | undefined> {
+  return (await db(PLANS_PRODUCTION_TABLE_NAME)
+    .select()
+    .map(mapLineToPlanProductionRaw))
+    .filter(p => compareTime(p, info) < 0)
+    .sort((p1, p2) => compareTime(p2, p1))[0];
 }

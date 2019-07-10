@@ -7,17 +7,21 @@ export function getRefentes(refentes: RefenteModel[]): RefenteAlgo[] {
   const refentesAlgo: RefenteAlgo[] = [];
   refentes.forEach(r => {
     if (isValidRefente(r)) {
-      const {ref, refPerfo} = r;
-      const laize = getRefenteSize(r);
-      refentesAlgo.push({
-        ref,
-        refPerfo,
-        laizes: getRefenteLaizes(r).map(l => Math.round(l)),
-        laize,
-      });
+      refentesAlgo.push(getRefenteAlgo(r));
     }
   });
   return refentesAlgo;
+}
+
+export function getRefenteAlgo(refente: RefenteModel): RefenteAlgo {
+  const {ref, refPerfo} = refente;
+  const laize = getRefenteSize(refente);
+  return {
+    ref,
+    refPerfo,
+    laizes: getRefenteLaizes(refente).map(l => Math.round(l)),
+    laize,
+  };
 }
 
 export function isValidRefente(refente: RefenteModel): boolean {

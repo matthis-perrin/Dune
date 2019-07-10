@@ -141,20 +141,16 @@ export async function handleCommand(
     const {windowId, title} = asMap(params);
     return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
   }
-  // if (command === Print) {
-  //   const {windowId} = asMap(params);
-  //   return windowManager.print(asString(windowId, ''));
-  // }
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
     const {year, month, day, indexInDay} = asMap(params);
-    const id = await planProductionStore.createNewPlan(
-      asNumber(year, 0),
-      asNumber(month, 0),
-      asNumber(day, 0),
-      asNumber(indexInDay, 0)
-    );
+    const id = await planProductionStore.createNewPlan({
+      year: asNumber(year, 0),
+      month: asNumber(month, 0),
+      day: asNumber(day, 0),
+      indexInDay: asNumber(indexInDay, 0),
+    });
     return {id};
   }
   if (command === DeletePlanProduction) {
