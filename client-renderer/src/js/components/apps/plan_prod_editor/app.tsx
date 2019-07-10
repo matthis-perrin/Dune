@@ -216,12 +216,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleDownload = (): void => {
-    const {planProduction} = this.state;
-    if (!planProduction) {
-      return;
-    }
-    const {year, month, day, indexInDay} = planProduction;
-    bridge.saveToPDF(`plan_prod_${year}_${month}_${day}_${indexInDay}.pdf`).catch(console.error);
+    const {id} = this.props;
+    bridge.saveToPDF(`plan_prod_${id}.pdf`).catch(console.error);
   };
 
   private readonly handleClear = (): void => {

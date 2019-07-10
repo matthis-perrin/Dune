@@ -130,29 +130,6 @@ class WindowManager {
     });
   }
 
-  // public async print(windowId: string): Promise<void> {
-  //   return new Promise<void>((resolve, reject) => {
-  //     const windowInfo = this.windows.get(windowId);
-  //     if (!windowInfo) {
-  //       return;
-  //     }
-  //     const tempPath = path.join(app.getPath('temp'), `${Date.now()}.pdf`);
-  //     console.log(tempPath);
-  //     this.saveAsPDF(windowInfo, tempPath)
-  //       .then(() => {
-  //         ch.exec(`print ${tempPath}`, err => {
-  //           if (err) {
-  //             console.log(err);
-  //             reject(err);
-  //             return;
-  //           }
-  //           resolve();
-  //         });
-  //       })
-  //       .catch(reject);
-  //   });
-  // }
-
   public closeWindowOfType(type: ClientAppType): void {
     for (const w of this.windows.values()) {
       if (w.appInfo.type === type) {
