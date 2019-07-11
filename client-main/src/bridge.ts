@@ -59,7 +59,7 @@ import {
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType, ContextMenuForBridge} from '@shared/models';
-import {asMap, asNumber, asString} from '@shared/type_utils';
+import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -155,11 +155,13 @@ export async function handleCommand(
     await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
   }
   if (command === SaveNewPlanProduction) {
-    const {id, index, data} = asMap(params);
+    const {id, index, operationAtStartOfDay, productionAtStartOfDay, data} = asMap(params);
     return createPlanProduction(
       SQLITE_DB.Prod,
       asNumber(id, 0),
       asNumber(index, 0),
+      asBoolean(operationAtStartOfDay),
+      asBoolean(productionAtStartOfDay),
       asString(data, '{}')
     );
   }

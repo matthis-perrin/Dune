@@ -266,6 +266,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       selectedPolypro,
       selectedRefente,
       index,
+      operationAtStartOfDay,
+      productionAtStartOfDay,
       tourCount,
     } = planProduction;
 
@@ -301,7 +303,13 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     if (isCreating) {
       if (index) {
         bridge
-          .saveNewPlanProduction(id, index, serializedData)
+          .saveNewPlanProduction(
+            id,
+            index,
+            operationAtStartOfDay,
+            productionAtStartOfDay,
+            serializedData
+          )
           .then(() => bridge.closeApp())
           .catch(console.error);
       } else {

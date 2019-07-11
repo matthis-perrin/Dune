@@ -64,6 +64,8 @@ export class PlanProductionEngine {
 
   constructor(
     private readonly index: number,
+    private readonly operationAtStartOfDay: boolean,
+    private readonly productionAtStartOfDay: boolean,
     private readonly previousPlanProd: PlanProductionModel | undefined,
     bobinesFilles: BobineFille[],
     bobinesMeres: BobineMere[],
@@ -145,7 +147,11 @@ export class PlanProductionEngine {
   }
 
   public getPlanProductionInfo(): PlanProductionInfo {
-    return {index: this.index};
+    return {
+      index: this.index,
+      operationAtStartOfDay: this.operationAtStartOfDay,
+      productionAtStartOfDay: this.productionAtStartOfDay,
+    };
   }
 
   private getByRef<T extends {ref: string}>(all: T[], ref?: string): T | undefined {

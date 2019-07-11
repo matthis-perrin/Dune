@@ -144,8 +144,20 @@ export class Bridge {
   public async deletePlanProduction(index: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {index});
   }
-  public async saveNewPlanProduction(id: number, index: number, data: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SaveNewPlanProduction, {id, index, data});
+  public async saveNewPlanProduction(
+    id: number,
+    index: number,
+    operationAtStartOfDay: boolean,
+    productionAtStartOfDay: boolean,
+    data: string
+  ): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(SaveNewPlanProduction, {
+      id,
+      index,
+      operationAtStartOfDay,
+      productionAtStartOfDay,
+      data,
+    });
   }
   public async updatePlanProduction(id: number, data: string): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProduction, {id, data});

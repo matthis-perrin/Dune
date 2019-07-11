@@ -2,7 +2,7 @@ import knex from 'knex';
 
 import {PLANS_PRODUCTION_TABLE_NAME} from '@shared/db/table_names';
 import {PlanProductionRaw} from '@shared/models';
-import {asMap, asNumber, asString, asArray} from '@shared/type_utils';
+import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
 
 export const PlansProductionColumn = {
   ID_COLUMN: 'id',
@@ -11,6 +11,8 @@ export const PlansProductionColumn = {
   END_TIME_COLUMN: 'end_time',
   STOP_TIME_COLUMN: 'stop_time',
   REPRISE_TIME_COLUMN: 'reprise_time',
+  OPERATION_AT_START_OF_DAY: 'operation_at_start_of_day',
+  PRODUCTION_AT_START_OF_DAY: 'production_at_start_of_day',
   DATA_COLUMN: 'data',
   SOMMEIL_COLUMN: 'sommeil',
   LOCAL_UPDATE_COLUMN: 'localUpdate',
@@ -29,6 +31,8 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
       table.integer(PlansProductionColumn.END_TIME_COLUMN);
       table.integer(PlansProductionColumn.STOP_TIME_COLUMN);
       table.integer(PlansProductionColumn.REPRISE_TIME_COLUMN);
+      table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
+      table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
       table.boolean(PlansProductionColumn.SOMMEIL_COLUMN).notNullable();
       table.dateTime(PlansProductionColumn.LOCAL_UPDATE_COLUMN).notNullable();
@@ -40,6 +44,8 @@ export async function createPlanProduction(
   db: knex,
   id: number,
   index: number,
+  operationAtStartOfDay: boolean,
+  productionAtStartOfDay: boolean,
   data: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -53,6 +59,8 @@ export async function createPlanProduction(
             .insert({
               [PlansProductionColumn.ID_COLUMN]: id,
               [PlansProductionColumn.INDEX_COLUMN]: index,
+              [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: operationAtStartOfDay,
+              [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: productionAtStartOfDay,
               [PlansProductionColumn.DATA_COLUMN]: data,
               [PlansProductionColumn.SOMMEIL_COLUMN]: false,
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
@@ -87,7 +95,9 @@ export async function movePlanProduction(
   db: knex,
   id: number,
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
+  operationAtStartOfDay: boolean,
+  productionAtStartOfDay: boolean
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
@@ -103,6 +113,8 @@ export async function movePlanProduction(
             .where(PlansProductionColumn.ID_COLUMN, '=', id)
             .update({
               [PlansProductionColumn.INDEX_COLUMN]: toIndex,
+              [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: operationAtStartOfDay,
+              [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: productionAtStartOfDay,
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
             })
             .then(() => {
@@ -200,6 +212,8 @@ function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
     endTime: asNumber(r[PlansProductionColumn.END_TIME_COLUMN], undefined),
     stopTime: asNumber(r[PlansProductionColumn.STOP_TIME_COLUMN], undefined),
     repriseTime: asNumber(r[PlansProductionColumn.REPRISE_TIME_COLUMN], undefined),
+    operationAtStartOfDay: asBoolean(r[PlansProductionColumn.OPERATION_AT_START_OF_DAY]),
+    productionAtStartOfDay: asBoolean(r[PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]),
     data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
     sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
     localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),

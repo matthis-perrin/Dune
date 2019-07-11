@@ -185,6 +185,8 @@ export interface PlanProductionInfo {
   endTime?: number;
   stopTime?: number;
   repriseTime?: number;
+  operationAtStartOfDay: boolean;
+  productionAtStartOfDay: boolean;
 }
 
 interface PlanProductionBase extends PlanProductionInfo {

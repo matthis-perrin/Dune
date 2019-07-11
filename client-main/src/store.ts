@@ -17,7 +17,12 @@ class PlanProductionStore {
     this.listener = listener;
   }
 
-  public async createEngine(id: number, index: number): Promise<void> {
+  public async createEngine(
+    id: number,
+    index: number,
+    operationAtStartOfDay: boolean,
+    productionAtStartOfDay: boolean
+  ): Promise<void> {
     const [
       bobinesFilles,
       bobinesMeres,
@@ -48,6 +53,8 @@ class PlanProductionStore {
       id,
       new PlanProductionEngine(
         index,
+        operationAtStartOfDay,
+        productionAtStartOfDay,
         previousPlanProd,
         bobinesFilles,
         bobinesMeres,
@@ -65,7 +72,7 @@ class PlanProductionStore {
 
   public async createNewPlan(index: number): Promise<number> {
     const id = await getNextPlanProductionId(SQLITE_DB.Prod);
-    await this.createEngine(id, index);
+    await this.createEngine(id, index, false, false);
     return id;
   }
 
