@@ -9,7 +9,7 @@ import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
-import {contextMenuManager} from '@root/lib/context_menu';
+import {contextMenuManager, ContextMenu} from '@root/lib/context_menu';
 import {
   PlanProdBase,
   DonePlanProduction,
@@ -26,7 +26,7 @@ import {
   ClientAppType,
   PlanProduction,
   Operation,
-  Color,
+  PlanProductionInfo,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
@@ -197,7 +197,7 @@ export class PlanProdTile extends React.Component<Props> {
   private newPlanProd(before: boolean): void {
     const {planProd} = this.props;
     bridge
-      .createNewPlanProduction((planProd.plan.index || 0) + (before ? 0 : 1))
+      .createNewPlanProduction((planProd.plan.index || -1) + (before ? 0 : 1))
       .then(data => {
         const id = asNumber(asMap(data).id, 0);
         bridge
@@ -206,6 +206,19 @@ export class PlanProdTile extends React.Component<Props> {
       })
       .catch(console.error);
   }
+
+  private readonly setOperationAtStartOfDay = (newValue: boolean): void => {
+    const {planProd} = this.props;
+    const newPlanInfo: PlanProductionInfo = {...planProd.plan};
+    newPlanInfo.operationAtStartOfDay = newValue;
+    bridge.updatePlanProductionInfo(planProd.plan.id, newPlanInfo).catch(console.error);
+  };
+  private readonly setProductionAtStartOfDay = (newValue: boolean): void => {
+    const {planProd} = this.props;
+    const newPlanInfo: PlanProductionInfo = {...planProd.plan};
+    newPlanInfo.productionAtStartOfDay = newValue;
+    bridge.updatePlanProductionInfo(planProd.plan.id, newPlanInfo).catch(console.error);
+  };
 
   private deletePlanProd(): void {
     const {planProd} = this.props;
@@ -261,22 +274,46 @@ export class PlanProdTile extends React.Component<Props> {
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    contextMenuManager
-      .open([
-        {
-          label: 'Nouveau plan de production avant',
-          callback: () => this.newPlanProd(true),
-        },
-        {
-          label: 'Nouveau plan de production après',
-          callback: () => this.newPlanProd(false),
-        },
-        {
-          label: 'Supprimer ce plan de production',
-          callback: () => this.deletePlanProd(),
-        },
-      ])
-      .catch(console.error);
+    const {planProd} = this.props;
+    const menus: ContextMenu[] = [
+      {
+        label: 'Nouveau plan de production après',
+        callback: () => this.newPlanProd(false),
+      },
+    ];
+    if (planProd.type === 'scheduled') {
+      menus.unshift({
+        label: 'Nouveau plan de production avant',
+        callback: () => this.newPlanProd(true),
+      });
+      if (planProd.plan.operationAtStartOfDay) {
+        menus.push({
+          label: 'Ne pas forcer les réglages en début de journée',
+          callback: () => this.setOperationAtStartOfDay(false),
+        });
+      } else {
+        menus.push({
+          label: 'Forcer les réglages en début de journée',
+          callback: () => this.setOperationAtStartOfDay(true),
+        });
+      }
+      if (planProd.plan.productionAtStartOfDay) {
+        menus.push({
+          label: 'Ne pas forcer la production en début de journée',
+          callback: () => this.setProductionAtStartOfDay(false),
+        });
+      } else {
+        menus.push({
+          label: 'Forcer la production en début de journée',
+          callback: () => this.setProductionAtStartOfDay(true),
+        });
+      }
+      menus.push({
+        label: 'Supprimer ce plan de production',
+        callback: () => this.deletePlanProd(),
+      });
+    }
+    contextMenuManager.open(menus).catch(console.error);
   };
 
   private renderIndicator(planProd: PlanProdBase): JSX.Element | undefined {

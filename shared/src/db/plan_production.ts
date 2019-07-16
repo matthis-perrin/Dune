@@ -1,7 +1,7 @@
 import knex from 'knex';
 
 import {PLANS_PRODUCTION_TABLE_NAME} from '@shared/db/table_names';
-import {PlanProductionRaw} from '@shared/models';
+import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
 
 export const PlansProductionColumn = {
@@ -83,12 +83,40 @@ export async function createPlanProduction(
 }
 
 export async function updatePlanProductionData(db: knex, id: number, data: string): Promise<void> {
-  db(PLANS_PRODUCTION_TABLE_NAME)
+  return db(PLANS_PRODUCTION_TABLE_NAME)
     .where(PlansProductionColumn.ID_COLUMN, id)
     .update({
       [PlansProductionColumn.DATA_COLUMN]: data,
       [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
     });
+}
+
+export async function updatePlanProductionInfo(
+  db: knex,
+  id: number,
+  info: PlanProductionInfo
+): Promise<void> {
+  const fields: {[key: string]: number | boolean} = {
+    [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: info.operationAtStartOfDay,
+    [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: info.productionAtStartOfDay,
+  };
+
+  if (info.startTime !== undefined) {
+    fields[PlansProductionColumn.START_TIME_COLUMN] = info.startTime;
+  }
+  if (info.endTime !== undefined) {
+    fields[PlansProductionColumn.END_TIME_COLUMN] = info.endTime;
+  }
+  if (info.stopTime !== undefined) {
+    fields[PlansProductionColumn.STOP_TIME_COLUMN] = info.stopTime;
+  }
+  if (info.repriseTime !== undefined) {
+    fields[PlansProductionColumn.REPRISE_TIME_COLUMN] = info.repriseTime;
+  }
+
+  return db(PLANS_PRODUCTION_TABLE_NAME)
+    .where(PlansProductionColumn.ID_COLUMN, id)
+    .update({...fields, [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date()});
 }
 
 export async function movePlanProduction(

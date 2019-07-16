@@ -282,8 +282,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     }
 
     const data: PlanProductionData = {
-      isBeginningOfDay: false,
-
       polypro: selectedPolypro,
       papier: selectedPapier,
       perfo: selectedPerfo,
@@ -317,7 +315,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       }
     } else {
       bridge
-        .updatePlanProduction(id, serializedData)
+        .updatePlanProduction(id, data)
         .then(() => bridge.closeApp())
         .catch(console.error);
     }

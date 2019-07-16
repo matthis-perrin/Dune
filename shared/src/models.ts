@@ -206,8 +206,6 @@ export enum PlanProductionStatus {
 }
 
 export interface PlanProductionData {
-  isBeginningOfDay: boolean;
-
   polypro: BobineMere;
   papier: BobineMere;
   perfo: Perfo;

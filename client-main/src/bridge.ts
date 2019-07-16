@@ -42,6 +42,7 @@ import {
   GetPlanProductionEngineInfo,
   SaveNewPlanProduction,
   UpdatePlanProduction,
+  UpdatePlanProductionInfo,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -55,10 +56,11 @@ import {
   deletePlanProduction,
   createPlanProduction,
   updatePlanProductionData,
+  updatePlanProductionInfo,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
-import {ClientAppType, ContextMenuForBridge} from '@shared/models';
+import {ClientAppType, ContextMenuForBridge, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export async function handleCommand(
@@ -168,6 +170,10 @@ export async function handleCommand(
   if (command === UpdatePlanProduction) {
     const {id, data} = asMap(params);
     return updatePlanProductionData(SQLITE_DB.Prod, asNumber(id, 0), asString(data, '{}'));
+  }
+  if (command === UpdatePlanProductionInfo) {
+    const {id, info} = asMap(params);
+    return updatePlanProductionInfo(SQLITE_DB.Prod, asNumber(id, 0), info as PlanProductionInfo);
   }
 
   if (command === GetPlanProductionEngineInfo) {

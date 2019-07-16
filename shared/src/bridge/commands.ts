@@ -24,6 +24,7 @@ export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCom
 export const DeletePlanProduction = 'delete-plan-production' as BridgeCommand;
 export const SaveNewPlanProduction = 'save-new-plan-production' as BridgeCommand;
 export const UpdatePlanProduction = 'update-plan-production' as BridgeCommand;
+export const UpdatePlanProductionInfo = 'update-plan-production-info' as BridgeCommand;
 
 export const GetPlanProductionEngineInfo = 'get-plan-prod-engine-info' as BridgeCommand;
 export const SetPlanTourCount = 'set-plan-tour-count' as BridgeCommand;

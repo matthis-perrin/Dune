@@ -39,6 +39,7 @@ import {
   DeletePlanProduction,
   SaveNewPlanProduction,
   UpdatePlanProduction,
+  UpdatePlanProductionInfo,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -58,6 +59,7 @@ import {
   PlanProductionRaw,
   ContextMenuForBridge,
   PlanProductionInfo,
+  PlanProductionData,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -159,8 +161,14 @@ export class Bridge {
       data,
     });
   }
-  public async updatePlanProduction(id: number, data: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProduction, {id, data});
+  public async updatePlanProduction(id: number, data: PlanProductionData): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProduction, {
+      id,
+      data: JSON.stringify(data),
+    });
+  }
+  public async updatePlanProductionInfo(id: number, info: PlanProductionInfo): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProductionInfo, {id, info});
   }
 
   public async getPlanProduction(id: number): Promise<PlanProductionState & PlanProductionInfo> {
