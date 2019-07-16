@@ -89,15 +89,6 @@ export class GestionPage extends React.Component<Props, State> {
     this.setState({year: newYear, month: newMonth});
   };
 
-  private isSameDay(date: Date, time: number): boolean {
-    const date2 = new Date(time);
-    return (
-      date.getFullYear() === date2.getFullYear() &&
-      date.getMonth() === date2.getMonth() &&
-      date.getDate() === date2.getDate()
-    );
-  }
-
   private dateIsBeforeOrSameDay(date1: Date, date2: Date): boolean {
     return (
       date1.getFullYear() <= date2.getFullYear() &&
@@ -119,13 +110,21 @@ export class GestionPage extends React.Component<Props, State> {
     if (!orderedPlans) {
       return {done: [], scheduled: []};
     }
-    const done = orderedPlans.done.filter(p => this.isSameDay(date, p.plan.startTime || 0));
+    const done = orderedPlans.done.filter(
+      p =>
+        this.dateIsAfterOrSameDay(date, new Date(p.plan.startTime || 0)) &&
+        this.dateIsBeforeOrSameDay(date, new Date(p.plan.endTime || 0))
+    );
     const inProgress =
-      orderedPlans.inProgress && this.isSameDay(date, orderedPlans.inProgress.plan.startTime || 0)
+      orderedPlans.inProgress &&
+      this.dateIsAfterOrSameDay(date, new Date(orderedPlans.inProgress.plan.startTime || 0)) &&
+      this.dateIsBeforeOrSameDay(date, orderedPlans.inProgress.scheduledEnd)
         ? orderedPlans.inProgress
         : undefined;
-    const scheduled = orderedPlans.scheduled.filter(p =>
-      this.isSameDay(date, p.estimatedReglageStart.getTime())
+    const scheduled = orderedPlans.scheduled.filter(
+      p =>
+        this.dateIsAfterOrSameDay(date, p.estimatedReglageStart) &&
+        this.dateIsBeforeOrSameDay(date, p.estimatedProductionEnd)
     );
     return {done, inProgress, scheduled};
   }
@@ -185,6 +184,8 @@ export class GestionPage extends React.Component<Props, State> {
       <div>
         {done.map(p => (
           <PlanProdTile
+            key={p.plan.id}
+            date={date}
             planProd={p}
             stocks={stocks}
             cadencier={cadencier}
@@ -195,6 +196,8 @@ export class GestionPage extends React.Component<Props, State> {
         ))}
         {inProgress ? (
           <PlanProdTile
+            key={inProgress.plan.id}
+            date={date}
             planProd={inProgress}
             stocks={stocks}
             cadencier={cadencier}
@@ -207,6 +210,8 @@ export class GestionPage extends React.Component<Props, State> {
         )}
         {scheduled.map(p => (
           <PlanProdTile
+            key={p.plan.id}
+            date={date}
             planProd={p}
             stocks={stocks}
             cadencier={cadencier}

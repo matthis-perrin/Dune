@@ -10,7 +10,12 @@ import {SVGIcon} from '@root/components/core/svg_icon';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {PlanProdBase} from '@root/lib/plan_prod';
+import {
+  PlanProdBase,
+  DonePlanProduction,
+  InProgressPlanProduction,
+  ScheduledPlanProduction,
+} from '@root/lib/plan_prod';
 import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
@@ -21,6 +26,7 @@ import {asMap, asNumber} from '@shared/type_utils';
 const SHOW_VIEWER_TIMEOUT_MS = 100;
 
 interface Props extends HTMLDivProps {
+  date: Date;
   planProd: PlanProdBase;
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
@@ -207,6 +213,44 @@ export class PlanProdTile extends React.Component<Props> {
     }
   }
 
+  private isToday(time1: number | undefined): boolean {
+    if (time1 === undefined) {
+      return false;
+    }
+    const date1 = new Date(time1);
+    const date2 = this.props.date;
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
+
+  private getHalves(planProd: PlanProdBase): {top: boolean; bottom: boolean} {
+    if (planProd.type === 'done') {
+      const donePlanProd = planProd as DonePlanProduction;
+      return {
+        top: this.isToday(donePlanProd.plan.startTime),
+        bottom: this.isToday(donePlanProd.plan.endTime),
+      };
+    }
+    if (planProd.type === 'in-progress') {
+      const inProgressPlanProd = planProd as InProgressPlanProduction;
+      return {
+        top: this.isToday(inProgressPlanProd.plan.startTime),
+        bottom: this.isToday(inProgressPlanProd.scheduledEnd.getTime()),
+      };
+    }
+    if (planProd.type === 'scheduled') {
+      const scheduledPlanProd = planProd as ScheduledPlanProduction;
+      return {
+        top: this.isToday(scheduledPlanProd.estimatedReglageStart.getTime()),
+        bottom: this.isToday(scheduledPlanProd.estimatedProductionEnd.getTime()),
+      };
+    }
+    return {top: false, bottom: false};
+  }
+
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
@@ -230,17 +274,17 @@ export class PlanProdTile extends React.Component<Props> {
 
   private renderIndicator(planProd: PlanProdBase): JSX.Element {
     if (planProd.type === 'done') {
-      return <SVGIcon name="check" width={24} height={24} />;
+      return <SVGIcon name="check" width={16} height={16} />;
     }
     if (planProd.type === 'in-progress') {
-      return <SVGIcon name="progress" width={24} height={24} />;
+      return <SVGIcon name="progress" width={16} height={16} />;
     }
     return <React.Fragment />;
   }
 
   private renderPinIcon(planProd: PlanProdBase): JSX.Element {
     if (planProd.plan.operationAtStartOfDay || planProd.plan.productionAtStartOfDay) {
-      return <SVGIcon name="pin" width={24} height={24} />;
+      return <SVGIcon name="pin" width={16} height={16} />;
     }
     return <React.Fragment />;
   }
@@ -252,36 +296,45 @@ export class PlanProdTile extends React.Component<Props> {
     const indicator = this.renderIndicator(planProd);
     const content = getRefenteLabel(planProd.plan.data.refente);
     const pinIcon = this.renderPinIcon(planProd);
+    const halves = this.getHalves(planProd);
 
     return (
       <WithColor color={planProd.plan.data.papier.couleurPapier}>
-        {color => (
-          <TileWrapper
-            // tslint:disable-next-line:no-any no-unsafe-any
-            ref={this.wrapperRef as any}
-            onMouseEnter={() => this.showViewer()}
-            onMouseLeave={() => this.removeViewer()}
-            onContextMenu={this.handleContextMenu}
-            {...rest}
-            style={{
-              backgroundColor: color.backgroundHex,
-              color: color.textHex,
-              border: `solid 1px ${color.hasBorder ? color.textHex : 'transparent'}`,
-            }}
-          >
-            <TileIndicator>{indicator}</TileIndicator>
-            <TileContent>{content}</TileContent>
-            <TilePin>{pinIcon}</TilePin>
-          </TileWrapper>
-        )}
+        {color => {
+          return (
+            <TileWrapper
+              // tslint:disable-next-line:no-any no-unsafe-any
+              ref={this.wrapperRef as any}
+              onMouseEnter={() => this.showViewer()}
+              onMouseLeave={() => this.removeViewer()}
+              onContextMenu={this.handleContextMenu}
+              {...rest}
+              style={{
+                background: color.backgroundHex,
+                color: color.textHex,
+                border: `solid 1px ${color.textHex}`,
+                borderBottomStyle: !halves.bottom ? 'dashed' : 'solid',
+                borderTopStyle: !halves.top ? 'dashed' : 'solid',
+              }}
+            >
+              <TileIndicator>{indicator}</TileIndicator>
+              <TileContent>{content}</TileContent>
+              <TilePin>{pinIcon}</TilePin>
+            </TileWrapper>
+          );
+        }}
       </WithColor>
     );
   }
 }
 
+const margin = 4;
+
 const TileWrapper = styled.div`
-  width: 100%;
-  margin: 0 4px 4px 4px;
+  width: calc(100% - ${2 * margin}px);
+  height: 32px;
+  box-sizing: border-box;
+  margin: 0 ${margin}px ${margin}px ${margin}px;
   border-radius: 4px;
   cursor: pointer;
   display: flex;

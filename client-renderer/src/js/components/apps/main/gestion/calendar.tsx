@@ -86,7 +86,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
           </tr>
           <tr>
             {firstWeek.map(date => (
-              <td>
+              <td key={date.getTime()}>
                 <CalendarHeaderValue>
                   {date.toLocaleString('fr-FR', {weekday: 'long'})}
                 </CalendarHeaderValue>
@@ -96,9 +96,12 @@ export class Calendar extends React.Component<CalendarProps, {}> {
         </CalendarHeader>
         <tbody>
           {weeks.map(week => (
-            <tr>
+            <tr key={`week-${week[0].getTime()}`}>
               {week.map(date => (
-                <CalendarCell onContextMenu={event => onDayContextMenu(event, date)}>
+                <CalendarCell
+                  key={date.getTime()}
+                  onContextMenu={event => onDayContextMenu(event, date)}
+                >
                   <CalendarCellHeader>
                     <DayCircle>{date.getDate()}</DayCircle>
                   </CalendarCellHeader>
