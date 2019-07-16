@@ -257,6 +257,7 @@ export const theme = {
     dayCircleTextColor: Colors.TextOnSecondary,
     dayCircleFontSize: 14,
     dayCircleFontWeight: FontWeight.SemiBold,
+    tileHeight: 48,
   },
   viewer: {
     margin: 32,

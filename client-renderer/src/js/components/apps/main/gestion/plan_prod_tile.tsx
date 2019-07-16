@@ -6,20 +6,22 @@ import styled from 'styled-components';
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {HTMLDivProps} from '@root/components/core/common';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
+import {SVGIcon} from '@root/components/core/svg_icon';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
+import {PlanProdBase} from '@root/lib/plan_prod';
 import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
-import {PlanProduction, Stock, BobineQuantities, ClientAppType, Operation} from '@shared/models';
+import {Stock, BobineQuantities, ClientAppType, PlanProduction, Operation} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
 const SHOW_VIEWER_TIMEOUT_MS = 100;
 
 interface Props extends HTMLDivProps {
-  planProd: PlanProduction;
+  planProd: PlanProdBase;
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
@@ -37,7 +39,7 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private getViewerId(): string {
-    return `calendar-viewer-${this.props.planProd.id}`;
+    return `calendar-viewer-${this.props.planProd.plan.id}`;
   }
 
   private getViewerWidthHeightRatio(callback: (ratio: number) => void): void {
@@ -61,7 +63,7 @@ export class PlanProdTile extends React.Component<Props> {
   }
 
   private createViewer(width: number, heightCallback?: (height: number) => void): HTMLDivElement {
-    const {planProd, stocks, cadencier, bobineQuantities, plansProd, operations} = this.props;
+    const {planProd, stocks, cadencier, bobineQuantities, operations, plansProd} = this.props;
 
     this.removeViewer();
 
@@ -78,13 +80,13 @@ export class PlanProdTile extends React.Component<Props> {
     ReactDOM.render(
       <PlanProdViewer
         ref={viewerRef}
-        planProd={planProd}
+        planProd={planProd.plan}
         width={width}
         bobineQuantities={bobineQuantities}
         cadencier={cadencier}
         stocks={stocks}
-        plansProd={plansProd}
         operations={operations}
+        plansProd={plansProd}
         onHeightAvailable={heightCallback}
       />,
       viewerContainer
@@ -182,7 +184,7 @@ export class PlanProdTile extends React.Component<Props> {
   private newPlanProd(before: boolean): void {
     const {planProd} = this.props;
     bridge
-      .createNewPlanProduction((planProd.index || 0) + (before ? 0 : 1))
+      .createNewPlanProduction((planProd.plan.index || 0) + (before ? 0 : 1))
       .then(data => {
         const id = asNumber(asMap(data).id, 0);
         bridge
@@ -194,9 +196,9 @@ export class PlanProdTile extends React.Component<Props> {
 
   private deletePlanProd(): void {
     const {planProd} = this.props;
-    if (planProd.index) {
+    if (planProd.plan.index) {
       bridge
-        .deletePlanProduction(planProd.index)
+        .deletePlanProduction(planProd.plan.index)
         .then(() => {
           this.removeViewer();
           plansProductionStore.refresh().catch(() => {});
@@ -226,11 +228,33 @@ export class PlanProdTile extends React.Component<Props> {
       .catch(console.error);
   };
 
+  private renderIndicator(planProd: PlanProdBase): JSX.Element {
+    if (planProd.type === 'done') {
+      return <SVGIcon name="check" width={24} height={24} />;
+    }
+    if (planProd.type === 'in-progress') {
+      return <SVGIcon name="progress" width={24} height={24} />;
+    }
+    return <React.Fragment />;
+  }
+
+  private renderPinIcon(planProd: PlanProdBase): JSX.Element {
+    if (planProd.plan.operationAtStartOfDay || planProd.plan.productionAtStartOfDay) {
+      return <SVGIcon name="pin" width={24} height={24} />;
+    }
+    return <React.Fragment />;
+  }
+
   public render(): JSX.Element {
     const {planProd} = this.props;
     const rest = omit(this.props, ['data', 'ref']);
+
+    const indicator = this.renderIndicator(planProd);
+    const content = getRefenteLabel(planProd.plan.data.refente);
+    const pinIcon = this.renderPinIcon(planProd);
+
     return (
-      <WithColor color={planProd.data.papier.couleurPapier}>
+      <WithColor color={planProd.plan.data.papier.couleurPapier}>
         {color => (
           <TileWrapper
             // tslint:disable-next-line:no-any no-unsafe-any
@@ -245,7 +269,9 @@ export class PlanProdTile extends React.Component<Props> {
               border: `solid 1px ${color.hasBorder ? color.textHex : 'transparent'}`,
             }}
           >
-            {getRefenteLabel(planProd.data.refente)}
+            <TileIndicator>{indicator}</TileIndicator>
+            <TileContent>{content}</TileContent>
+            <TilePin>{pinIcon}</TilePin>
           </TileWrapper>
         )}
       </WithColor>
@@ -254,10 +280,23 @@ export class PlanProdTile extends React.Component<Props> {
 }
 
 const TileWrapper = styled.div`
-  padding: 4px 8px;
+  width: 100%;
   margin: 0 4px 4px 4px;
   border-radius: 4px;
-  font-weight: 500;
-  text-align: center;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
+
+const TileIndicator = styled.div`
+  flex-shrink: 0;
+`;
+const TileContent = styled.div`
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+const TilePin = styled.div`
+  flex-shrink: 0;
 `;
