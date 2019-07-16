@@ -227,6 +227,12 @@ export interface PlanProduction extends PlanProductionBase {
   data: PlanProductionData;
 }
 
+export interface NonProd {
+  id: number;
+  startTime: number;
+  endTime: number;
+}
+
 export enum OperationGroup {
   Repartissable = 'repartissable',
   Aide = 'aide',
