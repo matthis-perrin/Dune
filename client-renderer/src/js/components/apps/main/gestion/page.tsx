@@ -158,7 +158,6 @@ export class GestionPage extends React.Component<Props, State> {
             label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
             callback: () => {
               const planProdIndex = this.getNewPlanProdIndexForDate(date);
-              console.log(planProdIndex);
               bridge
                 .createNewPlanProduction(planProdIndex)
                 .then(({id}) => {
@@ -226,6 +225,7 @@ export class GestionPage extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {month, year} = this.state;
+    console.log(this.state.orderedPlans);
     return (
       <Page>
         <Calendar

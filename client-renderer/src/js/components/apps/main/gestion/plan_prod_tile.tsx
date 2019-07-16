@@ -20,7 +20,14 @@ import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
 import {getRefenteLabel} from '@shared/lib/refentes';
-import {Stock, BobineQuantities, ClientAppType, PlanProduction, Operation} from '@shared/models';
+import {
+  Stock,
+  BobineQuantities,
+  ClientAppType,
+  PlanProduction,
+  Operation,
+  Color,
+} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
 const SHOW_VIEWER_TIMEOUT_MS = 100;
@@ -272,35 +279,35 @@ export class PlanProdTile extends React.Component<Props> {
       .catch(console.error);
   };
 
-  private renderIndicator(planProd: PlanProdBase): JSX.Element {
+  private renderIndicator(planProd: PlanProdBase): JSX.Element | undefined {
     if (planProd.type === 'done') {
       return <SVGIcon name="check" width={16} height={16} />;
     }
     if (planProd.type === 'in-progress') {
       return <SVGIcon name="progress" width={16} height={16} />;
     }
-    return <React.Fragment />;
+    return <div>{`n°${(planProd.plan.index || 0) + 1}`}</div>;
   }
 
-  private renderPinIcon(planProd: PlanProdBase): JSX.Element {
+  private renderPinIcon(planProd: PlanProdBase): JSX.Element | undefined {
     if (planProd.plan.operationAtStartOfDay || planProd.plan.productionAtStartOfDay) {
       return <SVGIcon name="pin" width={16} height={16} />;
     }
-    return <React.Fragment />;
+    return undefined;
   }
 
   public render(): JSX.Element {
     const {planProd} = this.props;
     const rest = omit(this.props, ['data', 'ref']);
 
-    const indicator = this.renderIndicator(planProd);
-    const content = getRefenteLabel(planProd.plan.data.refente);
-    const pinIcon = this.renderPinIcon(planProd);
-    const halves = this.getHalves(planProd);
-
     return (
       <WithColor color={planProd.plan.data.papier.couleurPapier}>
         {color => {
+          const indicator = this.renderIndicator(planProd);
+          const content = getRefenteLabel(planProd.plan.data.refente);
+          const pinIcon = this.renderPinIcon(planProd);
+          const halves = this.getHalves(planProd);
+          const style = {borderColor: color.textHex};
           return (
             <TileWrapper
               // tslint:disable-next-line:no-any no-unsafe-any
@@ -317,9 +324,13 @@ export class PlanProdTile extends React.Component<Props> {
                 borderTopStyle: !halves.top ? 'dashed' : 'solid',
               }}
             >
-              <TileIndicator>{indicator}</TileIndicator>
+              {indicator ? (
+                <TileIndicator style={style}>{indicator}</TileIndicator>
+              ) : (
+                <React.Fragment />
+              )}
               <TileContent>{content}</TileContent>
-              <TilePin>{pinIcon}</TilePin>
+              {pinIcon ? <TilePin style={style}>{pinIcon}</TilePin> : <React.Fragment />}
             </TileWrapper>
           );
         }}
@@ -341,8 +352,16 @@ const TileWrapper = styled.div`
   align-items: center;
 `;
 
-const TileIndicator = styled.div`
+const TileElement = styled.div`
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
   flex-shrink: 0;
+  width: 32px;
+`;
+
+const TileIndicator = styled(TileElement)`
+  border-right: solid 1px;
 `;
 const TileContent = styled.div`
   flex-grow: 1;
@@ -350,6 +369,6 @@ const TileContent = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
-const TilePin = styled.div`
-  flex-shrink: 0;
+const TilePin = styled(TileElement)`
+  border-left: solid 1px;
 `;
