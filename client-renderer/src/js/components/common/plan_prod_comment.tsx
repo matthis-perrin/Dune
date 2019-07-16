@@ -42,9 +42,8 @@ export class PlanProdComment extends React.Component<Props> {
           }}
           placeholder="Commentaires"
           onChange={onChange}
-        >
-          {comment}
-        </Textarea>
+          value={comment}
+        />
       </React.Fragment>
     );
   }

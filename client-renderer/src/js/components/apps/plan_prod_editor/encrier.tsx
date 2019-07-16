@@ -73,10 +73,9 @@ export class Encrier extends React.Component<EncrierProps> {
       return this.renderEmptySpot(size, index);
     }
     return (
-      <WithColor color={encrierColor.color}>
+      <WithColor color={encrierColor.color} key={`cliche-${refCliche}-${pose}-${index}`}>
         {color => (
           <EncrierClicheSpot
-            key={`cliche-${refCliche}-${pose}-${index}`}
             style={{
               width: size * pixelPerMM,
               height: theme.planProd.elementsBaseHeight * pixelPerMM,

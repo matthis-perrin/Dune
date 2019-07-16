@@ -3,16 +3,13 @@ import * as React from 'react';
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
+import {bridge} from '@root/lib/bridge';
+import {contextMenuManager} from '@root/lib/context_menu';
 import {PlansProdOrder, orderPlansProd} from '@root/lib/plan_prod';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
-import {
-  /*ClientAppType, */ PlanProduction,
-  Stock,
-  BobineQuantities,
-  Operation,
-} from '@shared/models';
+import {PlanProduction, Stock, BobineQuantities, Operation, ClientAppType} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -60,9 +57,10 @@ export class GestionPage extends React.Component<Props, State> {
     const activePlansProd = plansProductionStore.getActivePlansProd();
     const operations = operationsStore.getData();
     if (activePlansProd && operations) {
+      const orderedPlans = orderPlansProd(activePlansProd, operations, []);
       this.setState({
         // TODO - Fetch non prod here
-        orderedPlans: orderPlansProd(activePlansProd, operations, []),
+        orderedPlans,
         plansProd: activePlansProd,
         operations,
       });
@@ -91,12 +89,28 @@ export class GestionPage extends React.Component<Props, State> {
     this.setState({year: newYear, month: newMonth});
   };
 
-  private isSameDay(date1: Date, plan: PlanProduction): boolean {
-    const date2 = new Date(plan.startTime || 0);
+  private isSameDay(date: Date, time: number): boolean {
+    const date2 = new Date(time);
     return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
+      date.getFullYear() === date2.getFullYear() &&
+      date.getMonth() === date2.getMonth() &&
+      date.getDate() === date2.getDate()
+    );
+  }
+
+  private dateIsBeforeOrSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getFullYear() <= date2.getFullYear() &&
+      date1.getMonth() <= date2.getMonth() &&
+      date1.getDate() <= date2.getDate()
+    );
+  }
+
+  private dateIsAfterOrSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getFullYear() >= date2.getFullYear() &&
+      date1.getMonth() >= date2.getMonth() &&
+      date1.getDate() >= date2.getDate()
     );
   }
 
@@ -105,40 +119,60 @@ export class GestionPage extends React.Component<Props, State> {
     if (!orderedPlans) {
       return {done: [], scheduled: []};
     }
-    const done = orderedPlans.done.filter(p => this.isSameDay(date, p.plan));
+    const done = orderedPlans.done.filter(p => this.isSameDay(date, p.plan.startTime || 0));
     const inProgress =
-      orderedPlans.inProgress && this.isSameDay(date, orderedPlans.inProgress.plan)
+      orderedPlans.inProgress && this.isSameDay(date, orderedPlans.inProgress.plan.startTime || 0)
         ? orderedPlans.inProgress
         : undefined;
-    const scheduled = orderedPlans.scheduled.filter(p => this.isSameDay(date, p.plan));
+    const scheduled = orderedPlans.scheduled.filter(p =>
+      this.isSameDay(date, p.estimatedReglageStart.getTime())
+    );
     return {done, inProgress, scheduled};
   }
 
+  private isValidDateToCreatePlanProd(date: Date): boolean {
+    return this.dateIsAfterOrSameDay(date, new Date());
+  }
+
+  private getNewPlanProdIndexForDate(date: Date): number {
+    const {orderedPlans} = this.state;
+    if (!orderedPlans) {
+      return 0;
+    }
+    const {scheduled} = orderedPlans;
+    return scheduled.reduce(
+      (acc, curr) =>
+        curr.plan.index !== undefined &&
+        curr.plan.index >= acc &&
+        this.dateIsBeforeOrSameDay(curr.estimatedReglageStart, date)
+          ? curr.plan.index + 1
+          : acc,
+      0
+    );
+  }
+
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
-    // if (event.type === 'contextmenu') {
-    //   contextMenuManager
-    //     .open([
-    //       {
-    //         label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
-    //         callback: () => {
-    //           const plansForDate = this.getPlanProdsForDate(date);
-    //           bridge
-    //             .createNewPlanProduction(
-    //               date.getFullYear(),
-    //               date.getMonth(),
-    //               date.getDate(),
-    //               plansForDate.length
-    //             )
-    //             .then(data => {
-    //               const id = asNumber(asMap(data).id, 0);
-    //               bridge.openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true}).catch(console.error);
-    //             })
-    //             .catch(err => console.error(err));
-    //         },
-    //       },
-    //     ])
-    //     .catch(console.error);
-    // }
+    if (event.type === 'contextmenu' && this.isValidDateToCreatePlanProd(date)) {
+      contextMenuManager
+        .open([
+          {
+            label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
+            callback: () => {
+              const planProdIndex = this.getNewPlanProdIndexForDate(date);
+              console.log(planProdIndex);
+              bridge
+                .createNewPlanProduction(planProdIndex)
+                .then(({id}) => {
+                  bridge
+                    .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true})
+                    .catch(console.error);
+                })
+                .catch(err => console.error(err));
+            },
+          },
+        ])
+        .catch(console.error);
+    }
   };
 
   public renderDay(date: Date): JSX.Element {

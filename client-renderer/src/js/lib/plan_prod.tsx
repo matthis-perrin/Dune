@@ -468,7 +468,7 @@ function startOfNextDay(date: Date): Date {
 function prodRangeAsDate(currentDate: Date, prodRange: ProdRange): {start: Date; end: Date} {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const day = currentDate.getDay();
+  const day = currentDate.getDate();
   const start = new Date(year, month, day, prodRange.startHour, prodRange.startMinute);
   const end = new Date(year, month, day, prodRange.endHour, prodRange.endMinute);
   return {start, end};
@@ -514,8 +514,8 @@ function advanceToNextProdDate(date: Date, nonProds: NonProd[]): Date {
   if (ts >= end.getTime()) {
     return advanceToNextProdDate(startOfNextDay(date), nonProds);
   }
-  const adjustedTimeWithStart = ts < start.getTime() ? start : ts;
-  const adjustedTimeWithNonProds = adjustTimeWithNonPros(ts, nonProds);
+  const adjustedTimeWithStart = ts < start.getTime() ? start.getTime() : ts;
+  const adjustedTimeWithNonProds = adjustTimeWithNonPros(adjustedTimeWithStart, nonProds);
   const adjustedDate = new Date(adjustedTimeWithNonProds);
   if (adjustedTimeWithNonProds !== adjustedTimeWithStart) {
     return advanceToNextProdDate(adjustedDate, nonProds);
@@ -577,7 +577,9 @@ function getPlanProdBase(
   const planOperations = splitOperations(operations, constraints);
   const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = planOperations;
   const operationsTotal =
-    max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) || 0;
+    1000 *
+    (max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) ||
+      0);
 
   return {plan: planProd, operations: planOperations, operationsTotal, prodLength, type};
 }
@@ -617,7 +619,7 @@ export function orderPlansProd(
     inProgress = {...base, scheduledEnd};
   }
 
-  const previousScheduled = inProgressPlansProd[0] || lastDone;
+  let previousScheduled = inProgressPlansProd[0] || lastDone;
   const scheduled = scheduledPlansProd.map(p => {
     const base = getPlanProdBase('scheduled', operations, p, previousScheduled);
     const {operationAtStartOfDay, productionAtStartOfDay} = p;
@@ -638,6 +640,7 @@ export function orderPlansProd(
       nonProds
     );
     startingPoint = estimatedProductionEnd;
+    previousScheduled = p;
     return {
       ...base,
       estimatedReglageStart,

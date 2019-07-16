@@ -65,6 +65,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
     if (selectableBobines.length === 0) {
       elements.push(
         <OrderableBobines
+          key="orderable-bobines"
           planId={planId}
           bobines={
             (placement.filter(p => typeof p !== 'number') as unknown) as BobineFilleWithPose[]

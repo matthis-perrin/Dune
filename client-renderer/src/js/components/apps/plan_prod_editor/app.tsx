@@ -169,7 +169,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
   private readonly refreshPlanProduction = () => {
     const {id} = this.props;
-    document.title = 'Plan de production';
+    document.title = getPlanProdTitle(id);
     bridge
       .getPlanProduction(id)
       .then(planProduction => {
@@ -301,7 +301,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
     const serializedData = JSON.stringify(data);
     if (isCreating) {
-      if (index) {
+      if (index !== undefined) {
         bridge
           .saveNewPlanProduction(
             id,
@@ -340,21 +340,21 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     );
   }
 
-  private removeRefente(): void {
+  private readonly removeRefente = (): void => {
     bridge.setPlanRefente(this.props.id, undefined).catch(console.error);
-  }
+  };
 
-  private removePerfo(): void {
+  private readonly removePerfo = (): void => {
     bridge.setPlanPerfo(this.props.id, undefined).catch(console.error);
-  }
+  };
 
-  private removePapier(): void {
+  private readonly removePapier = (): void => {
     bridge.setPlanPapier(this.props.id, undefined).catch(console.error);
-  }
+  };
 
-  private removePolypro(): void {
+  private readonly removePolypro = (): void => {
     bridge.setPlanPolypro(this.props.id, undefined).catch(console.error);
-  }
+  };
 
   public render(): JSX.Element {
     const {id} = this.props;
