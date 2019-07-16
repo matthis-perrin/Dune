@@ -123,9 +123,7 @@ export async function movePlanProduction(
   db: knex,
   id: number,
   fromIndex: number,
-  toIndex: number,
-  operationAtStartOfDay: boolean,
-  productionAtStartOfDay: boolean
+  toIndex: number
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
@@ -141,8 +139,6 @@ export async function movePlanProduction(
             .where(PlansProductionColumn.ID_COLUMN, '=', id)
             .update({
               [PlansProductionColumn.INDEX_COLUMN]: toIndex,
-              [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: operationAtStartOfDay,
-              [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: productionAtStartOfDay,
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
             })
             .then(() => {

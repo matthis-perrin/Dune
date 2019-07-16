@@ -1,4 +1,4 @@
-import {omit, maxBy} from 'lodash-es';
+import {omit, maxBy, range} from 'lodash-es';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import styled from 'styled-components';
@@ -211,13 +211,19 @@ export class PlanProdTile extends React.Component<Props> {
     const {planProd} = this.props;
     const newPlanInfo: PlanProductionInfo = {...planProd.plan};
     newPlanInfo.operationAtStartOfDay = newValue;
-    bridge.updatePlanProductionInfo(planProd.plan.id, newPlanInfo).catch(console.error);
+    bridge
+      .updatePlanProductionInfo(planProd.plan.id, newPlanInfo)
+      .then(plansProductionStore.refresh)
+      .catch(console.error);
   };
   private readonly setProductionAtStartOfDay = (newValue: boolean): void => {
     const {planProd} = this.props;
     const newPlanInfo: PlanProductionInfo = {...planProd.plan};
     newPlanInfo.productionAtStartOfDay = newValue;
-    bridge.updatePlanProductionInfo(planProd.plan.id, newPlanInfo).catch(console.error);
+    bridge
+      .updatePlanProductionInfo(planProd.plan.id, newPlanInfo)
+      .then(plansProductionStore.refresh)
+      .catch(console.error);
   };
 
   private deletePlanProd(): void {
@@ -229,6 +235,16 @@ export class PlanProdTile extends React.Component<Props> {
           this.removeViewer();
           plansProductionStore.refresh().catch(() => {});
         })
+        .catch(console.error);
+    }
+  }
+
+  private movePlanProd(toIndex: number): void {
+    const {planProd} = this.props;
+    if (planProd.plan.index) {
+      bridge
+        .movePlanProduction(planProd.plan.id, planProd.plan.index, toIndex)
+        .then(plansProductionStore.refresh)
         .catch(console.error);
     }
   }
@@ -274,7 +290,12 @@ export class PlanProdTile extends React.Component<Props> {
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {planProd} = this.props;
+    const {planProd, plansProd} = this.props;
+    const planIndex = planProd.plan.index === undefined ? -1 : planProd.plan.index;
+    const lastIndex = plansProd.reduce(
+      (acc, curr) => (curr.index !== undefined && curr.index > acc ? curr.index : acc),
+      0
+    );
     const menus: ContextMenu[] = [
       {
         label: 'Nouveau plan de production après',
@@ -285,6 +306,14 @@ export class PlanProdTile extends React.Component<Props> {
       menus.unshift({
         label: 'Nouveau plan de production avant',
         callback: () => this.newPlanProd(true),
+      });
+      menus.push({
+        label: 'Déplacer à la position',
+        submenus: range(lastIndex + 1).map(index => ({
+          label: `${index < planIndex ? '▲' : index === planIndex ? '   ' : '▼'} n°${index + 1}`,
+          disabled: index !== planIndex,
+          callback: () => this.movePlanProd(index),
+        })),
       });
       if (planProd.plan.operationAtStartOfDay) {
         menus.push({
@@ -314,6 +343,7 @@ export class PlanProdTile extends React.Component<Props> {
       });
     }
     contextMenuManager.open(menus).catch(console.error);
+    this.removeViewer();
   };
 
   private renderIndicator(planProd: PlanProdBase): JSX.Element | undefined {

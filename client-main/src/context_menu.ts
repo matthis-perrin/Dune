@@ -20,6 +20,7 @@ function getMenuItemOptions(
 ): MenuItemConstructorOptions {
   return {
     label: menuItem.label,
+    enabled: menuItem.disabled,
     click: () => onMenuItemClicked(menuItem.id),
     submenu:
       menuItem.submenus &&

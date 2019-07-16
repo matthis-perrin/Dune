@@ -40,6 +40,7 @@ import {
   SaveNewPlanProduction,
   UpdatePlanProduction,
   UpdatePlanProductionInfo,
+  MovePlanProduction,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -145,6 +146,20 @@ export class Bridge {
   }
   public async deletePlanProduction(index: number): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {index});
+  }
+  public async movePlanProduction(
+    id: number,
+    fromIndex: number | undefined,
+    toIndex: number
+  ): Promise<void> {
+    if (fromIndex === undefined) {
+      return;
+    }
+    return this.bridgeTransport.sendBridgeCommand<void>(MovePlanProduction, {
+      id,
+      fromIndex,
+      toIndex,
+    });
   }
   public async saveNewPlanProduction(
     id: number,

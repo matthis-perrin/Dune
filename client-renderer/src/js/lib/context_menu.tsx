@@ -8,6 +8,7 @@ import {asString, asMap} from '@shared/type_utils';
 
 export interface ContextMenu {
   label: string;
+  disabled?: boolean;
   callback?(): void;
   submenus?: ContextMenu[];
 }
@@ -42,6 +43,7 @@ export class ContextMenuManager {
     return {
       id: menuItemId,
       label: menu.label,
+      disabled: menu.disabled,
       submenus:
         menu.submenus && menu.submenus.map(m => this.createMenuAndFillCallbackMap(callbacks, m)),
     };

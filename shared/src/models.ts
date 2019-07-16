@@ -330,5 +330,6 @@ export interface MinuteSpeed {
 export interface ContextMenuForBridge {
   id: string;
   label: string;
+  disabled?: boolean;
   submenus?: ContextMenuForBridge[];
 }

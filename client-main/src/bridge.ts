@@ -43,6 +43,7 @@ import {
   SaveNewPlanProduction,
   UpdatePlanProduction,
   UpdatePlanProductionInfo,
+  MovePlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -57,6 +58,7 @@ import {
   createPlanProduction,
   updatePlanProductionData,
   updatePlanProductionInfo,
+  movePlanProduction,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
@@ -155,6 +157,15 @@ export async function handleCommand(
   if (command === DeletePlanProduction) {
     const {index} = asMap(params);
     await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
+  }
+  if (command === MovePlanProduction) {
+    const {id, fromIndex, toIndex} = asMap(params);
+    await movePlanProduction(
+      SQLITE_DB.Prod,
+      asNumber(id, 0),
+      asNumber(fromIndex, 0),
+      asNumber(toIndex, 0)
+    );
   }
   if (command === SaveNewPlanProduction) {
     const {id, index, operationAtStartOfDay, productionAtStartOfDay, data} = asMap(params);
