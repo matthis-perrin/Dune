@@ -1,5 +1,6 @@
 import {zip, max} from 'lodash-es';
 
+import {PROD_HOURS_BY_DAY, ProdRange} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
@@ -415,23 +416,23 @@ export function getPreviousPlanProd(
     .sort((p1, p2) => (p2.startTime || 0) - (p1.startTime || 0))[0];
 }
 
+export type PlanProdType = 'done' | 'in-progress' | 'scheduled';
+
 export interface PlanProdBase {
   plan: PlanProduction;
-}
-
-export interface NotDoneBase extends PlanProdBase {
   operations?: OperationSplits;
   operationsTotal: number;
   prodLength: number;
+  type: PlanProdType;
 }
 
 export interface DonePlanProduction extends PlanProdBase {}
 
-export interface InProgressPlanProduction extends NotDoneBase {
+export interface InProgressPlanProduction extends PlanProdBase {
   scheduledEnd: Date;
 }
 
-export interface ScheduledPlanProduction extends NotDoneBase {
+export interface ScheduledPlanProduction extends PlanProdBase {
   estimatedReglageStart: Date;
   estimatedReglageEnd: Date;
   estimatedProductionStart: Date;
@@ -463,13 +464,6 @@ function startOfNextDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
 }
 
-interface ProdRange {
-  startHour: number;
-  startMinute: number;
-  endHour: number;
-  endMinute: number;
-}
-
 function prodRangeAsDate(currentDate: Date, prodRange: ProdRange): {start: Date; end: Date} {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -479,18 +473,10 @@ function prodRangeAsDate(currentDate: Date, prodRange: ProdRange): {start: Date;
   return {start, end};
 }
 
-const PROD_HOUR_BY_DAY = new Map<string, ProdRange>([
-  ['lundi', {startHour: 6, startMinute: 0, endHour: 22, endMinute: 0}],
-  ['mardi', {startHour: 6, startMinute: 0, endHour: 22, endMinute: 0}],
-  ['mercredi', {startHour: 6, startMinute: 0, endHour: 22, endMinute: 0}],
-  ['jeudi', {startHour: 6, startMinute: 0, endHour: 22, endMinute: 0}],
-  ['vendredi', {startHour: 6, startMinute: 0, endHour: 19, endMinute: 0}],
-]);
-
 function advanceToNextProdDate(date: Date): Date {
   const ts = date.getTime();
   const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
-  const prodHours = PROD_HOUR_BY_DAY.get(dayOfWeek);
+  const prodHours = PROD_HOURS_BY_DAY.get(dayOfWeek);
   if (!prodHours) {
     return advanceToNextProdDate(startOfNextDay(date));
   }
@@ -509,7 +495,7 @@ function advanceToNextProdDate(date: Date): Date {
 function advanceProdDate(date: Date, time: number): Date {
   const current = advanceToNextProdDate(date);
   const dayOfWeek = current.toLocaleString('fr-FR', {weekday: 'long'});
-  const prodHours = PROD_HOUR_BY_DAY.get(dayOfWeek);
+  const prodHours = PROD_HOURS_BY_DAY.get(dayOfWeek);
   if (!prodHours) {
     throw new Error(`${current.toLocaleDateString('fr')} n'est pas un temps de prod valide.`);
   }
@@ -523,17 +509,36 @@ function advanceProdDate(date: Date, time: number): Date {
   return new Date(current.getTime() + time);
 }
 
+function pinToStartOfDay(date: Date): Date {
+  const ts = date.getTime();
+  const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
+  const prodHours = PROD_HOURS_BY_DAY.get(dayOfWeek);
+  if (!prodHours) {
+    return advanceToNextProdDate(startOfNextDay(date));
+  }
+  const {start} = prodRangeAsDate(date, prodHours);
+  if (ts < start.getTime()) {
+    return start;
+  }
+  if (ts === start.getTime()) {
+    return date;
+  }
+  return advanceToNextProdDate(startOfNextDay(date));
+}
+
 function getPlanProdBase(
+  type: PlanProdType,
   operations: Operation[],
   planProd: PlanProduction,
   previous?: PlanProduction
-): NotDoneBase {
+): PlanProdBase {
   const prodLength = getProductionLengthMs(planProd);
   if (!previous) {
     return {
       plan: planProd,
       operationsTotal: 0,
       prodLength,
+      type,
     };
   }
   const constraints = getConstraints(previous.data, planProd.data);
@@ -542,7 +547,7 @@ function getPlanProdBase(
   const operationsTotal =
     max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) || 0;
 
-  return {plan: planProd, operations: planOperations, operationsTotal, prodLength};
+  return {plan: planProd, operations: planOperations, operationsTotal, prodLength, type};
 }
 
 export function orderPlansProd(
@@ -559,7 +564,9 @@ export function orderPlansProd(
     .filter(p => !p.startTime && !p.endTime)
     .sort((p1, p2) => (p1.index || 0) - (p2.index || 0));
 
-  const done = donePlansProd.map(p => ({plan: p}));
+  const done = donePlansProd.map((p, index) => {
+    return getPlanProdBase('done', operations, p, index > 0 ? donePlansProd[index - 1] : undefined);
+  });
   const lastDone = donePlansProd.length > 0 ? donePlansProd[donePlansProd.length - 1] : undefined;
 
   let startingPoint = advanceToNextProdDate(new Date());
@@ -567,7 +574,7 @@ export function orderPlansProd(
   let inProgress: InProgressPlanProduction | undefined;
   if (inProgressPlansProd.length > 0) {
     const firstInProgress = inProgressPlansProd[0];
-    const base = getPlanProdBase(operations, firstInProgress, lastDone);
+    const base = getPlanProdBase('in-progress', operations, firstInProgress, lastDone);
     const scheduledEnd = advanceProdDate(
       new Date(firstInProgress.startTime || Date.now()),
       base.operationsTotal + base.prodLength
@@ -578,10 +585,15 @@ export function orderPlansProd(
 
   const previousScheduled = inProgressPlansProd[0] || lastDone;
   const scheduled = scheduledPlansProd.map(p => {
-    const base = getPlanProdBase(operations, p, previousScheduled);
-    const estimatedReglageStart = startingPoint;
+    const base = getPlanProdBase('scheduled', operations, p, previousScheduled);
+    const {operationAtStartOfDay, productionAtStartOfDay} = p;
+    const estimatedReglageStart = operationAtStartOfDay
+      ? pinToStartOfDay(startingPoint)
+      : startingPoint;
     const estimatedReglageEnd = advanceProdDate(estimatedReglageStart, base.operationsTotal);
-    const estimatedProductionStart = estimatedReglageEnd;
+    const estimatedProductionStart = productionAtStartOfDay
+      ? pinToStartOfDay(estimatedReglageEnd)
+      : estimatedReglageEnd;
     const estimatedProductionEnd = advanceProdDate(estimatedProductionStart, base.prodLength);
     startingPoint = estimatedProductionEnd;
     return {
