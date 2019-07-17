@@ -87,9 +87,6 @@ export const DOCUMENT_TYPE_LIVRAISON = 3;
 export const DOCUMENT_TYPE_FACTURE = 6;
 export const DOCUMENT_TYPE_FACTURE_COMPTABILISEE = 7;
 
-const MS_IN_23_HOURS = 23 * 60 * 60 * 1000;
-const MS_IN_7_DAYS = 7 * 24 * 60 * 60 * 1000;
-
 export abstract class GescomWatcher {
   protected abstract tableName: string;
   protected BATCH_SIZE_INSERT = 50;
@@ -116,23 +113,6 @@ export abstract class GescomWatcher {
     const lastCheckDateRounded = lastCheckDate.setSeconds(0, 0);
 
     return Math.abs(lastCheckDateRounded - convertedGescomDateRounded) <= 60000;
-  }
-
-  private shouldPerformFullRefresh(lastFullRefresh: Date): boolean {
-    // We do a full refresh if:
-    // - one has not been done in the past 23h and it's between 3:00am and 4:00am
-    // or
-    // - on has not been done in the past 7 days regardeless of the time
-    const now = Date.now();
-    const msAgo = now - lastFullRefresh.getTime();
-    if (msAgo >= MS_IN_7_DAYS) {
-      return true;
-    }
-    if (msAgo < MS_IN_23_HOURS) {
-      return false;
-    }
-    const currentHour = new Date().getHours() + 1; // hours start at 0
-    return currentHour === 3;
   }
 
   private async insertBatch(localDate: Date, lines: any[], offset: number = 0): Promise<void> {
@@ -178,47 +158,9 @@ export abstract class GescomWatcher {
     });
   }
 
-  private async clearTable(): Promise<void> {
-    log.info(`Clearing table ${this.tableName}`);
-    await this.sqliteDB(this.tableName).truncate();
-  }
-
   private fetchNextBatch() {
     getGescomSyncData(this.sqliteDB, this.tableName)
-      .then(({lastChecked, lastUpdated, lastFullRefresh}) => {
-        if (this.shouldPerformFullRefresh(lastFullRefresh)) {
-          this.clearTable()
-            .then(() => {
-              const newLastFullRefresh = new Date();
-              updateGescomSyncData(
-                this.sqliteDB,
-                this.tableName,
-                lastUpdated,
-                lastChecked,
-                newLastFullRefresh
-              )
-                .then(() => this.fetchNextBatch())
-                .catch(err => {
-                  addError(
-                    `Erreur lors de la mise à jour de la table de synchronisation après full refresh pour la table ${
-                      this.tableName
-                    }. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
-                    err.toString()
-                  );
-                  setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
-                });
-            })
-            .catch(err => {
-              addError(
-                `Erreur lors du full refresh de la table la table ${
-                  this.tableName
-                }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
-                err.toString()
-              );
-              setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
-            });
-          return;
-        }
+      .then(({lastChecked, lastUpdated}) => {
         const operator = this.hasPossiblyChanged(lastChecked, lastUpdated) ? '>=' : '>';
         const fetchQuery = this.fetch()
           .where(LAST_UPDATE_COLUMN, operator, lastUpdated)
@@ -237,13 +179,7 @@ export abstract class GescomWatcher {
                 .then(() => {
                   const lastLine = lines[lines.length - 1];
                   const newLastUpdated = lastLine[LAST_UPDATE_COLUMN];
-                  updateGescomSyncData(
-                    this.sqliteDB,
-                    this.tableName,
-                    newLastUpdated,
-                    queryTime,
-                    lastFullRefresh
-                  )
+                  updateGescomSyncData(this.sqliteDB, this.tableName, newLastUpdated, queryTime)
                     .then(() => {
                       // When we detect a change, we need to keep inserting it in the database for around a minute
                       // because the GESCOM "last update" field is rounded to the minute. So we have no way to know if
@@ -273,13 +209,7 @@ export abstract class GescomWatcher {
                   addError('This error should never happen', err.toString());
                 });
             } else {
-              updateGescomSyncData(
-                this.sqliteDB,
-                this.tableName,
-                lastUpdated,
-                queryTime,
-                lastFullRefresh
-              )
+              updateGescomSyncData(this.sqliteDB, this.tableName, lastUpdated, queryTime)
                 .then(() => this.fetchNextBatch())
                 .catch(err => {
                   addError(

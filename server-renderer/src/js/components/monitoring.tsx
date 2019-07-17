@@ -16,8 +16,8 @@ export class Monitoring extends React.Component<Props> {
   }
 
   private agoToString(ago: number): string {
-    if (ago < 2) {
-      return 'il y a < 2s';
+    if (ago < 3) {
+      return 'il y a < 3s';
     }
     if (ago > 3600) {
       return 'Jamais mise a jour';
@@ -69,7 +69,7 @@ export class Monitoring extends React.Component<Props> {
     const {lastMinute, firstMinute, rowCount} = automate;
 
     return (
-      <table style={{width: '100%', borderCollapse: 'collapse'}}>
+      <table style={{width: '100%', borderCollapse: 'collapse', color: 'white'}}>
         <tr>
           <td colSpan={3}>
             <SectionTitle>Automate</SectionTitle>
@@ -117,7 +117,7 @@ export class Monitoring extends React.Component<Props> {
         </tr>
 
         <tr>
-          <td colSpan={3}>
+          <td colSpan={3} style={{paddingTop: 16}}>
             <SectionTitle>Gestion commerciale</SectionTitle>
           </td>
         </tr>
@@ -137,16 +137,18 @@ export class Monitoring extends React.Component<Props> {
 }
 
 const SectionTitle = styled.div`
-  font-weight: 600;
+  font-weight: 400;
   display: inline-block;
   margin: 8px 0;
   font-size: 22px;
+  padding: 4px 16px;
+  background: #16a085;
 `;
 
 const ServiceTitle = styled.div`
   width: 100%;
   display: inline-block;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 18px;
 `;
 

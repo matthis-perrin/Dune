@@ -35,10 +35,10 @@ async function startServer(): Promise<void> {
   await gescomStocks.start();
   log.info('Starting Cadencier watcher');
   await gescomCadencier.start();
-  log.info('Starting Automate aggregator');
-  await aggregator.start();
-  log.info('Starting Automate watcher');
-  automateWatcher.start();
+  // log.info('Starting Automate aggregator');
+  // await aggregator.start();
+  // log.info('Starting Automate watcher');
+  // automateWatcher.start();
 }
 
 startServer();
@@ -51,7 +51,7 @@ app.on('ready', () => {
   }
   const browserWindow = createBrowserWindow({
     width: 620,
-    height: 420,
+    height: 432,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>

@@ -7,6 +7,7 @@ export const GlobalStyle = createGlobalStyle`
         margin: 0;
         height: 100%;
         -webkit-app-region: no-drag;
+        background-color: #2C3E50;
     }
 
     #root {
