@@ -30,7 +30,7 @@ import {
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
-const SHOW_VIEWER_TIMEOUT_MS = 100;
+const SHOW_VIEWER_TIMEOUT_MS = 400;
 
 interface Props extends HTMLDivProps {
   date: Date;

@@ -6,6 +6,7 @@ import {Monitoring} from '@root/components/monitoring';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
+import {Herisson} from '@root/components/herisson';
 
 const REFRESH_PERIOD_MS = 500;
 
@@ -48,6 +49,18 @@ export class App extends React.Component<Props, State> {
     return (
       <AppWrapper>
         <Monitoring automate={status.automate} gescom={status.gescom} />
+        <Herisson
+          style={{
+            width: 100,
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            borderRadius: 55,
+            background: 'white',
+            padding: ' 0 5px 10px 5px',
+            boxShadow: '0px 0px 33px 8px rgba(255,255,255,1)',
+          }}
+        />
         <GlobalStyle />
       </AppWrapper>
     );
