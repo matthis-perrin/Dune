@@ -19,7 +19,7 @@
   },
   "main": "dist/index.js",
   "build": {
-    "productName": "Serveur Hérisson",
+    "productName": "Serveur Herisson",
     "appId": "dune.mondon.server",
     "directories": {
       "buildResources": "assets",
