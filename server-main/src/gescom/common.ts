@@ -52,6 +52,7 @@ export const LAST_UPDATE_COLUMN = 'cbModification';
 
 export const ARTICLE_REF_COLUMN = 'AR_Ref';
 export const ARTICLE_DESIGNATION_COLUMN = 'AR_Design';
+export const ARTICLE_DESIGNATION_OPERATOR_COLUMN = 'Désignation';
 export const ARTICLE_LAIZE_COLUMN = 'Largeur';
 export const ARTICLE_LONGUEUR_COLUMN = 'Longueur';
 export const ARTICLE_COULEUR_PAPIER_COLUMN = 'Couleur papier';
@@ -112,15 +113,17 @@ export abstract class GescomWatcher {
     const convertedGescomDateRounded = convertedGescomDate.setSeconds(0, 0);
     const lastCheckDateRounded = lastCheckDate.setSeconds(0, 0);
 
-    return Math.abs(lastCheckDateRounded - convertedGescomDateRounded) <= 60000;
+    return Math.abs(lastCheckDateRounded - convertedGescomDateRounded) <= 60 * 1000;
   }
 
+  // tslint:disable-next-line:no-any
   private async insertBatch(localDate: Date, lines: any[], offset: number = 0): Promise<void> {
     if (offset >= lines.length) {
       return Promise.resolve();
     }
     return new Promise<void>((resolve, reject) => {
       const chunk = lines.slice(offset, offset + this.BATCH_SIZE_INSERT);
+      // tslint:disable-next-line:no-any
       const refs = chunk.map((l: any) => this.getRef(l));
       this.deleteRefs(refs)
         .then(() => {
@@ -252,6 +255,6 @@ export abstract class GescomWatcher {
 
   protected abstract fetch(): knex.QueryBuilder;
   protected abstract mapGescomLineToSqliteLine(localDate: Date, gescomLine: any): any;
-  protected abstract deleteRefs(refs: string[]): any;
+  protected abstract deleteRefs(refs: string[]): Promise<void>;
   protected abstract getRef(gescomLine: any): string;
 }

@@ -7,6 +7,7 @@ import {asMap, asNumber, asString} from '@shared/type_utils';
 export const BobineFilleColumns = {
   REF_COLUMN: 'ref',
   DESIGNATION_COLUMN: 'designation',
+  DESIGNATION_OPERATEUR_COLUMN: 'designationOperateur',
   LAIZE_COLUMN: 'laize',
   LONGUEUR_COLUMN: 'longueur',
   COULEUR_PAPIER_COLUMN: 'couleurPapier',
@@ -28,6 +29,7 @@ export async function createBobinesFillesTable(db: knex): Promise<void> {
         .notNullable()
         .primary();
       table.string(BobineFilleColumns.DESIGNATION_COLUMN);
+      table.string(BobineFilleColumns.DESIGNATION_OPERATEUR_COLUMN);
       table.integer(BobineFilleColumns.LAIZE_COLUMN);
       table.integer(BobineFilleColumns.LONGUEUR_COLUMN);
       table.string(BobineFilleColumns.COULEUR_PAPIER_COLUMN);
@@ -58,18 +60,22 @@ export async function listBobinesFilles(
     .map(bobineFilleLine => {
       const b = asMap(bobineFilleLine);
       return {
-        ref: asString(b.ref, ''),
-        designation: asString(b.designation, undefined),
-        laize: asNumber(b.laize, undefined),
-        longueur: asNumber(b.longueur, undefined),
-        couleurPapier: asString(b.couleurPapier, undefined),
-        grammage: asNumber(b.grammage, undefined),
-        refCliche1: asString(b.refCliche1, undefined),
-        refCliche2: asString(b.refCliche2, undefined),
-        typeImpression: asString(b.typeImpression, undefined),
-        sommeil: asNumber(b.sommeil, 0) === 1,
-        lastUpdate: asNumber(b.lastUpdate, 0),
-        localUpdate: asNumber(b.localUpdate, 0),
+        ref: asString(b[BobineFilleColumns.REF_COLUMN], ''),
+        designation: asString(b[BobineFilleColumns.DESIGNATION_COLUMN], undefined),
+        designationOperateur: asString(
+          b[BobineFilleColumns.DESIGNATION_OPERATEUR_COLUMN],
+          undefined
+        ),
+        laize: asNumber(b[BobineFilleColumns.LAIZE_COLUMN], undefined),
+        longueur: asNumber(b[BobineFilleColumns.LONGUEUR_COLUMN], undefined),
+        couleurPapier: asString(b[BobineFilleColumns.COULEUR_PAPIER_COLUMN], undefined),
+        grammage: asNumber(b[BobineFilleColumns.GRAMMAGE_COLUMN], undefined),
+        refCliche1: asString(b[BobineFilleColumns.REF_CLICHE_1_COLUMN], undefined),
+        refCliche2: asString(b[BobineFilleColumns.REF_CLICHE_2_COLUMN], undefined),
+        typeImpression: asString(b[BobineFilleColumns.TYPE_IMPRESSION_COLUMN], undefined),
+        sommeil: asNumber(b[BobineFilleColumns.SOMMEIL_COLUMN], 0) === 1,
+        lastUpdate: asNumber(b[BobineFilleColumns.LAST_UPDATE_COLUMN], 0),
+        localUpdate: asNumber(b[BobineFilleColumns.LOCAL_UPDATE_COLUMN], 0),
       };
     });
 }

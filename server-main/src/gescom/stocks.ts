@@ -15,7 +15,7 @@ import {
 
 import {StockColumns, deleteStocks} from '@shared/db/stocks';
 import {STOCKS_TABLE_NAME} from '@shared/db/table_names';
-import {asString, asNumber, asDate} from '@shared/type_utils';
+import {asString, asNumber, asDate, asMap} from '@shared/type_utils';
 
 const STOCK_COLUMNS = [
   ARTICLE_REF_COLUMN,
@@ -41,15 +41,17 @@ export class GescomWatcherStocks extends GescomWatcher {
       });
   }
 
+  // tslint:disable-next-line:no-any
   protected mapGescomLineToSqliteLine(localDate: Date, gescomLine: any): any {
+    const data = asMap(gescomLine);
     return {
-      [StockColumns.ID_COLUMN]: this.getRef(gescomLine),
-      [StockColumns.REF_COLUMN]: asString(gescomLine[ARTICLE_REF_COLUMN], undefined),
-      [StockColumns.NUM_DEPOT]: asNumber(gescomLine[STOCK_NUM_DEPOT], undefined),
-      [StockColumns.REEL_COLUMN]: asNumber(gescomLine[STOCK_REEL], 0),
-      [StockColumns.RESERVE_COLUMN]: asNumber(gescomLine[STOCK_RESERVE], 0),
-      [StockColumns.COMMANDE_COLUMN]: asNumber(gescomLine[STOCK_COMMANDE], 0),
-      [StockColumns.LAST_UPDATE_COLUMN]: asDate(gescomLine[LAST_UPDATE_COLUMN]),
+      [StockColumns.ID_COLUMN]: this.getRef(data),
+      [StockColumns.REF_COLUMN]: asString(data[ARTICLE_REF_COLUMN], undefined),
+      [StockColumns.NUM_DEPOT]: asNumber(data[STOCK_NUM_DEPOT], undefined),
+      [StockColumns.REEL_COLUMN]: asNumber(data[STOCK_REEL], 0),
+      [StockColumns.RESERVE_COLUMN]: asNumber(data[STOCK_RESERVE], 0),
+      [StockColumns.COMMANDE_COLUMN]: asNumber(data[STOCK_COMMANDE], 0),
+      [StockColumns.LAST_UPDATE_COLUMN]: asDate(data[LAST_UPDATE_COLUMN]),
       [StockColumns.LOCAL_UPDATE_COLUMN]: localDate,
     };
   }
@@ -58,7 +60,8 @@ export class GescomWatcherStocks extends GescomWatcher {
     return deleteStocks(this.sqliteDB, ids);
   }
 
+  // tslint:disable-next-line:no-any
   protected getRef(gescomLine: any): string {
-    return `${gescomLine[ARTICLE_REF_COLUMN]}-${gescomLine[STOCK_NUM_DEPOT]}`;
+    return `${asMap(gescomLine)[ARTICLE_REF_COLUMN]}-${gescomLine[STOCK_NUM_DEPOT]}`;
   }
 }

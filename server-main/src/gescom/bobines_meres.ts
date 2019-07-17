@@ -15,7 +15,7 @@ import {
 
 import {BobineMereColumns, deleteBobinesMeres} from '@shared/db/bobines_meres';
 import {BOBINES_MERES_TABLE_NAME} from '@shared/db/table_names';
-import {asString, asNumber, asDate} from '@shared/type_utils';
+import {asString, asNumber, asDate, asMap} from '@shared/type_utils';
 
 export const BOBINE_MERE_REF_PATTERN = '8[1-7]%';
 
@@ -41,28 +41,24 @@ export class GescomWatcherBobinesMeres extends GescomWatcher {
       .andWhere(ARTICLE_REF_COLUMN, 'like', BOBINE_MERE_REF_PATTERN);
   }
 
+  // tslint:disable-next-line:no-any
   protected mapGescomLineToSqliteLine(localDate: Date, gescomLine: any): any {
+    const data = asMap(gescomLine);
     return {
       [BobineMereColumns.REF_COLUMN]: asString(
-        gescomLine[ARTICLE_REF_COLUMN],
+        data[ARTICLE_REF_COLUMN],
         super.createRandomUnknownRef()
       ),
-      [BobineMereColumns.DESIGNATION_COLUMN]: asString(
-        gescomLine[ARTICLE_DESIGNATION_COLUMN],
-        undefined
-      ),
-      [BobineMereColumns.LAIZE_COLUMN]: asNumber(gescomLine[ARTICLE_LAIZE_COLUMN], undefined),
-      [BobineMereColumns.LONGUEUR_COLUMN]: asNumber(
-        gescomLine[ARTICLE_LONGUEUR_BM_COLUMN],
-        undefined
-      ),
+      [BobineMereColumns.DESIGNATION_COLUMN]: asString(data[ARTICLE_DESIGNATION_COLUMN], undefined),
+      [BobineMereColumns.LAIZE_COLUMN]: asNumber(data[ARTICLE_LAIZE_COLUMN], undefined),
+      [BobineMereColumns.LONGUEUR_COLUMN]: asNumber(data[ARTICLE_LONGUEUR_BM_COLUMN], undefined),
       [BobineMereColumns.COULEUR_PAPIER_COLUMN]: asString(
-        gescomLine[ARTICLE_COULEUR_PAPIER_COLUMN],
+        data[ARTICLE_COULEUR_PAPIER_COLUMN],
         undefined
       ),
-      [BobineMereColumns.GRAMMAGE_COLUMN]: asNumber(gescomLine[ARTICLE_GRAMMAGE_COLUMN], undefined),
-      [BobineMereColumns.SOMMEIL_COLUMN]: asNumber(gescomLine[ARTICLE_SOMMEIL_COLUMN], 0) === 1,
-      [BobineMereColumns.LAST_UPDATE_COLUMN]: asDate(gescomLine[LAST_UPDATE_COLUMN]),
+      [BobineMereColumns.GRAMMAGE_COLUMN]: asNumber(data[ARTICLE_GRAMMAGE_COLUMN], undefined),
+      [BobineMereColumns.SOMMEIL_COLUMN]: asNumber(data[ARTICLE_SOMMEIL_COLUMN], 0) === 1,
+      [BobineMereColumns.LAST_UPDATE_COLUMN]: asDate(data[LAST_UPDATE_COLUMN]),
       [BobineMereColumns.LOCAL_UPDATE_COLUMN]: localDate,
     };
   }
@@ -71,7 +67,8 @@ export class GescomWatcherBobinesMeres extends GescomWatcher {
     return deleteBobinesMeres(this.sqliteDB, refs);
   }
 
+  // tslint:disable-next-line:no-any
   protected getRef(gescomLine: any): string {
-    return asString(gescomLine[ARTICLE_REF_COLUMN], '');
+    return asString(asMap(gescomLine)[ARTICLE_REF_COLUMN], '');
   }
 }

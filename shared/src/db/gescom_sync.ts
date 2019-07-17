@@ -6,12 +6,10 @@ import {asDate} from '@shared/type_utils';
 const TABLE_NAME_COLUMN = 'table_name';
 const LAST_UPDATED_COLUMN = 'last_updated';
 const LAST_CHECKED_COLUMN = 'last_checked';
-const LAST_FULL_REFRESH_COLUMN = 'last_full_refresh';
 
 export interface GescomSyncData {
   lastUpdated: Date;
   lastChecked: Date;
-  lastFullRefresh: Date;
 }
 
 export async function createGescomSyncTable(db: knex): Promise<void> {
@@ -24,7 +22,6 @@ export async function createGescomSyncTable(db: knex): Promise<void> {
         .primary();
       table.dateTime(LAST_UPDATED_COLUMN).notNullable();
       table.dateTime(LAST_CHECKED_COLUMN).notNullable();
-      table.dateTime(LAST_FULL_REFRESH_COLUMN).notNullable();
     });
   }
 }
@@ -63,19 +60,17 @@ export async function getTableRowCount(
 
 export async function getGescomSyncData(db: knex, tableName: string): Promise<GescomSyncData> {
   const syncInfo = await db(GESCOM_SYNC_TABLE_NAME)
-    .select([LAST_UPDATED_COLUMN, LAST_CHECKED_COLUMN, LAST_FULL_REFRESH_COLUMN])
+    .select([LAST_UPDATED_COLUMN, LAST_CHECKED_COLUMN])
     .where(TABLE_NAME_COLUMN, '=', tableName);
   if (syncInfo.length === 0) {
     return {
       lastUpdated: new Date(0),
       lastChecked: new Date(0),
-      lastFullRefresh: new Date(0),
     };
   }
   return {
     lastUpdated: asDate(syncInfo[0][LAST_UPDATED_COLUMN]),
     lastChecked: asDate(syncInfo[0][LAST_CHECKED_COLUMN]),
-    lastFullRefresh: asDate(syncInfo[0][LAST_FULL_REFRESH_COLUMN]),
   };
 }
 
@@ -83,8 +78,7 @@ export async function updateGescomSyncData(
   db: knex,
   tableName: string,
   lastUpdated: Date,
-  lastChecked: Date,
-  lastFullRefresh: Date
+  lastChecked: Date
 ): Promise<void> {
   const lines = await db(GESCOM_SYNC_TABLE_NAME)
     .select(TABLE_NAME_COLUMN)
@@ -94,7 +88,6 @@ export async function updateGescomSyncData(
       .update({
         [LAST_UPDATED_COLUMN]: lastUpdated,
         [LAST_CHECKED_COLUMN]: lastChecked,
-        [LAST_FULL_REFRESH_COLUMN]: lastFullRefresh,
       })
       .where(TABLE_NAME_COLUMN, '=', tableName);
   } else {
@@ -102,7 +95,6 @@ export async function updateGescomSyncData(
       [TABLE_NAME_COLUMN]: tableName,
       [LAST_UPDATED_COLUMN]: lastUpdated,
       [LAST_CHECKED_COLUMN]: lastChecked,
-      [LAST_FULL_REFRESH_COLUMN]: lastFullRefresh,
     });
   }
 }

@@ -25,11 +25,12 @@ async function getServerStatus(): Promise<ServerStatus> {
   };
 }
 
-// tslint:disable-next-line:no-any
 export async function handleCommand(
   browserWindow: BrowserWindow,
   command: BridgeCommand,
+  // tslint:disable-next-line:no-any
   data: any
+  // tslint:disable-next-line:no-any
 ): Promise<any> {
   if (command === ServerGetStatus) {
     return getServerStatus();

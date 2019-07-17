@@ -3,6 +3,7 @@ import {BobineColors, EncrierColor} from '@shared/lib/encrier';
 export interface BobineFille {
   ref: string;
   designation?: string;
+  designationOperateur?: string;
   laize?: number;
   longueur?: number;
   couleurPapier?: string;

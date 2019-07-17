@@ -19,7 +19,7 @@ import {
 
 import {ClichesColumn, deleteCliches} from '@shared/db/cliches';
 import {CLICHES_TABLE_NAME} from '@shared/db/table_names';
-import {asString, asNumber, asDate} from '@shared/type_utils';
+import {asString, asNumber, asDate, asMap} from '@shared/type_utils';
 
 export const CLICHE_REF_PATTERN = '89%';
 
@@ -47,39 +47,38 @@ export class GescomWatcherCliches extends GescomWatcher {
       .where(ARTICLE_REF_COLUMN, 'like', CLICHE_REF_PATTERN);
   }
 
+  // tslint:disable-next-line:no-any
   protected mapGescomLineToSqliteLine(localDate: Date, gescomLine: any): any {
+    const data = asMap(gescomLine);
     return {
-      [ClichesColumn.REF_COLUMN]: asString(gescomLine[ARTICLE_REF_COLUMN], undefined),
-      [ClichesColumn.DESIGNATION_COLUMN]: asString(
-        gescomLine[ARTICLE_DESIGNATION_COLUMN],
-        undefined
-      ),
+      [ClichesColumn.REF_COLUMN]: asString(data[ARTICLE_REF_COLUMN], undefined),
+      [ClichesColumn.DESIGNATION_COLUMN]: asString(data[ARTICLE_DESIGNATION_COLUMN], undefined),
       [ClichesColumn.NOMBRE_POSES_A_COLUMN]: asNumber(
-        gescomLine[ARTICLE_NOMBRE_POSES_A_COLUMN],
+        data[ARTICLE_NOMBRE_POSES_A_COLUMN],
         undefined
       ),
       [ClichesColumn.NOMBRE_POSES_B_COLUMN]: asNumber(
-        gescomLine[ARTICLE_NOMBRE_POSES_B_COLUMN],
+        data[ARTICLE_NOMBRE_POSES_B_COLUMN],
         undefined
       ),
       [ClichesColumn.NOMBRE_POSES_C_COLUMN]: asNumber(
-        gescomLine[ARTICLE_NOMBRE_POSES_C_COLUMN],
+        data[ARTICLE_NOMBRE_POSES_C_COLUMN],
         undefined
       ),
       [ClichesColumn.NOMBRE_POSES_D_COLUMN]: asNumber(
-        gescomLine[ARTICLE_NOMBRE_POSES_D_COLUMN],
+        data[ARTICLE_NOMBRE_POSES_D_COLUMN],
         undefined
       ),
-      [ClichesColumn.COULEUR_1_COLUMN]: asString(gescomLine[ARTICLE_COULEUR_1_COLUMN], undefined),
-      [ClichesColumn.COULEUR_2_COLUMN]: asString(gescomLine[ARTICLE_COULEUR_2_COLUMN], undefined),
-      [ClichesColumn.COULEUR_3_COLUMN]: asString(gescomLine[ARTICLE_COULEUR_3_COLUMN], undefined),
+      [ClichesColumn.COULEUR_1_COLUMN]: asString(data[ARTICLE_COULEUR_1_COLUMN], undefined),
+      [ClichesColumn.COULEUR_2_COLUMN]: asString(data[ARTICLE_COULEUR_2_COLUMN], undefined),
+      [ClichesColumn.COULEUR_3_COLUMN]: asString(data[ARTICLE_COULEUR_3_COLUMN], undefined),
       [ClichesColumn.COULEUR_4_COLUMN]: undefined,
       [ClichesColumn.COULEUR_5_COLUMN]: undefined,
       [ClichesColumn.COULEUR_6_COLUMN]: undefined,
       [ClichesColumn.IMPORTANCE_ORDRE_COULEURS_COLUMN]:
-        asString(gescomLine[ARTICLE_IMPORTANCE_ORDER_COULEURS_COLUMN], 'NON') === 'OUI',
-      [ClichesColumn.SOMMEIL_COLUMN]: asNumber(gescomLine[ARTICLE_SOMMEIL_COLUMN], 0) === 1,
-      [ClichesColumn.LAST_UPDATE_COLUMN]: asDate(gescomLine[LAST_UPDATE_COLUMN]),
+        asString(data[ARTICLE_IMPORTANCE_ORDER_COULEURS_COLUMN], 'NON') === 'OUI',
+      [ClichesColumn.SOMMEIL_COLUMN]: asNumber(data[ARTICLE_SOMMEIL_COLUMN], 0) === 1,
+      [ClichesColumn.LAST_UPDATE_COLUMN]: asDate(data[LAST_UPDATE_COLUMN]),
       [ClichesColumn.LOCAL_UPDATE_COLUMN]: localDate,
     };
   }
@@ -88,7 +87,8 @@ export class GescomWatcherCliches extends GescomWatcher {
     return deleteCliches(this.sqliteDB, refs);
   }
 
+  // tslint:disable-next-line:no-any
   protected getRef(gescomLine: any): string {
-    return asString(gescomLine[ARTICLE_REF_COLUMN], '');
+    return asString(asMap(gescomLine)[ARTICLE_REF_COLUMN], '');
   }
 }
