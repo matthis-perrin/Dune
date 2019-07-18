@@ -1,7 +1,7 @@
 import {omit, maxBy, range} from 'lodash-es';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {HTMLDivProps} from '@root/components/core/common';
@@ -351,7 +351,7 @@ export class PlanProdTile extends React.Component<Props> {
       return <SVGIcon name="check" width={16} height={16} />;
     }
     if (planProd.type === 'in-progress') {
-      return <SVGIcon name="progress" width={16} height={16} />;
+      return <RotatingSVG name="progress" width={16} height={16} />;
     }
     return <div>{`n°${(planProd.plan.index || 0) + 1}`}</div>;
   }
@@ -438,4 +438,16 @@ const TileContent = styled.div`
 `;
 const TilePin = styled(TileElement)`
   border-left: solid 1px;
+`;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+`;
+const RotatingSVG = styled(SVGIcon)`
+  animation: ${rotate} 4s linear infinite;
 `;
