@@ -1,6 +1,6 @@
 import {zip, max, maxBy} from 'lodash-es';
 
-import {PROD_HOURS_BY_DAY, ProdRange} from '@root/lib/constants';
+import {PROD_HOURS_BY_DAY, ProdRange, ADDITIONAL_TIME_TO_RESTART_PROD} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
@@ -465,6 +465,14 @@ function startOfNextDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
 }
 
+function differentDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getDate() !== date2.getDate() ||
+    date1.getMonth() !== date2.getMonth() ||
+    date1.getFullYear() !== date2.getFullYear()
+  );
+}
+
 function prodRangeAsDate(currentDate: Date, prodRange: ProdRange): {start: Date; end: Date} {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -611,12 +619,16 @@ export function orderPlansProd(
   if (inProgressPlansProd.length > 0) {
     const firstInProgress = inProgressPlansProd[0];
     const base = getPlanProdBase('in-progress', operations, firstInProgress, lastDone);
-    const scheduledEnd = advanceProdDate(
-      new Date(firstInProgress.startTime || Date.now()),
+    const inProgressStart = new Date(firstInProgress.startTime || Date.now());
+    let scheduledEnd = advanceProdDate(
+      inProgressStart,
       base.operationsTotal + base.prodLength,
       nonProds,
       firstInProgress.stopTime === undefined ? undefined : new Date(firstInProgress.stopTime)
     );
+    if (differentDay(inProgressStart, scheduledEnd)) {
+      scheduledEnd = advanceProdDate(scheduledEnd, ADDITIONAL_TIME_TO_RESTART_PROD, nonProds);
+    }
     startingPoint = scheduledEnd;
     inProgress = {...base, scheduledEnd};
   }
@@ -636,11 +648,18 @@ export function orderPlansProd(
     const estimatedProductionStart = productionAtStartOfDay
       ? pinToStartOfDay(estimatedReglageEnd, nonProds)
       : estimatedReglageEnd;
-    const estimatedProductionEnd = advanceProdDate(
+    let estimatedProductionEnd = advanceProdDate(
       estimatedProductionStart,
       base.prodLength,
       nonProds
     );
+    if (differentDay(estimatedProductionStart, estimatedProductionEnd)) {
+      estimatedProductionEnd = advanceProdDate(
+        estimatedProductionEnd,
+        ADDITIONAL_TIME_TO_RESTART_PROD,
+        nonProds
+      );
+    }
     startingPoint = estimatedProductionEnd;
     previousScheduled = p;
     return {

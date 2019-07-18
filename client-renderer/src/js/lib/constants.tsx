@@ -14,3 +14,6 @@ export const PROD_HOURS_BY_DAY = new Map<string, ProdRange>([
   ['jeudi', {startHour: 6, startMinute: 0, endHour: 22, endMinute: 0}],
   ['vendredi', {startHour: 6, startMinute: 0, endHour: 19, endMinute: 0}],
 ]);
+
+const ADDITIONAL_MINUTES_TO_RESTART_PROD = 20;
+export const ADDITIONAL_TIME_TO_RESTART_PROD = ADDITIONAL_MINUTES_TO_RESTART_PROD * 60 * 1000;
