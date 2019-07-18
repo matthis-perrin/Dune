@@ -185,7 +185,6 @@ export interface PlanProductionInfo {
   startTime?: number;
   endTime?: number;
   stopTime?: number;
-  repriseTime?: number;
   operationAtStartOfDay: boolean;
   productionAtStartOfDay: boolean;
 }

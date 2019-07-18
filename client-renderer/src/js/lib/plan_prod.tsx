@@ -523,7 +523,7 @@ function advanceToNextProdDate(date: Date, nonProds: NonProd[]): Date {
   return adjustedDate;
 }
 
-function advanceProdDate(date: Date, time: number, nonProds: NonProd[]): Date {
+function advanceProdDate(date: Date, time: number, nonProds: NonProd[], stopDate?: Date): Date {
   const current = advanceToNextProdDate(date, nonProds);
   const dayOfWeek = current.toLocaleString('fr-FR', {weekday: 'long'});
   const prodHours = PROD_HOURS_BY_DAY.get(dayOfWeek);
@@ -532,7 +532,8 @@ function advanceProdDate(date: Date, time: number, nonProds: NonProd[]): Date {
   }
 
   const {end} = prodRangeAsDate(current, prodHours);
-  const timeLeft = end.getTime() - current.getTime();
+  const endTime = stopDate !== undefined ? stopDate.getTime() : end.getTime();
+  const timeLeft = endTime - current.getTime();
   const adjustedTimeLeft = adjustTimeLeftWithNonProds(current.getTime(), timeLeft, nonProds);
   if (adjustedTimeLeft < time) {
     current.setDate(current.getDate() + 1);
@@ -613,7 +614,8 @@ export function orderPlansProd(
     const scheduledEnd = advanceProdDate(
       new Date(firstInProgress.startTime || Date.now()),
       base.operationsTotal + base.prodLength,
-      nonProds
+      nonProds,
+      firstInProgress.stopTime === undefined ? undefined : new Date(firstInProgress.stopTime)
     );
     startingPoint = scheduledEnd;
     inProgress = {...base, scheduledEnd};

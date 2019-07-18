@@ -10,7 +10,6 @@ export const PlansProductionColumn = {
   START_TIME_COLUMN: 'start_time',
   END_TIME_COLUMN: 'end_time',
   STOP_TIME_COLUMN: 'stop_time',
-  REPRISE_TIME_COLUMN: 'reprise_time',
   OPERATION_AT_START_OF_DAY: 'operation_at_start_of_day',
   PRODUCTION_AT_START_OF_DAY: 'production_at_start_of_day',
   DATA_COLUMN: 'data',
@@ -30,7 +29,6 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
       table.integer(PlansProductionColumn.START_TIME_COLUMN);
       table.integer(PlansProductionColumn.END_TIME_COLUMN);
       table.integer(PlansProductionColumn.STOP_TIME_COLUMN);
-      table.integer(PlansProductionColumn.REPRISE_TIME_COLUMN);
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
       table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
@@ -109,9 +107,6 @@ export async function updatePlanProductionInfo(
   }
   if (info.stopTime !== undefined) {
     fields[PlansProductionColumn.STOP_TIME_COLUMN] = info.stopTime;
-  }
-  if (info.repriseTime !== undefined) {
-    fields[PlansProductionColumn.REPRISE_TIME_COLUMN] = info.repriseTime;
   }
 
   return db(PLANS_PRODUCTION_TABLE_NAME)
@@ -235,7 +230,6 @@ function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
     startTime: asNumber(r[PlansProductionColumn.START_TIME_COLUMN], undefined),
     endTime: asNumber(r[PlansProductionColumn.END_TIME_COLUMN], undefined),
     stopTime: asNumber(r[PlansProductionColumn.STOP_TIME_COLUMN], undefined),
-    repriseTime: asNumber(r[PlansProductionColumn.REPRISE_TIME_COLUMN], undefined),
     operationAtStartOfDay: asBoolean(r[PlansProductionColumn.OPERATION_AT_START_OF_DAY]),
     productionAtStartOfDay: asBoolean(r[PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]),
     data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
