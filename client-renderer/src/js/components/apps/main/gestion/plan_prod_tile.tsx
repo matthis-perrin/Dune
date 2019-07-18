@@ -291,21 +291,20 @@ export class PlanProdTile extends React.Component<Props> {
     event.preventDefault();
     event.stopPropagation();
     const {planProd, plansProd} = this.props;
-    const planIndex = planProd.plan.index === undefined ? -1 : planProd.plan.index;
-    const lastIndex = plansProd.reduce(
-      (acc, curr) => (curr.index !== undefined && curr.index > acc ? curr.index : acc),
-      0
-    );
-    const menus: ContextMenu[] = [
-      {
-        label: 'Nouveau plan de production après',
-        callback: () => this.newPlanProd(false),
-      },
-    ];
     if (planProd.type === 'scheduled') {
-      menus.unshift({
+      const planIndex = planProd.plan.index === undefined ? -1 : planProd.plan.index;
+      const lastIndex = plansProd.reduce(
+        (acc, curr) => (curr.index !== undefined && curr.index > acc ? curr.index : acc),
+        0
+      );
+      const menus: ContextMenu[] = [];
+      menus.push({
         label: 'Nouveau plan de production avant',
         callback: () => this.newPlanProd(true),
+      });
+      menus.push({
+        label: 'Nouveau plan de production après',
+        callback: () => this.newPlanProd(false),
       });
       menus.push({
         label: 'Déplacer à la position',
@@ -341,9 +340,18 @@ export class PlanProdTile extends React.Component<Props> {
         label: 'Supprimer ce plan de production',
         callback: () => this.deletePlanProd(),
       });
+      contextMenuManager.open(menus).catch(console.error);
+      this.removeViewer();
     }
-    contextMenuManager.open(menus).catch(console.error);
-    this.removeViewer();
+  };
+
+  private readonly handleClick = (event: React.MouseEvent): void => {
+    const {planProd} = this.props;
+    if (planProd.type === 'scheduled') {
+      bridge
+        .openApp(ClientAppType.PlanProductionEditorApp, {id: planProd.plan.id, isCreating: false})
+        .catch(console.error);
+    }
   };
 
   private renderIndicator(planProd: PlanProdBase): JSX.Element | undefined {
@@ -382,6 +390,7 @@ export class PlanProdTile extends React.Component<Props> {
               onMouseEnter={() => this.showViewer()}
               onMouseLeave={() => this.removeViewer()}
               onContextMenu={this.handleContextMenu}
+              onClick={this.handleClick}
               {...rest}
               style={{
                 background: color.backgroundHex,

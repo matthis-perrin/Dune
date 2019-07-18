@@ -33,6 +33,7 @@ import {
   BobineFilleWithMultiPose,
   PlanProductionInfo,
   PlanProduction as PlanProductionModel,
+  PlanProductionData,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -63,7 +64,7 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
-    private readonly index: number,
+    private readonly index: number | undefined,
     private readonly operationAtStartOfDay: boolean,
     private readonly productionAtStartOfDay: boolean,
     private readonly previousPlanProd: PlanProductionModel | undefined,
@@ -119,7 +120,7 @@ export class PlanProductionEngine {
       this.allBobinesFillesPosesByRef.set(bobineFille.ref, poses);
     }
 
-    this.selectables = this.computeSelectables();
+    this.selectables = {...this.originalSelectables};
   }
 
   public getCalculationTime(): number {
@@ -257,6 +258,33 @@ export class PlanProductionEngine {
       );
       this.recalculate();
     }
+  }
+
+  public load(data: PlanProductionData): void {
+    const {tourCount, perfo, refente, papier, polypro, bobines} = data;
+    this.tourCount = tourCount;
+    this.planProduction.perfo = this.getByRef(this.originalSelectables.selectablePerfos, perfo.ref);
+    this.planProduction.refente = this.getByRef(
+      this.originalSelectables.selectableRefentes,
+      refente.ref
+    );
+    this.planProduction.papier = this.getByRef(
+      this.originalSelectables.selectablePapiers,
+      papier.ref
+    );
+    this.planProduction.polypro = this.getByRef(
+      this.originalSelectables.selectablePolypros,
+      polypro.ref
+    );
+
+    this.planProduction.bobinesFilles = removeUndefined(
+      bobines.map(b =>
+        this.originalSelectables.selectableBobinesFilles.find(
+          sb => sb.ref === b.ref && sb.pose === b.pose
+        )
+      )
+    );
+    this.recalculate();
   }
 
   public clearPlan(): void {

@@ -96,7 +96,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
   };
 
   private readonly refreshPlanProduction = async (): Promise<void> => {
-    const planProduction = await bridge.getPlanProduction(this.props.id);
+    const planProduction = await bridge.getPlanProductionEngineInfo(this.props.id);
     this.setState({planProd: planProduction});
   };
 

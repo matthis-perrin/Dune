@@ -5,7 +5,11 @@ import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listCliches} from '@shared/db/cliches';
 import {listPerfos} from '@shared/db/perfos';
-import {getNextPlanProductionId, getClosestPlanProdBefore} from '@shared/db/plan_production';
+import {
+  getNextPlanProductionId,
+  getClosestPlanProdBefore,
+  getPlanProd,
+} from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {PlanProductionData, PlanProduction} from '@shared/models';
 
@@ -19,10 +23,10 @@ class PlanProductionStore {
 
   public async createEngine(
     id: number,
-    index: number,
+    index: number | undefined,
     operationAtStartOfDay: boolean,
     productionAtStartOfDay: boolean
-  ): Promise<void> {
+  ): Promise<PlanProductionEngine> {
     const [
       bobinesFilles,
       bobinesMeres,
@@ -36,7 +40,9 @@ class PlanProductionStore {
       listCliches(SQLITE_DB.Gescom, 0),
       listPerfos(SQLITE_DB.Params, 0),
       listRefentes(SQLITE_DB.Params, 0),
-      getClosestPlanProdBefore(SQLITE_DB.Prod, index),
+      index === undefined
+        ? Promise.resolve(undefined)
+        : getClosestPlanProdBefore(SQLITE_DB.Prod, index),
     ]);
 
     let previousPlanProd: PlanProduction | undefined;
@@ -48,26 +54,52 @@ class PlanProductionStore {
         };
       } catch {}
     }
-
-    this.engines.set(
-      id,
-      new PlanProductionEngine(
-        index,
-        operationAtStartOfDay,
-        productionAtStartOfDay,
-        previousPlanProd,
-        bobinesFilles,
-        bobinesMeres,
-        cliches,
-        refentes,
-        perfos,
-        () => {
-          if (this.listener) {
-            this.listener(id);
-          }
+    const engine = new PlanProductionEngine(
+      index,
+      operationAtStartOfDay,
+      productionAtStartOfDay,
+      previousPlanProd,
+      bobinesFilles,
+      bobinesMeres,
+      cliches,
+      refentes,
+      perfos,
+      () => {
+        if (this.listener) {
+          this.listener(id);
         }
-      )
+      }
     );
+    engine.recalculate();
+    this.engines.set(id, engine);
+    return engine;
+  }
+
+  public async openPlan(id: number): Promise<void> {
+    const engine = this.engines.get(id);
+    if (engine) {
+      return;
+    }
+    const planProd = await getPlanProd(SQLITE_DB.Prod, id);
+    if (!planProd) {
+      return;
+    }
+    const {index = 0, operationAtStartOfDay, productionAtStartOfDay} = planProd;
+    const newEngine = await this.createEngine(
+      id,
+      index,
+      operationAtStartOfDay,
+      productionAtStartOfDay
+    );
+
+    try {
+      const planProdData = JSON.parse(planProd.data) as PlanProductionData;
+      newEngine.load(planProdData);
+    } catch {}
+  }
+
+  public closePlan(id: number): void {
+    this.engines.delete(id);
   }
 
   public async createNewPlan(index: number): Promise<number> {

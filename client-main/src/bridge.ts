@@ -44,6 +44,7 @@ import {
   UpdatePlanProduction,
   UpdatePlanProductionInfo,
   MovePlanProduction,
+  GetPlanProduction,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -59,6 +60,7 @@ import {
   updatePlanProductionData,
   updatePlanProductionInfo,
   movePlanProduction,
+  getPlanProd,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listStocks} from '@shared/db/stocks';
@@ -194,6 +196,14 @@ export async function handleCommand(
       return Promise.reject('No plan production in progress');
     }
     return Promise.resolve({...engine.getPlanProductionState(), ...engine.getPlanProductionInfo()});
+  }
+  if (command === GetPlanProduction) {
+    const {id} = asMap(params);
+    const planProd = await getPlanProd(SQLITE_DB.Prod, asNumber(id, 0));
+    if (!planProd) {
+      throw new Error(`No plan prod for id ${id}`);
+    }
+    return planProd;
   }
 
   if (command === SetPlanPerfo) {

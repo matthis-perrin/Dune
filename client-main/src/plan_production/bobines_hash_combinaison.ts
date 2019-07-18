@@ -51,7 +51,6 @@ export function substractCombinaisons(
   for (const [hash, count] of combi2.entries()) {
     const newCount = (res.get(hash) || 0) - count;
     if (newCount < 0) {
-      console.log(combi1, combi2);
       throw new Error("Can't perform substraction");
     }
     if (newCount === 0) {

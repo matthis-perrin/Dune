@@ -608,8 +608,6 @@ export function orderPlansProd(
     .filter(p => !p.startTime && !p.endTime)
     .sort((p1, p2) => (p1.index || 0) - (p2.index || 0));
 
-  console.log(plansProd, inProgressPlansProd);
-
   const done = donePlansProd.map((p, index) => {
     return getPlanProdBase('done', operations, p, index > 0 ? donePlansProd[index - 1] : undefined);
   });

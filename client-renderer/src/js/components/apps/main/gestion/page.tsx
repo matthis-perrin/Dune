@@ -225,7 +225,6 @@ export class GestionPage extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {month, year} = this.state;
-    console.log(this.state.orderedPlans);
     return (
       <Page>
         <Calendar

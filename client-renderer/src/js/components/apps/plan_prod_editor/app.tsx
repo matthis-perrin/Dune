@@ -101,7 +101,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.handleStoresChanged);
     operationsStore.addListener(this.handleStoresChanged);
-    this.refreshPlanProduction();
+    this.refreshPlanProduction(true);
   }
 
   public componentWillUnmount(): void {
@@ -117,7 +117,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   private readonly handlePlanProductionChangedEvent = (data: any): void => {
     const id = asNumber(asMap(data).id, 0);
     if (id === this.props.id) {
-      this.refreshPlanProduction();
+      this.refreshPlanProduction(false);
     }
   };
 
@@ -167,37 +167,59 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     return undefined;
   }
 
-  private readonly refreshPlanProduction = () => {
-    const {id} = this.props;
+  private readonly refreshPlanProduction = (initialLoad: boolean) => {
+    const {id, isCreating} = this.props;
     document.title = getPlanProdTitle(id);
-    bridge
-      .getPlanProduction(id)
-      .then(planProduction => {
-        const newState = {
-          ...this.state,
-          planProduction,
-        };
-        if (
-          this.state.planProduction &&
-          (this.state.reorderedBobines || this.state.reorderedEncriers) &&
-          !isEqual(planProduction.selectedBobines, this.state.planProduction.selectedBobines)
-        ) {
-          newState.reorderedBobines = undefined;
-          newState.reorderedEncriers = undefined;
-        }
-        this.setState(newState, () => {
-          if (newState.planProduction) {
-            const newTourCount = this.computeTourCount(newState.planProduction);
-            if (newTourCount !== newState.planProduction.tourCount) {
-              bridge.setPlanTourCount(id, newTourCount).catch(console.error);
-            }
+    if (!isCreating && initialLoad) {
+      Promise.all([bridge.getPlanProductionEngineInfo(id), bridge.getPlanProduction(id)])
+        .then(([planProductionEngineInfo, planProduction]) => {
+          const newState = {
+            ...this.state,
+            planProduction: planProductionEngineInfo,
+            reorderedBobines: planProduction.data.bobines,
+            reorderedEncriers: planProduction.data.encriers,
+            bobinesMinimums: new Map<string, number>(planProduction.data.bobinesMini),
+            bobinesMaximums: new Map<string, number>(planProduction.data.bobinesMax),
+            tourCountSetByUser: true,
+            speed: planProduction.data.speed,
+            comment: planProduction.data.comment,
+          };
+          this.setState(newState, () => console.log('done'));
+        })
+        .catch(err => console.error(err));
+    } else {
+      bridge
+        .getPlanProductionEngineInfo(id)
+        .then(planProductionEngineInfo => {
+          const newState = {
+            ...this.state,
+            planProduction: planProductionEngineInfo,
+          };
+          if (
+            this.state.planProduction &&
+            (this.state.reorderedBobines || this.state.reorderedEncriers) &&
+            !isEqual(
+              planProductionEngineInfo.selectedBobines,
+              this.state.planProduction.selectedBobines
+            )
+          ) {
+            newState.reorderedBobines = undefined;
+            newState.reorderedEncriers = undefined;
           }
-        });
-        if (planProduction.selectableBobines.length === 0) {
-          bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
-        }
-      })
-      .catch(err => console.error(err));
+          this.setState(newState, () => {
+            if (newState.planProduction) {
+              const newTourCount = this.computeTourCount(newState.planProduction);
+              if (newTourCount !== newState.planProduction.tourCount) {
+                bridge.setPlanTourCount(id, newTourCount).catch(console.error);
+              }
+            }
+          });
+          if (planProductionEngineInfo.selectableBobines.length === 0) {
+            bridge.closeAppOfType(ClientAppType.BobinesPickerApp).catch(console.error);
+          }
+        })
+        .catch(err => console.error(err));
+    }
   };
 
   private readonly handleBobineReorder = (newBobines: BobineFilleWithPose[]): void => {

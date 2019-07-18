@@ -269,3 +269,10 @@ export async function getClosestPlanProdBefore(
     .limit(1)
     .map(mapLineToPlanProductionRaw))[0];
 }
+
+export async function getPlanProd(db: knex, id: number): Promise<PlanProductionRaw | undefined> {
+  return (await db(PLANS_PRODUCTION_TABLE_NAME)
+    .select()
+    .where(PlansProductionColumn.ID_COLUMN, '=', id)
+    .map(mapLineToPlanProductionRaw))[0];
+}
