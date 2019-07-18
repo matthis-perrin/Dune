@@ -2,7 +2,7 @@ import {analyseLaizesLeftOnRefente} from '@root/plan_production/bobines_refentes
 import {
   filterBobinesFillesForSelectablePapiers,
   filterBobinesFillesForSelectableRefentesAndSelectedBobines,
-  filterPapierForRefentesAndSelectableBobinesAndSelectedBobines,
+  filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines,
   filterPapiersForSelectablePolypros,
   filterPapiersForSelectableRefentes,
   filterPerfosForSelectableRefentes,
@@ -265,13 +265,13 @@ function filterAllOnce(
   // Filtering of Papier to ensure there is at least one combinaison of bobines that fits it in at least one
   // refente that is compatible with the Papier laize
   if (!papier) {
-    filtered.selectablePapiers = filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
+    filtered.selectablePapiers = filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
       filtered.selectablePapiers,
       refente ? [refente] : filtered.selectableRefentes,
       filtered.selectableBobinesFilles,
       bobinesFilles
     );
-    markPerf('filterPapierForRefentesAndSelectableBobinesAndSelectedBobines');
+    markPerf('filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines');
 
     if (selectablesAreDifferent(selectables, filtered)) {
       return filtered;
@@ -289,6 +289,7 @@ function filterAllOnce(
     : filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         filtered.selectableBobinesFilles,
         filtered.selectableRefentes,
+        papier ? [papier] : filtered.selectablePapiers,
         bobinesFilles
       );
   markPerf(

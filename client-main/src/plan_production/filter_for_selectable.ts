@@ -187,6 +187,7 @@ export function filterBobinesFillesForSelectablePapiers(
 export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   selectableBobinesFilles: BobineFilleClichePose[],
   selectableRefentes: Refente[],
+  selectablePapier: BobineMerePapier[],
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineFilleClichePose[] {
   const compatibleBobinesFillesHashes = new Map<string, void>();
@@ -195,7 +196,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
     refente => compatibilityExists(selectedBobinesFilles, [], refente) === undefined
   );
   for (const bobine of selectableBobinesFilles) {
-    if (compatibleBobinesFillesHashes.has(bobine.hash)) {
+    if (compatibleBobinesFillesHashes.has(`${bobine.hash}_C-${bobine.couleurPapier}`)) {
       continue;
     }
     for (const refente of refenteToCheck) {
@@ -203,19 +204,32 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         continue;
       }
       const newSelectedBobinesFilles = selectedBobinesFilles.concat([bobine]);
-      const newSelectableBobinesFilles = without(selectableBobinesFilles, bobine);
+      const newSelectableBobinesFilles = without(selectableBobinesFilles, bobine).filter(
+        b => b.couleurPapier === bobine.couleurPapier && b.grammage === bobine.grammage
+      );
       const res = compatibilityExists(
         newSelectedBobinesFilles,
         newSelectableBobinesFilles,
         refente
       );
       if (res !== undefined) {
+        // Ensure that there is a Papier that works when we select this refente
+        if (
+          selectablePapier.filter(
+            p =>
+              p.couleurPapier === bobine.couleurPapier &&
+              p.grammage === bobine.grammage &&
+              p.laize === refente.laize
+          ).length === 0
+        ) {
+          continue;
+        }
         const selectedBobineHashes = getBobineHashCombinaison(
           selectedBobinesFilles.map(b => b.hash)
         );
         const compatibleSelectableHashes = substractCombinaisons(res, selectedBobineHashes);
         for (const hash of compatibleSelectableHashes.keys()) {
-          compatibleBobinesFillesHashes.set(hash);
+          compatibleBobinesFillesHashes.set(`${hash}_C-${bobine.couleurPapier}`);
         }
         break;
       }
@@ -223,7 +237,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   }
 
   const compatibleSelectableBobines = selectableBobinesFilles.filter(b =>
-    compatibleBobinesFillesHashes.has(b.hash)
+    compatibleBobinesFillesHashes.has(`${b.hash}_C-${b.couleurPapier}`)
   );
   if (compatibleSelectableBobines.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;
@@ -260,7 +274,7 @@ export function filterRefentesForSelectableBobinesAndSelectedBobines(
   return newRefentes;
 }
 
-export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
+export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   selectablePapiers: BobineMerePapier[],
   selectableRefentes: Refente[],
   selectableBobinesFilles: BobineFilleClichePose[],
@@ -327,7 +341,7 @@ export function filterPapierForRefentesAndSelectableBobinesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(
-      `filterPapierForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
+      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
         dropped.length
       } Papier`
     );
