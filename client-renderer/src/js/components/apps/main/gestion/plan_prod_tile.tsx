@@ -228,7 +228,7 @@ export class PlanProdTile extends React.Component<Props> {
 
   private deletePlanProd(): void {
     const {planProd} = this.props;
-    if (planProd.plan.index) {
+    if (planProd.plan.index !== undefined) {
       bridge
         .deletePlanProduction(planProd.plan.index)
         .then(() => {

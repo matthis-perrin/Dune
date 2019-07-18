@@ -2,11 +2,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {GlobalStyle} from '@root/components/global_styles';
+import {Herisson} from '@root/components/herisson';
 import {Monitoring} from '@root/components/monitoring';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
-import {Herisson} from '@root/components/herisson';
 
 const REFRESH_PERIOD_MS = 500;
 

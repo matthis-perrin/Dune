@@ -296,11 +296,20 @@ export interface ServerStatus {
   errors: ServerErrorData[];
 }
 
-export interface AutomateStatus {
+export interface SpeedStatus {
   firstMinute?: MinuteSpeed;
   lastMinute?: MinuteSpeed;
   rowCount: number;
 }
+
+export interface StopStatus {
+  lastStop?: {
+    start: number;
+    end?: number;
+  };
+}
+
+export interface AutomateStatus extends SpeedStatus, StopStatus {}
 
 export interface ClientAppInfo {
   type: ClientAppType;
@@ -326,6 +335,23 @@ export enum ClientAppType {
 export interface MinuteSpeed {
   minute: number;
   speed?: number;
+}
+
+export interface HourStats {
+  hour: number;
+  avgSpeed?: number;
+  medianSpeed?: number;
+  firstSpeed?: number;
+  lastSpeed?: number;
+  minSpeed?: number;
+  maxSpeed?: number;
+  speedCount: number;
+  nullCount: number;
+}
+
+export interface Stop {
+  start: number;
+  end?: number;
 }
 
 export interface ContextMenuForBridge {

@@ -13,6 +13,12 @@ function min<T>(values: T[]): T | undefined {
     | undefined);
 }
 
+function max<T>(values: T[]): T | undefined {
+  return values.reduce((acc, curr) => (acc === undefined || curr > acc ? curr : acc), undefined as
+    | T
+    | undefined);
+}
+
 function find<T>(values: T[], predicate: (v: T) => boolean): T | undefined {
   for (const v of values) {
     if (predicate(v)) {
@@ -30,7 +36,7 @@ const WAIT_BETWEEN_BUFFER_PROCESS = 5000;
 const MAX_VALUES_IN_CURRENT_MINUTE_FOR_INSTANT_PROCESS = 5;
 
 class Aggregator {
-  private queries = new Map<number, number | undefined>();
+  private readonly queries = new Map<number, number | undefined>();
   private readonly buffers = new Map<number, number[]>();
   private lastInsertedMinute: number = 0;
   private lastProcessingTime: number = 0;
@@ -52,12 +58,23 @@ class Aggregator {
     this.updateQueries()
       .then(() => {
         if (this.queries.size > 0) {
-          insertOrUpdateMinutesSpeeds(SQLITE_DB.Automate, this.queries)
+          const minutesToInsert = Array.from(this.queries.keys())
+            .sort()
+            .slice(0, 500);
+          const minuteSpeeds = new Map<number, number | undefined>();
+          minutesToInsert.forEach(m => minuteSpeeds.set(m, this.queries.get(m)));
+          insertOrUpdateMinutesSpeeds(SQLITE_DB.Automate, minuteSpeeds)
             .then(() => {
-              this.lastInsertedMinute = min(Array.from(this.queries.keys())) || 0;
+              this.lastInsertedMinute = max(Array.from(minuteSpeeds.keys())) || 0;
               this.lastProcessingTime = Date.now();
-              this.queries = new Map<number, number | undefined>();
-              this.scheduleBufferProcessing();
+              minuteSpeeds.forEach((speed, minute) => {
+                this.queries.delete(minute);
+              });
+              if (this.queries.size > 0) {
+                this.processBuffersIfNeeded();
+              } else {
+                this.scheduleBufferProcessing();
+              }
             })
             .catch(error => {
               addError(

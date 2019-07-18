@@ -91,9 +91,13 @@ class AutomateWatcher {
     if (this.checkBlockedTimeout) {
       clearTimeout(this.checkBlockedTimeout);
     }
-    this.lastReceived = Date.now();
-    aggregator.addSpeed(value);
-    setTimeout(() => this.fetchOnce(), WAIT_ON_SUCCESS);
+    if (value !== 1) {
+      this.lastReceived = Date.now();
+      aggregator.addSpeed(value);
+    }
+    setTimeout(() => {
+      this.fetchOnce();
+    }, WAIT_ON_SUCCESS);
   }
 
   private checkBlocked(): void {
@@ -117,4 +121,4 @@ class AutomateWatcher {
   }
 }
 
-export const automateWatcher = new AutomateWatcher(false);
+export const automateWatcher = new AutomateWatcher(true);

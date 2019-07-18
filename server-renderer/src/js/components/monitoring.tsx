@@ -66,7 +66,12 @@ export class Monitoring extends React.Component<Props> {
   public render(): JSX.Element {
     const {automate, gescom} = this.props;
 
-    const {lastMinute, firstMinute, rowCount} = automate;
+    const {
+      lastMinute,
+      firstMinute,
+      rowCount,
+      lastStop = {start: undefined, end: undefined},
+    } = automate;
 
     return (
       <table style={{width: '100%', borderCollapse: 'collapse', color: 'white'}}>
@@ -112,6 +117,25 @@ export class Monitoring extends React.Component<Props> {
           </td>
           <td>
             <ServiceRowCount>{rowCount.toLocaleString('fr')}</ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td rowSpan={2}>
+            <ServiceTitle>Dernier Arrêt</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>{`Début : ${
+              lastStop.start ? new Date(lastStop.start).toLocaleString('fr') : 'Aucun'
+            }`}</ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <ServiceRowCount>
+              {lastStop.end ? `Fin : ${new Date(lastStop.end).toLocaleString('fr')}` : 'En cours'}
+            </ServiceRowCount>
           </td>
           <td />
         </tr>

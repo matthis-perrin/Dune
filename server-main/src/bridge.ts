@@ -5,13 +5,15 @@ import {getErrors} from '@root/state';
 
 import {BridgeCommand, ServerGetStatus} from '@shared/bridge/commands';
 import {getStatus} from '@shared/db/gescom_sync';
-import {getStats} from '@shared/db/speed_minutes';
+import {getStats as getSpeedStats} from '@shared/db/speed_minutes';
+import {getStats as getStopsStats} from '@shared/db/speed_stops';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 
 async function getServerStatus(): Promise<ServerStatus> {
-  const [gescomData, automate] = await Promise.all([
+  const [gescomData, speedStats, stopsStats] = await Promise.all([
     getStatus(SQLITE_DB.Gescom),
-    getStats(SQLITE_DB.Automate),
+    getSpeedStats(SQLITE_DB.Automate),
+    getStopsStats(SQLITE_DB.Automate),
   ]);
   const gescom: {[key: string]: ServiceStatus} = {};
   gescomData.forEach(({name, lastUpdate, rowCount, rowCountSommeil}) => {
@@ -19,7 +21,7 @@ async function getServerStatus(): Promise<ServerStatus> {
   });
 
   return {
-    automate,
+    automate: {...speedStats, ...stopsStats},
     gescom,
     errors: getErrors(),
   };

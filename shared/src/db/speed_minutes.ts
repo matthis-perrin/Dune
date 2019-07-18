@@ -1,7 +1,7 @@
 import knex from 'knex';
 
 import {SPEED_MINUTES_TABLE_NAME} from '@shared/db/table_names';
-import {MinuteSpeed, AutomateStatus} from '@shared/models';
+import {MinuteSpeed, SpeedStatus} from '@shared/models';
 import {asNumber, asMap, asArray} from '@shared/type_utils';
 
 export const SpeedMinutesColumn = {
@@ -62,7 +62,7 @@ export async function getRowCount(db: knex): Promise<number> {
   );
 }
 
-export async function getStats(db: knex): Promise<AutomateStatus> {
+export async function getStats(db: knex): Promise<SpeedStatus> {
   const [firstMinute, lastMinute, rowCount] = await Promise.all([
     getFirstMinute(db),
     getLastMinute(db),
@@ -75,13 +75,19 @@ export async function getMinutesSpeedsSince(db: knex, since: number): Promise<Mi
   return db(SPEED_MINUTES_TABLE_NAME)
     .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
     .where(SpeedMinutesColumn.Minute, '>=', since)
-    .map(minuteSpeedLine => {
-      const line = asMap(minuteSpeedLine);
-      return {
-        minute: asNumber(line[SpeedMinutesColumn.Minute], 0),
-        speed: asNumber(line[SpeedMinutesColumn.Speed], undefined),
-      };
-    });
+    .map(lineAsMinuteSpeed);
+}
+
+export async function getMinutesSpeedsBetween(
+  db: knex,
+  start: number,
+  end: number
+): Promise<MinuteSpeed[]> {
+  return db(SPEED_MINUTES_TABLE_NAME)
+    .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
+    .where(SpeedMinutesColumn.Minute, '>=', start)
+    .andWhere(SpeedMinutesColumn.Minute, '<', end)
+    .map(lineAsMinuteSpeed);
 }
 
 export async function insertOrUpdateMinutesSpeeds(
@@ -119,4 +125,20 @@ export async function insertOrUpdateMinutesSpeeds(
         });
     });
   });
+}
+
+export async function firstSpeedMatchingSince(
+  db: knex,
+  since: number,
+  operator: string,
+  threshold: number
+): Promise<MinuteSpeed | undefined> {
+  return (await db(SPEED_MINUTES_TABLE_NAME)
+    .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
+    .where(SpeedMinutesColumn.Minute, '>', since)
+    .whereNotNull(SpeedMinutesColumn.Speed)
+    .andWhere(SpeedMinutesColumn.Speed, operator, threshold)
+    .orderBy(SpeedMinutesColumn.Minute, 'asc')
+    .limit(1)
+    .map(lineAsMinuteSpeed))[0];
 }

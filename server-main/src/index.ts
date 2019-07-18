@@ -2,6 +2,8 @@ import {app, session} from 'electron';
 import log from 'electron-log';
 
 import {aggregator} from '@root/automate/aggregator';
+import {hoursManager} from '@root/automate/hours_manager';
+import {stopsManager} from '@root/automate/stops_manager';
 import {automateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
 import {gescomDB, SQLITE_DB} from '@root/db';
@@ -35,13 +37,17 @@ async function startServer(): Promise<void> {
   await gescomStocks.start();
   log.info('Starting Cadencier watcher');
   await gescomCadencier.start();
-  // log.info('Starting Automate aggregator');
-  // await aggregator.start();
-  // log.info('Starting Automate watcher');
-  // automateWatcher.start();
+  log.info('Starting Automate aggregator');
+  await aggregator.start();
+  log.info('Starting Automate watcher');
+  automateWatcher.start();
+  log.info('Starting Stops manager');
+  stopsManager.start();
+  log.info('Starting Hours aggregator');
+  hoursManager.start();
 }
 
-startServer();
+startServer().catch(log.error);
 
 app.on('ready', () => {
   if (session.defaultSession) {
@@ -51,7 +57,7 @@ app.on('ready', () => {
   }
   const browserWindow = createBrowserWindow({
     width: 620,
-    height: 432,
+    height: 477,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
