@@ -90,19 +90,41 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private dateIsBeforeOrSameDay(date1: Date, date2: Date): boolean {
-    return (
-      date1.getFullYear() <= date2.getFullYear() &&
-      date1.getMonth() <= date2.getMonth() &&
-      date1.getDate() <= date2.getDate()
-    );
+    if (date1.getFullYear() > date2.getFullYear()) {
+      return false;
+    }
+    if (date1.getFullYear() < date2.getFullYear()) {
+      return true;
+    }
+    if (date1.getMonth() > date2.getMonth()) {
+      return false;
+    }
+    if (date1.getMonth() < date2.getMonth()) {
+      return true;
+    }
+    if (date1.getDate() > date2.getDate()) {
+      return false;
+    }
+    return true;
   }
 
   private dateIsAfterOrSameDay(date1: Date, date2: Date): boolean {
-    return (
-      date1.getFullYear() >= date2.getFullYear() &&
-      date1.getMonth() >= date2.getMonth() &&
-      date1.getDate() >= date2.getDate()
-    );
+    if (date1.getFullYear() < date2.getFullYear()) {
+      return false;
+    }
+    if (date1.getFullYear() > date2.getFullYear()) {
+      return true;
+    }
+    if (date1.getMonth() < date2.getMonth()) {
+      return false;
+    }
+    if (date1.getMonth() > date2.getMonth()) {
+      return true;
+    }
+    if (date1.getDate() < date2.getDate()) {
+      return false;
+    }
+    return true;
   }
 
   private getPlanProdsForDate(date: Date): PlansProdOrder {
