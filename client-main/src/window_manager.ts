@@ -211,6 +211,10 @@ class WindowManager {
       return {id: POLYPRO_PICKER_APP_ID(asNumber(id, 0)), size: {width: 1000, height: 450}};
     }
 
+    if (appInfo.type === ClientAppType.ViewDayApp) {
+      return {id: `view-day-app--${Date.now()}`, size: {width: 1420, height: 980}};
+    }
+
     return {id: 'unknown-app', size: {width: 400, height: 700}};
   }
 

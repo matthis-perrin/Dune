@@ -173,6 +173,10 @@ export class GestionPage extends React.Component<Props, State> {
     }
   };
 
+  private readonly handleDayClick = (event: React.MouseEvent, date: Date): void => {
+    bridge.viewDay(date.getTime());
+  };
+
   public renderDay(date: Date): JSX.Element {
     const {stocks, cadencier, bobineQuantities, operations, plansProd} = this.state;
     if (!stocks || !cadencier || !bobineQuantities || !operations || !plansProd) {
@@ -233,6 +237,7 @@ export class GestionPage extends React.Component<Props, State> {
           onNextClick={this.goToNextMonth}
           onPreviousClick={this.goToPreviousMonth}
           onDayContextMenu={this.handleDayContextMenu}
+          onDayClick={this.handleDayClick}
         >
           {(date: Date) => <div>{this.renderDay(date)}</div>}
         </Calendar>

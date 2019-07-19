@@ -236,6 +236,10 @@ export class Bridge {
     return this.openApp(ClientAppType.ViewBobineApp, {bobineRef});
   }
 
+  public async viewDay(day: number): Promise<void> {
+    return this.openApp(ClientAppType.ViewDayApp, {initialDay: day});
+  }
+
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
     return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});
   }

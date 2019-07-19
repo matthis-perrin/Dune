@@ -329,6 +329,7 @@ export enum ClientAppType {
   PerfoPickerApp = 'PerfoPickerApp',
   PapierPickerApp = 'PapierPickerApp',
   PolyproPickerApp = 'PolyproPickerApp',
+  ViewDayApp = 'ViewDayApp',
 }
 
 export interface MinuteSpeed {

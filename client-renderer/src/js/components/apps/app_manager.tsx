@@ -13,6 +13,7 @@ import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
+import {ViewDayApp} from '@root/components/apps/view_day_app/app';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
@@ -127,6 +128,16 @@ export class AppManager extends React.Component<Props, State> {
       ];
     }
 
+    if (type === ClientAppType.ViewDayApp) {
+      return [
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        plansProductionStore,
+        operationsStore,
+      ];
+    }
+
     return [];
   }
 
@@ -177,6 +188,11 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ViewBobineApp) {
       const {bobineRef} = asMap(data);
       return <ViewBobineApp bobineRef={asString(bobineRef, '')} />;
+    }
+
+    if (type === ClientAppType.ViewDayApp) {
+      const {initialDay} = asMap(data);
+      return <ViewDayApp initialDay={initialDay} />;
     }
 
     return (
