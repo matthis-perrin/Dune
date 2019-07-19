@@ -63,6 +63,18 @@ export class Calendar extends React.Component<CalendarProps, {}> {
     return weeks;
   }
 
+  private renderDayCircle(date: Date): JSX.Element {
+    const now = new Date();
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+    if (isToday) {
+      return <TodayCircle>{date.getDate()}</TodayCircle>;
+    }
+    return <DayCircle>{date.getDate()}</DayCircle>;
+  }
+
   public render(): JSX.Element {
     const {
       children,
@@ -112,9 +124,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
                   onContextMenu={event => onDayContextMenu(event, date)}
                   onClick={event => onDayClick(event, date)}
                 >
-                  <CalendarCellHeader>
-                    <DayCircle>{date.getDate()}</DayCircle>
-                  </CalendarCellHeader>
+                  <CalendarCellHeader>{this.renderDayCircle(date)}</CalendarCellHeader>
                   {children(date)}
                 </CalendarCell>
               ))}
@@ -185,4 +195,8 @@ const DayCircle = styled.div`
   font-size: ${theme.calendar.dayCircleFontSize}px;
   font-weight: ${theme.calendar.dayCircleFontWeight};
   line-height: ${theme.calendar.dayCircleFontSize}px;
+`;
+
+const TodayCircle = styled(DayCircle)`
+  background-color: ${theme.calendar.todayCircleBackgroundColor};
 `;

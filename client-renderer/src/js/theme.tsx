@@ -254,6 +254,7 @@ export const theme = {
     dayBorderColor: Colors.SecondaryDark,
     dayCircleSize: 32,
     dayCircleBackgroundColor: Colors.SecondaryDark,
+    todayCircleBackgroundColor: Colors.PrimaryDark,
     dayCircleTextColor: Colors.TextOnSecondary,
     dayCircleFontSize: 14,
     dayCircleFontWeight: FontWeight.SemiBold,
