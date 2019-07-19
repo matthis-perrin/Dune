@@ -75,6 +75,11 @@ export class Calendar extends React.Component<CalendarProps, {}> {
     return <DayCircle>{date.getDate()}</DayCircle>;
   }
 
+  private isOtherMonth(date: Date): boolean {
+    const {month, year} = this.props;
+    return date.getMonth() !== month || date.getFullYear() !== year;
+  }
+
   public render(): JSX.Element {
     const {
       children,
@@ -121,6 +126,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
               {week.map(date => (
                 <CalendarCell
                   key={date.getTime()}
+                  style={{opacity: this.isOtherMonth(date) ? 0.8 : 1}}
                   onContextMenu={event => onDayContextMenu(event, date)}
                   onClick={event => onDayClick(event, date)}
                 >
