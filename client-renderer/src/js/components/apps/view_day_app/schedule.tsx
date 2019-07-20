@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import {PlanProdBlock} from '@root/components/apps/view_day_app/plan_prod_block';
 import {WithColor} from '@root/components/core/with_colors';
 import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {
@@ -7,16 +8,8 @@ import {
   DonePlanProduction,
   InProgressPlanProduction,
   ScheduledPlanProduction,
-} from '@root/lib/plan_prod';
-import {
-  dateAtHour,
-  isRoundHour,
-  closestHalfHourBefore,
-  closestHalfHourAfter,
-  isHalfHour,
-  padNumber,
-  isSameDay,
-} from '@root/lib/utils';
+} from '@root/lib/plan_prod_order';
+import {dateAtHour, isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
 import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
@@ -188,6 +181,7 @@ export class Schedule extends React.Component<ScheduleProps> {
               ...this.getPositionStyleForDates(new Date(adjustedStart), new Date(adjustedEnd)),
               backgroundColor: color.backgroundHex,
               border: 'solid 1px black',
+              borderRadius: 16,
             }}
           >
             {children}
@@ -218,7 +212,7 @@ export class Schedule extends React.Component<ScheduleProps> {
   }
 
   private renderScheduledPlanProd(scheduledPlanProd: ScheduledPlanProduction): JSX.Element {
-    const inner = <span>Scheduled</span>;
+    const inner = <PlanProdBlock planProd={scheduledPlanProd} />;
     return this.renderPlanProd(
       scheduledPlanProd.estimatedReglageStart,
       scheduledPlanProd.estimatedProductionEnd,

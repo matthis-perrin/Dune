@@ -5,7 +5,7 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod';
+import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
 import {dateIsAfterOrSameDay, dateIsBeforeOrSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
@@ -135,7 +135,7 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private readonly handleDayClick = (event: React.MouseEvent, date: Date): void => {
-    bridge.viewDay(date.getTime());
+    bridge.viewDay(date.getTime()).catch(console.error);
   };
 
   public renderDay(date: Date): JSX.Element {

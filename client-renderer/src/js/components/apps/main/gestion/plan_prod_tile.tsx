@@ -15,7 +15,7 @@ import {
   DonePlanProduction,
   InProgressPlanProduction,
   ScheduledPlanProduction,
-} from '@root/lib/plan_prod';
+} from '@root/lib/plan_prod_order';
 import {plansProductionStore} from '@root/stores/list_store';
 import {Palette, theme} from '@root/theme';
 
@@ -346,6 +346,8 @@ export class PlanProdTile extends React.Component<Props> {
   };
 
   private readonly handleClick = (event: React.MouseEvent): void => {
+    event.preventDefault();
+    event.stopPropagation();
     const {planProd} = this.props;
     if (planProd.type === 'scheduled') {
       bridge

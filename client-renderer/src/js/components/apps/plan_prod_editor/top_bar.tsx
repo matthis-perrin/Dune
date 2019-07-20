@@ -5,7 +5,8 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
-import {getOperationTime, getPreviousPlanProd} from '@root/lib/plan_prod';
+import {getPreviousPlanProd} from '@root/lib/plan_prod';
+import {getOperationTime} from '@root/lib/plan_prod_operation';
 import {
   getStockReel,
   getStockTerme,

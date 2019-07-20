@@ -8,7 +8,7 @@ import {
   getConstraints,
   OperationSplit,
   splitOperations,
-} from '@root/lib/plan_prod';
+} from '@root/lib/plan_prod_operation';
 import {theme} from '@root/theme';
 
 import {Operation} from '@shared/models';
