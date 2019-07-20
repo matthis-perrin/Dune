@@ -5,7 +5,8 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {PlansProdOrder, orderPlansProd} from '@root/lib/plan_prod';
+import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod';
+import {dateIsAfterOrSameDay, dateIsBeforeOrSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
@@ -89,70 +90,8 @@ export class GestionPage extends React.Component<Props, State> {
     this.setState({year: newYear, month: newMonth});
   };
 
-  private dateIsBeforeOrSameDay(date1: Date, date2: Date): boolean {
-    if (date1.getFullYear() > date2.getFullYear()) {
-      return false;
-    }
-    if (date1.getFullYear() < date2.getFullYear()) {
-      return true;
-    }
-    if (date1.getMonth() > date2.getMonth()) {
-      return false;
-    }
-    if (date1.getMonth() < date2.getMonth()) {
-      return true;
-    }
-    if (date1.getDate() > date2.getDate()) {
-      return false;
-    }
-    return true;
-  }
-
-  private dateIsAfterOrSameDay(date1: Date, date2: Date): boolean {
-    if (date1.getFullYear() < date2.getFullYear()) {
-      return false;
-    }
-    if (date1.getFullYear() > date2.getFullYear()) {
-      return true;
-    }
-    if (date1.getMonth() < date2.getMonth()) {
-      return false;
-    }
-    if (date1.getMonth() > date2.getMonth()) {
-      return true;
-    }
-    if (date1.getDate() < date2.getDate()) {
-      return false;
-    }
-    return true;
-  }
-
-  private getPlanProdsForDate(date: Date): PlansProdOrder {
-    const {orderedPlans} = this.state;
-    if (!orderedPlans) {
-      return {done: [], scheduled: []};
-    }
-    const done = orderedPlans.done.filter(
-      p =>
-        this.dateIsAfterOrSameDay(date, new Date(p.plan.startTime || 0)) &&
-        this.dateIsBeforeOrSameDay(date, new Date(p.plan.endTime || 0))
-    );
-    const inProgress =
-      orderedPlans.inProgress &&
-      this.dateIsAfterOrSameDay(date, new Date(orderedPlans.inProgress.plan.startTime || 0)) &&
-      this.dateIsBeforeOrSameDay(date, orderedPlans.inProgress.scheduledEnd)
-        ? orderedPlans.inProgress
-        : undefined;
-    const scheduled = orderedPlans.scheduled.filter(
-      p =>
-        this.dateIsAfterOrSameDay(date, p.estimatedReglageStart) &&
-        this.dateIsBeforeOrSameDay(date, p.estimatedProductionEnd)
-    );
-    return {done, inProgress, scheduled};
-  }
-
   private isValidDateToCreatePlanProd(date: Date): boolean {
-    return this.dateIsAfterOrSameDay(date, new Date());
+    return dateIsAfterOrSameDay(date, new Date());
   }
 
   private getNewPlanProdIndexForDate(date: Date): number {
@@ -165,7 +104,7 @@ export class GestionPage extends React.Component<Props, State> {
       (acc, curr) =>
         curr.plan.index !== undefined &&
         curr.plan.index >= acc &&
-        this.dateIsBeforeOrSameDay(curr.estimatedReglageStart, date)
+        dateIsBeforeOrSameDay(curr.estimatedReglageStart, date)
           ? curr.plan.index + 1
           : acc,
       0
@@ -200,11 +139,11 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   public renderDay(date: Date): JSX.Element {
-    const {stocks, cadencier, bobineQuantities, operations, plansProd} = this.state;
-    if (!stocks || !cadencier || !bobineQuantities || !operations || !plansProd) {
+    const {stocks, cadencier, bobineQuantities, operations, plansProd, orderedPlans} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities || !operations || !plansProd || !orderedPlans) {
       return <div />;
     }
-    const {done, inProgress, scheduled} = this.getPlanProdsForDate(date);
+    const {done, inProgress, scheduled} = getPlanProdsForDate(orderedPlans, date);
     return (
       <div>
         {done.map(p => (

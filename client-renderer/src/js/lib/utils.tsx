@@ -25,10 +25,14 @@ export function formatMonthCount(monthCount: number): string {
 
 export const numberWithSeparator = memoize((value: number): string => value.toLocaleString('fr'));
 
+export function getWeekDay(date: Date): string {
+  return date.toLocaleString('fr-FR', {weekday: 'long'});
+}
+
 const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 // Monday = 0
 export function getDayOfWeek(date: Date): number {
-  return DayOfWeek.indexOf(date.toLocaleString('fr-FR', {weekday: 'long'}));
+  return DayOfWeek.indexOf(getWeekDay(date));
 }
 
 export function isWeekDay(date: Date): boolean {
@@ -43,4 +47,92 @@ export function startOfDay(): Date {
   date.setSeconds(0);
   date.setMilliseconds(0);
   return date;
+}
+
+export function isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
+  );
+}
+
+export function dateIsBeforeOrSameDay(date1: Date, date2: Date): boolean {
+  if (date1.getFullYear() > date2.getFullYear()) {
+    return false;
+  }
+  if (date1.getFullYear() < date2.getFullYear()) {
+    return true;
+  }
+  if (date1.getMonth() > date2.getMonth()) {
+    return false;
+  }
+  if (date1.getMonth() < date2.getMonth()) {
+    return true;
+  }
+  if (date1.getDate() > date2.getDate()) {
+    return false;
+  }
+  return true;
+}
+
+export function dateIsAfterOrSameDay(date1: Date, date2: Date): boolean {
+  if (date1.getFullYear() < date2.getFullYear()) {
+    return false;
+  }
+  if (date1.getFullYear() > date2.getFullYear()) {
+    return true;
+  }
+  if (date1.getMonth() < date2.getMonth()) {
+    return false;
+  }
+  if (date1.getMonth() > date2.getMonth()) {
+    return true;
+  }
+  if (date1.getDate() < date2.getDate()) {
+    return false;
+  }
+  return true;
+}
+
+export function dateAtHour(date: Date, hour: number, minute?: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute || 0);
+}
+
+export function isRoundMinute(date: Date): boolean {
+  return date.getSeconds() === 0 && date.getMilliseconds() === 0;
+}
+
+export function isRoundHour(date: Date): boolean {
+  return date.getMinutes() === 0 && isRoundMinute(date);
+}
+
+export function isHalfHour(date: Date): boolean {
+  return date.getMinutes() === HALF_HOUR && isRoundMinute(date);
+}
+
+const HALF_HOUR = 30;
+
+export function closestHalfHourBefore(date: Date): Date {
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  if (minute === 0) {
+    return dateAtHour(date, hour - 1, HALF_HOUR);
+  }
+  if (minute <= HALF_HOUR) {
+    return dateAtHour(date, hour, 0);
+  }
+  return dateAtHour(date, hour, HALF_HOUR);
+}
+
+export function closestHalfHourAfter(date: Date): Date {
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  if (minute === 0) {
+    return dateAtHour(date, hour, HALF_HOUR);
+  }
+  if (minute < HALF_HOUR) {
+    return dateAtHour(date, hour, HALF_HOUR);
+  }
+  return dateAtHour(date, hour + 1, 0);
 }

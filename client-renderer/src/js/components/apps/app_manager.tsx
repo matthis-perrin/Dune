@@ -130,6 +130,7 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.ViewDayApp) {
       return [
+        colorsStore,
         stocksStore,
         cadencierStore,
         bobinesQuantitiesStore,
