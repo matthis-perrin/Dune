@@ -22,25 +22,29 @@ configureLogs();
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
   await setupSqliteDB();
-  const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, SQLITE_DB.Gescom);
-  const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, SQLITE_DB.Gescom);
-  const gescomCliches = new GescomWatcherCliches(gescomDB, SQLITE_DB.Gescom);
-  const gescomStocks = new GescomWatcherStocks(gescomDB, SQLITE_DB.Gescom);
-  const gescomCadencier = new GescomWatcherCadencier(gescomDB, SQLITE_DB.Gescom);
-  log.info('Starting Bobine Filles watcher');
-  await gescomBobinesFilles.start();
-  log.info('Starting Bobine Meres watcher');
-  await gescomBobinesMeres.start();
-  log.info('Starting Cliches watcher');
-  await gescomCliches.start();
-  log.info('Starting Stocks watcher');
-  await gescomStocks.start();
-  log.info('Starting Cadencier watcher');
-  await gescomCadencier.start();
-  log.info('Starting Automate aggregator');
-  await aggregator.start();
-  log.info('Starting Automate watcher');
-  automateWatcher.start();
+  if (process.env.MODE !== 'development') {
+    const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, SQLITE_DB.Gescom);
+    const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, SQLITE_DB.Gescom);
+    const gescomCliches = new GescomWatcherCliches(gescomDB, SQLITE_DB.Gescom);
+    const gescomStocks = new GescomWatcherStocks(gescomDB, SQLITE_DB.Gescom);
+    const gescomCadencier = new GescomWatcherCadencier(gescomDB, SQLITE_DB.Gescom);
+    log.info('Starting Bobine Filles watcher');
+    await gescomBobinesFilles.start();
+    log.info('Starting Bobine Meres watcher');
+    await gescomBobinesMeres.start();
+    log.info('Starting Cliches watcher');
+    await gescomCliches.start();
+    log.info('Starting Stocks watcher');
+    await gescomStocks.start();
+    log.info('Starting Cadencier watcher');
+    await gescomCadencier.start();
+  }
+  if (process.env.MODE !== 'development') {
+    log.info('Starting Automate aggregator');
+    await aggregator.start();
+    log.info('Starting Automate watcher');
+    automateWatcher.start();
+  }
   log.info('Starting Stops manager');
   stopsManager.start();
   log.info('Starting Hours aggregator');

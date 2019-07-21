@@ -7,6 +7,7 @@ import {Monitoring} from '@root/components/monitoring';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
+import {SpeedSimulator} from './speed_simulator';
 
 const REFRESH_PERIOD_MS = 500;
 
@@ -48,6 +49,7 @@ export class App extends React.Component<Props, State> {
     }
     return (
       <AppWrapper>
+        {status.isDev ? <SpeedSimulator /> : <React.Fragment />}
         <Monitoring automate={status.automate} gescom={status.gescom} />
         <Herisson
           style={{

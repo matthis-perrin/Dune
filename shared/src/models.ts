@@ -293,6 +293,7 @@ export interface ServerStatus {
   automate: AutomateStatus;
   gescom: {[key: string]: ServiceStatus};
   errors: ServerErrorData[];
+  isDev: boolean;
 }
 
 export interface SpeedStatus {
