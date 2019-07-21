@@ -5,7 +5,7 @@ import {Schedule} from '@root/components/apps/view_day_app/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
-import {getWeekDay} from '@root/lib/utils';
+import {getWeekDay, capitalize} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme, Colors, Palette} from '@root/theme';
@@ -96,10 +96,11 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 
   private formatDay(ts: number): string {
     const date = new Date(ts);
+    const dayOfWeek = capitalize(getWeekDay(date));
     const day = date.getDate();
     const month = date.toLocaleString('fr-FR', {month: 'long'});
     const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return `${dayOfWeek} ${day} ${month} ${year}`;
   }
 
   public render(): JSX.Element {
@@ -166,13 +167,17 @@ const LeftColumn = styled.div`
 
 const TopBar = styled.div`
   flex-shrink: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: ${Colors.PrimaryDark};
   color: ${Colors.TextOnPrimary};
-  height: 64px;
 `;
 
 const ScheduleWrapper = styled.div`
   flex-grow: 1;
+  overflow-x: hidden;
   overflow-y: auto;
   background-color: ${Palette.Clouds};
 `;

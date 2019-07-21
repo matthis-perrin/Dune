@@ -274,7 +274,7 @@ export class PlanProdTile extends React.Component<Props> {
       const inProgressPlanProd = planProd as InProgressPlanProduction;
       return {
         top: this.isToday(inProgressPlanProd.plan.startTime),
-        bottom: this.isToday(inProgressPlanProd.scheduledEnd.getTime()),
+        bottom: this.isToday(inProgressPlanProd.end.getTime()),
       };
     }
     if (planProd.type === 'scheduled') {

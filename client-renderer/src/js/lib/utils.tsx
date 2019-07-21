@@ -24,9 +24,27 @@ export function formatMonthCount(monthCount: number): string {
 }
 
 export const numberWithSeparator = memoize((value: number): string => value.toLocaleString('fr'));
+export const roundedToDigit = (value: number, digit: number): string => {
+  const divider = Math.pow(10, digit);
+  return numberWithSeparator(Math.round(value * divider) / divider);
+};
+
+export function formatProdTime(date: Date): string {
+  const weekDay = capitalize(getWeekDay(date).slice(0, 3));
+  const day = date.toLocaleString('fr', {day: '2-digit'});
+  const time = date.toLocaleTimeString('fr');
+  return `${weekDay} ${day} ${time}`;
+}
 
 export function getWeekDay(date: Date): string {
   return date.toLocaleString('fr-FR', {weekday: 'long'});
+}
+
+export function capitalize(value: string): string {
+  if (value.length === 0) {
+    return '';
+  }
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
 const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];

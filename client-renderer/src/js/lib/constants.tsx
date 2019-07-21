@@ -1,5 +1,7 @@
 export const CAPACITE_MACHINE = 980;
 
+export const MAX_SPEED_RATIO = 0.82;
+
 export interface ProdRange {
   startHour: number;
   startMinute: number;

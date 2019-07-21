@@ -74,7 +74,7 @@ export class Schedule extends React.Component<ScheduleProps> {
     if (inProgress) {
       checkStartTime(inProgress.plan.startTime);
       checkEndTime(inProgress.plan.stopTime);
-      checkEndTime(inProgress.scheduledEnd.getTime());
+      checkEndTime(inProgress.end.getTime());
     }
     scheduled.forEach(p => {
       checkStartTime(p.estimatedReglageStart.getTime());
@@ -205,7 +205,7 @@ export class Schedule extends React.Component<ScheduleProps> {
     const inner = <span>In Progress</span>;
     return this.renderPlanProd(
       inProgressPlanProd.start,
-      inProgressPlanProd.scheduledEnd,
+      inProgressPlanProd.end,
       inProgressPlanProd.plan.data.papier.couleurPapier,
       inner
     );
@@ -214,8 +214,8 @@ export class Schedule extends React.Component<ScheduleProps> {
   private renderScheduledPlanProd(scheduledPlanProd: ScheduledPlanProduction): JSX.Element {
     const inner = <PlanProdBlock planProd={scheduledPlanProd} />;
     return this.renderPlanProd(
-      scheduledPlanProd.estimatedReglageStart,
-      scheduledPlanProd.estimatedProductionEnd,
+      scheduledPlanProd.start,
+      scheduledPlanProd.end,
       scheduledPlanProd.plan.data.papier.couleurPapier,
       inner
     );

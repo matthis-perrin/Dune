@@ -8,7 +8,7 @@ import {Operation, PlanProduction, NonProd} from '@shared/models';
 
 export type PlanProdType = 'done' | 'in-progress' | 'scheduled';
 
-export interface PlanProdBase {
+interface PlanProdInfo {
   plan: PlanProduction;
   operations?: OperationSplits;
   operationsTotal: number;
@@ -16,15 +16,16 @@ export interface PlanProdBase {
   type: PlanProdType;
 }
 
-export interface DonePlanProduction extends PlanProdBase {
+interface PlanProdTime {
   start: Date;
   end: Date;
 }
 
-export interface InProgressPlanProduction extends PlanProdBase {
-  start: Date;
-  scheduledEnd: Date;
-}
+export interface PlanProdBase extends PlanProdTime, PlanProdInfo {}
+
+export interface DonePlanProduction extends PlanProdBase {}
+
+export interface InProgressPlanProduction extends PlanProdBase {}
 
 export interface ScheduledPlanProduction extends PlanProdBase {
   estimatedReglageStart: Date;
@@ -165,7 +166,7 @@ function getPlanProdBase(
   operations: Operation[],
   planProd: PlanProduction,
   previous?: PlanProduction
-): PlanProdBase {
+): PlanProdInfo {
   const prodLength = getProductionLengthMs(planProd);
   if (!previous) {
     return {
@@ -233,7 +234,7 @@ export function orderPlansProd(
       scheduledEnd = advanceProdDate(scheduledEnd, ADDITIONAL_TIME_TO_RESTART_PROD, nonProds);
     }
     startingPoint = scheduledEnd;
-    inProgress = {...base, start: inProgressStart, scheduledEnd};
+    inProgress = {...base, start: inProgressStart, end: scheduledEnd};
   }
 
   let previousScheduled = inProgressPlansProd[0] || lastDone;
@@ -267,10 +268,12 @@ export function orderPlansProd(
     previousScheduled = p;
     return {
       ...base,
+      start: estimatedReglageStart,
       estimatedReglageStart,
       estimatedReglageEnd,
       estimatedProductionStart,
       estimatedProductionEnd,
+      end: estimatedProductionEnd,
     };
   });
 
@@ -286,7 +289,7 @@ export function getPlanProdsForDate(plansProdOrder: PlansProdOrder, date: Date):
   const inProgress =
     plansProdOrder.inProgress &&
     dateIsAfterOrSameDay(date, new Date(plansProdOrder.inProgress.plan.startTime || 0)) &&
-    dateIsBeforeOrSameDay(date, plansProdOrder.inProgress.scheduledEnd)
+    dateIsBeforeOrSameDay(date, plansProdOrder.inProgress.end)
       ? plansProdOrder.inProgress
       : undefined;
   const scheduled = plansProdOrder.scheduled.filter(
