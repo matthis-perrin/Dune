@@ -11,6 +11,7 @@ import {PapierPickerApp} from '@root/components/apps/papier_picker/app';
 import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
 import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
+import {ProductionApp} from '@root/components/apps/production/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
 import {ViewDayApp} from '@root/components/apps/view_day_app/app';
@@ -139,6 +140,17 @@ export class AppManager extends React.Component<Props, State> {
       ];
     }
 
+    if (type === ClientAppType.ProductionApp) {
+      return [
+        colorsStore,
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        plansProductionStore,
+        operationsStore,
+      ];
+    }
+
     return [];
   }
 
@@ -194,6 +206,11 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ViewDayApp) {
       const {initialDay} = asMap(data);
       return <ViewDayApp initialDay={initialDay} />;
+    }
+
+    if (type === ClientAppType.ProductionApp) {
+      const {initialDay} = asMap(data);
+      return <ProductionApp initialDay={initialDay} />;
     }
 
     return (

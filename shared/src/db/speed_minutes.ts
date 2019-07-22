@@ -42,6 +42,18 @@ export async function getLastMinute(db: knex): Promise<MinuteSpeed | undefined> 
   return lineAsMinuteSpeed(res[0]);
 }
 
+export async function getLastUsableSpeed(db: knex): Promise<MinuteSpeed | undefined> {
+  const res = await db(SPEED_MINUTES_TABLE_NAME)
+    .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
+    .whereNotNull(SpeedMinutesColumn.Speed)
+    .orderBy(SpeedMinutesColumn.Minute, 'desc')
+    .limit(2);
+  if (res.length < 2) {
+    return undefined;
+  }
+  return lineAsMinuteSpeed(res[1]);
+}
+
 export async function getFirstMinute(db: knex): Promise<MinuteSpeed | undefined> {
   const res = await db(SPEED_MINUTES_TABLE_NAME)
     .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
@@ -141,4 +153,17 @@ export async function firstSpeedMatchingSince(
     .orderBy(SpeedMinutesColumn.Minute, 'asc')
     .limit(1)
     .map(lineAsMinuteSpeed))[0];
+}
+
+export async function getAverageSpeedBetween(
+  db: knex,
+  start: number, // included
+  end: number // not included
+): Promise<number> {
+  const res = await db(SPEED_MINUTES_TABLE_NAME)
+    .avg(`${SpeedMinutesColumn.Speed} as average_speed`)
+    .where(SpeedMinutesColumn.Minute, '>=', start)
+    .where(SpeedMinutesColumn.Minute, '<', end)
+    .whereNotNull(SpeedMinutesColumn.Speed);
+  return asNumber(asMap(asArray(res)[0])['average_speed'], 0);
 }

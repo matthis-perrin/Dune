@@ -303,10 +303,7 @@ export interface SpeedStatus {
 }
 
 export interface StopStatus {
-  lastStop?: {
-    start: number;
-    end?: number;
-  };
+  lastStop?: Stop;
 }
 
 export interface AutomateStatus extends SpeedStatus, StopStatus {}
@@ -331,6 +328,7 @@ export enum ClientAppType {
   PapierPickerApp = 'PapierPickerApp',
   PolyproPickerApp = 'PolyproPickerApp',
   ViewDayApp = 'ViewDayApp',
+  ProductionApp = 'ProductionApp',
 }
 
 export interface MinuteSpeed {
@@ -353,6 +351,16 @@ export interface HourStats {
 export interface Stop {
   start: number;
   end?: number;
+  stopType?: string;
+  stopInfo?: string;
+  planProd?: number;
+}
+
+export interface Prod {
+  start: number;
+  end?: number;
+  avgSpeed?: number;
+  planProd?: number;
 }
 
 export interface ContextMenuForBridge {
@@ -360,4 +368,10 @@ export interface ContextMenuForBridge {
   label: string;
   disabled?: boolean;
   submenus?: ContextMenuForBridge[];
+}
+
+export interface ProdInfo {
+  speeds: MinuteSpeed[];
+  stops: Stop[];
+  prods: Prod[];
 }

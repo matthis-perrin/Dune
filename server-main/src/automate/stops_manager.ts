@@ -1,47 +1,94 @@
 import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
-import {firstSpeedMatchingSince, getLastMinute} from '@shared/db/speed_minutes';
-import {getLastStop, insertOrUpdateStop} from '@shared/db/speed_stops';
+import {firstSpeedMatchingSince, getAverageSpeedBetween} from '@shared/db/speed_minutes';
+import {getLastStop, recordStopStart, recordStopEnd} from '@shared/db/speed_stops';
+import {getLastProd, recordProdEnd, recordProdStart} from '@shared/db/speed_prods';
+import {Stop} from '@shared/models';
 
 const WAIT_BETWEEN_PROCESS = 1000;
 const SPEED_THRESHOLD_FOR_STOP = 50;
 
 class StopsManager {
-  private async analyseStops(): Promise<boolean> {
-    const lastStop = await getLastStop(SQLITE_DB.Automate);
-    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Automate);
-    const lastMinute = lastMinuteSpeed === undefined ? 0 : lastMinuteSpeed.minute;
-    if (lastStop === undefined || (lastStop.end !== undefined && lastStop.end < lastMinute)) {
-      const nextStopStart = await firstSpeedMatchingSince(
-        SQLITE_DB.Automate,
-        lastStop ? lastStop.end || 0 : 0,
-        '<',
-        SPEED_THRESHOLD_FOR_STOP
-      );
-      if (!nextStopStart || nextStopStart.minute === lastMinute) {
-        return false;
+  // If a stop has started, returns the new stop start time, otherwise returns undefined
+  private async getNextStopStart(lastStop: Stop | undefined): Promise<number | undefined> {
+    let lastStopEndTime = 0;
+    if (lastStop !== undefined) {
+      if (lastStop.end === undefined) {
+        // Stop is already in progress
+        return undefined;
+      } else {
+        lastStopEndTime = lastStop.end;
       }
-      await insertOrUpdateStop(SQLITE_DB.Automate, nextStopStart.minute);
-      return true;
-    } else if (lastStop.start < lastMinute) {
-      const nextStopEnd = await firstSpeedMatchingSince(
-        SQLITE_DB.Automate,
-        lastStop.start,
-        '>=',
-        SPEED_THRESHOLD_FOR_STOP
-      );
-      if (!nextStopEnd || nextStopEnd.minute === lastMinute) {
-        return false;
-      }
-      await insertOrUpdateStop(SQLITE_DB.Automate, lastStop.start, nextStopEnd.minute);
-      return true;
     }
-    return false;
+
+    const nextStopStart = await firstSpeedMatchingSince(
+      SQLITE_DB.Automate,
+      lastStopEndTime,
+      '<',
+      SPEED_THRESHOLD_FOR_STOP
+    );
+    return nextStopStart && nextStopStart.minute;
+  }
+
+  // If a prod has started, returns the new prod start time, otherwise returns undefined
+  private async getNextProdStart(lastProd: Stop | undefined): Promise<number | undefined> {
+    let lastProdEndTime = 0;
+    if (lastProd !== undefined) {
+      if (lastProd.end === undefined) {
+        // Prod is already in progress
+        return undefined;
+      } else {
+        lastProdEndTime = lastProd.end;
+      }
+    }
+
+    const nextStopStart = await firstSpeedMatchingSince(
+      SQLITE_DB.Automate,
+      lastProdEndTime,
+      '>=',
+      SPEED_THRESHOLD_FOR_STOP
+    );
+    return nextStopStart && nextStopStart.minute;
+  }
+
+  private async analyseStopsAndProds(): Promise<boolean> {
+    const [lastStop, lastProd] = await Promise.all([
+      getLastStop(SQLITE_DB.Automate),
+      getLastProd(SQLITE_DB.Automate),
+    ]);
+
+    const newStopStartTime = await this.getNextStopStart(lastStop);
+    const newProdStartTime = await this.getNextProdStart(lastProd);
+
+    if (newStopStartTime !== undefined) {
+      // When a stop start, a prod ends.
+      if (lastProd && lastProd.end === undefined) {
+        // Compute the average speed of this prod
+        const averageSpeed = await getAverageSpeedBetween(
+          SQLITE_DB.Automate,
+          lastProd.start,
+          newStopStartTime
+        );
+        await recordProdEnd(SQLITE_DB.Automate, lastProd.start, newStopStartTime, averageSpeed);
+      }
+      await recordStopStart(SQLITE_DB.Automate, newStopStartTime);
+    }
+
+    if (newProdStartTime !== undefined) {
+      // When a prod start, a stop ends.
+      if (lastStop && lastStop.end === undefined) {
+        await recordStopEnd(SQLITE_DB.Automate, lastStop.start, newProdStartTime);
+      }
+      const planProd = lastStop && lastStop.planProd;
+      await recordProdStart(SQLITE_DB.Automate, newProdStartTime, planProd);
+    }
+
+    return newStopStartTime !== undefined || newProdStartTime !== undefined;
   }
 
   private process(): void {
-    this.analyseStops()
+    this.analyseStopsAndProds()
       .then(hasDoneSomething => {
         if (hasDoneSomething) {
           setTimeout(() => this.process(), 0);

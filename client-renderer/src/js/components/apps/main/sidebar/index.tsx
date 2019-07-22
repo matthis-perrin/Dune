@@ -4,8 +4,13 @@ import styled from 'styled-components';
 import {Herisson} from '@root/components/apps/main/sidebar/herisson';
 import {SidebarItem} from '@root/components/apps/main/sidebar/sidebar_item';
 import {FlexParent} from '@root/components/core/flex';
+import {bridge} from '@root/lib/bridge';
+import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
+import {getProductionDay} from '@root/lib/plan_prod';
 import {AppPage, appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme';
+
+import {ClientAppType} from '@shared/models';
 
 interface Props {}
 
@@ -13,14 +18,6 @@ interface State {
   currentPage: AppPage;
 }
 
-interface SidebarItemData {
-  title: string;
-}
-
-const Pages: {[key: string]: SidebarItemData} = {
-  [AppPage.Gestion]: {title: 'Gestion'},
-  [AppPage.Administration]: {title: 'Gescom'},
-};
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
 
@@ -59,17 +56,28 @@ export class Sidebar extends React.Component<Props, State> {
         <FlexParent alignItems="stretch">
           <SidebarSelectedIndicator index={pageIndex} />
           <SidebarItemContainer flexDirection="column">
-            {SidebarPages.map((pageName, index) => {
-              const {title} = Pages[pageName];
-              return (
-                <SidebarItem
-                  key={title}
-                  title={title}
-                  isSelected={index === pageIndex}
-                  onClick={() => appStore.setCurrentPage(pageName)}
-                />
-              );
-            })}
+            <SidebarItem
+              key={'gestion'}
+              title={'Gestion'}
+              isSelected={pageIndex === 0}
+              onClick={() => appStore.setCurrentPage(AppPage.Gestion)}
+            />
+            <SidebarItem
+              key={'gescom'}
+              title={'Gescom'}
+              isSelected={pageIndex === 1}
+              onClick={() => appStore.setCurrentPage(AppPage.Administration)}
+            />
+            <SidebarItem
+              key={'production'}
+              title={'Production'}
+              isSelected={false}
+              onClick={() =>
+                bridge.openApp(ClientAppType.ProductionApp, {
+                  initialDay: getProductionDay(PROD_HOURS_BY_DAY),
+                })
+              }
+            />
           </SidebarItemContainer>
         </FlexParent>
       </SidebarContainer>

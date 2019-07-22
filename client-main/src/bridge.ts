@@ -45,6 +45,7 @@ import {
   UpdatePlanProductionInfo,
   MovePlanProduction,
   GetPlanProduction,
+  GetProdInfo,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -53,6 +54,9 @@ import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
+import {getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
+import {getSpeedProdBetween} from '@shared/db/speed_prods';
+import {getSpeedStopBetween} from '@shared/db/speed_stops';
 import {
   listPlansProduction,
   deletePlanProduction,
@@ -287,5 +291,18 @@ export async function handleCommand(
       () => sendBridgeEvent(browserWindow, ContextMenuClosed, {menuId}),
       id => sendBridgeEvent(browserWindow, ContextMenuClicked, {menuId, menuItemId: id})
     );
+  }
+
+  if (command === GetProdInfo) {
+    const {day} = asMap(params);
+    const date = new Date(asNumber(day, 0));
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    const [speeds, prods, stops] = await Promise.all([
+      getMinutesSpeedsBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
+      getSpeedProdBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
+      getSpeedStopBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
+    ]);
+    return {speeds, prods, stops};
   }
 }

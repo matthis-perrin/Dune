@@ -1,5 +1,5 @@
-import {MAX_SPEED_RATIO} from '@root/lib/constants';
-import {padNumber} from '@root/lib/utils';
+import {MAX_SPEED_RATIO, ProdRange} from '@root/lib/constants';
+import {padNumber, getWeekDay} from '@root/lib/utils';
 
 import {PlanProductionInfo, PlanProduction} from '@shared/models';
 
@@ -59,4 +59,16 @@ export function getBobineMereConsumption(planProd: {
   const longueurBobineFille = planProd.bobines.length > 0 ? planProd.bobines[0].longueur || 0 : 0;
   const prod = longueur !== 0 ? (tourCountValue * longueurBobineFille) / longueur : 0;
   return prod;
+}
+
+export function getProductionDay(prodHours: Map<string, ProdRange>): number {
+  const date = new Date();
+  while (!prodHours.has(getWeekDay(date))) {
+    date.setDate(date.getDate() + 1);
+  }
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date.getTime();
 }

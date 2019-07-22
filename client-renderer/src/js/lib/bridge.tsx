@@ -42,6 +42,7 @@ import {
   UpdatePlanProductionInfo,
   MovePlanProduction,
   GetPlanProduction,
+  GetProdInfo,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -63,6 +64,7 @@ import {
   PlanProductionInfo,
   PlanProductionData,
   PlanProduction,
+  ProdInfo,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -238,6 +240,10 @@ export class Bridge {
 
   public async viewDay(day: number): Promise<void> {
     return this.openApp(ClientAppType.ViewDayApp, {initialDay: day});
+  }
+
+  public async getProdInfo(day: number): Promise<ProdInfo> {
+    return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {day});
   }
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {

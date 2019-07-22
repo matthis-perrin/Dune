@@ -23,6 +23,7 @@ import {createSpeedHoursTable} from '@shared/db/speed_hours';
 import {createSpeedMinutesTable} from '@shared/db/speed_minutes';
 import {createSpeedStopsTable} from '@shared/db/speed_stops';
 import {createStocksTable} from '@shared/db/stocks';
+import {createSpeedProdsTable} from '@shared/db/speed_prods';
 
 export async function setupSqliteDB(): Promise<void> {
   await Promise.all([
@@ -41,6 +42,7 @@ export async function setupSqliteDB(): Promise<void> {
     createSpeedMinutesTable(SQLITE_DB.Automate),
     createSpeedHoursTable(SQLITE_DB.Automate),
     createSpeedStopsTable(SQLITE_DB.Automate),
+    createSpeedProdsTable(SQLITE_DB.Automate),
   ]);
 }
 

@@ -38,6 +38,8 @@ export const AddPlanBobine = 'add-plan-bobine' as BridgeCommand;
 export const RemovePlanBobine = 'remove-plan-bobine' as BridgeCommand;
 export const ClearPlan = 'clear-plan' as BridgeCommand;
 
+export const GetProdInfo = 'get-prod-info' as BridgeCommand;
+
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;
 
