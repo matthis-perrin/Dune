@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {Timer} from '@root/components/common/timer';
 import {Palette} from '@root/theme';
 
 interface TileProps {
   start: number;
   end?: number;
+  indicators: {label: string; value: string | JSX.Element}[];
   right: JSX.Element;
   color: string;
 }
@@ -19,24 +19,26 @@ export class Tile extends React.Component<TileProps> {
   }
 
   public render(): JSX.Element {
-    const {start, end, right, color} = this.props;
+    const {start, end, right, color, indicators} = this.props;
 
     return (
       <TileWrapper style={{borderLeftColor: color}}>
         <TileTimes>
-          <TileStart>
-            <TileLabel>DÉBUT</TileLabel>
-            <TileTimeValue>{this.formatTime(start)}</TileTimeValue>
-          </TileStart>
           <TileEnd>
             <TileLabel>FIN</TileLabel>
             <TileTimeValue>{this.formatTime(end)}</TileTimeValue>
           </TileEnd>
+          <TileStart>
+            <TileLabel>DÉBUT</TileLabel>
+            <TileTimeValue>{this.formatTime(start)}</TileTimeValue>
+          </TileStart>
         </TileTimes>
-        <TileDuration>
-          <TileDurationValue>{<Timer start={start} end={end} />}</TileDurationValue>
-          <TileLabel style={{width: 'auto'}}>DURÉE</TileLabel>
-        </TileDuration>
+        {indicators.map(indicator => (
+          <TileIndicator>
+            <TileIndicatorValue>{indicator.value}</TileIndicatorValue>
+            <TileLabel style={{width: 'auto'}}>{indicator.label}</TileLabel>
+          </TileIndicator>
+        ))}
         <TileRight>{right}</TileRight>
       </TileWrapper>
     );
@@ -80,7 +82,7 @@ const TileTimeValue = styled.div`
   font-size: 16px;
 `;
 
-const TileDuration = styled.div`
+const TileIndicator = styled.div`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -88,7 +90,7 @@ const TileDuration = styled.div`
   width: 96px;
 `;
 
-const TileDurationValue = styled.div`
+const TileIndicatorValue = styled.div`
   font-size: 22px;
 `;
 

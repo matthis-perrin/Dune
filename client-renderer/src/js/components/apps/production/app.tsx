@@ -119,9 +119,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderProds(): Map<number, JSX.Element> {
-    const {prods} = this.state.prodInfo;
+    const {prods, speeds} = this.state.prodInfo;
     const prodsElements = new Map<number, JSX.Element>();
-    prods.forEach(prod => prodsElements.set(prod.start, <ProdTile prod={prod} />));
+    prods.forEach(prod => prodsElements.set(prod.start, <ProdTile prod={prod} speeds={speeds} />));
     return prodsElements;
   }
 
