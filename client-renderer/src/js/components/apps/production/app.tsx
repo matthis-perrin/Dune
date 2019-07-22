@@ -3,13 +3,14 @@ import styled from 'styled-components';
 
 import {ProdTile} from '@root/components/apps/production/prod';
 import {StopTile} from '@root/components/apps/production/stop';
+import {StopModal} from '@root/components/apps/production/stop_modal';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {getWeekDay, capitalize} from '@root/lib/utils';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {theme, Colors} from '@root/theme';
 
-import {ProdInfo} from '@shared/models';
+import {ProdInfo, Stop} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -149,6 +150,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       [] as JSX.Element[]
     );
 
+    const {stops} = this.state.prodInfo;
+    const incompleteStop: Stop | undefined = stops.filter(s => s.stopType === undefined)[0];
+
     return (
       <AppWrapper>
         <LeftColumn>
@@ -168,6 +172,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
           </InfosContainer>
         </LeftColumn>
         <RightColumn>Plans de productions</RightColumn>
+        {incompleteStop !== undefined ? <StopModal stop={incompleteStop} /> : <React.Fragment />}
       </AppWrapper>
     );
   }

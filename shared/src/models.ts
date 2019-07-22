@@ -356,6 +356,18 @@ export interface Stop {
   planProd?: number;
 }
 
+export enum StopType {
+  ChangePlanProd = 'ChangePlanProd',
+  ReprisePlanProd = 'ReprisePlanProd',
+  ChangeBobinePapier = 'ChangeBobinePapier',
+  ChangeBobinePolypro = 'ChangeBobinePolypro',
+  ChangeBobinePapierAndPolypro = 'ChangeBobinePapierAndPolypro',
+  EndOfDayEndProd = 'EndOfDayEndProd',
+  EndOfDayPauseProd = 'EndOfDayPauseProd',
+  Maintenance = 'Maintenance',
+  Unplanned = 'Unplanned',
+}
+
 export interface Prod {
   start: number;
   end?: number;
