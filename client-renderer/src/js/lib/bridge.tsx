@@ -43,6 +43,7 @@ import {
   MovePlanProduction,
   GetPlanProduction,
   GetProdInfo,
+  ListUnplannedStops,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -65,6 +66,7 @@ import {
   PlanProductionData,
   PlanProduction,
   ProdInfo,
+  UnplannedStop,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -143,6 +145,9 @@ export class Bridge {
   }
   public async listOperations(): Promise<Operation[]> {
     return this.bridgeTransport.sendBridgeCommand<Operation[]>(ListOperations);
+  }
+  public async listUnplannedStop(): Promise<UnplannedStop[]> {
+    return this.bridgeTransport.sendBridgeCommand<UnplannedStop[]>(ListUnplannedStops);
   }
 
   public async createNewPlanProduction(index: number): Promise<{id: number}> {

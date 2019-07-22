@@ -2,12 +2,13 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {StopDetails} from '@root/components/apps/production/stop_details';
+import {StopOtherReasonsForm} from '@root/components/apps/production/stop_other_reasons_form';
 import {StopTypeForm} from '@root/components/apps/production/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
 import {Palette, Colors, theme} from '@root/theme';
 
-import {Stop, StopType} from '@shared/models';
+import {Stop, StopType, UnplannedStop} from '@shared/models';
 
 interface StopModalProps {
   stop: Stop;
@@ -15,6 +16,7 @@ interface StopModalProps {
 
 interface StopModalState {
   stopType?: StopType;
+  otherReasons: UnplannedStop[];
 }
 
 export class StopModal extends React.Component<StopModalProps, StopModalState> {
@@ -22,7 +24,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 
   public constructor(props: StopModalProps) {
     super(props);
-    this.state = {};
+    this.state = {otherReasons: []};
   }
 
   private readonly handleSave = (): void => {
@@ -37,13 +39,17 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     this.setState({stopType: newType});
   };
 
+  private readonly handleOtherReasonsChanged = (newOtherReasons: UnplannedStop[]): void => {
+    this.setState({otherReasons: newOtherReasons});
+  };
+
   private formatTime(time?: number): string {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
   }
 
   public render(): JSX.Element {
     const {stop} = this.props;
-    const {stopType} = this.state;
+    const {stopType, otherReasons} = this.state;
 
     return (
       <Wrapper>
@@ -78,6 +84,13 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
           </ContentBlock>
           <ContentBlock>
             <ContentTitle>AUTRES RAISONS</ContentTitle>
+            <ContentInside>
+              <StopOtherReasonsForm
+                stop={stop}
+                otherReasons={otherReasons}
+                onChange={this.handleOtherReasonsChanged}
+              />
+            </ContentInside>
           </ContentBlock>
           <ContentBlock>
             <ContentTitle>COMMENTAIRES</ContentTitle>

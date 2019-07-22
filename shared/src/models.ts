@@ -387,3 +387,10 @@ export interface ProdInfo {
   stops: Stop[];
   prods: Prod[];
 }
+
+export interface UnplannedStop {
+  name: string;
+  label: string;
+  group: string;
+  order: number;
+}

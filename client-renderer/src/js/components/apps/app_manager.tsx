@@ -19,7 +19,12 @@ import {LoadingScreen} from '@root/components/core/loading_screen';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Modal} from '@root/components/modal';
 import {bridge} from '@root/lib/bridge';
-import {bobinesQuantitiesStore, colorsStore, operationsStore} from '@root/stores/data_store';
+import {
+  bobinesQuantitiesStore,
+  colorsStore,
+  operationsStore,
+  unplannedStopsStore,
+} from '@root/stores/data_store';
 import {
   bobinesFillesStore,
   bobinesMeresStore,
@@ -148,6 +153,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesQuantitiesStore,
         plansProductionStore,
         operationsStore,
+        unplannedStopsStore,
       ];
     }
 

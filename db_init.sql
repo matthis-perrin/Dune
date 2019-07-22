@@ -96,4 +96,24 @@ INSERT INTO "operations" VALUES (14, "Second jog vérification couteau & buse", 
 INSERT INTO "operations" VALUES (15, "Temps de chauffe buse de colle à chaud", 1, "augmentation-refentes", 1800, 'chauffe-refente');
 INSERT INTO "operations" VALUES (16, "Temps de chauffe perforation", 1, "changement-perforation", 4800, 'chauffe-perfo');
 
+INSERT INTO "unplanned_stops" VALUES ("casse-calandre", "Calandre", "Casse", 1);
+INSERT INTO "unplanned_stops" VALUES ("casse-groupe-enrouleur", "Groupe enrouleur", "Casse", 2);
+INSERT INTO "unplanned_stops" VALUES ("casse-dérouleur-papier", "Dérouleur papier", "Casse", 3);
+INSERT INTO "unplanned_stops" VALUES ("casse-dérouleur-polypro", "Dérouleur polypro", "Casse", 4);
+INSERT INTO "unplanned_stops" VALUES ("casse-perforation", "Perforation", "Casse", 5);
+INSERT INTO "unplanned_stops" VALUES ("casse-groupe-imprimeur", "Groupe imprimeur", "Casse", 6);
+INSERT INTO "unplanned_stops" VALUES ("casse-cadre-guidage", "Cadre guidage", "Casse", 7);
+INSERT INTO "unplanned_stops" VALUES ("mauvais-collage-buse-de-colle-à-chaud", "Buse de colle à chaud", "Mauvais collage", 8);
+INSERT INTO "unplanned_stops" VALUES ("mauvais-collage-bobine-mère-polypro", "Bobine mère polypro", "Mauvais collage", 9);
+INSERT INTO "unplanned_stops" VALUES ("mauvais-collage-changement-bande-téflon", "Changement bande téflon", "Mauvais collage", 10);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-fille-impression", "Impression", "Problème qualité bobine fille", 11);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-fille-largeur", "Largeur : Mauvaise position couteaux", "Problème qualité bobine fille", 12);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-fille-défaut-perfo", "Défaut perfo", "Problème qualité bobine fille", 13);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-fille-flanc-inconvenable", "Flanc bobine fille inconvenable", "Problème qualité bobine fille", 14);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-mere-bord-flottant", "Bord flottant", "Problème qualité bobine mère", 15);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-mere-choc-sur-bobine", "Choc sur bobine", "Problème qualité bobine mère", 16);
+INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-mere-raccord-fournisseur", "Raccord fournisseur", "Problème qualité bobine mère", 17);
+INSERT INTO "unplanned_stops" VALUES ("autre-mauvais-encollage-axes-cartons", "Mauvais encollage axes cartons (colle à froid)", "Autre", 18);
+INSERT INTO "unplanned_stops" VALUES ("autre-essai-technique", "Essai technique", "Autre", 19);
+
 COMMIT;
