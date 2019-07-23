@@ -13,6 +13,7 @@ import {
 import {getStats as getStopsStats} from '@shared/db/speed_stops';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
+import {aggregator} from './automate/aggregator';
 
 async function getServerStatus(): Promise<ServerStatus> {
   const [gescomData, speedStats, stopsStats] = await Promise.all([
@@ -26,7 +27,7 @@ async function getServerStatus(): Promise<ServerStatus> {
   });
 
   return {
-    automate: {...speedStats, ...stopsStats},
+    automate: {...speedStats, ...stopsStats, lastReceived: aggregator.getLastReceivedSpeed()},
     gescom,
     errors: getErrors(),
     isDev: process.env.MODE === 'development',

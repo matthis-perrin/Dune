@@ -8,6 +8,7 @@ import {
   getMinutesSpeedsSince,
   insertOrUpdateMinutesSpeeds,
 } from '@shared/db/speed_minutes';
+import {MinuteSpeed} from '@shared/models';
 
 function min<T>(values: T[]): T | undefined {
   return values.reduce((acc, curr) => (acc === undefined || curr < acc ? curr : acc), undefined as
@@ -38,6 +39,7 @@ const WAIT_BETWEEN_BUFFER_PROCESS = 5000;
 const MAX_VALUES_IN_CURRENT_MINUTE_FOR_INSTANT_PROCESS = 5;
 
 class Aggregator {
+  private lastSpeed: MinuteSpeed | undefined;
   private readonly queries = new Map<number, number | undefined>();
   private readonly buffers = new Map<number, number[]>();
   private lastInsertedMinute: number = 0;
@@ -181,10 +183,14 @@ class Aggregator {
     return now.getTime();
   }
 
+  public getLastReceivedSpeed(): MinuteSpeed | undefined {
+    return this.lastSpeed;
+  }
+
   public addSpeed(speed: number): void {
     const currentMinute = this.getCurrentMinute();
     const currentBuffer = this.buffers.get(currentMinute);
-    log.debug(`Received speed ${speed} for minute ${new Date(currentMinute).toLocaleString('fr')}`);
+    this.lastSpeed = {minute: Date.now(), speed};
     if (currentBuffer) {
       currentBuffer.push(speed);
     } else {

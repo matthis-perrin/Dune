@@ -11,22 +11,16 @@ const WAIT_ON_SUCCESS = 500;
 const DURATION_BEFORE_RESTART = 10000;
 
 class AutomateWatcher {
-  private readonly socket = new Socket();
+  private socket = new Socket();
   private isStopping = false;
   private isStarting = false;
   private lastReceived = 0;
   private checkBlockedTimeout: NodeJS.Timeout | undefined;
 
   public constructor(private readonly emulate: boolean = false) {
-    this.socket.on('data', buffer => {
-      // tslint:disable-next-line:no-magic-numbers
-      const value = buffer.readUInt32BE(buffer.length - 4);
-      this.handleSpeed(value);
-    });
-    this.socket.on('close', () => this.restart());
-    this.socket.on('end', () => this.restart());
-    this.socket.on('error', (err: Error) => this.handleError(err.message));
-    this.socket.on('timeout', () => this.handleError('timeout'));
+    if (emulate) {
+      console.log('----- EMULATING AUTOMATE -----');
+    }
   }
 
   public start(): void {
@@ -38,10 +32,24 @@ class AutomateWatcher {
     this.socket.destroy();
   }
 
+  private setupSocketEventHandlers() {
+    this.socket.on('data', buffer => {
+      // tslint:disable-next-line:no-magic-numbers
+      const value = buffer.readUInt32BE(buffer.length - 4);
+      this.handleSpeed(value);
+    });
+    this.socket.on('close', () => this.restart());
+    this.socket.on('end', () => this.restart());
+    this.socket.on('error', (err: Error) => this.handleError(err.message));
+    this.socket.on('timeout', () => this.handleError('timeout'));
+  }
+
   private async connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       try {
         this.socket.destroy();
+        this.socket = new Socket({allowHalfOpen: true});
+        this.setupSocketEventHandlers();
         this.socket.connect(AUTOMATE_PORT, AUTOMATE_IP, () => {
           sendCommand(this.socket, CONNECT_COMMAND)
             .then(() => {
@@ -84,7 +92,7 @@ class AutomateWatcher {
 
   private handleError(error: string): void {
     addError('Erreur automate', error);
-    setTimeout(() => this.fetchOnce(), WAIT_ON_ERROR);
+    setTimeout(() => this.restart(), WAIT_ON_ERROR);
   }
 
   private handleSpeed(value: number): void {
@@ -121,4 +129,4 @@ class AutomateWatcher {
   }
 }
 
-export const automateWatcher = new AutomateWatcher(true);
+export const automateWatcher = new AutomateWatcher(false);

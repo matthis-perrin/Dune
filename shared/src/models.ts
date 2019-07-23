@@ -300,6 +300,7 @@ export interface SpeedStatus {
   firstMinute?: MinuteSpeed;
   lastMinute?: MinuteSpeed;
   rowCount: number;
+  lastReceived?: MinuteSpeed;
 }
 
 export interface StopStatus {

@@ -25,6 +25,15 @@ export class Monitoring extends React.Component<Props> {
     return `il y a ${Math.round(ago)}s`;
   }
 
+  private formatPreciseTime(time: number): string {
+    const date = new Date(time);
+    const hours = `0${date.getHours()}`.slice(-2);
+    const minutes = `0${date.getMinutes()}`.slice(-2);
+    const seconds = `0${date.getSeconds()}`.slice(-2);
+    const milliseconds = `00${date.getMilliseconds()}`.slice(-3);
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  }
+
   private renderService(
     title: string,
     rowCount: number,
@@ -71,6 +80,7 @@ export class Monitoring extends React.Component<Props> {
       firstMinute,
       rowCount,
       lastStop = {start: undefined, end: undefined},
+      lastReceived,
     } = automate;
 
     return (
@@ -82,7 +92,20 @@ export class Monitoring extends React.Component<Props> {
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Vitesse</ServiceTitle>
+            <ServiceTitle>Dernière vitesse reçue</ServiceTitle>
+          </td>
+          <td>
+            <ServiceRowCount>
+              {lastReceived
+                ? `${lastReceived.speed} (${this.formatPreciseTime(lastReceived.minute)})`
+                : '-'}
+            </ServiceRowCount>
+          </td>
+          <td />
+        </tr>
+        <tr>
+          <td>
+            <ServiceTitle>Vitesse dernière minute</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>{lastMinute ? lastMinute.speed : '-'}</ServiceRowCount>
@@ -91,7 +114,7 @@ export class Monitoring extends React.Component<Props> {
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Dernière vitesse</ServiceTitle>
+            <ServiceTitle>Dernière minute</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>
@@ -102,7 +125,7 @@ export class Monitoring extends React.Component<Props> {
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Première vitesse</ServiceTitle>
+            <ServiceTitle>Première minute</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>
