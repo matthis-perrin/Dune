@@ -11,14 +11,14 @@ export class AutomateCommand {
     this.binary = Buffer.from(hex, 'hex');
   }
 }
-
+const ID = '03';
 export const CONNECT_COMMAND = new AutomateCommand(
   'CONNECT',
-  `46494E530000000C000000000000000000000000`
+  `46494E530000000C0000000000000000000000${ID}`
 );
 export const GET_SPEED_COMMAND = new AutomateCommand(
   'GET_SPEED',
-  `46494E530000001A000000020000000080000300010000EF00070101B10014000001`
+  `46494E530000001A000000020000000080000300010000${ID}00070101B10014000001`
 );
 
 export async function sendCommand(socket: Socket, command: AutomateCommand): Promise<void> {

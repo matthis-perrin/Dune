@@ -4,11 +4,10 @@ import styled from 'styled-components';
 import {GlobalStyle} from '@root/components/global_styles';
 import {Herisson} from '@root/components/herisson';
 import {Monitoring} from '@root/components/monitoring';
+import {SpeedSimulator} from '@root/components/speed_simulator';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
-
-import {SpeedSimulator} from '@root/components/speed_simulator';
 
 const REFRESH_PERIOD_MS = 500;
 
