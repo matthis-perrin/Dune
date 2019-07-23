@@ -20,7 +20,7 @@
   "main": "dist/index.js",
   "build": {
     "productName": "Hérisson",
-    "appId": "dune.mondon.server",
+    "appId": "dune.mondon.client",
     "directories": {
       "buildResources": "assets",
       "output": "out"

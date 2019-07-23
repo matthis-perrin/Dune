@@ -18,11 +18,12 @@ import {configureLogs} from '@root/log';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 
 configureLogs();
+const forceProdMode = true;
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
   await setupSqliteDB();
-  if (process.env.MODE !== 'development') {
+  if (process.env.MODE !== 'development' || forceProdMode) {
     const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, SQLITE_DB.Gescom);
     const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, SQLITE_DB.Gescom);
     const gescomCliches = new GescomWatcherCliches(gescomDB, SQLITE_DB.Gescom);
@@ -39,7 +40,7 @@ async function startServer(): Promise<void> {
     log.info('Starting Cadencier watcher');
     await gescomCadencier.start();
   }
-  if (process.env.MODE !== 'development') {
+  if (process.env.MODE !== 'development' || forceProdMode) {
     log.info('Starting Automate aggregator');
     await aggregator.start();
     log.info('Starting Automate watcher');

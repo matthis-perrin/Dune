@@ -12,7 +12,7 @@ export class AutomateCommand {
   }
 }
 
-const ID = '05';
+const ID = '01';
 export const CONNECT_COMMAND = new AutomateCommand(
   'CONNECT',
   `46494E530000000C0000000000000000000000${ID}`

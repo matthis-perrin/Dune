@@ -2,8 +2,8 @@ import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
 import {firstSpeedMatchingSince, getAverageSpeedBetween} from '@shared/db/speed_minutes';
-import {getLastStop, recordStopStart, recordStopEnd} from '@shared/db/speed_stops';
 import {getLastProd, recordProdEnd, recordProdStart} from '@shared/db/speed_prods';
+import {getLastStop, recordStopStart, recordStopEnd} from '@shared/db/speed_stops';
 import {Stop} from '@shared/models';
 
 const WAIT_BETWEEN_PROCESS = 1000;

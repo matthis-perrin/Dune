@@ -1,3 +1,5 @@
+import * as log from 'electron-log';
+
 import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
@@ -182,6 +184,7 @@ class Aggregator {
   public addSpeed(speed: number): void {
     const currentMinute = this.getCurrentMinute();
     const currentBuffer = this.buffers.get(currentMinute);
+    log.debug(`Received speed ${speed} for minute ${new Date(currentMinute).toLocaleString('fr')}`);
     if (currentBuffer) {
       currentBuffer.push(speed);
     } else {

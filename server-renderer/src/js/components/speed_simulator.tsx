@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import {bridge} from '@root/lib/bridge';
 
 interface Props {}
@@ -7,8 +8,8 @@ interface Props {}
 export class SpeedSimulator extends React.Component<Props> {
   public static displayName = 'SpeedSimulator';
 
-  private speedInputRef = React.createRef<HTMLInputElement>();
-  private minutesInputRef = React.createRef<HTMLInputElement>();
+  private readonly speedInputRef = React.createRef<HTMLInputElement>();
+  private readonly minutesInputRef = React.createRef<HTMLInputElement>();
 
   private readonly handleClick = (): void => {
     const speedInput = this.speedInputRef.current;

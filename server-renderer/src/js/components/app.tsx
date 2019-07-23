@@ -7,7 +7,8 @@ import {Monitoring} from '@root/components/monitoring';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
-import {SpeedSimulator} from './speed_simulator';
+
+import {SpeedSimulator} from '@root/components/speed_simulator';
 
 const REFRESH_PERIOD_MS = 500;
 
