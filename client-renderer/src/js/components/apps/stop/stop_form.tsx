@@ -106,24 +106,26 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       return <React.Fragment />;
     }
     return (
-      <ContentBlock>
-        <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
-        <ContentInside>
-          <StopDetails
-            stop={stop}
-            type={stopType}
-            unplannedStops={unplannedStops}
-            cleanings={cleanings}
-            comments={comments}
-            planProdId={planProdId}
-            maintenanceId={maintenanceId}
-            onRemoveType={this.handleRemoveType}
-            onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
-            onRemoveComment={this.handleRemoveComment}
-            onRemoveCleaning={this.handleRemoveCleaning}
-          />
-        </ContentInside>
-      </ContentBlock>
+      <SummaryWrapper>
+        <ContentBlock>
+          <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
+          <ContentInside>
+            <StopDetails
+              stop={stop}
+              type={stopType}
+              unplannedStops={unplannedStops}
+              cleanings={cleanings}
+              comments={comments}
+              planProdId={planProdId}
+              maintenanceId={maintenanceId}
+              onRemoveType={this.handleRemoveType}
+              onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
+              onRemoveComment={this.handleRemoveComment}
+              onRemoveCleaning={this.handleRemoveCleaning}
+            />
+          </ContentInside>
+        </ContentBlock>
+      </SummaryWrapper>
     );
   }
 
@@ -219,8 +221,8 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     return (
       <Wrapper>
         {this.renderHeader()}
+        {this.renderSummary()}
         <Content>
-          {this.renderSummary()}
           {this.renderComments()}
           {this.renderStopType()}
           {this.renderOtherReasons()}
@@ -251,7 +253,6 @@ const Header = styled.div`
   height: 75px;
   background-color: ${Colors.PrimaryDark};
   color: ${Colors.TextOnPrimary};
-  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.6);
   z-index: 10;
 `;
 
@@ -314,6 +315,11 @@ const ContentBlock = styled.div`
   &:last-of-type {
     margin-bottom: 16px;
   }
+`;
+
+const SummaryWrapper = styled.div`
+  box-shadow: 0px 10px 10px -12px rgba(0, 0, 0, 0.75);
+  z-index: 10;
 `;
 
 const ContentTitle = styled.div`
