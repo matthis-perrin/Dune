@@ -2,12 +2,13 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {CleaningsForm} from '@root/components/apps/production/cleanings_form';
+import {StopCommentForm} from '@root/components/apps/production/stop_comment_form';
 import {StopDetails} from '@root/components/apps/production/stop_details';
 import {UnplannedStopsForm} from '@root/components/apps/production/stop_other_reasons_form';
 import {StopTypeForm} from '@root/components/apps/production/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
-import {Palette, Colors, theme} from '@root/theme';
+import {Palette, Colors} from '@root/theme';
 
 import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
 
@@ -54,6 +55,10 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 
   private readonly handleRemoveUnplannedStop = (name: string): void => {
     this.setState({unplannedStops: this.state.unplannedStops.filter(s => s.name !== name)});
+  };
+
+  private readonly handleCommentAdded = (newComment: string): void => {
+    this.setState({comments: this.state.comments.concat([newComment])});
   };
 
   private formatTime(time?: number): string {
@@ -164,6 +169,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
   }
 
   private renderComments(): JSX.Element {
+    const {stop} = this.props;
     const {stopType} = this.state;
     if (stopType === undefined) {
       return <React.Fragment />;
@@ -171,10 +177,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     return (
       <ContentBlock>
         <ContentInside>
-          <CommentWrapper>
-            <CommentLabel>Commentaire</CommentLabel>
-            <CommentInput type="text" placeholder="Entrer un commentaire si besoin" />
-          </CommentWrapper>
+          <StopCommentForm stop={stop} onCommentAdded={this.handleCommentAdded} />
         </ContentInside>
       </ContentBlock>
     );
@@ -319,25 +322,6 @@ const ContentTitle = styled.div`
 
 const ContentInside = styled.div`
   padding: 16px;
-`;
-
-const CommentWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const CommentLabel = styled.div`
-  flex-shrink: 0;
-  margin-right: 16px;
-`;
-
-const CommentInput = styled.input`
-  flex-grow: 1;
-  font-family: ${theme.base.fontFamily};
-  font-size: 16px;
-  border: none;
-  outline: none;
-  padding: ${theme.input.padding};
 `;
 
 const Footer = styled.div`
