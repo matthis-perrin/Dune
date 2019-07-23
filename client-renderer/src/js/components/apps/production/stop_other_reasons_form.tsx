@@ -124,13 +124,13 @@ const Group = styled.div`
   display: flex;
   flex-direction: column;
   color: ${Colors.TextOnPrimary};
-  margin-bottom: 16px;
-  margin-right: 16px;
+  margin-bottom: 32px;
+  margin-right: 32px;
 `;
 
 const GroupTitle = styled.div`
   font-size: 18px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 `;
 
 const StyledCheckbox = styled(Checkbox)`

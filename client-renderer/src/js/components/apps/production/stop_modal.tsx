@@ -52,70 +52,77 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     const {stopType, otherReasons} = this.state;
 
     return (
-      <Wrapper>
-        <Header>
-          <HeaderLeft>
-            <HeaderLeftStart>
-              <HeaderLeftLabel>DÉBUT</HeaderLeftLabel>
-              <HeaderLeftTimeValue>{this.formatTime(stop.start)}</HeaderLeftTimeValue>
-            </HeaderLeftStart>
-            <HeaderLeftEnd>
-              <HeaderLeftLabel>FIN</HeaderLeftLabel>
-              <HeaderLeftTimeValue>{this.formatTime(stop.end)}</HeaderLeftTimeValue>
-            </HeaderLeftEnd>
-          </HeaderLeft>
-          <HeaderCenter>ARRÊT</HeaderCenter>
-          <HeaderRight>
-            <Timer start={stop.start} end={stop.end} />
-          </HeaderRight>
-        </Header>
-        <Content>
-          <ContentBlock>
-            <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
-            <ContentInside>
-              <StopDetails stop={stop} />
-            </ContentInside>
-          </ContentBlock>
-          <ContentBlock>
-            <ContentTitle>TYPE D'ARRÊT</ContentTitle>
-            <ContentInside>
-              <StopTypeForm stop={stop} type={stopType} onChange={this.handleStopTypeChange} />
-            </ContentInside>
-          </ContentBlock>
-          <ContentBlock>
-            <ContentTitle>AUTRES RAISONS</ContentTitle>
-            <ContentInside>
-              <StopOtherReasonsForm
-                stop={stop}
-                otherReasons={otherReasons}
-                onChange={this.handleOtherReasonsChanged}
-              />
-            </ContentInside>
-          </ContentBlock>
-          <ContentBlock>
-            <ContentTitle>COMMENTAIRES</ContentTitle>
-            <ContentInside>
-              <CommentTextarea placeholder="Commentaires" />
-            </ContentInside>
-          </ContentBlock>
-        </Content>
-        <Footer>
-          <Button onClick={this.handleSave}>ENREGISTRER</Button>
-        </Footer>
-      </Wrapper>
+      <Scroller>
+        <Wrapper>
+          <Header>
+            <HeaderLeft>
+              <HeaderLeftStart>
+                <HeaderLeftLabel>DÉBUT</HeaderLeftLabel>
+                <HeaderLeftTimeValue>{this.formatTime(stop.start)}</HeaderLeftTimeValue>
+              </HeaderLeftStart>
+              <HeaderLeftEnd>
+                <HeaderLeftLabel>FIN</HeaderLeftLabel>
+                <HeaderLeftTimeValue>{this.formatTime(stop.end)}</HeaderLeftTimeValue>
+              </HeaderLeftEnd>
+            </HeaderLeft>
+            <HeaderCenter>ARRÊT</HeaderCenter>
+            <HeaderRight>
+              <Timer start={stop.start} end={stop.end} />
+            </HeaderRight>
+          </Header>
+          <Content>
+            <ContentBlock>
+              <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
+              <ContentInside>
+                <StopDetails stop={stop} />
+              </ContentInside>
+            </ContentBlock>
+            <ContentBlock>
+              <ContentTitle>TYPE D'ARRÊT</ContentTitle>
+              <ContentInside>
+                <StopTypeForm stop={stop} type={stopType} onChange={this.handleStopTypeChange} />
+              </ContentInside>
+            </ContentBlock>
+            <ContentBlock>
+              <ContentTitle>AUTRES RAISONS</ContentTitle>
+              <ContentInside>
+                <StopOtherReasonsForm
+                  stop={stop}
+                  otherReasons={otherReasons}
+                  onChange={this.handleOtherReasonsChanged}
+                />
+              </ContentInside>
+            </ContentBlock>
+            <ContentBlock>
+              <ContentTitle>COMMENTAIRES</ContentTitle>
+              <ContentInside>
+                <CommentTextarea placeholder="Commentaires" />
+              </ContentInside>
+            </ContentBlock>
+          </Content>
+          <Footer>
+            <Button onClick={this.handleSave}>ENREGISTRER</Button>
+          </Footer>
+        </Wrapper>
+      </Scroller>
     );
   }
 }
 
-const modalPadding = 32;
 const borderRadius = 8;
 
-const Wrapper = styled.div`
+const Scroller = styled.div`
   position: fixed;
-  top: ${modalPadding}px;
-  right: ${modalPadding}px;
-  bottom: ${modalPadding}px;
-  left: ${modalPadding}px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+`;
+
+const Wrapper = styled.div`
+  width: 900px;
+  margin: 32px auto;
   display: flex;
   flex-direction: column;
   box-shadow: 0px 0px 32px 0px ${Palette.Black};
