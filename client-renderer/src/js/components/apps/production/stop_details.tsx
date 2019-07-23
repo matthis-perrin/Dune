@@ -17,7 +17,6 @@ interface StopDetailsProps {
   maintenanceId?: string;
   onRemoveUnplannedStop(name: string): void;
   onRemoveComment(index: number): void;
-  // ...
 }
 
 export class StopDetails extends React.Component<StopDetailsProps> {

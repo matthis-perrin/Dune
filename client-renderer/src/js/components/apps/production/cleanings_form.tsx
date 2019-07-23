@@ -45,25 +45,27 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
     const {allCleanings = []} = this.state;
     if (event.target.checked) {
       const newCleanings = [...cleanings];
-      const checked: Cleaning | undefined = allCleanings.filter(stop => stop.name === name)[0];
+      const checked: Cleaning | undefined = allCleanings.filter(
+        cleaning => cleaning.name === name
+      )[0];
       newCleanings.push(checked);
       onChange(newCleanings);
     } else {
-      onChange(cleanings.filter(stop => stop.name !== name));
+      onChange(cleanings.filter(cleaning => cleaning.name !== name));
     }
   };
 
-  private renderCleaning(stop: Cleaning): JSX.Element {
+  private renderCleaning(cleaning: Cleaning): JSX.Element {
     const {cleanings} = this.props;
-    const isChecked = cleanings.map(r => r.name).indexOf(stop.name) !== -1;
+    const isChecked = cleanings.map(r => r.name).indexOf(cleaning.name) !== -1;
     return (
-      <CheckboxLabel key={stop.name}>
+      <CheckboxLabel key={cleaning.name}>
         <StyledCheckbox
           type="checkbox"
           checked={isChecked}
-          onChange={this.handleCheckboxChanged(stop.name)}
+          onChange={this.handleCheckboxChanged(cleaning.name)}
         />
-        {stop.label}
+        {cleaning.label}
       </CheckboxLabel>
     );
   }

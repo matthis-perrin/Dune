@@ -20,6 +20,8 @@ interface StopModalState {
   unplannedStops: UnplannedStop[];
   cleanings: Cleaning[];
   comments: string[];
+  planProdId?: string;
+  maintenanceId?: string;
 }
 
 export class StopModal extends React.Component<StopModalProps, StopModalState> {
@@ -58,80 +60,157 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
   }
 
-  public render(): JSX.Element {
+  private renderHeader(): JSX.Element {
     const {stop} = this.props;
-    const {stopType, unplannedStops, cleanings, comments} = this.state;
+    return (
+      <Header>
+        <HeaderLeft>
+          <HeaderLeftStart>
+            <HeaderLeftLabel>DÉBUT</HeaderLeftLabel>
+            <HeaderLeftTimeValue>{this.formatTime(stop.start)}</HeaderLeftTimeValue>
+          </HeaderLeftStart>
+          <HeaderLeftEnd>
+            <HeaderLeftLabel>FIN</HeaderLeftLabel>
+            <HeaderLeftTimeValue>{this.formatTime(stop.end)}</HeaderLeftTimeValue>
+          </HeaderLeftEnd>
+        </HeaderLeft>
+        <HeaderCenter>ARRÊT</HeaderCenter>
+        <HeaderRight>
+          <Timer start={stop.start} end={stop.end} />
+        </HeaderRight>
+      </Header>
+    );
+  }
+
+  private renderSummary(): JSX.Element {
+    const {stop} = this.props;
+    const {stopType, unplannedStops, cleanings, comments, planProdId, maintenanceId} = this.state;
+    if (stopType === undefined) {
+      return <React.Fragment />;
+    }
+    return (
+      <ContentBlock>
+        <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
+        <ContentInside>
+          <StopDetails
+            stop={stop}
+            type={stopType}
+            unplannedStops={unplannedStops}
+            cleanings={cleanings}
+            comments={comments}
+            planProdId={planProdId}
+            maintenanceId={maintenanceId}
+            onRemoveComment={() => {}}
+            onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
+          />
+        </ContentInside>
+      </ContentBlock>
+    );
+  }
+
+  private renderStopType(): JSX.Element {
+    const {stop} = this.props;
+    const {stopType, planProdId, maintenanceId} = this.state;
+    return (
+      <ContentBlock>
+        <ContentTitle>TYPE D'ARRÊT</ContentTitle>
+        <ContentInside>
+          <StopTypeForm
+            stop={stop}
+            type={stopType}
+            planProdId={planProdId}
+            maintenanceId={maintenanceId}
+            onChange={this.handleStopTypeChange}
+          />
+        </ContentInside>
+      </ContentBlock>
+    );
+  }
+
+  private renderOtherReasons(): JSX.Element {
+    const {stop} = this.props;
+    const {unplannedStops, stopType} = this.state;
+    if (stopType === undefined || stopType !== StopType.Unplanned) {
+      return <React.Fragment />;
+    }
+    return (
+      <ContentBlock>
+        <ContentTitle>AUTRES RAISONS</ContentTitle>
+        <ContentInside>
+          <UnplannedStopsForm
+            stop={stop}
+            unplannedStops={unplannedStops}
+            onChange={this.handleOtherReasonsChanged}
+          />
+        </ContentInside>
+      </ContentBlock>
+    );
+  }
+
+  private renderCleanings(): JSX.Element {
+    const {stop} = this.props;
+    const {cleanings, stopType} = this.state;
+    if (stopType === undefined) {
+      return <React.Fragment />;
+    }
+    return (
+      <ContentBlock>
+        <ContentTitle>NETTOYAGES</ContentTitle>
+        <ContentInside>
+          <CleaningsForm stop={stop} cleanings={cleanings} onChange={this.handleCleaningsChanged} />
+        </ContentInside>
+      </ContentBlock>
+    );
+  }
+
+  private renderComments(): JSX.Element {
+    const {stopType} = this.state;
+    if (stopType === undefined) {
+      return <React.Fragment />;
+    }
+    return (
+      <ContentBlock>
+        <ContentInside>
+          <CommentWrapper>
+            <CommentLabel>Commentaire</CommentLabel>
+            <CommentInput type="text" placeholder="Entrer un commentaire si besoin" />
+          </CommentWrapper>
+        </ContentInside>
+      </ContentBlock>
+    );
+  }
+
+  private renderFooter(): JSX.Element {
+    const {stopType, planProdId, maintenanceId} = this.state;
+    const disabled =
+      stopType === undefined ||
+      (stopType === StopType.ChangePlanProd && planProdId === undefined) ||
+      (stopType === StopType.Maintenance && maintenanceId === undefined);
+    return (
+      <Footer>
+        <Button onClick={this.handleSave} disabled={disabled}>
+          ENREGISTRER
+        </Button>
+      </Footer>
+    );
+  }
+
+  public render(): JSX.Element {
+    // const {stop} = this.props;
+    // const {stopType, unplannedStops, cleanings, comments} = this.state;
 
     return (
       <Scroller>
         <Wrapper>
-          <Header>
-            <HeaderLeft>
-              <HeaderLeftStart>
-                <HeaderLeftLabel>DÉBUT</HeaderLeftLabel>
-                <HeaderLeftTimeValue>{this.formatTime(stop.start)}</HeaderLeftTimeValue>
-              </HeaderLeftStart>
-              <HeaderLeftEnd>
-                <HeaderLeftLabel>FIN</HeaderLeftLabel>
-                <HeaderLeftTimeValue>{this.formatTime(stop.end)}</HeaderLeftTimeValue>
-              </HeaderLeftEnd>
-            </HeaderLeft>
-            <HeaderCenter>ARRÊT</HeaderCenter>
-            <HeaderRight>
-              <Timer start={stop.start} end={stop.end} />
-            </HeaderRight>
-          </Header>
+          {this.renderHeader()}
           <Content>
-            <ContentBlock>
-              <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
-              <ContentInside>
-                <StopDetails
-                  stop={stop}
-                  type={stopType}
-                  unplannedStops={unplannedStops}
-                  cleanings={cleanings}
-                  comments={comments}
-                  onRemoveComment={() => {}}
-                  onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
-                />
-              </ContentInside>
-            </ContentBlock>
-            <ContentBlock>
-              <ContentTitle>TYPE D'ARRÊT</ContentTitle>
-              <ContentInside>
-                <StopTypeForm stop={stop} type={stopType} onChange={this.handleStopTypeChange} />
-              </ContentInside>
-            </ContentBlock>
-            <ContentBlock>
-              <ContentTitle>AUTRES RAISONS</ContentTitle>
-              <ContentInside>
-                <UnplannedStopsForm
-                  stop={stop}
-                  unplannedStops={unplannedStops}
-                  onChange={this.handleOtherReasonsChanged}
-                />
-              </ContentInside>
-            </ContentBlock>
-            <ContentBlock>
-              <ContentTitle>NETTOYAGES</ContentTitle>
-              <ContentInside>
-                <CleaningsForm
-                  stop={stop}
-                  cleanings={cleanings}
-                  onChange={this.handleCleaningsChanged}
-                />
-              </ContentInside>
-            </ContentBlock>
-            <ContentBlock>
-              <ContentTitle>COMMENTAIRES</ContentTitle>
-              <ContentInside>
-                <CommentTextarea placeholder="Commentaires" />
-              </ContentInside>
-            </ContentBlock>
+            {this.renderSummary()}
+            {this.renderComments()}
+            {this.renderStopType()}
+            {this.renderOtherReasons()}
+            {this.renderCleanings()}
           </Content>
-          <Footer>
-            <Button onClick={this.handleSave}>ENREGISTRER</Button>
-          </Footer>
+          {this.renderFooter()}
         </Wrapper>
       </Scroller>
     );
@@ -242,17 +321,23 @@ const ContentInside = styled.div`
   padding: 16px;
 `;
 
-const CommentTextarea = styled.textarea`
+const CommentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const CommentLabel = styled.div`
+  flex-shrink: 0;
+  margin-right: 16px;
+`;
+
+const CommentInput = styled.input`
+  flex-grow: 1;
   font-family: ${theme.base.fontFamily};
   font-size: 16px;
   border: none;
-  box-sizing: border-box;
   outline: none;
   padding: ${theme.input.padding};
-  width: 100%;
-  max-width: 100%;
-  min-width: 100%;
-  height: 128px;
 `;
 
 const Footer = styled.div`
