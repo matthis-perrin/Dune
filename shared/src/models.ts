@@ -330,6 +330,7 @@ export enum ClientAppType {
   PolyproPickerApp = 'PolyproPickerApp',
   ViewDayApp = 'ViewDayApp',
   ProductionApp = 'ProductionApp',
+  StopApp = 'StopApp',
 }
 
 export interface MinuteSpeed {

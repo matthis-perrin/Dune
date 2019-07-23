@@ -1,10 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {ProdTile} from '@root/components/apps/production/prod';
-import {StopTile} from '@root/components/apps/production/stop';
-import {StopModal} from '@root/components/apps/production/stop_modal';
+import {StopView} from '@root/components/apps/production/stop_view';
 import {SVGIcon} from '@root/components/core/svg_icon';
+import {bridge} from '@root/lib/bridge';
 import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {getWeekDay, capitalize} from '@root/lib/utils';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
@@ -25,6 +24,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   public static displayName = 'ProductionApp';
 
   private readonly prodInfoStore: ProdInfoStore;
+  private readonly openedStops = new Map<string, void>();
 
   public constructor(props: ProductionAppProps) {
     super(props);
@@ -77,7 +77,17 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   //   };
 
   private readonly handleProdInfoChanged = (): void => {
-    this.setState({prodInfo: this.prodInfoStore.getState()});
+    const {day} = this.state;
+    const prodInfo = this.prodInfoStore.getState();
+    const {stops} = prodInfo;
+    stops.forEach(s => {
+      const hash = `${day}-${s.start}`;
+      if (s.stopType === undefined && !this.openedStops.has(hash)) {
+        this.openedStops.set(hash);
+        bridge.openDayStopWindow(day, s.start);
+      }
+    });
+    this.setState({prodInfo});
   };
 
   private changeDay(newDay: number): void {
@@ -115,24 +125,15 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private renderStops(): Map<number, JSX.Element> {
     const {stops} = this.state.prodInfo;
     const stopsElements = new Map<number, JSX.Element>();
-    stops.forEach(stop => stopsElements.set(stop.start, <StopTile stop={stop} />));
+    stops.forEach(stop => stopsElements.set(stop.start, <StopView stop={stop} />));
     return stopsElements;
-  }
-
-  private renderProds(): Map<number, JSX.Element> {
-    const {prods, speeds} = this.state.prodInfo;
-    const prodsElements = new Map<number, JSX.Element>();
-    prods.forEach(prod => prodsElements.set(prod.start, <ProdTile prod={prod} speeds={speeds} />));
-    return prodsElements;
   }
 
   public render(): JSX.Element {
     const {day} = this.state;
 
     const stopsElements = this.renderStops();
-    const prodsElements = this.renderProds();
     const histoStartTimes = Array.from(stopsElements.keys())
-      .concat(Array.from(prodsElements.keys()))
       .sort()
       .reverse();
     const histoElements = histoStartTimes.reduce(
@@ -141,17 +142,10 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         if (stopElement) {
           elements.push(stopElement);
         }
-        const prodElement = prodsElements.get(startTime);
-        if (prodElement) {
-          elements.push(prodElement);
-        }
         return elements;
       },
       [] as JSX.Element[]
     );
-
-    const {stops} = this.state.prodInfo;
-    const incompleteStop: Stop | undefined = stops.filter(s => s.stopType === undefined)[0];
 
     return (
       <AppWrapper>
@@ -172,7 +166,6 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
           </InfosContainer>
         </LeftColumn>
         <RightColumn>Plans de productions</RightColumn>
-        {incompleteStop !== undefined ? <StopModal stop={incompleteStop} /> : <React.Fragment />}
       </AppWrapper>
     );
   }

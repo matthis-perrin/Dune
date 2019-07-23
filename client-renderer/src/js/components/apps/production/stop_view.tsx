@@ -1,21 +1,21 @@
 import * as React from 'react';
 
-import {Tile} from '@root/components/apps/production/tile';
+import {StopTile} from '@root/components/apps/production/stop_tile';
 import {Timer} from '@root/components/common/timer';
 import {Palette} from '@root/theme';
 
 import {Stop} from '@shared/models';
 
-interface StopTileProps {
+interface StopViewProps {
   stop: Stop;
 }
 
-interface StopTileState {}
+interface StopViewState {}
 
-export class StopTile extends React.Component<StopTileProps, StopTileState> {
-  public static displayName = 'StopTile';
+export class StopView extends React.Component<StopViewProps, StopViewState> {
+  public static displayName = 'StopView';
 
-  public constructor(props: StopTileProps) {
+  public constructor(props: StopViewProps) {
     super(props);
     this.state = {};
   }
@@ -24,7 +24,7 @@ export class StopTile extends React.Component<StopTileProps, StopTileState> {
     const {stop} = this.props;
 
     return (
-      <Tile
+      <StopTile
         color={Palette.Alizarin}
         start={stop.start}
         end={stop.end}

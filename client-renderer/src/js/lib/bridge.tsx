@@ -252,6 +252,10 @@ export class Bridge {
     return this.openApp(ClientAppType.ViewDayApp, {initialDay: day});
   }
 
+  public async openDayStopWindow(day: number, stopStart: number): Promise<void> {
+    return this.openApp(ClientAppType.StopApp, {day, stopStart});
+  }
+
   public async getProdInfo(day: number): Promise<ProdInfo> {
     return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {day});
   }

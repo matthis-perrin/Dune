@@ -1,6 +1,9 @@
 import {memoize} from 'lodash-es';
 
 const MONTHS_IN_YEAR = 12;
+const MS_IN_HOUR = 1000 * 60 * 60;
+const MS_IN_MINUTE = 1000 * 60;
+const MS_IN_SECONDS = 1000;
 
 export function padNumber(value: number, padding: number): string {
   let valueStr = String(value);
@@ -34,6 +37,24 @@ export function formatProdTime(date: Date): string {
   const day = date.toLocaleString('fr', {day: '2-digit'});
   const time = date.toLocaleTimeString('fr');
   return `${weekDay} ${day} ${time}`;
+}
+
+export function formatDuration(duration: number): string {
+  const hours = Math.floor(duration / MS_IN_HOUR);
+  duration -= hours * MS_IN_HOUR;
+  const minutes = Math.floor(duration / MS_IN_MINUTE);
+  duration -= minutes * MS_IN_MINUTE;
+  const seconds = Math.floor(duration / MS_IN_SECONDS);
+
+  const minutesStr = padNumber(minutes, 2);
+  const secondsStr = padNumber(seconds, 2);
+
+  if (hours === 0) {
+    return `${minutesStr}:${secondsStr}`;
+  }
+
+  const hoursStr = padNumber(hours, 2);
+  return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
 export function getWeekDay(date: Date): string {

@@ -2,21 +2,21 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {CleaningsForm} from '@root/components/apps/production/cleanings_form';
-import {StopCommentForm} from '@root/components/apps/production/stop_comment_form';
-import {StopDetails} from '@root/components/apps/production/stop_details';
-import {UnplannedStopsForm} from '@root/components/apps/production/stop_other_reasons_form';
-import {StopTypeForm} from '@root/components/apps/production/stop_type_form';
+import {StopCommentForm} from '@root/components/apps/stop/stop_comment_form';
+import {StopDetails} from '@root/components/apps/stop/stop_details';
+import {UnplannedStopsForm} from '@root/components/apps/stop/stop_other_reasons_form';
+import {StopTypeForm} from '@root/components/apps/stop/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
 import {Palette, Colors} from '@root/theme';
 
 import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
 
-interface StopModalProps {
+interface StopFormProps {
   stop: Stop;
 }
 
-interface StopModalState {
+interface StopFormState {
   stopType?: StopType;
   unplannedStops: UnplannedStop[];
   cleanings: Cleaning[];
@@ -25,10 +25,10 @@ interface StopModalState {
   maintenanceId?: string;
 }
 
-export class StopModal extends React.Component<StopModalProps, StopModalState> {
-  public static displayName = 'StopModal';
+export class StopForm extends React.Component<StopFormProps, StopFormState> {
+  public static displayName = 'StopForm';
 
-  public constructor(props: StopModalProps) {
+  public constructor(props: StopFormProps) {
     super(props);
     this.state = {unplannedStops: [], cleanings: [], comments: []};
   }
@@ -212,42 +212,30 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     // const {stopType, unplannedStops, cleanings, comments} = this.state;
 
     return (
-      <Scroller>
-        <Wrapper>
-          {this.renderHeader()}
-          <Content>
-            {this.renderSummary()}
-            {this.renderComments()}
-            {this.renderStopType()}
-            {this.renderOtherReasons()}
-            {this.renderCleanings()}
-          </Content>
-          {this.renderFooter()}
-        </Wrapper>
-      </Scroller>
+      <Wrapper>
+        {this.renderHeader()}
+        <Content>
+          {this.renderSummary()}
+          {this.renderComments()}
+          {this.renderStopType()}
+          {this.renderOtherReasons()}
+          {this.renderCleanings()}
+        </Content>
+        {this.renderFooter()}
+      </Wrapper>
     );
   }
 }
 
-const borderRadius = 8;
-
-const Scroller = styled.div`
+const Wrapper = styled.div`
   user-select: none;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  overflow-y: auto;
-`;
-
-const Wrapper = styled.div`
-  width: 900px;
-  margin: 32px auto;
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 0px 32px 0px ${Palette.Black};
-  border-radius: ${borderRadius}px;
 `;
 
 const Header = styled.div`
@@ -258,8 +246,8 @@ const Header = styled.div`
   height: 75px;
   background-color: ${Colors.PrimaryDark};
   color: ${Colors.TextOnPrimary};
-  border-top-left-radius: ${borderRadius}px;
-  border-top-right-radius: ${borderRadius}px;
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.6);
+  z-index: 10;
 `;
 
 const HeaderLeft = styled.div`
@@ -341,6 +329,6 @@ const Footer = styled.div`
   justify-content: center;
   height: 64px;
   background-color: ${Colors.PrimaryDark};
-  border-bottom-left-radius: ${borderRadius}px;
-  border-bottom-right-radius: ${borderRadius}px;
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.6);
+  z-index: 10;
 `;

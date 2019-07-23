@@ -69,6 +69,10 @@ class WindowManager {
         const planId = asNumber(id, 0);
         PICKER_APP_IDS.forEach(pickerAppId => this.closeWindow(pickerAppId(planId)));
         planProductionStore.closePlan(planId);
+      } else if (windowInfo.appInfo.type === ClientAppType.ProductionApp) {
+        Array.from(this.windows.keys())
+          .filter(id => id.startsWith('stop-'))
+          .forEach(id => this.closeWindow(id));
       }
       this.windows.delete(windowInfo.id);
     });
@@ -217,6 +221,10 @@ class WindowManager {
 
     if (appInfo.type === ClientAppType.ProductionApp) {
       return {id: `production`, size: {}};
+    }
+    if (appInfo.type === ClientAppType.StopApp) {
+      const {day, stopStart} = asMap(appInfo.data);
+      return {id: `stop-${day}-${stopStart}`, size: {width: 1200}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};

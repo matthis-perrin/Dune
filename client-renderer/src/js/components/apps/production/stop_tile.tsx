@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {Palette} from '@root/theme';
 
-interface TileProps {
+interface StopTileProps {
   start: number;
   end?: number;
   indicators: {label: string; value: string | JSX.Element}[];
@@ -11,8 +11,8 @@ interface TileProps {
   color: string;
 }
 
-export class Tile extends React.Component<TileProps> {
-  public static displayName = 'Tile';
+export class StopTile extends React.Component<StopTileProps> {
+  public static displayName = 'StopTile';
 
   private formatTime(time?: number): string {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
@@ -22,30 +22,30 @@ export class Tile extends React.Component<TileProps> {
     const {start, end, right, color, indicators} = this.props;
 
     return (
-      <TileWrapper style={{borderLeftColor: color}}>
-        <TileTimes>
-          <TileEnd>
-            <TileLabel>FIN</TileLabel>
-            <TileTimeValue>{this.formatTime(end)}</TileTimeValue>
-          </TileEnd>
-          <TileStart>
-            <TileLabel>DÉBUT</TileLabel>
-            <TileTimeValue>{this.formatTime(start)}</TileTimeValue>
-          </TileStart>
-        </TileTimes>
+      <StopTileWrapper style={{borderLeftColor: color}}>
+        <StopTileTimes>
+          <StopTileEnd>
+            <StopTileLabel>FIN</StopTileLabel>
+            <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
+          </StopTileEnd>
+          <StopTileStart>
+            <StopTileLabel>DÉBUT</StopTileLabel>
+            <StopTileTimeValue>{this.formatTime(start)}</StopTileTimeValue>
+          </StopTileStart>
+        </StopTileTimes>
         {indicators.map(indicator => (
-          <TileIndicator>
-            <TileIndicatorValue>{indicator.value}</TileIndicatorValue>
-            <TileLabel style={{width: 'auto'}}>{indicator.label}</TileLabel>
-          </TileIndicator>
+          <StopTileIndicator>
+            <StopTileIndicatorValue>{indicator.value}</StopTileIndicatorValue>
+            <StopTileLabel style={{width: 'auto'}}>{indicator.label}</StopTileLabel>
+          </StopTileIndicator>
         ))}
-        <TileRight>{right}</TileRight>
-      </TileWrapper>
+        <StopTileRight>{right}</StopTileRight>
+      </StopTileWrapper>
     );
   }
 }
 
-const TileWrapper = styled.div`
+const StopTileWrapper = styled.div`
   border-left: solid 8px;
   padding: 8px;
   display: flex;
@@ -53,36 +53,36 @@ const TileWrapper = styled.div`
   margin: 4px 4px 0 4px;
 `;
 
-const TileTimes = styled.div`
+const StopTileTimes = styled.div`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   margin-right: 16px;
 `;
 
-const TileStart = styled.div`
+const StopTileStart = styled.div`
   flex-grow: 1;
   flex-basis: 1px;
 `;
 
-const TileEnd = styled.div`
+const StopTileEnd = styled.div`
   flex-grow: 1;
   flex-basis: 1px;
 `;
 
-const TileLabel = styled.div`
+const StopTileLabel = styled.div`
     display: inline-block;
     width: 48px;
     font-size: 13px
     color: ${Palette.Asbestos}
 `;
 
-const TileTimeValue = styled.div`
+const StopTileTimeValue = styled.div`
   display: inline-block;
   font-size: 16px;
 `;
 
-const TileIndicator = styled.div`
+const StopTileIndicator = styled.div`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -90,11 +90,11 @@ const TileIndicator = styled.div`
   width: 96px;
 `;
 
-const TileIndicatorValue = styled.div`
+const StopTileIndicatorValue = styled.div`
   font-size: 22px;
 `;
 
-const TileRight = styled.div`
+const StopTileRight = styled.div`
   flex-grow: 1;
   display: flex;
   align-items: center;
