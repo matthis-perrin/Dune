@@ -71,9 +71,7 @@ class WindowManager {
         PICKER_APP_IDS.forEach(pickerAppId => this.closeWindow(pickerAppId(planId)));
         planProductionStore.closePlan(planId);
       } else if (windowInfo.appInfo.type === ClientAppType.ProductionApp) {
-        Array.from(this.windows.keys())
-          .filter(id => id.startsWith('stop-'))
-          .forEach(id => this.closeWindow(id));
+        this.closeWindowOfType(ClientAppType.StopApp);
       }
       this.windows.delete(windowInfo.id);
     });
@@ -84,7 +82,10 @@ class WindowManager {
     if (!windowInfo) {
       return;
     }
-    if (!windowInfo.browserWindow.isDestroyed() && windowInfo.browserWindow.isClosable()) {
+    if (!windowInfo.browserWindow.isDestroyed()) {
+      if (!windowInfo.browserWindow.isClosable()) {
+        windowInfo.browserWindow.setClosable(true);
+      }
       windowInfo.browserWindow.close();
     }
     this.windows.delete(windowId);
