@@ -395,3 +395,9 @@ export interface UnplannedStop {
   group: string;
   order: number;
 }
+
+export interface Cleaning {
+  name: string;
+  label: string;
+  order: number;
+}

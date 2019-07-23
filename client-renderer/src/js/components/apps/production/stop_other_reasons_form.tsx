@@ -7,23 +7,23 @@ import {Colors} from '@root/theme';
 
 import {Stop, UnplannedStop} from '@shared/models';
 
-interface StopOtherReasonsFormProps {
+interface UnplannedStopsFormProps {
   stop: Stop;
-  otherReasons: UnplannedStop[];
-  onChange(newReasons: UnplannedStop[]): void;
+  unplannedStops: UnplannedStop[];
+  onChange(newUnplannedStops: UnplannedStop[]): void;
 }
 
-interface StopOtherReasonsFormState {
-  unplannedStops?: UnplannedStop[];
+interface UnplannedStopsFormState {
+  allUnplannedStops?: UnplannedStop[];
 }
 
-export class StopOtherReasonsForm extends React.Component<
-  StopOtherReasonsFormProps,
-  StopOtherReasonsFormState
+export class UnplannedStopsForm extends React.Component<
+  UnplannedStopsFormProps,
+  UnplannedStopsFormState
 > {
-  public static displayName = 'StopOtherReasonsForm';
+  public static displayName = 'UnplannedStopsForm';
 
-  public constructor(props: StopOtherReasonsFormProps) {
+  public constructor(props: UnplannedStopsFormProps) {
     super(props);
     this.state = {};
   }
@@ -38,34 +38,34 @@ export class StopOtherReasonsForm extends React.Component<
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
-      unplannedStops: unplannedStopsStore.getData(),
+      allUnplannedStops: unplannedStopsStore.getData(),
     });
   };
 
   private readonly handleCheckboxChanged = (name: string) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const {onChange, otherReasons} = this.props;
-    const {unplannedStops = []} = this.state;
+    const {onChange, unplannedStops} = this.props;
+    const {allUnplannedStops = []} = this.state;
     if (event.target.checked) {
-      const newOtherReasons = [...otherReasons];
-      const checked: UnplannedStop | undefined = unplannedStops.filter(
+      const newUnplannedStops = [...unplannedStops];
+      const checked: UnplannedStop | undefined = allUnplannedStops.filter(
         stop => stop.name === name
       )[0];
-      newOtherReasons.push(checked);
-      onChange(newOtherReasons);
+      newUnplannedStops.push(checked);
+      onChange(newUnplannedStops);
     } else {
-      onChange(otherReasons.filter(stop => stop.name !== name));
+      onChange(unplannedStops.filter(stop => stop.name !== name));
     }
   };
 
   private orderStopsByGroup(): UnplannedStop[][] {
-    const {unplannedStops} = this.state;
-    if (!unplannedStops) {
+    const {allUnplannedStops} = this.state;
+    if (!allUnplannedStops) {
       return [];
     }
     const byGroup = new Map<string, {stops: UnplannedStop[]; minOrder: number}>();
-    unplannedStops.forEach(unplannedStop => {
+    allUnplannedStops.forEach(unplannedStop => {
       const groupReasons = byGroup.get(unplannedStop.group);
       if (!groupReasons) {
         byGroup.set(unplannedStop.group, {stops: [unplannedStop], minOrder: unplannedStop.order});
@@ -95,8 +95,8 @@ export class StopOtherReasonsForm extends React.Component<
   }
 
   private renderStopReason(stop: UnplannedStop): JSX.Element {
-    const {otherReasons} = this.props;
-    const isChecked = otherReasons.map(r => r.name).indexOf(stop.name) !== -1;
+    const {unplannedStops} = this.props;
+    const isChecked = unplannedStops.map(r => r.name).indexOf(stop.name) !== -1;
     return (
       <CheckboxLabel key={stop.name}>
         <StyledCheckbox
@@ -117,7 +117,7 @@ export class StopOtherReasonsForm extends React.Component<
 const Wrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: flex-start;
 `;
 
 const Group = styled.div`

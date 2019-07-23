@@ -2,13 +2,13 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {StopDetails} from '@root/components/apps/production/stop_details';
-import {StopOtherReasonsForm} from '@root/components/apps/production/stop_other_reasons_form';
+import {UnplannedStopsForm} from '@root/components/apps/production/stop_other_reasons_form';
 import {StopTypeForm} from '@root/components/apps/production/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
 import {Palette, Colors, theme} from '@root/theme';
 
-import {Stop, StopType, UnplannedStop} from '@shared/models';
+import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
 
 interface StopModalProps {
   stop: Stop;
@@ -16,7 +16,9 @@ interface StopModalProps {
 
 interface StopModalState {
   stopType?: StopType;
-  otherReasons: UnplannedStop[];
+  unplannedStops: UnplannedStop[];
+  cleanings: Cleaning[];
+  comments: string[];
 }
 
 export class StopModal extends React.Component<StopModalProps, StopModalState> {
@@ -24,7 +26,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 
   public constructor(props: StopModalProps) {
     super(props);
-    this.state = {otherReasons: []};
+    this.state = {unplannedStops: [], cleanings: [], comments: []};
   }
 
   private readonly handleSave = (): void => {
@@ -40,7 +42,11 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
   };
 
   private readonly handleOtherReasonsChanged = (newOtherReasons: UnplannedStop[]): void => {
-    this.setState({otherReasons: newOtherReasons});
+    this.setState({unplannedStops: newOtherReasons});
+  };
+
+  private readonly handleRemoveUnplannedStop = (name: string): void => {
+    this.setState({unplannedStops: this.state.unplannedStops.filter(s => s.name !== name)});
   };
 
   private formatTime(time?: number): string {
@@ -49,7 +55,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 
   public render(): JSX.Element {
     const {stop} = this.props;
-    const {stopType, otherReasons} = this.state;
+    const {stopType, unplannedStops, cleanings, comments} = this.state;
 
     return (
       <Scroller>
@@ -74,7 +80,15 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
             <ContentBlock>
               <ContentTitle>RÉSUMÉ DE L'ARRÊT</ContentTitle>
               <ContentInside>
-                <StopDetails stop={stop} />
+                <StopDetails
+                  stop={stop}
+                  type={stopType}
+                  unplannedStops={unplannedStops}
+                  cleanings={cleanings}
+                  comments={comments}
+                  onRemoveComment={() => {}}
+                  onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
+                />
               </ContentInside>
             </ContentBlock>
             <ContentBlock>
@@ -86,9 +100,9 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
             <ContentBlock>
               <ContentTitle>AUTRES RAISONS</ContentTitle>
               <ContentInside>
-                <StopOtherReasonsForm
+                <UnplannedStopsForm
                   stop={stop}
-                  otherReasons={otherReasons}
+                  unplannedStops={unplannedStops}
                   onChange={this.handleOtherReasonsChanged}
                 />
               </ContentInside>
