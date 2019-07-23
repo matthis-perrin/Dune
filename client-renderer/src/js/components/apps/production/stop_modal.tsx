@@ -57,6 +57,14 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
     this.setState({unplannedStops: this.state.unplannedStops.filter(s => s.name !== name)});
   };
 
+  private readonly handleRemoveCleaning = (name: string): void => {
+    this.setState({cleanings: this.state.cleanings.filter(s => s.name !== name)});
+  };
+
+  private readonly handleRemoveComment = (index: number): void => {
+    this.setState({comments: this.state.comments.filter((_, i) => i !== index)});
+  };
+
   private readonly handleCommentAdded = (newComment: string): void => {
     this.setState({comments: this.state.comments.concat([newComment])});
   };
@@ -105,8 +113,9 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
             comments={comments}
             planProdId={planProdId}
             maintenanceId={maintenanceId}
-            onRemoveComment={() => {}}
             onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
+            onRemoveComment={this.handleRemoveComment}
+            onRemoveCleaning={this.handleRemoveCleaning}
           />
         </ContentInside>
       </ContentBlock>
@@ -223,6 +232,7 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 const borderRadius = 8;
 
 const Scroller = styled.div`
+  user-select: none;
   position: fixed;
   top: 0;
   right: 0;

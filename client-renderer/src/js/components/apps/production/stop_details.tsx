@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {colorForStopType, labelForStopType} from '@root/lib/stop';
-import {Palette, theme, Colors} from '@root/theme';
+import {Palette, Colors} from '@root/theme';
 
 import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
 
@@ -16,14 +16,23 @@ interface StopDetailsProps {
   planProdId?: string;
   maintenanceId?: string;
   onRemoveUnplannedStop(name: string): void;
+  onRemoveCleaning(name: string): void;
   onRemoveComment(index: number): void;
 }
 
 export class StopDetails extends React.Component<StopDetailsProps> {
   public static displayName = 'StopDetails';
 
-  private readonly handleRemove = (name: string) => () => {
+  private readonly handleRemoveUnplannedStop = (name: string) => () => {
     this.props.onRemoveUnplannedStop(name);
+  };
+
+  private readonly handleRemoveCleaning = (name: string) => () => {
+    this.props.onRemoveCleaning(name);
+  };
+
+  private readonly handleRemoveComment = (index: number) => () => {
+    this.props.onRemoveComment(index);
   };
 
   public renderEmpty(): JSX.Element {
@@ -32,12 +41,34 @@ export class StopDetails extends React.Component<StopDetailsProps> {
 
   private renderUnplannedStop(unplannedStop: UnplannedStop): JSX.Element {
     return (
-      <UnplannedStopWrapper>
-        <UnplannedStopTitle>{`${unplannedStop.group} : ${unplannedStop.label}`}</UnplannedStopTitle>
-        <UnplannedStopRemove onClick={this.handleRemove(unplannedStop.name)}>
+      <ListLineWrapper>
+        <ListLineTitle>{`${unplannedStop.group} : ${unplannedStop.label}`}</ListLineTitle>
+        <ListLineRemove onClick={this.handleRemoveUnplannedStop(unplannedStop.name)}>
           <SVGIcon name="cross" width={12} height={12} />
-        </UnplannedStopRemove>
-      </UnplannedStopWrapper>
+        </ListLineRemove>
+      </ListLineWrapper>
+    );
+  }
+
+  private renderComment(comment: string, index: number): JSX.Element {
+    return (
+      <ListLineWrapper>
+        <ListLineTitle>{`Commentaire : ${comment}`}</ListLineTitle>
+        <ListLineRemove onClick={this.handleRemoveComment(index)}>
+          <SVGIcon name="cross" width={12} height={12} />
+        </ListLineRemove>
+      </ListLineWrapper>
+    );
+  }
+
+  private renderCleaning(cleaning: Cleaning): JSX.Element {
+    return (
+      <ListLineWrapper>
+        <ListLineTitle>{`Nettoyage : ${cleaning.label}`}</ListLineTitle>
+        <ListLineRemove onClick={this.handleRemoveCleaning(cleaning.name)}>
+          <SVGIcon name="cross" width={12} height={12} />
+        </ListLineRemove>
+      </ListLineWrapper>
     );
   }
 
@@ -52,6 +83,8 @@ export class StopDetails extends React.Component<StopDetailsProps> {
           {labelForStopType.get(type)}
         </TypeBar>
         {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
+        {comments.map((comment, index) => this.renderComment(comment, index))}
+        {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
       </Wrapper>
     );
   }
@@ -59,7 +92,6 @@ export class StopDetails extends React.Component<StopDetailsProps> {
 
 const Wrapper = styled.div`
   width: 100%;
-  min-height: 128px;
   box-sizing: border-box;
 `;
 
@@ -69,33 +101,33 @@ const TypeBar = styled.div`
   padding: 4px 8px;
 `;
 
-const UnplannedStopWrapper = styled.div`
+const ListLineWrapper = styled.div`
   display: flex;
   align-items: center;
   background-color: ${Palette.Asbestos};
   margin-top: 4px;
 `;
 
-const UnplannedStopTitle = styled.div`
+const ListLineTitle = styled.div`
   flex-grow: 1;
   margin-left: 8px;
 `;
 
-const UnplannedStopRemove = styled.div`
+const ListLineRemove = styled.div`
   flex-shrink: 0;
   padding: 4px 8px;
   cursor: pointer;
   & > svg {
-    fill: ${Colors.Danger};
+    fill: ${Palette.White};
   }
   &:hover > svg {
-    fill: ${Colors.DangerLight};
+    fill: ${Palette.Clouds};
   }
 `;
 
 const EmptyDetails = styled.div`
   width: 100%;
-  height: 96px;
+  padding: 16px 0;
   display: flex;
   align-items: center;
   justify-content: center;
