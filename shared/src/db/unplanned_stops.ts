@@ -29,8 +29,8 @@ export async function createUnplannedStopTable(db: knex): Promise<void> {
 export async function listUnplannedStop(db: knex): Promise<UnplannedStop[]> {
   return db(UNPLANNED_STOPS_TABLE_NAME)
     .select()
-    .map(bobineQuantityLine => {
-      const b = asMap(bobineQuantityLine);
+    .map(unplannedStopline => {
+      const b = asMap(unplannedStopline);
       return {
         name: asString(b[UnplannedStopColumns.NAME], ''),
         label: asString(b[UnplannedStopColumns.LABEL], ''),

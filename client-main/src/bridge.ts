@@ -47,6 +47,7 @@ import {
   GetPlanProduction,
   GetProdInfo,
   ListUnplannedStops,
+  ListCleanings,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -69,6 +70,7 @@ import {
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
+import {listCleanings} from '@shared/db/cleanings';
 import {listStocks} from '@shared/db/stocks';
 import {ClientAppType, ContextMenuForBridge, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
@@ -128,6 +130,9 @@ export async function handleCommand(
   }
   if (command === ListUnplannedStops) {
     return listUnplannedStop(SQLITE_DB.Params);
+  }
+  if (command === ListCleanings) {
+    return listCleanings(SQLITE_DB.Params);
   }
 
   // Window Management

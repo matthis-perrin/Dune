@@ -3,6 +3,7 @@ import {
   colorsStore,
   operationsStore,
   unplannedStopsStore,
+  cleaningsStore,
 } from '@root/stores/data_store';
 import {
   bobinesFillesStore,
@@ -34,6 +35,7 @@ export class StoreManager {
     plansProductionStore,
     cadencierStore,
     unplannedStopsStore,
+    cleaningsStore,
   ];
 
   constructor(private readonly stores: Refreshable[]) {}

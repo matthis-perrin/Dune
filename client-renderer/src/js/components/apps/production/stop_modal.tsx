@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {CleaningsForm} from '@root/components/apps/production/cleanings_form';
 import {StopDetails} from '@root/components/apps/production/stop_details';
 import {UnplannedStopsForm} from '@root/components/apps/production/stop_other_reasons_form';
 import {StopTypeForm} from '@root/components/apps/production/stop_type_form';
@@ -43,6 +44,10 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
 
   private readonly handleOtherReasonsChanged = (newOtherReasons: UnplannedStop[]): void => {
     this.setState({unplannedStops: newOtherReasons});
+  };
+
+  private readonly handleCleaningsChanged = (newCleanings: Cleaning[]): void => {
+    this.setState({cleanings: newCleanings});
   };
 
   private readonly handleRemoveUnplannedStop = (name: string): void => {
@@ -104,6 +109,16 @@ export class StopModal extends React.Component<StopModalProps, StopModalState> {
                   stop={stop}
                   unplannedStops={unplannedStops}
                   onChange={this.handleOtherReasonsChanged}
+                />
+              </ContentInside>
+            </ContentBlock>
+            <ContentBlock>
+              <ContentTitle>NETTOYAGES</ContentTitle>
+              <ContentInside>
+                <CleaningsForm
+                  stop={stop}
+                  cleanings={cleanings}
+                  onChange={this.handleCleaningsChanged}
                 />
               </ContentInside>
             </ContentBlock>

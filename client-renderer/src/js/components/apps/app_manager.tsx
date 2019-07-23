@@ -24,6 +24,7 @@ import {
   colorsStore,
   operationsStore,
   unplannedStopsStore,
+  cleaningsStore,
 } from '@root/stores/data_store';
 import {
   bobinesFillesStore,
@@ -154,6 +155,7 @@ export class AppManager extends React.Component<Props, State> {
         plansProductionStore,
         operationsStore,
         unplannedStopsStore,
+        cleaningsStore,
       ];
     }
 

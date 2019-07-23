@@ -42,6 +42,7 @@ export const GetProdInfo = 'get-prod-info' as BridgeCommand;
 
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const ListUnplannedStops = 'list-unplanned-stops' as BridgeCommand;
+export const ListCleanings = 'list-cleanings' as BridgeCommand;
 export const CreateOrUpdateOperation = 'create-or-update-operation' as BridgeCommand;
 
 export const ListOperateurs = 'list-operateurs' as BridgeCommand;

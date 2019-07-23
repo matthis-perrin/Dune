@@ -116,4 +116,12 @@ INSERT INTO "unplanned_stops" VALUES ("qualite-bobine-mere-raccord-fournisseur",
 INSERT INTO "unplanned_stops" VALUES ("autre-mauvais-encollage-axes-cartons", "Mauvais encollage axes cartons (colle à froid)", "Autre", 18);
 INSERT INTO "unplanned_stops" VALUES ("autre-essai-technique", "Essai technique", "Autre", 19);
 
+INSERT INTO "cleanings" VALUES ("calandre", "Calandre", 1);
+INSERT INTO "cleanings" VALUES ("couteaux", "Couteaux", 2);
+INSERT INTO "cleanings" VALUES ("contre-couteaux", "Contre-couteaux", 3);
+INSERT INTO "cleanings" VALUES ("barre-axe-carton", "Barre axe carton", 4);
+INSERT INTO "cleanings" VALUES ("lame-coupe", "Lame coupe", 5);
+INSERT INTO "cleanings" VALUES ("bague-perfo", "Bague perfo", 6);
+INSERT INTO "cleanings" VALUES ("bras-appuis", "Bras d'appuis", 7);
+
 COMMIT;
