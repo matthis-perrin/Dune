@@ -19,6 +19,7 @@ interface WindowOptions {
     height?: number;
     minHeight?: number;
   };
+  closable?: boolean;
 }
 
 interface WindowInfo {
@@ -224,7 +225,7 @@ class WindowManager {
     }
     if (appInfo.type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(appInfo.data);
-      return {id: `stop-${day}-${stopStart}`, size: {width: 1200}};
+      return {id: `stop-${day}-${stopStart}`, size: {width: 1200}, closable: false};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
@@ -244,7 +245,7 @@ class WindowManager {
 
   private async openOrForegroundWindow(appInfo: ClientAppInfo): Promise<WindowInfo> {
     // If window already exists, just bring it to the foreground
-    const {size, id} = this.getWindowOptionsForAppInfo(appInfo);
+    const {size, id, closable} = this.getWindowOptionsForAppInfo(appInfo);
     let windowInfo = this.windows.get(id);
     if (windowInfo) {
       const {browserWindow} = windowInfo;
@@ -264,6 +265,7 @@ class WindowManager {
       height,
       minWidth,
       minHeight,
+      closable,
       show: false,
       // skipTaskbar: id !== MAIN_APP_ID,
     });
