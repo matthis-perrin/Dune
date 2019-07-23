@@ -53,6 +53,10 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     this.setState({cleanings: newCleanings});
   };
 
+  private readonly handleRemoveType = (): void => {
+    this.setState({stopType: undefined});
+  };
+
   private readonly handleRemoveUnplannedStop = (name: string): void => {
     this.setState({unplannedStops: this.state.unplannedStops.filter(s => s.name !== name)});
   };
@@ -113,6 +117,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
             comments={comments}
             planProdId={planProdId}
             maintenanceId={maintenanceId}
+            onRemoveType={this.handleRemoveType}
             onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
             onRemoveComment={this.handleRemoveComment}
             onRemoveCleaning={this.handleRemoveCleaning}

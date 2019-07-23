@@ -15,6 +15,7 @@ interface StopDetailsProps {
   cleanings: Cleaning[];
   planProdId?: string;
   maintenanceId?: string;
+  onRemoveType(): void;
   onRemoveUnplannedStop(name: string): void;
   onRemoveCleaning(name: string): void;
   onRemoveComment(index: number): void;
@@ -39,36 +40,46 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     return <EmptyDetails>non renseigné</EmptyDetails>;
   }
 
-  private renderUnplannedStop(unplannedStop: UnplannedStop): JSX.Element {
+  private renderLine(title: string, color: string, handleClose: () => void): JSX.Element {
     return (
-      <ListLineWrapper>
-        <ListLineTitle>{`${unplannedStop.group} : ${unplannedStop.label}`}</ListLineTitle>
-        <ListLineRemove onClick={this.handleRemoveUnplannedStop(unplannedStop.name)}>
+      <ListLineWrapper style={{backgroundColor: color}}>
+        <ListLineTitle>{title}</ListLineTitle>
+        <ListLineRemove onClick={handleClose}>
           <SVGIcon name="cross" width={12} height={12} />
         </ListLineRemove>
       </ListLineWrapper>
+    );
+  }
+
+  private renderType(type: StopType): JSX.Element {
+    return this.renderLine(
+      labelForStopType.get(type) || '',
+      colorForStopType.get(type) || 'white',
+      this.props.onRemoveType
+    );
+  }
+
+  private renderUnplannedStop(unplannedStop: UnplannedStop): JSX.Element {
+    return this.renderLine(
+      `${unplannedStop.group} : ${unplannedStop.label}`,
+      Palette.Asbestos,
+      this.handleRemoveUnplannedStop(unplannedStop.name)
     );
   }
 
   private renderComment(comment: string, index: number): JSX.Element {
-    return (
-      <ListLineWrapper>
-        <ListLineTitle>{`Commentaire : ${comment}`}</ListLineTitle>
-        <ListLineRemove onClick={this.handleRemoveComment(index)}>
-          <SVGIcon name="cross" width={12} height={12} />
-        </ListLineRemove>
-      </ListLineWrapper>
+    return this.renderLine(
+      `Commentaire : ${comment}`,
+      Palette.Asbestos,
+      this.handleRemoveComment(index)
     );
   }
 
   private renderCleaning(cleaning: Cleaning): JSX.Element {
-    return (
-      <ListLineWrapper>
-        <ListLineTitle>{`Nettoyage : ${cleaning.label}`}</ListLineTitle>
-        <ListLineRemove onClick={this.handleRemoveCleaning(cleaning.name)}>
-          <SVGIcon name="cross" width={12} height={12} />
-        </ListLineRemove>
-      </ListLineWrapper>
+    return this.renderLine(
+      `Nettoyage : ${cleaning.label}`,
+      Palette.Asbestos,
+      this.handleRemoveCleaning(cleaning.name)
     );
   }
 
@@ -79,9 +90,7 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     }
     return (
       <Wrapper>
-        <TypeBar style={{backgroundColor: colorForStopType.get(type)}}>
-          {labelForStopType.get(type)}
-        </TypeBar>
+        {this.renderType(type)}
         {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
         {comments.map((comment, index) => this.renderComment(comment, index))}
         {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
@@ -104,7 +113,6 @@ const TypeBar = styled.div`
 const ListLineWrapper = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${Palette.Asbestos};
   margin-top: 4px;
 `;
 
