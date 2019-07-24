@@ -46,7 +46,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
 
   private updateWindowTitle(): void {
     const {stop} = this.state;
-    if (stop == undefined) {
+    if (stop === undefined) {
       document.title = 'Nouvel Arrêt';
     } else if (stop.end === undefined) {
       document.title = 'Arrêt en cours';

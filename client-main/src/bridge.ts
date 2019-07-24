@@ -3,7 +3,8 @@ import {BrowserWindow} from 'electron';
 import {cadencier} from '@root/cadencier';
 import {openContextMenu} from '@root/context_menu';
 import {SQLITE_DB} from '@root/db';
-import {planProductionStore} from '@root/store';
+import {planProductionStore} from '@root/plan_production_store';
+import {prodHoursStore} from '@root/prod_hours_store';
 import {windowManager} from '@root/window_manager';
 
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
@@ -49,17 +50,16 @@ import {
   ListUnplannedStops,
   ListCleanings,
   UpdateStop,
+  ListProdHours,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listBobinesQuantities} from '@shared/db/bobines_quantities';
+import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
-import {getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
-import {getSpeedProdBetween} from '@shared/db/speed_prods';
-import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
 import {
   listPlansProduction,
   deletePlanProduction,
@@ -70,9 +70,11 @@ import {
   getPlanProd,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {listUnplannedStop} from '@shared/db/unplanned_stops';
-import {listCleanings} from '@shared/db/cleanings';
+import {getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
+import {getSpeedProdBetween} from '@shared/db/speed_prods';
+import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
+import {listUnplannedStop} from '@shared/db/unplanned_stops';
 import {
   ClientAppType,
   ContextMenuForBridge,
@@ -140,6 +142,9 @@ export async function handleCommand(
   }
   if (command === ListCleanings) {
     return listCleanings(SQLITE_DB.Params);
+  }
+  if (command === ListProdHours) {
+    return prodHoursStore.getProdHours();
   }
 
   // Window Management

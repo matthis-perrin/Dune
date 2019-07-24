@@ -4,12 +4,12 @@ import styled from 'styled-components';
 import {StopView} from '@root/components/apps/production/stop_view';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {getWeekDay, capitalize} from '@root/lib/utils';
+import {prodHoursStore} from '@root/stores/data_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {theme, Colors} from '@root/theme';
 
-import {ProdInfo, Stop} from '@shared/models';
+import {ProdInfo} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -84,7 +84,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       const hash = `${day}-${s.start}`;
       if (s.stopType === undefined && !this.openedStops.has(hash)) {
         this.openedStops.set(hash);
-        bridge.openDayStopWindow(day, s.start);
+        bridge.openDayStopWindow(day, s.start).catch(console.error);
       }
     });
     this.setState({prodInfo});
@@ -96,18 +96,28 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private readonly handlePreviousClick = (): void => {
-    const newDay = new Date(this.state.day);
+    const {day} = this.state;
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (!prodRanges) {
+      return;
+    }
+    const newDay = new Date(day);
     newDay.setDate(newDay.getDate() - 1);
-    while (PROD_HOURS_BY_DAY.get(getWeekDay(newDay)) === undefined) {
+    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() - 1);
     }
     this.changeDay(newDay.getTime());
   };
 
   private readonly handleNextClick = (): void => {
-    const newDay = new Date(this.state.day);
+    const {day} = this.state;
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (!prodRanges) {
+      return;
+    }
+    const newDay = new Date(day);
     newDay.setDate(newDay.getDate() + 1);
-    while (PROD_HOURS_BY_DAY.get(getWeekDay(newDay)) === undefined) {
+    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() + 1);
     }
     this.changeDay(newDay.getTime());

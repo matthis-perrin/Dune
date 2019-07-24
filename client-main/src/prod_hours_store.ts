@@ -1,6 +1,9 @@
-import {ProdRange, ProdHours} from '@shared/models';
+import * as log from 'electron-log';
+
+import {SQLITE_DB} from '@root/db';
+
 import {listProdHours} from '@shared/db/prod_hours';
-import {SQLITE_DB} from './db';
+import {ProdRange, ProdHours} from '@shared/models';
 
 class ProdHoursStore {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
@@ -33,13 +36,16 @@ class ProdHoursStore {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }
-    this.performRefresh().finally(() => this.scheduleRefresh());
+    this.performRefresh()
+      .finally(() => this.scheduleRefresh())
+      .catch(err => log.error(err));
   }
 
   private async performRefresh(): Promise<void> {
     const res = await listProdHours(SQLITE_DB.Params);
     this.prodHours = res;
-    this.prodHoursMap = new Map<string, ProdRange>(res.map(prodHour => [prodHour.day, prodHour]));
+    this.prodHoursMap = new Map<string, ProdRange>();
+    res.forEach(prodHour => this.prodHoursMap.set(prodHour.day, prodHour));
   }
 }
 

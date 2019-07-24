@@ -26,6 +26,7 @@ import {
   operationsStore,
   unplannedStopsStore,
   cleaningsStore,
+  prodHoursStore,
 } from '@root/stores/data_store';
 import {
   bobinesFillesStore,
@@ -144,6 +145,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesQuantitiesStore,
         plansProductionStore,
         operationsStore,
+        prodHoursStore,
       ];
     }
 
@@ -157,6 +159,7 @@ export class AppManager extends React.Component<Props, State> {
         operationsStore,
         unplannedStopsStore,
         cleaningsStore,
+        prodHoursStore,
       ];
     }
     if (type === ClientAppType.StopApp) {
@@ -217,16 +220,16 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.ViewDayApp) {
       const {initialDay} = asMap(data);
-      return <ViewDayApp initialDay={initialDay} />;
+      return <ViewDayApp initialDay={asNumber(initialDay, 0)} />;
     }
 
     if (type === ClientAppType.ProductionApp) {
       const {initialDay} = asMap(data);
-      return <ProductionApp initialDay={initialDay} />;
+      return <ProductionApp initialDay={asNumber(initialDay, 0)} />;
     }
     if (type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(data);
-      return <StopApp day={day} stopStart={stopStart} />;
+      return <StopApp day={asNumber(day, 0)} stopStart={asNumber(stopStart, 0)} />;
     }
 
     return (

@@ -8,6 +8,7 @@ import {theme} from '@root/theme';
 const MONTH_IN_YEAR = 12;
 const DAY_IN_WEEK = 7;
 const DAY_IN_WORK_WEEK = 5;
+const OTHER_MONTH_OPACITY = 0.8;
 
 interface CalendarProps {
   month: number;
@@ -126,7 +127,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
               {week.map(date => (
                 <CalendarCell
                   key={date.getTime()}
-                  style={{opacity: this.isOtherMonth(date) ? 0.8 : 1}}
+                  style={{opacity: this.isOtherMonth(date) ? OTHER_MONTH_OPACITY : 1}}
                   onContextMenu={event => onDayContextMenu(event, date)}
                   onClick={event => onDayClick(event, date)}
                 >

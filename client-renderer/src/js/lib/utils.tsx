@@ -33,7 +33,8 @@ export const roundedToDigit = (value: number, digit: number): string => {
 };
 
 export function formatProdTime(date: Date): string {
-  const weekDay = capitalize(getWeekDay(date).slice(0, 3));
+  const weekDayLength = 3;
+  const weekDay = capitalize(getWeekDay(date).slice(0, weekDayLength));
   const day = date.toLocaleString('fr', {day: '2-digit'});
   const time = date.toLocaleTimeString('fr');
   return `${weekDay} ${day} ${time}`;

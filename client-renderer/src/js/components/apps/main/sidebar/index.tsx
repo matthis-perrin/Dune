@@ -5,17 +5,18 @@ import {Herisson} from '@root/components/apps/main/sidebar/herisson';
 import {SidebarItem} from '@root/components/apps/main/sidebar/sidebar_item';
 import {FlexParent} from '@root/components/core/flex';
 import {bridge} from '@root/lib/bridge';
-import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {getProductionDay} from '@root/lib/plan_prod';
 import {AppPage, appStore} from '@root/stores/app_store';
+import {prodHoursStore} from '@root/stores/data_store';
 import {theme} from '@root/theme';
 
-import {ClientAppType} from '@shared/models';
+import {ClientAppType, ProdRange} from '@shared/models';
 
 interface Props {}
 
 interface State {
   currentPage: AppPage;
+  prodRanges?: Map<string, ProdRange>;
 }
 
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
@@ -34,15 +35,20 @@ export class Sidebar extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    appStore.addListener(this.handleAppChange);
+    appStore.addListener(this.handleStoreChanged);
+    prodHoursStore.addListener(this.handleStoreChanged);
   }
 
   public componentWillUnmount(): void {
-    appStore.removeListener(this.handleAppChange);
+    appStore.removeListener(this.handleStoreChanged);
+    prodHoursStore.removeListener(this.handleStoreChanged);
   }
 
-  private readonly handleAppChange = (): void => {
-    this.setState({currentPage: appStore.getState().currentPage});
+  private readonly handleStoreChanged = (): void => {
+    this.setState({
+      currentPage: appStore.getState().currentPage,
+      prodRanges: prodHoursStore.getProdRanges(),
+    });
   };
 
   public render(): JSX.Element {
@@ -72,11 +78,16 @@ export class Sidebar extends React.Component<Props, State> {
               key={'production'}
               title={'Production'}
               isSelected={false}
-              onClick={() =>
-                bridge.openApp(ClientAppType.ProductionApp, {
-                  initialDay: getProductionDay(PROD_HOURS_BY_DAY),
-                })
-              }
+              onClick={() => {
+                const {prodRanges} = this.state;
+                if (prodRanges) {
+                  bridge
+                    .openApp(ClientAppType.ProductionApp, {
+                      initialDay: getProductionDay(prodRanges),
+                    })
+                    .catch(console.error);
+                }
+              }}
             />
           </SidebarItemContainer>
         </FlexParent>

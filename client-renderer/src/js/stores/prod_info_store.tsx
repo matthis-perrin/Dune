@@ -36,9 +36,13 @@ export class ProdInfoStore extends BaseStore {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }
-    this.performRefresh().finally(() => {
-      this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
-    });
+    this.performRefresh()
+      .then(() => this.scheduleRefresh())
+      .catch(() => this.scheduleRefresh());
+  }
+
+  private scheduleRefresh(): void {
+    this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
   }
 
   private async performRefresh(): Promise<void> {

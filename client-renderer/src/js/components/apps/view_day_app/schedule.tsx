@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import {PlanProdBlock} from '@root/components/apps/view_day_app/plan_prod_block';
 import {WithColor} from '@root/components/core/with_colors';
-import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {
   PlansProdOrder,
   DonePlanProduction,
@@ -12,7 +11,7 @@ import {
 import {dateAtHour, isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
-import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
+import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
 
 interface ScheduleProps {
   day: Date;
@@ -22,6 +21,7 @@ interface ScheduleProps {
   bobineQuantities?: BobineQuantities[];
   plansProd?: PlanProduction[];
   operations?: Operation[];
+  prodRanges?: Map<string, ProdRange>;
 }
 
 export class Schedule extends React.Component<ScheduleProps> {
@@ -35,11 +35,16 @@ export class Schedule extends React.Component<ScheduleProps> {
   }
 
   public getProdHours(): {start: Date; end: Date} {
-    const {day} = this.props;
+    const defaultStartHour = 1;
+    const defaultEndHour = 23;
+    const {day, prodRanges} = this.props;
+    if (!prodRanges) {
+      return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
+    }
     const dayOfWeek = day.toLocaleString('fr-FR', {weekday: 'long'});
-    const prodHours = PROD_HOURS_BY_DAY.get(dayOfWeek);
+    const prodHours = prodRanges.get(dayOfWeek);
     if (!prodHours) {
-      return {start: dateAtHour(day, 1), end: dateAtHour(day, 23)};
+      return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
     }
     return {
       start: dateAtHour(day, prodHours.startHour, prodHours.startMinute),
@@ -56,14 +61,14 @@ export class Schedule extends React.Component<ScheduleProps> {
     const {done, inProgress, scheduled} = orderedPlans;
     let minStart = start.getTime();
     let maxEnd = end.getTime();
-    const checkStartTime = (start: number | undefined) => {
-      if (start && isSameDay(new Date(start), day) && start < minStart) {
-        minStart = start;
+    const checkStartTime = (startTime: number | undefined) => {
+      if (startTime && isSameDay(new Date(startTime), day) && startTime < minStart) {
+        minStart = startTime;
       }
     };
-    const checkEndTime = (end: number | undefined) => {
-      if (end && isSameDay(new Date(end), day) && end > maxEnd) {
-        maxEnd = end;
+    const checkEndTime = (endTime: number | undefined) => {
+      if (endTime && isSameDay(new Date(endTime), day) && endTime > maxEnd) {
+        maxEnd = endTime;
       }
     };
     done.forEach(p => {

@@ -67,7 +67,8 @@ export function asParsedJSON<T>(json: string): T {
   try {
     return JSON.parse(json) as T;
   } catch {
-    return {} as T;
+    const defaultValue = {};
+    return defaultValue as T;
   }
 }
 

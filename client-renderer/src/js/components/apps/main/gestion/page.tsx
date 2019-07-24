@@ -7,10 +7,17 @@ import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
 import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
 import {dateIsAfterOrSameDay, dateIsBeforeOrSameDay} from '@root/lib/utils';
-import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, operationsStore, prodHoursStore} from '@root/stores/data_store';
 import {plansProductionStore, stocksStore, cadencierStore} from '@root/stores/list_store';
 
-import {PlanProduction, Stock, BobineQuantities, Operation, ClientAppType} from '@shared/models';
+import {
+  PlanProduction,
+  Stock,
+  BobineQuantities,
+  Operation,
+  ClientAppType,
+  ProdRange,
+} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -23,6 +30,7 @@ interface State {
   plansProd?: PlanProduction[];
   operations?: Operation[];
   orderedPlans?: PlansProdOrder;
+  prodRanges?: Map<string, ProdRange>;
   month: number;
   year: number;
 }
@@ -44,6 +52,7 @@ export class GestionPage extends React.Component<Props, State> {
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.recomputePlanOrder);
     operationsStore.addListener(this.recomputePlanOrder);
+    prodHoursStore.addListener(this.recomputePlanOrder);
   }
 
   public componentWillUnmount(): void {
@@ -52,18 +61,21 @@ export class GestionPage extends React.Component<Props, State> {
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.recomputePlanOrder);
     operationsStore.removeListener(this.recomputePlanOrder);
+    prodHoursStore.addListener(this.recomputePlanOrder);
   }
 
   private readonly recomputePlanOrder = (): void => {
     const activePlansProd = plansProductionStore.getActivePlansProd();
     const operations = operationsStore.getData();
-    if (activePlansProd && operations) {
-      const orderedPlans = orderPlansProd(activePlansProd, operations, []);
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (activePlansProd && operations && prodRanges) {
+      const orderedPlans = orderPlansProd(activePlansProd, operations, [], prodRanges);
       this.setState({
         // TODO - Fetch non prod here
         orderedPlans,
         plansProd: activePlansProd,
         operations,
+        prodRanges,
       });
     }
   };

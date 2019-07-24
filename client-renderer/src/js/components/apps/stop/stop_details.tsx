@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {colorForStopType, labelForStopType} from '@root/lib/stop';
-import {Palette, Colors} from '@root/theme';
+import {Palette} from '@root/theme';
 
 import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
 
@@ -84,7 +84,7 @@ export class StopDetails extends React.Component<StopDetailsProps> {
   }
 
   public render(): JSX.Element {
-    const {type, unplannedStops, comments, cleanings, planProdId, maintenanceId} = this.props;
+    const {type, unplannedStops, comments, cleanings} = this.props;
     if (!type) {
       return <Wrapper>{this.renderEmpty()}</Wrapper>;
     }
@@ -102,12 +102,6 @@ export class StopDetails extends React.Component<StopDetailsProps> {
 const Wrapper = styled.div`
   width: 100%;
   box-sizing: border-box;
-`;
-
-const TypeBar = styled.div`
-  width: 100%;
-  box-sizing: border-box;
-  padding: 4px 8px;
 `;
 
 const ListLineWrapper = styled.div`

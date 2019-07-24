@@ -1,10 +1,10 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
+import {prodHoursStore} from '@root/prod_hours_store';
 import {windowManager} from '@root/window_manager';
 
 import {ClientAppType} from '@shared/models';
-import {prodHoursStore} from './prod_hours_store';
 
 async function startApp(): Promise<void> {
   if (session.defaultSession) {

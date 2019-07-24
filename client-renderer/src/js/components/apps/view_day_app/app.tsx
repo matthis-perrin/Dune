@@ -3,14 +3,13 @@ import styled from 'styled-components';
 
 import {Schedule} from '@root/components/apps/view_day_app/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {PROD_HOURS_BY_DAY} from '@root/lib/constants';
 import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
 import {getWeekDay, capitalize} from '@root/lib/utils';
-import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, operationsStore, prodHoursStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme, Colors, Palette} from '@root/theme';
 
-import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
+import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
 
 interface ViewDayAppProps {
   initialDay: number;
@@ -24,6 +23,7 @@ interface ViewDayAppState {
   plansProd?: PlanProduction[];
   operations?: Operation[];
   orderedPlans?: PlansProdOrder;
+  prodRanges?: Map<string, ProdRange>;
 }
 
 export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState> {
@@ -41,6 +41,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     plansProductionStore.addListener(this.recomputePlanOrder);
     operationsStore.addListener(this.recomputePlanOrder);
+    prodHoursStore.addListener(this.recomputePlanOrder);
   }
 
   public componentWillUnmount(): void {
@@ -49,14 +50,16 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     plansProductionStore.removeListener(this.recomputePlanOrder);
     operationsStore.removeListener(this.recomputePlanOrder);
+    prodHoursStore.removeListener(this.recomputePlanOrder);
   }
 
   private readonly recomputePlanOrder = (newDay?: number): void => {
     const day = newDay === undefined ? this.state.day : newDay;
     const activePlansProd = plansProductionStore.getActivePlansProd();
     const operations = operationsStore.getData();
-    if (activePlansProd && operations) {
-      const orderedPlans = orderPlansProd(activePlansProd, operations, []);
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (activePlansProd && operations && prodRanges) {
+      const orderedPlans = orderPlansProd(activePlansProd, operations, [], prodRanges);
       const orderedPlansForDay = getPlanProdsForDate(orderedPlans, new Date(day));
       this.setState({
         day,
@@ -64,14 +67,19 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
         orderedPlans: orderedPlansForDay,
         plansProd: activePlansProd,
         operations,
+        prodRanges,
       });
     }
   };
 
   private readonly handlePreviousClick = (): void => {
     const newDay = new Date(this.state.day);
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (!prodRanges) {
+      return;
+    }
     newDay.setDate(newDay.getDate() - 1);
-    while (PROD_HOURS_BY_DAY.get(getWeekDay(newDay)) === undefined) {
+    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() - 1);
     }
     this.recomputePlanOrder(newDay.getTime());
@@ -79,8 +87,12 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 
   private readonly handleNextClick = (): void => {
     const newDay = new Date(this.state.day);
+    const prodRanges = prodHoursStore.getProdRanges();
+    if (!prodRanges) {
+      return;
+    }
     newDay.setDate(newDay.getDate() + 1);
-    while (PROD_HOURS_BY_DAY.get(getWeekDay(newDay)) === undefined) {
+    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() + 1);
     }
     this.recomputePlanOrder(newDay.getTime());
@@ -112,6 +124,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
       day,
       orderedPlans,
       stocks,
+      prodRanges,
     } = this.state;
 
     return (
@@ -135,6 +148,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
               day={new Date(day)}
               orderedPlans={orderedPlans}
               stocks={stocks}
+              prodRanges={prodRanges}
             />
           </ScheduleWrapper>
         </LeftColumn>

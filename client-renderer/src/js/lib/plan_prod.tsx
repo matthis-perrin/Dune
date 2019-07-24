@@ -1,7 +1,7 @@
-import {MAX_SPEED_RATIO, ProdRange} from '@root/lib/constants';
+import {MAX_SPEED_RATIO} from '@root/lib/constants';
 import {padNumber, getWeekDay} from '@root/lib/utils';
 
-import {PlanProductionInfo, PlanProduction} from '@shared/models';
+import {PlanProductionInfo, PlanProduction, ProdRange} from '@shared/models';
 
 export const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
@@ -61,9 +61,9 @@ export function getBobineMereConsumption(planProd: {
   return prod;
 }
 
-export function getProductionDay(prodHours: Map<string, ProdRange>): number {
+export function getProductionDay(prodRanges: Map<string, ProdRange>): number {
   const date = new Date();
-  while (!prodHours.has(getWeekDay(date))) {
+  while (!prodRanges.has(getWeekDay(date))) {
     date.setDate(date.getDate() + 1);
   }
   date.setHours(0);
