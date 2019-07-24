@@ -409,3 +409,14 @@ export interface Cleaning {
   label: string;
   order: number;
 }
+
+export interface ProdHours extends ProdRange {
+  day: string;
+}
+
+export interface ProdRange {
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+}

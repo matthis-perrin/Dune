@@ -2,7 +2,7 @@ import {BrowserWindow, dialog, screen, shell} from 'electron';
 import fs from 'fs';
 
 import {handleCommand} from '@root/bridge';
-import {planProductionStore} from '@root/store';
+import {planProductionStore} from '@root/plan_production_store';
 
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
 import {PlanProductionChanged} from '@shared/bridge/commands';

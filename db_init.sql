@@ -124,4 +124,10 @@ INSERT INTO "cleanings" VALUES ("lame-coupe", "Lame coupe", 5);
 INSERT INTO "cleanings" VALUES ("bague-perfo", "Bague perfo", 6);
 INSERT INTO "cleanings" VALUES ("bras-appuis", "Bras d'appuis", 7);
 
+INSERT INTO "prod_hours" VALUES ("lundi", 6, 0, 22, 0);
+INSERT INTO "prod_hours" VALUES ("mardi", 6, 0, 22, 0);
+INSERT INTO "prod_hours" VALUES ("mercredi", 6, 0, 22, 0);
+INSERT INTO "prod_hours" VALUES ("jeudi", 6, 0, 22, 0);
+INSERT INTO "prod_hours" VALUES ("vendredi", 6, 0, 19, 0);
+
 COMMIT;

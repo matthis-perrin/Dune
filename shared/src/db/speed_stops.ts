@@ -207,6 +207,8 @@ export async function updateStopInfo(
     }
   }
 
+  // TODO - Handle stop splits and join when dealing with end of day or reprise prod.
+
   await db(SPEED_STOPS_TABLE_NAME)
     .where(SpeedStopsColumn.Start, '=', start)
     .update({
