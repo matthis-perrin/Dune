@@ -375,6 +375,7 @@ export enum StopType {
   EndOfDayPauseProd = 'EndOfDayPauseProd',
   Maintenance = 'Maintenance',
   Unplanned = 'Unplanned',
+  NotProdHours = 'NotProdHours',
 }
 
 export interface Prod {

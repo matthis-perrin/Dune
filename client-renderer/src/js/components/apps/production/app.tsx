@@ -4,11 +4,12 @@ import styled from 'styled-components';
 import {StopView} from '@root/components/apps/production/stop_view';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {getWeekDay, capitalize} from '@root/lib/utils';
+import {capitalize} from '@root/lib/utils';
 import {prodHoursStore} from '@root/stores/data_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {theme, Colors} from '@root/theme';
 
+import {getWeekDay} from '@shared/lib/time';
 import {ProdInfo} from '@shared/models';
 
 interface ProductionAppProps {

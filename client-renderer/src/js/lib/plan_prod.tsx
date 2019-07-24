@@ -1,6 +1,7 @@
 import {MAX_SPEED_RATIO} from '@root/lib/constants';
-import {padNumber, getWeekDay} from '@root/lib/utils';
+import {padNumber} from '@root/lib/utils';
 
+import {getWeekDay} from '@shared/lib/time';
 import {PlanProductionInfo, PlanProduction, ProdRange} from '@shared/models';
 
 export const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;

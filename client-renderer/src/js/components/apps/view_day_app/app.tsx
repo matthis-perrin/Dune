@@ -4,11 +4,12 @@ import styled from 'styled-components';
 import {Schedule} from '@root/components/apps/view_day_app/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
-import {getWeekDay, capitalize} from '@root/lib/utils';
+import {capitalize} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore, prodHoursStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
 import {theme, Colors, Palette} from '@root/theme';
 
+import {getWeekDay} from '@shared/lib/time';
 import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
 
 interface ViewDayAppProps {

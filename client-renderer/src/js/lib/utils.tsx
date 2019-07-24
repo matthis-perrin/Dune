@@ -1,4 +1,5 @@
 import {memoize} from 'lodash-es';
+import {getWeekDay, dateAtHour} from '@shared/lib/time';
 
 const MONTHS_IN_YEAR = 12;
 const MS_IN_HOUR = 1000 * 60 * 60;
@@ -56,10 +57,6 @@ export function formatDuration(duration: number): string {
 
   const hoursStr = padNumber(hours, 2);
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
-}
-
-export function getWeekDay(date: Date): string {
-  return date.toLocaleString('fr-FR', {weekday: 'long'});
 }
 
 export function capitalize(value: string): string {
@@ -133,10 +130,6 @@ export function dateIsAfterOrSameDay(date1: Date, date2: Date): boolean {
     return false;
   }
   return true;
-}
-
-export function dateAtHour(date: Date, hour: number, minute?: number): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute || 0);
 }
 
 export function isRoundMinute(date: Date): boolean {

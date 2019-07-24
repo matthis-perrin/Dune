@@ -8,9 +8,10 @@ import {
   InProgressPlanProduction,
   ScheduledPlanProduction,
 } from '@root/lib/plan_prod_order';
-import {dateAtHour, isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
+import {isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
+import {dateAtHour} from '@shared/lib/time';
 import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
 
 interface ScheduleProps {

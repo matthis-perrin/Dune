@@ -1,9 +1,10 @@
 import knex from 'knex';
 
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
-import {Stop, StopStatus, StopInfo, StopType} from '@shared/models';
+import {Stop, StopStatus, StopInfo, StopType, ProdRange} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
 import {SpeedProdsColumn} from './speed_prods';
+import {getNextProdStart} from '@shared/lib/time';
 
 export const SpeedStopsColumn = {
   Start: 'start',
@@ -136,6 +137,7 @@ async function getStop(db: knex, start: number): Promise<Stop | undefined> {
 }
 
 const endOfProdTypes = [StopType.ChangePlanProd, StopType.EndOfDayEndProd];
+const endOfDayTypes = [StopType.EndOfDayEndProd, StopType.EndOfDayPauseProd];
 
 async function getNextEndOfProdStop(db: knex, start: number): Promise<Stop | undefined> {
   const res = await db(SPEED_STOPS_TABLE_NAME)
@@ -165,6 +167,7 @@ async function getLatestStopWithPlanIdBefore(db: knex, start: number): Promise<S
 
 export async function updateStopInfo(
   db: knex,
+  prodRanges: Map<string, ProdRange>,
   start: number,
   type: StopType,
   info: StopInfo,
@@ -189,8 +192,12 @@ export async function updateStopInfo(
     const stopsUpdateQuery = db(SPEED_STOPS_TABLE_NAME).where(SpeedStopsColumn.Start, '>', start);
     const prodsUpdateQuery = db(SPEED_PRODS_TABLE_NAME).where(SpeedProdsColumn.Start, '>', start);
     if (nextEndOfProdStop) {
-      stopsUpdateQuery.andWhere(SpeedStopsColumn.Start, '<', nextEndOfProdStop.start);
-      prodsUpdateQuery.andWhere(SpeedProdsColumn.Start, '<', nextEndOfProdStop.start);
+      stopsUpdateQuery
+        .andWhere(SpeedStopsColumn.Start, '<', nextEndOfProdStop.start)
+        .andWhereNot(SpeedStopsColumn.StopType, StopType.NotProdHours);
+      prodsUpdateQuery
+        .andWhere(SpeedProdsColumn.Start, '<', nextEndOfProdStop.start)
+        .andWhereNot(SpeedStopsColumn.StopType, StopType.NotProdHours);
     }
     stopsUpdateQuery.update({
       [SpeedStopsColumn.PlanProdId]: planProdId,
@@ -207,14 +214,60 @@ export async function updateStopInfo(
     }
   }
 
-  // TODO - Handle stop splits and join when dealing with end of day or reprise prod.
+  const fields = {
+    [SpeedStopsColumn.StopType]: type,
+    [SpeedStopsColumn.StopInfo]: JSON.stringify(info),
+    [SpeedStopsColumn.PlanProdId]: newPlanId,
+    [SpeedStopsColumn.MaintenanceId]: maintenanceId,
+  };
+
+  const isEndOfDay = endOfDayTypes.indexOf(type) !== -1;
+  const wasEndOfDay = endOfDayTypes.indexOf(type) !== -1;
+  if (isEndOfDay) {
+    // If we are dealing with an end of day stop there are two cases.
+    // 1. It happened before prod hour -> we set the end time to the end of the prod hour
+    // 2. It happened after prod hour -> we set the end time at the start time just to mark the stop
+    const startDate = new Date(start);
+    const dayOfWeek = startDate.toLocaleString('fr', {weekday: 'long'});
+    const prodRange = prodRanges.get(dayOfWeek);
+    let stopEndTime = start;
+    if (prodRange) {
+      const prodHourEnd = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        prodRange.endHour,
+        prodRange.startHour
+      );
+      if (start < prodHourEnd.getTime()) {
+        stopEndTime = prodHourEnd.getTime();
+      }
+    }
+    fields[SpeedStopsColumn.End] = stopEndTime;
+    // In both cases we create an additional stop from the end time we've just set to the next prod start
+    const nextProdStart = getNextProdStart(stopEndTime, prodRanges);
+    await db(SPEED_STOPS_TABLE_NAME).insert({
+      [SpeedStopsColumn.Start]: stopEndTime,
+      [SpeedStopsColumn.End]: nextProdStart,
+      [SpeedStopsColumn.StopType]: StopType.NotProdHours,
+    });
+  } else if (wasEndOfDay) {
+    // If we are transitionning from a end of day stop to a non end of day, we need to rollback
+    // the stops that we had created when the end of day stop was originally registered.
+    // In theory the last stop in DB should be a "not prod hour" stop.
+    // In that case, we just delete it and reset the end time on the end of day stop.
+    // Otherwise, we can't do much beside simply updating the event, as more stops and prods
+    // have been built on top of it.
+    const lastStop = await getLastStop(db);
+    if (lastStop && lastStop.stopType === StopType.NotProdHours && lastStop.start === stop.end) {
+      await db(SPEED_STOPS_TABLE_NAME)
+        .where(SpeedStopsColumn.Start, '=', stop.end)
+        .del();
+      fields[SpeedStopsColumn.End] = undefined;
+    }
+  }
 
   await db(SPEED_STOPS_TABLE_NAME)
     .where(SpeedStopsColumn.Start, '=', start)
-    .update({
-      [SpeedStopsColumn.StopType]: type,
-      [SpeedStopsColumn.StopInfo]: JSON.stringify(info),
-      [SpeedStopsColumn.PlanProdId]: newPlanId,
-      [SpeedStopsColumn.MaintenanceId]: maintenanceId,
-    });
+    .update(fields);
 }
