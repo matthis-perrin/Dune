@@ -137,7 +137,12 @@ function getWebpackConfig() {
   // Babel plugins
   const babelPluginClassProperties = [nodeModules('@babel/plugin-proposal-class-properties')];
   const babelPluginObjectRestSpread = [nodeModules('@babel/plugin-proposal-object-rest-spread')];
-  const babelPlugins = [babelPluginClassProperties, babelPluginObjectRestSpread];
+  const babelPluginStyledComponents = [nodeModules('babel-plugin-styled-components')];
+  const babelPlugins = [
+    babelPluginClassProperties,
+    babelPluginObjectRestSpread,
+    babelPluginStyledComponents,
+  ];
 
   const babelLoader = {
     test: /\.tsx?$/,
