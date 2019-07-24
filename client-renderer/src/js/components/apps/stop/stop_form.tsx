@@ -133,7 +133,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     const {stop} = this.props;
     const {stopType, planProdId, maintenanceId} = this.state;
     return (
-      <ContentBlock>
+      <StopTypeBlock>
         <ContentTitle>TYPE D'ARRÊT</ContentTitle>
         <ContentInside>
           <StopTypeForm
@@ -144,18 +144,18 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
             onChange={this.handleStopTypeChange}
           />
         </ContentInside>
-      </ContentBlock>
+      </StopTypeBlock>
     );
   }
 
-  private renderOtherReasons(): JSX.Element {
+  private renderUnplannedStops(): JSX.Element {
     const {stop} = this.props;
     const {unplannedStops, stopType} = this.state;
     if (stopType === undefined || stopType !== StopType.Unplanned) {
       return <React.Fragment />;
     }
     return (
-      <ContentBlock>
+      <UnplannedStopsBlock>
         <ContentTitle>AUTRES RAISONS</ContentTitle>
         <ContentInside>
           <UnplannedStopsForm
@@ -164,7 +164,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
             onChange={this.handleOtherReasonsChanged}
           />
         </ContentInside>
-      </ContentBlock>
+      </UnplannedStopsBlock>
     );
   }
 
@@ -175,12 +175,12 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       return <React.Fragment />;
     }
     return (
-      <ContentBlock>
+      <CleaningBlock>
         <ContentTitle>NETTOYAGES</ContentTitle>
         <ContentInside>
           <CleaningsForm stop={stop} cleanings={cleanings} onChange={this.handleCleaningsChanged} />
         </ContentInside>
-      </ContentBlock>
+      </CleaningBlock>
     );
   }
 
@@ -191,11 +191,11 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       return <React.Fragment />;
     }
     return (
-      <ContentBlock>
+      <CommentBlock>
         <ContentInside>
           <StopCommentForm stop={stop} onCommentAdded={this.handleCommentAdded} />
         </ContentInside>
-      </ContentBlock>
+      </CommentBlock>
     );
   }
 
@@ -224,9 +224,11 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
         {this.renderSummary()}
         <Content>
           {this.renderComments()}
-          {this.renderStopType()}
-          {this.renderOtherReasons()}
-          {this.renderCleanings()}
+          <SideBySide>
+            {this.renderStopType()}
+            {this.renderCleanings()}
+          </SideBySide>
+          {this.renderUnplannedStops()}
         </Content>
         {this.renderFooter()}
       </Wrapper>
@@ -306,18 +308,36 @@ const Content = styled.div`
   flex-grow: 1;
   overflow-y: auto;
   background-color: ${Palette.White};
+  padding: 16px;
 `;
 
 const ContentBlock = styled.div`
   background-color: ${Colors.PrimaryLight};
   color: ${Colors.TextOnPrimary};
-  margin: 16px 16px 0 16px;
-  &:last-of-type {
-    margin-bottom: 16px;
-  }
+`;
+
+const CommentBlock = styled(ContentBlock)`
+  margin-bottom: 16px;
+`;
+const StopTypeBlock = styled(ContentBlock)`
+  flex-grow: 1;
+  flex-basis: 1px;
+`;
+const CleaningBlock = styled(ContentBlock)`
+  flex-grow: 1;
+  flex-basis: 1px;
+  margin-left: 16px;
+`;
+const UnplannedStopsBlock = styled(ContentBlock)`
+  margin-top: 16px;
+`;
+
+const SideBySide = styled.div`
+  display: flex;
 `;
 
 const SummaryWrapper = styled.div`
+  padding: 16px;
   box-shadow: 0px 10px 10px -12px rgba(0, 0, 0, 0.75);
   z-index: 10;
 `;

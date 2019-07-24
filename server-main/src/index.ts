@@ -18,7 +18,7 @@ import {configureLogs} from '@root/log';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 
 configureLogs();
-const forceProdMode = true;
+const forceProdMode = false;
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');

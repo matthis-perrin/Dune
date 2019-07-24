@@ -16,6 +16,8 @@ interface CleaningsFormState {
   allCleanings?: Cleaning[];
 }
 
+const COLUMN_COUNT = 2;
+
 export class CleaningsForm extends React.Component<CleaningsFormProps, CleaningsFormState> {
   public static displayName = 'CleaningsForm';
 
@@ -55,7 +57,7 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
     }
   };
 
-  private renderCleaning(cleaning: Cleaning): JSX.Element {
+  private renderCleaning(cleaning: Cleaning, index: number): JSX.Element {
     const {cleanings} = this.props;
     const isChecked = cleanings.map(r => r.name).indexOf(cleaning.name) !== -1;
     return (
@@ -72,14 +74,23 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
 
   public render(): JSX.Element {
     const {allCleanings = []} = this.state;
-    return <Wrapper>{allCleanings.map(cleaning => this.renderCleaning(cleaning))}</Wrapper>;
+
+    const rowCount = Math.ceil(allCleanings.length / COLUMN_COUNT);
+    const layoutStyles: React.CSSProperties = {
+      display: 'grid',
+      gridTemplateColumns: `repeat(${COLUMN_COUNT}, auto)`,
+      gridTemplateRows: `repeat(${rowCount}, auto)`,
+    };
+
+    return (
+      <Layout style={layoutStyles}>
+        {allCleanings.map((cleaning, index) => this.renderCleaning(cleaning, index))}
+      </Layout>
+    );
   }
 }
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+const Layout = styled.div``;
 
 const StyledCheckbox = styled(Checkbox)`
   margin-right: 8px;
