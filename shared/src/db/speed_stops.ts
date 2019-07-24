@@ -3,7 +3,7 @@ import knex from 'knex';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {Stop, StopStatus, StopInfo, StopType, ProdRange} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
-import {SpeedProdsColumn} from './speed_prods';
+import {SpeedProdsColumn} from '@shared/db/speed_prods';
 import {getNextProdStart} from '@shared/lib/time';
 
 export const SpeedStopsColumn = {
@@ -152,7 +152,10 @@ async function getNextEndOfProdStop(db: knex, start: number): Promise<Stop | und
   return lineAsStop(asArray(res)[0]);
 }
 
-async function getLatestStopWithPlanIdBefore(db: knex, start: number): Promise<Stop | undefined> {
+export async function getLatestStopWithPlanIdBefore(
+  db: knex,
+  start: number
+): Promise<Stop | undefined> {
   const res = await db(SPEED_STOPS_TABLE_NAME)
     .select()
     .whereNotNull(SpeedStopsColumn.PlanProdId)

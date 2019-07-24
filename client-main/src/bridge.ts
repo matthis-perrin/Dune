@@ -321,17 +321,19 @@ export async function handleCommand(
     const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     const [speeds, prods, stops] = await Promise.all([
-      getMinutesSpeedsBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
-      getSpeedProdBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
-      getSpeedStopBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
+      getMinutesSpeedsBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
+      getSpeedProdBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
+      getSpeedStopBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
     ]);
     return {speeds, prods, stops};
   }
 
   if (command === UpdateStop) {
     const {start, type, info, planProdId, maintenanceId} = asMap(params);
+    const prodRanges = prodHoursStore.getProdRanges();
     return updateStopInfo(
-      SQLITE_DB.Automate,
+      SQLITE_DB.Prod,
+      prodRanges,
       asNumber(start, 0),
       asString(type, '') as StopType,
       asMap(info) as StopInfo,

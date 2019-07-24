@@ -1,5 +1,3 @@
-import * as log from 'electron-log';
-
 import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
@@ -47,7 +45,7 @@ class Aggregator {
   private processBufferTimeout: NodeJS.Timeout | undefined;
 
   public async start(): Promise<void> {
-    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Automate);
+    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Prod);
     const lastMinute =
       lastMinuteSpeed === undefined ? this.getStartOfDay() : lastMinuteSpeed.minute;
     this.lastInsertedMinute = lastMinute;
@@ -67,7 +65,7 @@ class Aggregator {
             .slice(0, 500);
           const minuteSpeeds = new Map<number, number | undefined>();
           minutesToInsert.forEach(m => minuteSpeeds.set(m, this.queries.get(m)));
-          insertOrUpdateMinutesSpeeds(SQLITE_DB.Automate, minuteSpeeds)
+          insertOrUpdateMinutesSpeeds(SQLITE_DB.Prod, minuteSpeeds)
             .then(() => {
               this.lastInsertedMinute = max(Array.from(minuteSpeeds.keys())) || 0;
               this.lastProcessingTime = Date.now();
@@ -121,7 +119,7 @@ class Aggregator {
         }
       }
     } else {
-      const valuesInDB = await getMinutesSpeedsSince(SQLITE_DB.Automate, start);
+      const valuesInDB = await getMinutesSpeedsSince(SQLITE_DB.Prod, start);
       const minutesToProcess = this.allMinutesInRange(start, currentMinute);
       minutesToProcess.forEach(m => {
         const minuteBuffer = this.buffers.get(m);

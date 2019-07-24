@@ -13,13 +13,13 @@ import {
 import {getStats as getStopsStats} from '@shared/db/speed_stops';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
-import {aggregator} from './automate/aggregator';
+import {aggregator} from '@root/automate/aggregator';
 
 async function getServerStatus(): Promise<ServerStatus> {
   const [gescomData, speedStats, stopsStats] = await Promise.all([
     getStatus(SQLITE_DB.Gescom),
-    getSpeedStats(SQLITE_DB.Automate),
-    getStopsStats(SQLITE_DB.Automate),
+    getSpeedStats(SQLITE_DB.Prod),
+    getStopsStats(SQLITE_DB.Prod),
   ]);
   const gescom: {[key: string]: ServiceStatus} = {};
   gescomData.forEach(({name, lastUpdate, rowCount, rowCountSommeil}) => {
@@ -46,7 +46,7 @@ export async function handleCommand(
   }
   if (command === ServerSimulateAutomate) {
     const {speed, minutes} = asMap(data);
-    const last = await getLastMinute(SQLITE_DB.Automate);
+    const last = await getLastMinute(SQLITE_DB.Prod);
     const startTs = last ? last.minute : Date.now();
     const minutesSpeeds = new Map<number, number | undefined>();
     const parsedMinutes = asNumber(minutes, 0);
@@ -54,6 +54,6 @@ export async function handleCommand(
     for (let i = 0; i < parsedMinutes; i++) {
       minutesSpeeds.set(startTs + i * 60 * 1000, parseSpeed);
     }
-    return insertOrUpdateMinutesSpeeds(SQLITE_DB.Automate, minutesSpeeds);
+    return insertOrUpdateMinutesSpeeds(SQLITE_DB.Prod, minutesSpeeds);
   }
 }

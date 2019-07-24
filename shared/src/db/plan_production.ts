@@ -1,5 +1,6 @@
 import knex from 'knex';
 
+import {getLatestStopWithPlanIdBefore} from '@shared/db/speed_stops';
 import {PLANS_PRODUCTION_TABLE_NAME} from '@shared/db/table_names';
 import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
@@ -7,9 +8,6 @@ import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils'
 export const PlansProductionColumn = {
   ID_COLUMN: 'id',
   INDEX_COLUMN: 'index',
-  START_TIME_COLUMN: 'start_time',
-  END_TIME_COLUMN: 'end_time',
-  STOP_TIME_COLUMN: 'stop_time',
   OPERATION_AT_START_OF_DAY: 'operation_at_start_of_day',
   PRODUCTION_AT_START_OF_DAY: 'production_at_start_of_day',
   DATA_COLUMN: 'data',
@@ -26,9 +24,6 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
         .notNullable()
         .primary();
       table.integer(PlansProductionColumn.INDEX_COLUMN);
-      table.integer(PlansProductionColumn.START_TIME_COLUMN);
-      table.integer(PlansProductionColumn.END_TIME_COLUMN);
-      table.integer(PlansProductionColumn.STOP_TIME_COLUMN);
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
       table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
@@ -94,24 +89,13 @@ export async function updatePlanProductionInfo(
   id: number,
   info: PlanProductionInfo
 ): Promise<void> {
-  const fields: {[key: string]: number | boolean} = {
-    [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: info.operationAtStartOfDay,
-    [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: info.productionAtStartOfDay,
-  };
-
-  if (info.startTime !== undefined) {
-    fields[PlansProductionColumn.START_TIME_COLUMN] = info.startTime;
-  }
-  if (info.endTime !== undefined) {
-    fields[PlansProductionColumn.END_TIME_COLUMN] = info.endTime;
-  }
-  if (info.stopTime !== undefined) {
-    fields[PlansProductionColumn.STOP_TIME_COLUMN] = info.stopTime;
-  }
-
   return db(PLANS_PRODUCTION_TABLE_NAME)
     .where(PlansProductionColumn.ID_COLUMN, id)
-    .update({...fields, [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date()});
+    .update({
+      [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: info.operationAtStartOfDay,
+      [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: info.productionAtStartOfDay,
+      [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
+    });
 }
 
 export async function movePlanProduction(
@@ -227,9 +211,6 @@ function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
   return {
     id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
     index: asNumber(r[PlansProductionColumn.INDEX_COLUMN], undefined),
-    startTime: asNumber(r[PlansProductionColumn.START_TIME_COLUMN], undefined),
-    endTime: asNumber(r[PlansProductionColumn.END_TIME_COLUMN], undefined),
-    stopTime: asNumber(r[PlansProductionColumn.STOP_TIME_COLUMN], undefined),
     operationAtStartOfDay: asBoolean(r[PlansProductionColumn.OPERATION_AT_START_OF_DAY]),
     productionAtStartOfDay: asBoolean(r[PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]),
     data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
@@ -263,11 +244,11 @@ export async function getClosestPlanProdBefore(
       .where(PlansProductionColumn.INDEX_COLUMN, '=', index - 1)
       .map(mapLineToPlanProductionRaw))[0];
   }
-  return (await db(PLANS_PRODUCTION_TABLE_NAME)
-    .select()
-    .orderBy(PlansProductionColumn.START_TIME_COLUMN, 'desc')
-    .limit(1)
-    .map(mapLineToPlanProductionRaw))[0];
+  const latestStopWithPlanId = await getLatestStopWithPlanIdBefore(db, Date.now() * 2);
+  if (!latestStopWithPlanId || !latestStopWithPlanId.planProdId) {
+    return undefined;
+  }
+  return await getPlanProd(db, latestStopWithPlanId.planProdId);
 }
 
 export async function getPlanProd(db: knex, id: number): Promise<PlanProductionRaw | undefined> {
@@ -276,3 +257,8 @@ export async function getPlanProd(db: knex, id: number): Promise<PlanProductionR
     .where(PlansProductionColumn.ID_COLUMN, '=', id)
     .map(mapLineToPlanProductionRaw))[0];
 }
+
+// export async function getNotStartedPlanProds(
+//   planProdDB: knex,
+//   stopsDB: knex
+// ): Promise<PlanProductionRaw[]> {}

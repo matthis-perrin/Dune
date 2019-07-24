@@ -10,7 +10,7 @@ const WAIT_BETWEEN_PROCESS = 60 * 1000;
 
 class HoursManager {
   private async getFakeLastHourTimestamp(): Promise<number> {
-    const firstMinute = await getFirstMinute(SQLITE_DB.Automate);
+    const firstMinute = await getFirstMinute(SQLITE_DB.Prod);
     if (!firstMinute) {
       return 0;
     }
@@ -33,8 +33,8 @@ class HoursManager {
   }
 
   private async analyseHours(): Promise<boolean> {
-    const lastHour = await getLastHour(SQLITE_DB.Automate);
-    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Automate);
+    const lastHour = await getLastHour(SQLITE_DB.Prod);
+    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Prod);
     const lastMinute = lastMinuteSpeed === undefined ? 0 : lastMinuteSpeed.minute;
 
     const lastHourTimestamp = lastHour ? lastHour.hour : await this.getFakeLastHourTimestamp();
@@ -51,7 +51,7 @@ class HoursManager {
       nextHour.setHours(nextHour.getHours() + 1);
 
       const minuteSpeeds = await getMinutesSpeedsBetween(
-        SQLITE_DB.Automate,
+        SQLITE_DB.Prod,
         dateToMaybeProcess.getTime(),
         nextHour.getTime()
       );
@@ -88,7 +88,7 @@ class HoursManager {
         };
       }
 
-      await insertHourStats(SQLITE_DB.Automate, hourStats);
+      await insertHourStats(SQLITE_DB.Prod, hourStats);
       return true;
     }
     return false;

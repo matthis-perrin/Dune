@@ -23,7 +23,7 @@ class StopsManager {
     }
 
     const nextStopStart = await firstSpeedMatchingSince(
-      SQLITE_DB.Automate,
+      SQLITE_DB.Prod,
       lastStopEndTime,
       '<',
       SPEED_THRESHOLD_FOR_STOP
@@ -44,7 +44,7 @@ class StopsManager {
     }
 
     const nextStopStart = await firstSpeedMatchingSince(
-      SQLITE_DB.Automate,
+      SQLITE_DB.Prod,
       lastProdEndTime,
       '>=',
       SPEED_THRESHOLD_FOR_STOP
@@ -54,8 +54,8 @@ class StopsManager {
 
   private async analyseStopsAndProds(): Promise<boolean> {
     const [lastStop, lastProd] = await Promise.all([
-      getLastStop(SQLITE_DB.Automate),
-      getLastProd(SQLITE_DB.Automate),
+      getLastStop(SQLITE_DB.Prod),
+      getLastProd(SQLITE_DB.Prod),
     ]);
 
     const newStopStartTime = await this.getNextStopStart(lastStop);
@@ -66,22 +66,22 @@ class StopsManager {
       if (lastProd && lastProd.end === undefined) {
         // Compute the average speed of this prod
         const averageSpeed = await getAverageSpeedBetween(
-          SQLITE_DB.Automate,
+          SQLITE_DB.Prod,
           lastProd.start,
           newStopStartTime
         );
-        await recordProdEnd(SQLITE_DB.Automate, lastProd.start, newStopStartTime, averageSpeed);
+        await recordProdEnd(SQLITE_DB.Prod, lastProd.start, newStopStartTime, averageSpeed);
       }
-      await recordStopStart(SQLITE_DB.Automate, newStopStartTime);
+      await recordStopStart(SQLITE_DB.Prod, newStopStartTime);
     }
 
     if (newProdStartTime !== undefined) {
       // When a prod start, a stop ends.
       if (lastStop && lastStop.end === undefined) {
-        await recordStopEnd(SQLITE_DB.Automate, lastStop.start, newProdStartTime);
+        await recordStopEnd(SQLITE_DB.Prod, lastStop.start, newProdStartTime);
       }
       const planProdId = lastStop && lastStop.planProdId;
-      await recordProdStart(SQLITE_DB.Automate, newProdStartTime, planProdId);
+      await recordProdStart(SQLITE_DB.Prod, newProdStartTime, planProdId);
     }
 
     return newStopStartTime !== undefined || newProdStartTime !== undefined;

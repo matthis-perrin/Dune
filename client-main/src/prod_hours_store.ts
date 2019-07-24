@@ -20,6 +20,10 @@ class ProdHoursStore {
     return this.prodHours;
   }
 
+  public getProdRanges(): Map<string, ProdRange> {
+    return this.prodHoursMap;
+  }
+
   public getProdRange(day: string): ProdRange | undefined {
     return this.prodHoursMap.get(day);
   }

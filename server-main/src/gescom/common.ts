@@ -48,10 +48,10 @@ export async function setupSqliteDB(): Promise<void> {
 
     createPlansProductionTable(SQLITE_DB.Prod),
 
-    createSpeedMinutesTable(SQLITE_DB.Automate),
-    createSpeedHoursTable(SQLITE_DB.Automate),
-    createSpeedStopsTable(SQLITE_DB.Automate),
-    createSpeedProdsTable(SQLITE_DB.Automate),
+    createSpeedMinutesTable(SQLITE_DB.Prod),
+    createSpeedHoursTable(SQLITE_DB.Prod),
+    createSpeedStopsTable(SQLITE_DB.Prod),
+    createSpeedProdsTable(SQLITE_DB.Prod),
   ]);
 }
 

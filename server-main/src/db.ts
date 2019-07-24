@@ -1,7 +1,7 @@
 import knex from 'knex';
 import path from 'path';
 
-import {AUTOMATE_DB, DATA_DB, GESCOM_DB, PARAMS_DB} from '@shared/db/database_names';
+import {GESCOM_DB, PARAMS_DB, PROD_DB} from '@shared/db/database_names';
 import {asString} from '@shared/type_utils';
 
 const GESCOM_USER = 'ProDune';
@@ -23,8 +23,7 @@ function createDB(dbName: string): knex {
 
 export const SQLITE_DB = {
   Gescom: createDB(GESCOM_DB),
-  Automate: createDB(AUTOMATE_DB),
-  Prod: createDB(DATA_DB),
+  Prod: createDB(PROD_DB),
   Params: createDB(PARAMS_DB),
 };
 
