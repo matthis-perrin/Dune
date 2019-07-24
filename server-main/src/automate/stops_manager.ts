@@ -80,8 +80,8 @@ class StopsManager {
       if (lastStop && lastStop.end === undefined) {
         await recordStopEnd(SQLITE_DB.Automate, lastStop.start, newProdStartTime);
       }
-      const planProd = lastStop && lastStop.planProd;
-      await recordProdStart(SQLITE_DB.Automate, newProdStartTime, planProd);
+      const planProdId = lastStop && lastStop.planProdId;
+      await recordProdStart(SQLITE_DB.Automate, newProdStartTime, planProdId);
     }
 
     return newStopStartTime !== undefined || newProdStartTime !== undefined;

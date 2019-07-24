@@ -354,8 +354,15 @@ export interface Stop {
   start: number;
   end?: number;
   stopType?: string;
-  stopInfo?: string;
-  planProd?: number;
+  stopInfo?: StopInfo;
+  planProdId?: number;
+  maintenanceId?: number;
+}
+
+export interface StopInfo {
+  unplannedStops: UnplannedStop[];
+  cleanings: Cleaning[];
+  comments: string[];
 }
 
 export enum StopType {

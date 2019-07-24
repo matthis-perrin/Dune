@@ -8,7 +8,7 @@ export const SpeedProdsColumn = {
   Start: 'start',
   End: 'end',
   AvgSpeed: 'avg_speed',
-  PlanProd: 'plan_prod',
+  PlanProdId: 'plan_prod_id',
 };
 
 export async function createSpeedProdsTable(db: knex): Promise<void> {
@@ -21,7 +21,7 @@ export async function createSpeedProdsTable(db: knex): Promise<void> {
         .primary();
       table.integer(SpeedProdsColumn.End);
       table.integer(SpeedProdsColumn.AvgSpeed);
-      table.integer(SpeedProdsColumn.PlanProd);
+      table.integer(SpeedProdsColumn.PlanProdId);
     });
   }
 }
@@ -33,7 +33,7 @@ function lineAsProd(lineData: any): Prod {
     start: asNumber(line[SpeedProdsColumn.Start], 0),
     end: asNumber(line[SpeedProdsColumn.End], undefined),
     avgSpeed: asNumber(line[SpeedProdsColumn.AvgSpeed], undefined),
-    planProd: asNumber(line[SpeedProdsColumn.PlanProd], undefined),
+    planProd: asNumber(line[SpeedProdsColumn.PlanProdId], undefined),
   };
 }
 
@@ -71,7 +71,7 @@ export async function hasProd(db: knex, start: number): Promise<boolean> {
 export async function recordProdStart(db: knex, start: number, planProd?: number): Promise<void> {
   return db(SPEED_PRODS_TABLE_NAME).insert({
     [SpeedProdsColumn.Start]: start,
-    [SpeedProdsColumn.PlanProd]: planProd,
+    [SpeedProdsColumn.PlanProdId]: planProd,
   });
 }
 

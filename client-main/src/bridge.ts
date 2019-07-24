@@ -48,6 +48,7 @@ import {
   GetProdInfo,
   ListUnplannedStops,
   ListCleanings,
+  UpdateStop,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -58,7 +59,7 @@ import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
-import {getSpeedStopBetween} from '@shared/db/speed_stops';
+import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
 import {
   listPlansProduction,
   deletePlanProduction,
@@ -72,7 +73,13 @@ import {listRefentes} from '@shared/db/refentes';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
 import {listCleanings} from '@shared/db/cleanings';
 import {listStocks} from '@shared/db/stocks';
-import {ClientAppType, ContextMenuForBridge, PlanProductionInfo} from '@shared/models';
+import {
+  ClientAppType,
+  ContextMenuForBridge,
+  PlanProductionInfo,
+  StopInfo,
+  StopType,
+} from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export async function handleCommand(
@@ -314,5 +321,17 @@ export async function handleCommand(
       getSpeedStopBetween(SQLITE_DB.Automate, start.getTime(), end.getTime()),
     ]);
     return {speeds, prods, stops};
+  }
+
+  if (command === UpdateStop) {
+    const {start, type, info, planProdId, maintenanceId} = asMap(params);
+    return updateStopInfo(
+      SQLITE_DB.Automate,
+      asNumber(start, 0),
+      asString(type, '') as StopType,
+      asMap(info) as StopInfo,
+      asNumber(planProdId, undefined),
+      asNumber(maintenanceId, undefined)
+    );
   }
 }

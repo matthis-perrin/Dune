@@ -2,7 +2,7 @@ import {Colors, Palette} from '@root/theme';
 import {StopType} from '@shared/models';
 
 export const labelForStopType = new Map<StopType, string>([
-  [StopType.ChangePlanProd, 'Changement de plan de prodution'],
+  [StopType.ChangePlanProd, 'Changement de plan de production'],
   [StopType.ReprisePlanProd, 'Reprise de prodution'],
   [StopType.ChangeBobinePapier, 'Changement de bobine papier'],
   [StopType.ChangeBobinePolypro, 'Changement de bobine polypro'],

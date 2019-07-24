@@ -45,6 +45,7 @@ import {
   GetProdInfo,
   ListUnplannedStops,
   ListCleanings,
+  UpdateStop,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -69,6 +70,8 @@ import {
   ProdInfo,
   UnplannedStop,
   Cleaning,
+  StopType,
+  StopInfo,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -258,6 +261,21 @@ export class Bridge {
 
   public async getProdInfo(day: number): Promise<ProdInfo> {
     return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {day});
+  }
+  public async updateStop(
+    start: number,
+    type: StopType,
+    info: StopInfo,
+    planProdId: number | undefined,
+    maintenanceId: number | undefined
+  ): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(UpdateStop, {
+      start,
+      type,
+      info,
+      planProdId,
+      maintenanceId,
+    });
   }
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {

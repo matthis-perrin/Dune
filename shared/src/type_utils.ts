@@ -63,6 +63,14 @@ export function asDate(value: any, defaultValue: Date = new Date(0)): Date {
   return value instanceof Date ? value : defaultValue;
 }
 
+export function asParsedJSON<T>(json: string): T {
+  try {
+    return JSON.parse(json) as T;
+  } catch {
+    return {} as T;
+  }
+}
+
 export function notUndefined<T>(val: T | undefined): val is T {
   return val !== undefined;
 }
