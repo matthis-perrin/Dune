@@ -1,7 +1,7 @@
 import {Prod, MinuteSpeed} from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
-function computeMetrage(duration: number, speed: number): number {
+export function computeMetrage(duration: number, speed: number): number {
   return (speed * duration) / 1000 / 60;
 }
 

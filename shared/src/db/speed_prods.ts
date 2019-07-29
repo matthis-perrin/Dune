@@ -33,15 +33,17 @@ function lineAsProd(lineData: any): Prod {
     start: asNumber(line[SpeedProdsColumn.Start], 0),
     end: asNumber(line[SpeedProdsColumn.End], undefined),
     avgSpeed: asNumber(line[SpeedProdsColumn.AvgSpeed], undefined),
-    planProd: asNumber(line[SpeedProdsColumn.PlanProdId], undefined),
+    planProdId: asNumber(line[SpeedProdsColumn.PlanProdId], undefined),
   };
 }
 
 export async function getLastProd(db: knex): Promise<Prod | undefined> {
-  const res = await db(SPEED_PRODS_TABLE_NAME)
-    .select()
-    .orderBy(SpeedProdsColumn.Start, 'desc')
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_PRODS_TABLE_NAME)
+      .select()
+      .orderBy(SpeedProdsColumn.Start, 'desc')
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }
@@ -94,7 +96,8 @@ export async function getSpeedProdBetween(db: knex, start: number, end: number):
     .select()
     .where(SpeedProdsColumn.Start, '>=', start)
     .andWhere(SpeedProdsColumn.Start, '<', end)
-    .orWhere(function() {
+    .orWhere(function(): void {
+      // tslint:disable-next-line:no-invalid-this
       this.where(SpeedProdsColumn.End, '>=', start).andWhere(SpeedProdsColumn.End, '<', end);
     })
     .map(lineAsProd);

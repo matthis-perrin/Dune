@@ -25,14 +25,12 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {
-  getPlanProdTitle,
-  getPreviousPlanProd,
-  PLAN_PROD_NUMBER_DIGIT_COUNT,
-} from '@root/lib/plan_prod';
+import {getPlanProdTitle, PLAN_PROD_NUMBER_DIGIT_COUNT} from '@root/lib/plan_prod';
+import {getPreviousSchedule} from '@root/lib/schedule_utils';
 import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
-import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
+import {stocksStore, cadencierStore} from '@root/stores/list_store';
+import {PlanProdStore} from '@root/stores/plan_prod_store';
 import {theme} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
@@ -46,10 +44,9 @@ import {
   Stock,
   BobineQuantities,
   PlanProductionData,
-  PlanProductionStatus,
   PlanProductionInfo,
-  PlanProduction,
   Operation,
+  Schedule,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
@@ -59,6 +56,8 @@ const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 
 interface Props {
   id: number;
+  start: number;
+  end: number;
   isCreating: boolean;
 }
 
@@ -72,7 +71,7 @@ interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
-  plansProd?: PlanProduction[];
+  schedule?: Schedule;
   operations?: Operation[];
 
   tourCountSetByUser: boolean;
@@ -82,6 +81,7 @@ interface State {
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
   public static displayName = 'PlanProdEditorApp';
+  private readonly planProdStore: PlanProdStore;
 
   public constructor(props: Props) {
     super(props);
@@ -92,6 +92,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobinesMaximums: new Map<string, number>(),
       comment: '',
     };
+    const {start, end} = props;
+    this.planProdStore = new PlanProdStore(start, end);
   }
 
   public componentDidMount(): void {
@@ -99,8 +101,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     stocksStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    plansProductionStore.addListener(this.handleStoresChanged);
     operationsStore.addListener(this.handleStoresChanged);
+    this.planProdStore.start(this.handleScheduleChange);
     this.refreshPlanProduction(true);
   }
 
@@ -109,8 +111,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     stocksStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    plansProductionStore.removeListener(this.handleStoresChanged);
     operationsStore.removeListener(this.handleStoresChanged);
+    this.planProdStore.stop();
   }
 
   // tslint:disable-next-line:no-any
@@ -126,19 +128,24 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
-      plansProd: plansProductionStore.getActivePlansProd(),
       operations: operationsStore.getData(),
     });
   };
 
+  private readonly handleScheduleChange = (): void => {
+    this.setState({
+      schedule: this.planProdStore.getSchedule(),
+    });
+  };
+
   private computeTourCount(newPlanProduction: PlanProductionState): number | undefined {
-    const {plansProd, planProduction} = this.state;
+    const {schedule, planProduction} = this.state;
     const {tourCount, selectedBobines} = newPlanProduction;
     if (tourCount !== undefined && this.state.tourCountSetByUser) {
       return tourCount;
     }
     const {stocks, cadencier, bobineQuantities} = this.state;
-    if (!stocks || !cadencier || !bobineQuantities || !plansProd || !planProduction) {
+    if (!stocks || !cadencier || !bobineQuantities || !schedule || !planProduction) {
       return tourCount;
     }
     for (const bobine of selectedBobines) {
@@ -148,7 +155,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         cadencier,
         bobineQuantities,
         0,
-        plansProd,
+        schedule,
         planProduction
       );
       if (state === BobineState.Imperatif) {
@@ -316,25 +323,20 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       tourCount,
       speed,
       comment,
-      status: PlanProductionStatus.PLANNED,
     };
 
     const serializedData = JSON.stringify(data);
     if (isCreating) {
-      if (index !== undefined) {
-        bridge
-          .saveNewPlanProduction(
-            id,
-            index,
-            operationAtStartOfDay,
-            productionAtStartOfDay,
-            serializedData
-          )
-          .then(() => bridge.closeApp())
-          .catch(console.error);
-      } else {
-        console.error('Trying to create a plan prod without an index!');
-      }
+      bridge
+        .saveNewPlanProduction(
+          id,
+          index,
+          operationAtStartOfDay,
+          productionAtStartOfDay,
+          serializedData
+        )
+        .then(() => bridge.closeApp())
+        .catch(console.error);
     } else {
       bridge
         .updatePlanProduction(id, data)
@@ -377,7 +379,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {id} = this.props;
+    const {id, start, end} = this.props;
     const {
       planProduction,
       reorderedBobines,
@@ -385,7 +387,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       stocks,
       cadencier,
       bobineQuantities,
-      plansProd,
+      schedule,
       operations,
       speed,
       bobinesMinimums,
@@ -393,7 +395,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment,
     } = this.state;
 
-    if (!planProduction || !stocks || !plansProd || !operations) {
+    if (!planProduction || !stocks || !schedule || !operations) {
       return <LoadingScreen />;
     }
 
@@ -435,6 +437,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           const bobinesBlock = (
             <BobinesForm
               planId={id}
+              start={start}
+              end={end}
               selectedBobines={reorderedBobines || selectedBobines}
               selectableBobines={selectableBobines}
               selectedRefente={selectedRefente}
@@ -482,7 +486,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPapier}
                       isPolypro={false}
                       stocks={stocks}
-                      plansProd={plansProd}
+                      schedule={schedule}
                       info={planProduction}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
@@ -494,6 +498,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           ) : (
             <SelectPapierButton
               id={id}
+              start={start}
+              end={end}
               selectedRefente={selectedRefente}
               selectable={selectablePapiers}
               pixelPerMM={pixelPerMM}
@@ -525,7 +531,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPolypro}
                       isPolypro
                       stocks={stocks}
-                      plansProd={plansProd}
+                      schedule={schedule}
                       info={planProduction}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
@@ -537,6 +543,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           ) : (
             <SelectPolyproButton
               id={id}
+              start={start}
+              end={end}
               selectedRefente={selectedRefente}
               selectable={selectablePolypros}
               pixelPerMM={pixelPerMM}
@@ -568,7 +576,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   onMiniUpdated={this.handleMiniUpdated}
                   onMaxUpdated={this.handleMaxUpdated}
                   planInfo={planProduction}
-                  plansProd={plansProd}
+                  schedule={schedule}
                 />
               </React.Fragment>
             ) : (
@@ -576,14 +584,14 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             );
 
           let operationTable = <React.Fragment />;
-          const previousPlanProd = getPreviousPlanProd(planProduction, this.state.plansProd || []);
+          const previousSchedule = getPreviousSchedule(schedule, planProduction.index);
 
           if (
             selectedPapier &&
             selectedPolypro &&
             selectedPerfo &&
             selectedRefente &&
-            previousPlanProd &&
+            previousSchedule &&
             operations
           ) {
             const planProdLight = {
@@ -599,7 +607,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 <OperationTable
                   width={adjustedAvailableWidth}
                   planProduction={planProdLight}
-                  previousPlanProduction={previousPlanProd.data}
+                  previousSchedule={previousSchedule}
                   operations={operations}
                 />
                 {padding}
@@ -629,7 +637,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
                 stocks={stocks}
-                plansProd={plansProd}
+                schedule={schedule}
                 planProdInfo={planProduction}
                 encriers={reorderedEncriers || couleursEncrier[0] || []}
                 operations={operations}

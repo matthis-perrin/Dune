@@ -59,6 +59,8 @@ const SelectButtonWrapper = styled.div`
 
 interface SelectBobineButtonProps {
   id: number;
+  start: number;
+  end: number;
   selectable: BobineFilleWithMultiPose[];
   size: number;
   pixelPerMM: number;
@@ -70,7 +72,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
   public static displayName = 'SelectBobineButton';
 
   public render(): JSX.Element {
-    const {selectable, pixelPerMM, size, id} = this.props;
+    const {selectable, pixelPerMM, size, id, start, end} = this.props;
     const width = size * pixelPerMM;
     const plural = selectable.length > 1 ? 's' : '';
 
@@ -81,7 +83,7 @@ export class SelectBobineButton extends React.Component<SelectBobineButtonProps>
 
     return (
       <SelectBobineButtonWrapper
-        onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp, {id})}
+        onClick={() => bridge.openApp(ClientAppType.BobinesPickerApp, {id, start, end})}
         style={{width, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
       >
         <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
@@ -189,6 +191,8 @@ const BobineMereWrapper = styled(Bobine)`
 
 interface SelectPapierPolyproProps {
   id: number;
+  start: number;
+  end: number;
   selectable: BobineMere[];
   selectedRefente?: Refente;
   pixelPerMM: number;
@@ -201,7 +205,9 @@ export const SelectPapierButton = (props: SelectPapierPolyproProps) => (
     selectedRefente={props.selectedRefente}
     pixelPerMM={props.pixelPerMM}
     onClick={() =>
-      bridge.openApp(ClientAppType.PapierPickerApp, {id: props.id}).catch(console.error)
+      bridge
+        .openApp(ClientAppType.PapierPickerApp, {id: props.id, start: props.start, end: props.end})
+        .catch(console.error)
     }
   />
 );
@@ -213,7 +219,9 @@ export const SelectPolyproButton = (props: SelectPapierPolyproProps) => (
     selectedRefente={props.selectedRefente}
     pixelPerMM={props.pixelPerMM}
     onClick={() =>
-      bridge.openApp(ClientAppType.PolyproPickerApp, {id: props.id}).catch(console.error)
+      bridge
+        .openApp(ClientAppType.PolyproPickerApp, {id: props.id, start: props.start, end: props.end})
+        .catch(console.error)
     }
   />
 );

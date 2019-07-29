@@ -29,8 +29,8 @@ import {
   bobinesFillesWithMultiPoseStore,
   stocksStore,
   cadencierStore,
-  plansProductionStore,
 } from '@root/stores/list_store';
+import {PlanProdStore} from '@root/stores/plan_prod_store';
 import {theme} from '@root/theme';
 
 import {
@@ -38,8 +38,8 @@ import {
   BobineFilleWithMultiPose,
   BobineQuantities,
   PlanProductionState,
-  PlanProduction,
   PlanProductionInfo,
+  Schedule,
 } from '@shared/models';
 
 // tslint:disable-next-line:no-any
@@ -47,22 +47,25 @@ type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose, any>[];
 
 interface Props {
   id: number;
+  start: number;
+  end: number;
 }
 
 interface State {
   stocks?: Map<string, Stock[]>;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
-  plansProd?: PlanProduction[];
+  schedule?: Schedule;
 }
 
 export class BobinesPickerApp extends React.Component<Props, State> {
   public static displayName = 'BobinesPickerApp';
+  private readonly planProdStore: PlanProdStore;
 
   private lastStocks: Map<string, Stock[]> | undefined;
   private lastCadencier: Map<string, Map<number, number>> | undefined;
   private lastBobineQuantities: BobineQuantities[] | undefined;
-  private readonly lastPlansProd: PlanProduction[] | undefined;
+  private readonly lastSchedule: Schedule | undefined;
   private lastPlanProd: PlanProductionState | undefined;
   private lastIsSelectionnable: ((element: BobineFilleWithMultiPose) => boolean) | undefined;
 
@@ -72,20 +75,22 @@ export class BobinesPickerApp extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {};
+    const {start, end} = props;
+    this.planProdStore = new PlanProdStore(start, end);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
     cadencierStore.addListener(this.handleValuesChanged);
     bobinesQuantitiesStore.addListener(this.handleValuesChanged);
-    plansProductionStore.addListener(this.handleValuesChanged);
+    this.planProdStore.start(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
     cadencierStore.removeListener(this.handleValuesChanged);
     bobinesQuantitiesStore.removeListener(this.handleValuesChanged);
-    plansProductionStore.removeListener(this.handleValuesChanged);
+    this.planProdStore.stop();
   }
 
   private readonly handleValuesChanged = (): void => {
@@ -93,7 +98,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
-      plansProd: plansProductionStore.getData(),
+      schedule: this.planProdStore.getSchedule(),
     });
   };
 
@@ -101,7 +106,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     stocks: Map<string, Stock[]>,
     cadencier: Map<string, Map<number, number>>,
     bobineQuantities: BobineQuantities[],
-    plansProd: PlanProduction[],
+    schedule: Schedule,
     planProd: PlanProductionState & PlanProductionInfo
   ): AnyColumns {
     if (
@@ -109,7 +114,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       this.lastStocks === stocks &&
       this.lastCadencier === cadencier &&
       this.lastBobineQuantities === bobineQuantities &&
-      this.lastPlansProd === plansProd &&
+      this.lastSchedule === schedule &&
       this.lastPlanProd === planProd
     ) {
       return this.lastColumns;
@@ -124,15 +129,15 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       LONGUEUR_COLUMN,
       COULEUR_PAPIER_COLUMN,
       GRAMMAGE_COLUMN,
-      MULTI_POSE_COLUMN(this.props.id, stocks, cadencier, bobineQuantities, plansProd, planProd),
+      MULTI_POSE_COLUMN(this.props.id, stocks, cadencier, bobineQuantities, schedule, planProd),
       COULEURS_IMPRESSION_COLUMN,
       TYPE_IMPRESSION_COLUMN,
-      QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities, plansProd, planProd),
+      QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities, schedule, planProd),
       LAST_YEAR_SELLING(cadencier),
       MONTHLY_SELLING(cadencier),
       STOCK_REEL_COLUMN(stocks),
       STOCK_TERME_COLUMN(stocks),
-      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities, plansProd, planProd),
+      STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities, schedule, planProd),
     ];
     return this.lastColumns;
   }
@@ -155,9 +160,10 @@ export class BobinesPickerApp extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const {id} = this.props;
-    const {stocks, cadencier, bobineQuantities, plansProd} = this.state;
+    const {stocks, cadencier, bobineQuantities, schedule} = this.state;
 
-    if (!stocks || !cadencier || !bobineQuantities || !plansProd) {
+    if (!stocks || !cadencier || !bobineQuantities || !schedule) {
+      console.log(stocks, cadencier, bobineQuantities, schedule);
       return <LoadingScreen />;
     }
 
@@ -181,7 +187,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 stocks,
                 cadencier,
                 bobineQuantities,
-                plansProd,
+                schedule,
                 planProd
               );
 
@@ -207,7 +213,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     }}
                     showQuantity
                     planInfo={planProd}
-                    plansProd={plansProd}
+                    schedule={schedule}
                   />
                 ) : (
                   <React.Fragment />

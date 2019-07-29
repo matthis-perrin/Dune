@@ -5,10 +5,10 @@ import {SearchBar} from '@root/components/common/search_bar';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
-import {ListStore, plansProductionStore} from '@root/stores/list_store';
+import {ListStore} from '@root/stores/list_store';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
-import {PlanProductionState, PlanProductionInfo, PlanProduction} from '@shared/models';
+import {PlanProductionState, PlanProductionInfo} from '@shared/models';
 import {asNumber, asMap} from '@shared/type_utils';
 
 interface Props<T extends {localUpdate: number; sommeil: boolean}> {
@@ -32,7 +32,6 @@ interface Props<T extends {localUpdate: number; sommeil: boolean}> {
 interface State<T extends {localUpdate: number; sommeil: boolean}> {
   allElements?: T[];
   planProd?: PlanProductionState & PlanProductionInfo;
-  plansProd?: PlanProduction[];
   filteredElements?: T[];
 }
 
@@ -69,14 +68,12 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
 
   public componentDidMount(): void {
     bridge.addEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
-    plansProductionStore.addListener(this.handleValuesChanged);
     this.props.store.addListener(this.handleValuesChanged);
     this.refreshPlanProduction().catch(console.error);
   }
 
   public componentWillUnmount(): void {
     bridge.removeEventListener(PlanProductionChanged, this.handlePlanProductionChangedEvent);
-    plansProductionStore.removeListener(this.handleValuesChanged);
     this.props.store.removeListener(this.handleValuesChanged);
   }
 
@@ -91,7 +88,6 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
   private readonly handleValuesChanged = (): void => {
     this.setState({
       allElements: this.props.store.getData(),
-      plansProd: plansProductionStore.getActivePlansProd() || [],
     });
   };
 

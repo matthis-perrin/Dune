@@ -6,12 +6,12 @@ import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
 import {
-  getPreviousPlanProd,
   computeProductionTime,
   getMetrageLineaire,
   getBobineMereConsumption,
 } from '@root/lib/plan_prod';
 import {getOperationTime} from '@root/lib/plan_prod_operation';
+import {getPreviousSchedule} from '@root/lib/schedule_utils';
 import {
   getStockReel,
   getStockTerme,
@@ -26,11 +26,11 @@ import {
   BobineFilleWithPose,
   BobineMere,
   Stock,
-  PlanProduction,
   PlanProductionInfo,
   Operation,
   Perfo,
   Refente,
+  Schedule,
 } from '@shared/models';
 
 interface TopBarProps {
@@ -54,7 +54,7 @@ interface TopBarProps {
   isPrinting: boolean;
   stocks: Map<string, Stock[]>;
   planProdInfo: PlanProductionInfo;
-  plansProd: PlanProduction[];
+  schedule: Schedule;
   operations: Operation[];
 }
 
@@ -91,7 +91,7 @@ export class TopBar extends React.Component<TopBarProps> {
     }
   };
 
-  private renderButtons(): JSX.Element {
+  private readonly renderButtons = (): JSX.Element => {
     const {isPrinting, isComplete, onDownload, onSave, onClear} = this.props;
 
     if (isPrinting) {
@@ -118,27 +118,22 @@ export class TopBar extends React.Component<TopBarProps> {
         )}
       </ButtonsContainer>
     );
-  }
+  };
 
   private getAlert(bobineMere: BobineMere | undefined, type: string): JSX.Element | undefined {
     if (!bobineMere) {
       return undefined;
     }
     const {ref, longueur = 0} = bobineMere;
-    const {stocks, bobines, plansProd, planProdInfo, tourCount = 0} = this.props;
+    const {stocks, bobines, schedule, planProdInfo, tourCount = 0} = this.props;
 
     const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
     const prod = longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0;
 
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
-    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, plansProd, planProdInfo);
-    const stockPrevisionelReelTerme = getStockTermePrevisionel(
-      ref,
-      stocks,
-      plansProd,
-      planProdInfo
-    );
+    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, schedule, planProdInfo);
+    const stockPrevisionelReelTerme = getStockTermePrevisionel(ref, stocks, schedule, planProdInfo);
 
     const stockActuel = stockReel;
     const stockActuelTerme = stockTerme;
@@ -183,7 +178,7 @@ export class TopBar extends React.Component<TopBarProps> {
       width,
       papier,
       polypro,
-      plansProd,
+      schedule,
       planProdInfo,
       operations,
       encriers,
@@ -191,16 +186,6 @@ export class TopBar extends React.Component<TopBarProps> {
       refente,
       style = {},
     } = this.props;
-
-    const productionTimeInSec =
-      bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
-        ? computeProductionTime(bobines[0], speed, tourCount)
-        : undefined;
-    const tourCountStr = tourCount === undefined ? '' : String(tourCount);
-    const metrageLineaireStr = numberWithSeparator(getMetrageLineaire({bobines, tourCount}));
-    const InputClass = isPrinting ? StaticTopBarInput : TopBarInput;
-
-    const prod = getBobineMereConsumption({bobines, papier, tourCount});
 
     const papierAlert = this.getAlert(papier, 'papier');
     const polyproAlert = this.getAlert(polypro, 'polypro');
@@ -214,6 +199,80 @@ export class TopBar extends React.Component<TopBarProps> {
         <React.Fragment />
       );
 
+    const previousSchedule = getPreviousSchedule(schedule, planProdInfo.index);
+    let operationTime = 0;
+
+    if (previousSchedule && encriers && papier && perfo && polypro && refente) {
+      const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
+      operationTime = getOperationTime(operations, previousSchedule.planProd.data, currentPlanProd);
+    }
+
+    return (
+      <React.Fragment>
+        <TopBarView
+          style={style}
+          width={width}
+          planProdTitle={planProdTitle}
+          bobines={bobines}
+          papier={papier}
+          tourCount={tourCount}
+          speed={speed}
+          onTourCountInputChange={this.handleTourCountInputChange}
+          onSpeedInputChange={this.handleSpeedInputChange}
+          isPrinting={isPrinting}
+          operationTime={operationTime}
+          renderButtons={this.renderButtons}
+        />
+        {alerts}
+      </React.Fragment>
+    );
+  }
+}
+
+interface TopBarViewProps {
+  style?: React.CSSProperties;
+  width: number;
+  planProdTitle: string;
+  bobines: BobineFilleWithPose[];
+  papier?: BobineMere;
+  tourCount?: number;
+  speed: number;
+  onTourCountInputChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onSpeedInputChange?: React.ChangeEventHandler<HTMLInputElement>;
+  isPrinting: boolean;
+  operationTime: number;
+  renderButtons?(): JSX.Element;
+}
+
+export class TopBarView extends React.Component<TopBarViewProps> {
+  public static displayName = 'TopBarView';
+
+  public render(): JSX.Element {
+    const {
+      tourCount,
+      speed,
+      isPrinting,
+      planProdTitle,
+      bobines,
+      width,
+      papier,
+      operationTime,
+      style = {},
+      renderButtons = () => <React.Fragment />,
+      onTourCountInputChange,
+      onSpeedInputChange,
+    } = this.props;
+
+    const productionTimeInSec =
+      bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
+        ? computeProductionTime(bobines[0], speed, tourCount)
+        : undefined;
+    const tourCountStr = tourCount === undefined ? '' : String(tourCount);
+    const metrageLineaireStr = numberWithSeparator(getMetrageLineaire({bobines, tourCount}));
+    const InputClass = isPrinting ? StaticTopBarInput : TopBarInput;
+
+    const prod = getBobineMereConsumption({bobines, papier, tourCount});
+
     const tourCountStyles = isPrinting
       ? {
           fontSize: 26,
@@ -223,60 +282,49 @@ export class TopBar extends React.Component<TopBarProps> {
           color: Colors.SecondaryDark,
         }
       : {};
-    const previousPlanProd = getPreviousPlanProd(planProdInfo, plansProd);
-    let operationTime: number | undefined;
-
-    if (previousPlanProd && encriers && papier && perfo && polypro && refente) {
-      const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
-      operationTime = getOperationTime(operations, previousPlanProd.data, currentPlanProd);
-    }
-    const operationTimeElement =
-      operationTime !== undefined ? <Duration durationMs={operationTime * 1000} /> : '??:??:??';
+    const operationTimeElement = <Duration durationMs={operationTime * 1000} />;
 
     return (
-      <React.Fragment>
-        <TopBarWrapper style={{...style, width}}>
-          <LeftContainer>
-            <TopBarTitle>{planProdTitle}</TopBarTitle>
-            {this.renderButtons()}
-          </LeftContainer>
-          <CenterContainer>
-            <TopBarValueContainer
-              style={{marginRight: 16}}
-              top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
-              bottom={'MÈTRES LINÉAIRES'}
-            />
-            <TopBarValueContainer
-              style={{marginRight: 16}}
-              top={<StaticTopBarInput value={roundedToDigit(prod, 1)} readOnly />}
-              bottom={'CONSO BOBINES MÈRES'}
-            />
-            <TopBarValueContainer
-              style={{marginRight: 16}}
-              top={
-                <InputClass
-                  style={tourCountStyles}
-                  value={tourCountStr}
-                  onChange={this.handleTourCountInputChange}
-                />
-              }
-              bottom={'TOURS'}
-            />
-            <TopBarValueContainer
-              style={{marginRight: 16}}
-              top={<InputClass value={speed} onChange={this.handleSpeedInputChange} />}
-              bottom={'M/MIN'}
-            />
-          </CenterContainer>
-          <RightContainer>
-            <span>
-              Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
-            </span>
-            <span>Réglage: {operationTimeElement}</span>
-          </RightContainer>
-        </TopBarWrapper>
-        {alerts}
-      </React.Fragment>
+      <TopBarWrapper style={{...style, width}}>
+        <LeftContainer>
+          <TopBarTitle>{planProdTitle}</TopBarTitle>
+          {renderButtons()}
+        </LeftContainer>
+        <CenterContainer>
+          <TopBarValueContainer
+            style={{marginRight: 16}}
+            top={<StaticTopBarInput value={metrageLineaireStr} readOnly />}
+            bottom={'MÈTRES LINÉAIRES'}
+          />
+          <TopBarValueContainer
+            style={{marginRight: 16}}
+            top={<StaticTopBarInput value={roundedToDigit(prod, 1)} readOnly />}
+            bottom={'CONSO BOBINES MÈRES'}
+          />
+          <TopBarValueContainer
+            style={{marginRight: 16}}
+            top={
+              <InputClass
+                style={tourCountStyles}
+                value={tourCountStr}
+                onChange={onTourCountInputChange}
+              />
+            }
+            bottom={'TOURS'}
+          />
+          <TopBarValueContainer
+            style={{marginRight: 16}}
+            top={<InputClass value={speed} onChange={onSpeedInputChange} />}
+            bottom={'M/MIN'}
+          />
+        </CenterContainer>
+        <RightContainer>
+          <span>
+            Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
+          </span>
+          <span>Réglage: {operationTimeElement}</span>
+        </RightContainer>
+      </TopBarWrapper>
     );
   }
 }

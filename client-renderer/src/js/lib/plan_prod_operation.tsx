@@ -11,6 +11,8 @@ import {
   BobineFilleWithPose,
   OperationGroup,
   Operation,
+  OperationSplits,
+  OperationSplit,
 } from '@shared/models';
 
 export interface PlanProdStateLight {
@@ -236,25 +238,6 @@ export function getConstraints(
   );
 
   return constraints;
-}
-
-interface OperationDetail {
-  description: string;
-  constraint: OperationConstraint;
-  quantity: number;
-  duration: number;
-}
-
-export interface OperationSplit {
-  total: number;
-  operations: OperationDetail[];
-}
-
-export interface OperationSplits {
-  conducteur: OperationSplit;
-  aideConducteur: OperationSplit;
-  chauffePerfo: OperationSplit;
-  chauffeRefente: OperationSplit;
 }
 
 export function splitOperations(

@@ -1,15 +1,9 @@
 import {sum} from 'lodash-es';
 
-import {startOfDay} from '@root/lib/utils';
+import {getSchedulesFromStartOfDay} from '@root/lib/schedule_utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
-import {
-  Stock,
-  PlanProduction,
-  BobineMere,
-  BobineFilleWithPose,
-  PlanProductionInfo,
-} from '@shared/models';
+import {Stock, BobineMere, BobineFilleWithPose, Schedule, PlanProductionInfo} from '@shared/models';
 
 export enum StockType {
   REEL,
@@ -42,38 +36,35 @@ export function getStockDiff(
     bobines: BobineFilleWithPose[];
     papier: BobineMere;
     polypro: BobineMere;
-    tourCount: number;
-  }
+  },
+  prodMeters: number
 ): number {
-  const {bobines, papier, polypro, tourCount} = planProd;
+  const {bobines, papier, polypro} = planProd;
   const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
   if (papier.ref === ref) {
-    return -(longueurFirstBobine * tourCount) / (papier.longueur || 1);
+    return -prodMeters / (papier.longueur || 1);
   }
   if (polypro.ref === ref) {
-    return -(longueurFirstBobine * tourCount) / (polypro.longueur || 1);
+    return -prodMeters / (polypro.longueur || 1);
   }
   const pistes = bobines
     .filter(b => b.ref === ref)
     .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
-  return pistes * tourCount;
+  return pistes * (prodMeters / longueurFirstBobine);
 }
 
 export function getStockPrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
-  plansProd: PlanProduction[],
-  limit: PlanProductionInfo, // not included
+  schedule: Schedule,
+  planProd: PlanProductionInfo, // not included
   type: StockType
 ): number {
   const startStock = getStock(ref, stocks, type);
-  const startOfToday = startOfDay().getTime();
-  const futurPlansProd = plansProd.filter(planProd =>
-    planProd.index === undefined
-      ? (planProd.startTime || 0) > startOfToday
-      : planProd.index < (limit.index || 0)
+  const futurSchedules = getSchedulesFromStartOfDay(schedule, planProd.index);
+  const stockDiffs = futurSchedules.map(s =>
+    getStockDiff(ref, s.planProd.data, s.doneProdMeters + s.plannedProdMeters)
   );
-  const stockDiffs = futurPlansProd.map(planProd => getStockDiff(ref, planProd.data));
   const totalDiff = stockDiffs.reduce((acc, curr) => acc + curr, 0);
   return startStock + totalDiff;
 }
@@ -85,10 +76,10 @@ export function getStockReel(ref: string, stocks: Map<string, Stock[]>): number 
 export function getStockReelPrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
-  plansProd: PlanProduction[],
-  limit: PlanProductionInfo
+  schedule: Schedule,
+  planProd: PlanProductionInfo
 ): number {
-  return getStockPrevisionel(ref, stocks, plansProd, limit, StockType.REEL);
+  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.REEL);
 }
 
 export function getStockCommande(ref: string, stocks: Map<string, Stock[]>): number {
@@ -98,10 +89,10 @@ export function getStockCommande(ref: string, stocks: Map<string, Stock[]>): num
 export function getStockCommandePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
-  plansProd: PlanProduction[],
-  limit: PlanProductionInfo
+  schedule: Schedule,
+  planProd: PlanProductionInfo
 ): number {
-  return getStockPrevisionel(ref, stocks, plansProd, limit, StockType.COMMANDE);
+  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.COMMANDE);
 }
 
 export function getStockReserve(ref: string, stocks: Map<string, Stock[]>): number {
@@ -111,10 +102,10 @@ export function getStockReserve(ref: string, stocks: Map<string, Stock[]>): numb
 export function getStockReservePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
-  plansProd: PlanProduction[],
-  limit: PlanProductionInfo
+  schedule: Schedule,
+  planProd: PlanProductionInfo
 ): number {
-  return getStockPrevisionel(ref, stocks, plansProd, limit, StockType.RESERVE);
+  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.RESERVE);
 }
 
 export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number {
@@ -124,8 +115,8 @@ export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number
 export function getStockTermePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
-  plansProd: PlanProduction[],
-  limit: PlanProductionInfo
+  schedule: Schedule,
+  planProd: PlanProductionInfo
 ): number {
-  return getStockPrevisionel(ref, stocks, plansProd, limit, StockType.TERME);
+  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.TERME);
 }

@@ -1,10 +1,10 @@
 import knex from 'knex';
 
+import {SpeedProdsColumn} from '@shared/db/speed_prods';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
+import {getNextProdStart} from '@shared/lib/time';
 import {Stop, StopStatus, StopInfo, StopType, ProdRange} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
-import {SpeedProdsColumn} from '@shared/db/speed_prods';
-import {getNextProdStart} from '@shared/lib/time';
 
 export const SpeedStopsColumn = {
   Start: 'start',
@@ -39,7 +39,7 @@ function lineAsStop(lineData: any): Stop {
   return {
     start: asNumber(line[SpeedStopsColumn.Start], 0),
     end: asNumber(line[SpeedStopsColumn.End], undefined),
-    stopType: asString(line[SpeedStopsColumn.StopType], undefined),
+    stopType: asString(line[SpeedStopsColumn.StopType], undefined) as StopType | undefined,
     stopInfo: stopInfoJSON === undefined ? undefined : asParsedJSON<StopInfo>(stopInfoJSON),
     planProdId: asNumber(line[SpeedStopsColumn.PlanProdId], undefined),
     maintenanceId: asNumber(line[SpeedStopsColumn.MaintenanceId], undefined),
@@ -47,10 +47,12 @@ function lineAsStop(lineData: any): Stop {
 }
 
 export async function getLastStop(db: knex): Promise<Stop | undefined> {
-  const res = await db(SPEED_STOPS_TABLE_NAME)
-    .select()
-    .orderBy(SpeedStopsColumn.Start, 'desc')
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .orderBy(SpeedStopsColumn.Start, 'desc')
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }
@@ -117,7 +119,8 @@ export async function getSpeedStopBetween(db: knex, start: number, end: number):
     .select()
     .where(SpeedStopsColumn.Start, '>=', start)
     .andWhere(SpeedStopsColumn.Start, '<', end)
-    .orWhere(function() {
+    .orWhere(function(): void {
+      // tslint:disable-next-line:no-invalid-this
       this.where(SpeedStopsColumn.End, '>=', start).andWhere(SpeedStopsColumn.End, '<', end);
     })
     .map(lineAsStop);
@@ -126,10 +129,12 @@ export async function getSpeedStopBetween(db: knex, start: number, end: number):
 // LOGIC AROUND UPDATING A STOP
 
 async function getStop(db: knex, start: number): Promise<Stop | undefined> {
-  const res = await db(SPEED_STOPS_TABLE_NAME)
-    .select()
-    .where(SpeedStopsColumn.Start, '=', start)
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .where(SpeedStopsColumn.Start, '=', start)
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }
@@ -140,12 +145,14 @@ const endOfProdTypes = [StopType.ChangePlanProd, StopType.EndOfDayEndProd];
 const endOfDayTypes = [StopType.EndOfDayEndProd, StopType.EndOfDayPauseProd];
 
 async function getNextEndOfProdStop(db: knex, start: number): Promise<Stop | undefined> {
-  const res = await db(SPEED_STOPS_TABLE_NAME)
-    .select()
-    .whereIn(SpeedStopsColumn.StopType, endOfProdTypes)
-    .andWhere(SpeedStopsColumn.Start, '>', start)
-    .orderBy(SpeedStopsColumn.Start)
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .whereIn(SpeedStopsColumn.StopType, endOfProdTypes)
+      .andWhere(SpeedStopsColumn.Start, '>', start)
+      .orderBy(SpeedStopsColumn.Start)
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }
@@ -156,12 +163,14 @@ export async function getLatestStopWithPlanIdBefore(
   db: knex,
   start: number
 ): Promise<Stop | undefined> {
-  const res = await db(SPEED_STOPS_TABLE_NAME)
-    .select()
-    .whereNotNull(SpeedStopsColumn.PlanProdId)
-    .andWhere(SpeedStopsColumn.Start, '<', start)
-    .orderBy(SpeedStopsColumn.Start, 'desc')
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .whereNotNull(SpeedStopsColumn.PlanProdId)
+      .andWhere(SpeedStopsColumn.Start, '<', start)
+      .orderBy(SpeedStopsColumn.Start, 'desc')
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }

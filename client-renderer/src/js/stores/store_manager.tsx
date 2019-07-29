@@ -13,7 +13,6 @@ import {
   perfosStore,
   refentesStore,
   stocksStore,
-  plansProductionStore,
   cadencierStore,
 } from '@root/stores/list_store';
 
@@ -33,7 +32,6 @@ export class StoreManager {
     operationsStore,
     bobinesQuantitiesStore,
     colorsStore,
-    plansProductionStore,
     cadencierStore,
     unplannedStopsStore,
     cleaningsStore,

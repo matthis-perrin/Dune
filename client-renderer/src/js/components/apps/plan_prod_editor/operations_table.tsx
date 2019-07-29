@@ -3,25 +3,38 @@ import styled from 'styled-components';
 
 import {Duration} from '@root/components/common/duration';
 import {OperationConstraint as OperationConstraintComponent} from '@root/components/common/operation_constraint';
-import {
-  PlanProdStateLight,
-  getConstraints,
-  OperationSplit,
-  splitOperations,
-} from '@root/lib/plan_prod_operation';
+import {PlanProdStateLight, getConstraints, splitOperations} from '@root/lib/plan_prod_operation';
 import {theme} from '@root/theme';
 
-import {Operation} from '@shared/models';
+import {Operation, ScheduledPlanProd, OperationSplit, OperationSplits} from '@shared/models';
 
 interface OperationTableProps {
   width: number;
   planProduction: PlanProdStateLight;
-  previousPlanProduction: PlanProdStateLight;
+  previousSchedule: ScheduledPlanProd;
   operations: Operation[];
 }
 
 export class OperationTable extends React.Component<OperationTableProps> {
   public static displayName = 'OperationTable';
+
+  public render(): JSX.Element {
+    const {width, planProduction, previousSchedule, operations} = this.props;
+
+    const constraints = getConstraints(previousSchedule.planProd.data, planProduction);
+    const operationsSplits = splitOperations(operations, constraints);
+
+    return <OperationTableView operationsSplits={operationsSplits} width={width} />;
+  }
+}
+
+interface OperationTableViewProps {
+  width: number;
+  operationsSplits: OperationSplits;
+}
+
+export class OperationTableView extends React.Component<OperationTableViewProps> {
+  public static displayName = 'OperationTableView';
 
   private sortOperationSplit(operationSplit: OperationSplit): void {
     operationSplit.operations.sort((o1, o2) => {
@@ -82,10 +95,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
   }
 
   public render(): JSX.Element {
-    const {width, planProduction, previousPlanProduction, operations} = this.props;
-
-    const constraints = getConstraints(previousPlanProduction, planProduction);
-    const operationsSplits = splitOperations(operations, constraints);
+    const {width, operationsSplits} = this.props;
 
     this.sortOperationSplit(operationsSplits.conducteur);
     this.sortOperationSplit(operationsSplits.aideConducteur);
@@ -100,7 +110,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
         <tr>
           <OperationSplitHeader colSpan={4}>{o.description}</OperationSplitHeader>
           <OperationSplitHeader>
-            <Duration durationMs={(constraints.get(o.constraint) || 0) * o.duration * 1000} />
+            <Duration durationMs={o.quantity * o.duration * 1000} />
           </OperationSplitHeader>
         </tr>
       );
@@ -111,7 +121,7 @@ export class OperationTable extends React.Component<OperationTableProps> {
         <tr>
           <OperationSplitHeader colSpan={4}>{o.description}</OperationSplitHeader>
           <OperationSplitHeader>
-            <Duration durationMs={(constraints.get(o.constraint) || 0) * o.duration * 1000} />
+            <Duration durationMs={o.quantity * o.duration * 1000} />
           </OperationSplitHeader>
         </tr>
       );

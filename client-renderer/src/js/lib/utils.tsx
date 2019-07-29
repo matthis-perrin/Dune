@@ -77,13 +77,13 @@ export function isWeekDay(date: Date): boolean {
   return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
 }
 
-export function startOfDay(): Date {
-  const date = new Date();
-  date.setHours(0);
-  date.setMinutes(0);
-  date.setSeconds(0);
-  date.setMilliseconds(0);
-  return date;
+export function startOfDay(date?: Date): Date {
+  const d = date || new Date();
+  d.setHours(0);
+  d.setMinutes(0);
+  d.setSeconds(0);
+  d.setMilliseconds(0);
+  return d;
 }
 
 export function isSameDay(date1: Date, date2: Date): boolean {

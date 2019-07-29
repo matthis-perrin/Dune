@@ -31,8 +31,8 @@ import {
   OperationConstraint as OperationConstraintModel,
   PlanProductionState,
   Stock,
-  PlanProduction,
   PlanProductionInfo,
+  Schedule,
 } from '@shared/models';
 
 function getStocksSortFunction<T extends {ref: string}>(
@@ -532,7 +532,7 @@ export const MULTI_POSE_COLUMN = (
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
-  plansProd: PlanProduction[],
+  schedule: Schedule,
   planProd: PlanProductionState & PlanProductionInfo
 ): ColumnMetadata<BobineFilleWithMultiPose, string> => {
   return {
@@ -546,7 +546,7 @@ export const MULTI_POSE_COLUMN = (
         cadencier={cadencier}
         bobineQuantities={bobineQuantities}
         planProd={planProd}
-        plansProd={plansProd}
+        schedule={schedule}
         planInfo={planProd}
       />
     ),
@@ -813,7 +813,7 @@ export const STOCK_STATE_COLUMN = (
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
-  plansProd: PlanProduction[],
+  schedule: Schedule,
   planInfo: PlanProductionInfo
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'ETAT',
@@ -825,7 +825,7 @@ export const STOCK_STATE_COLUMN = (
       cadencier,
       bobineQuantities,
       0,
-      plansProd,
+      schedule,
       planInfo
     );
     return <BobineState state={state} info={info} />;
@@ -838,7 +838,7 @@ export const STOCK_STATE_COLUMN = (
       cadencier,
       bobineQuantities,
       0,
-      plansProd,
+      schedule,
       planInfo
     );
     const info2 = getBobineState(
@@ -847,7 +847,7 @@ export const STOCK_STATE_COLUMN = (
       cadencier,
       bobineQuantities,
       0,
-      plansProd,
+      schedule,
       planInfo
     );
     if (info1.state === info2.state) {
@@ -856,11 +856,11 @@ export const STOCK_STATE_COLUMN = (
     return info1.state - info2.state;
   },
   shouldRerender: (row1, row2) =>
-    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).state !==
-    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).state,
+    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state !==
+    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state,
   filter: {
     getValue: ({ref}) =>
-      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).state,
+      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state,
     render: (row, value) => <BobineState state={value} />,
   },
 });
@@ -869,26 +869,25 @@ export const QUANTITY_TO_PRODUCE = (
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
-  plansProd: PlanProduction[],
+  schedule: Schedule,
   planInfo: PlanProductionInfo
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'QTÉ À PROD',
   width: 65,
   renderCell: ({ref}) =>
     renderNumber(
-      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).quantity
+      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity
     ),
   justifyContent: 'center',
   sortFunction: (row1, row2) =>
     numberSort(
-      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo)
-        .quantity,
-      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).quantity
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity,
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity
     ),
   shouldRerender: (row1, row2) =>
-    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo)
+    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo)
       .quantity !==
-    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, plansProd, planInfo).quantity,
+    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity,
 });
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {

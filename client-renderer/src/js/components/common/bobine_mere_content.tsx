@@ -17,7 +17,7 @@ import {
   Color,
   BobineFilleWithPose,
   PlanProductionInfo,
-  PlanProduction,
+  Schedule,
 } from '@shared/models';
 
 interface BobineMereContentProps {
@@ -28,7 +28,7 @@ interface BobineMereContentProps {
   stocks: Map<string, Stock[]>;
   tourCount?: number;
   selectedBobines: BobineFilleWithPose[];
-  plansProd: PlanProduction[];
+  schedule: Schedule;
   info: PlanProductionInfo;
 }
 
@@ -44,7 +44,7 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
       stocks,
       tourCount = 0,
       selectedBobines,
-      plansProd,
+      schedule,
       info,
     } = this.props;
     const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
@@ -57,8 +57,8 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
 
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
-    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, plansProd, info);
-    const stockPrevisionelTerme = getStockTermePrevisionel(ref, stocks, plansProd, info);
+    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, schedule, info);
+    const stockPrevisionelTerme = getStockTermePrevisionel(ref, stocks, schedule, info);
 
     const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
     const stockActuel = `${stockReel} (à terme ${stockTerme})`;
@@ -105,6 +105,36 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
             </AutoFontWeight>
           </BobineMereContentStock>
         </BobineMereContentStocks>
+      </BobineMereContentWrapper>
+    );
+  }
+}
+
+interface SimpleBobineMereContentProps {
+  color: Color;
+  pixelPerMM: number;
+  bobine: BobineMere;
+  isPolypro: boolean;
+}
+
+export class SimpleBobineMereContent extends React.Component<SimpleBobineMereContentProps> {
+  public static displayName = 'BobineMereContent';
+
+  public render(): JSX.Element {
+    const {color, pixelPerMM, bobine, isPolypro} = this.props;
+    const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
+
+    const grammageStr = `${grammage}${isPolypro ? 'g/m²' : 'g'}`;
+    const longueurStr = `${numberWithSeparator(longueur)} m`;
+    const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
+    const large = theme.planProd.elementsBaseLargeFontSize * pixelPerMM;
+    const colorStyle = {color: color.textHex};
+
+    return (
+      <BobineMereContentWrapper>
+        <AutoFontWeight style={colorStyle} fontSize={large}>
+          <BobineMereContentTitle>{title}</BobineMereContentTitle>
+        </AutoFontWeight>
       </BobineMereContentWrapper>
     );
   }

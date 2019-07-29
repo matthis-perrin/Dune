@@ -8,66 +8,71 @@ import {
   getMetrageLineaire,
   getBobineMereConsumption,
 } from '@root/lib/plan_prod';
-import {PlanProdBase} from '@root/lib/plan_prod_order';
 import {padNumber, numberWithSeparator, roundedToDigit, formatProdTime} from '@root/lib/utils';
 import {FontWeight} from '@root/theme';
 
+import {PlanProdSchedule} from '@shared/models';
+
 interface PlanProdBlockProps {
-  planProd: PlanProdBase;
+  schedule: PlanProdSchedule;
 }
 
 export class PlanProdBlock extends React.Component<PlanProdBlockProps> {
   public static displayName = 'PlanProdBlock';
 
   public render(): JSX.Element {
-    const {planProd} = this.props;
-    const {plan} = planProd;
+    const {schedule} = this.props;
+    const {planProd} = schedule;
 
     return (
-      <WithColor color={plan.data.papier.couleurPapier}>
+      <WithColor color={planProd.data.papier.couleurPapier}>
         {color => (
           <Wrapper style={{color: color.textHex}}>
             <Top>
-              <PlanId>{padNumber(plan.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}</PlanId>
+              <PlanId>{padNumber(planProd.id, PLAN_PROD_NUMBER_DIGIT_COUNT)}</PlanId>
               <TopInfoWrapper>
-                <TopInfoValue>{numberWithSeparator(getMetrageLineaire(plan.data))}</TopInfoValue>
+                <TopInfoValue>
+                  {numberWithSeparator(getMetrageLineaire(planProd.data))}
+                </TopInfoValue>
                 <TopInfoLabel>MÈTRES LINÉAIRES</TopInfoLabel>
               </TopInfoWrapper>
               <TopInfoWrapper>
-                <TopInfoValue>{numberWithSeparator(plan.data.tourCount)}</TopInfoValue>
+                <TopInfoValue>{numberWithSeparator(planProd.data.tourCount)}</TopInfoValue>
                 <TopInfoLabel>TOURS</TopInfoLabel>
               </TopInfoWrapper>
               <TopInfoWrapper>
                 <TopInfoValue>
-                  {roundedToDigit(getBobineMereConsumption(plan.data), 1)}
+                  {roundedToDigit(getBobineMereConsumption(planProd.data), 1)}
                 </TopInfoValue>
                 <TopInfoLabel>BOBINES MÈRES</TopInfoLabel>
               </TopInfoWrapper>
               <TopInfoWrapper>
-                <TopInfoValue>{numberWithSeparator(plan.data.speed)}</TopInfoValue>
+                <TopInfoValue>{numberWithSeparator(planProd.data.speed)}</TopInfoValue>
                 <TopInfoLabel>M/MIN</TopInfoLabel>
               </TopInfoWrapper>
               <TopTimeGroupWrapper>
                 <TopTimeWrapper>
                   <TopTimeLabel style={{width: 64}}>Début :</TopTimeLabel>
-                  <TopTimeValue>{formatProdTime(planProd.start)}</TopTimeValue>
+                  <TopTimeValue>{formatProdTime(new Date(schedule.start))}</TopTimeValue>
                 </TopTimeWrapper>
                 <TopTimeWrapper>
                   <TopTimeLabel style={{width: 64}}>Fin :</TopTimeLabel>
-                  <TopTimeValue>{formatProdTime(planProd.end)}</TopTimeValue>
+                  <TopTimeValue>{formatProdTime(new Date(schedule.end))}</TopTimeValue>
                 </TopTimeWrapper>
               </TopTimeGroupWrapper>
               <TopTimeGroupWrapper>
                 <TopTimeWrapper>
                   <TopTimeLabel style={{width: 96}}>Réglage :</TopTimeLabel>
                   <TopTimeValue>
-                    <Duration durationMs={planProd.operationsTotal} />
+                    <Duration
+                      durationMs={schedule.doneOperationsMs + schedule.plannedOperationsMs}
+                    />
                   </TopTimeValue>
                 </TopTimeWrapper>
                 <TopTimeWrapper>
                   <TopTimeLabel style={{width: 96}}>Production :</TopTimeLabel>
                   <TopTimeValue>
-                    <Duration durationMs={planProd.prodLength} />
+                    <Duration durationMs={schedule.doneProdMs + schedule.plannedProdMs} />
                   </TopTimeValue>
                 </TopTimeWrapper>
               </TopTimeGroupWrapper>

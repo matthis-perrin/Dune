@@ -162,6 +162,25 @@ export interface Refente {
   localUpdate: number;
 }
 
+interface OperationDetail {
+  description: string;
+  constraint: OperationConstraint;
+  quantity: number;
+  duration: number;
+}
+
+export interface OperationSplit {
+  total: number;
+  operations: OperationDetail[];
+}
+
+export interface OperationSplits {
+  conducteur: OperationSplit;
+  aideConducteur: OperationSplit;
+  chauffePerfo: OperationSplit;
+  chauffeRefente: OperationSplit;
+}
+
 export interface PlanProductionState {
   selectedPolypro: BobineMere | undefined;
   selectedPapier: BobineMere | undefined;
@@ -181,10 +200,7 @@ export interface PlanProductionState {
 }
 
 export interface PlanProductionInfo {
-  index?: number;
-  startTime?: number;
-  endTime?: number;
-  stopTime?: number;
+  index: number;
   operationAtStartOfDay: boolean;
   productionAtStartOfDay: boolean;
 }
@@ -218,14 +234,47 @@ export interface PlanProductionData {
   tourCount: number;
   speed: number;
   comment: string;
-  status: PlanProductionStatus;
 }
 
 export interface PlanProduction extends PlanProductionBase {
   data: PlanProductionData;
 }
 
-export interface NonProd {
+export interface PlanProdSchedule {
+  status: PlanProductionStatus;
+  start: number;
+  end: number;
+  planProd: PlanProduction;
+  // Done
+  prods: Prod[];
+  stops: Stop[];
+  doneOperationsMs: number;
+  doneProdMs: number;
+  doneProdMeters: number;
+  // Planned
+  plannedProds: Prod[];
+  plannedStops: Stop[];
+  plannedOperationsMs: number;
+  plannedProdMs: number;
+  plannedProdMeters: number;
+}
+
+export interface ScheduledPlanProd {
+  start: Date;
+  end: Date;
+  planProd: PlanProduction;
+  operations: OperationSplits;
+  schedulePerDay: Map<number, PlanProdSchedule>;
+}
+
+export interface Schedule {
+  lastMinuteSpeed?: MinuteSpeed;
+  plans: ScheduledPlanProd[];
+  unassignedStops: Stop[];
+  unassignedProds: Prod[];
+}
+
+export interface Maintenance {
   id: number;
   startTime: number;
   endTime: number;
@@ -350,12 +399,19 @@ export interface HourStats {
   nullCount: number;
 }
 
-export interface Stop {
+export interface AutomateEvent {
   start: number;
   end?: number;
-  stopType?: string;
-  stopInfo?: StopInfo;
   planProdId?: number;
+}
+
+export interface Prod extends AutomateEvent {
+  avgSpeed?: number;
+}
+
+export interface Stop extends AutomateEvent {
+  stopType?: StopType;
+  stopInfo?: StopInfo;
   maintenanceId?: number;
 }
 
@@ -378,13 +434,6 @@ export enum StopType {
   NotProdHours = 'NotProdHours',
 }
 
-export interface Prod {
-  start: number;
-  end?: number;
-  avgSpeed?: number;
-  planProd?: number;
-}
-
 export interface ContextMenuForBridge {
   id: string;
   label: string;
@@ -393,9 +442,11 @@ export interface ContextMenuForBridge {
 }
 
 export interface ProdInfo {
-  speeds: MinuteSpeed[];
   stops: Stop[];
   prods: Prod[];
+  notStartedPlans: PlanProductionRaw[];
+  startedPlans: PlanProductionRaw[];
+  lastMinuteSpeed?: MinuteSpeed;
 }
 
 export interface UnplannedStop {

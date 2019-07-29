@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {OrderableBobines} from '@root/components/apps/plan_prod_editor/orderable_bobines';
 import {SelectBobineButton} from '@root/components/apps/plan_prod_editor/select_buttons';
@@ -14,6 +15,8 @@ import {BobineFilleWithPose, BobineFilleWithMultiPose, Refente} from '@shared/mo
 
 interface BobinesFormProps extends DivProps {
   planId: number;
+  start: number;
+  end: number;
   pixelPerMM: number;
   selectedBobines: BobineFilleWithPose[];
   selectableBobines: BobineFilleWithMultiPose[];
@@ -25,10 +28,12 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
   public static displayName = 'BobinesForm';
 
   private renderSelectBobineButton(size: number, index: number): JSX.Element {
-    const {selectableBobines, pixelPerMM, planId} = this.props;
+    const {selectableBobines, pixelPerMM, planId, start, end} = this.props;
     return selectableBobines.length > 0 ? (
       <SelectBobineButton
         id={planId}
+        start={start}
+        end={end}
         key={`select-button-${index}`}
         selectable={selectableBobines}
         pixelPerMM={pixelPerMM}
@@ -121,3 +126,51 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
     return <div style={{display: 'flex'}}>{content}</div>;
   }
 }
+
+interface StaticBobinesFormProps extends DivProps {
+  planId: number;
+  pixelPerMM: number;
+  selectedBobines: BobineFilleWithPose[];
+  selectedRefente: Refente;
+}
+
+export class StaticBobinesForm extends React.Component<StaticBobinesFormProps> {
+  public static displayName = 'BobinesForm';
+
+  public render(): JSX.Element {
+    const {pixelPerMM, selectedBobines, selectedRefente, planId} = this.props;
+
+    const elements: JSX.Element[] = [];
+
+    elements.push(
+      <FlexBlock>
+        {selectedBobines.map((b, index) => (
+          <BobineWithPose
+            planId={planId}
+            pixelPerMM={pixelPerMM}
+            bobine={b}
+            style={{zIndex: index + 1}}
+            negativeMargin
+          >{`${b.ref}-${b.pose}`}</BobineWithPose>
+        ))}
+      </FlexBlock>
+    );
+
+    if (selectedRefente.decalage) {
+      elements.push(
+        <HorizontalCote
+          key="decalage"
+          fontSize={theme.refente.baseFontSize * pixelPerMM}
+          size={selectedRefente.decalage}
+          pixelPerMM={pixelPerMM}
+        />
+      );
+    }
+
+    return <FlexBlock>{elements}</FlexBlock>;
+  }
+}
+
+const FlexBlock = styled.div`
+  display: flex;
+`;

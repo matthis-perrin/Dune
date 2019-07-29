@@ -16,24 +16,31 @@ import {
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
+import {PlanProdStore} from '@root/stores/plan_prod_store';
 import {theme} from '@root/theme';
 
-import {BobineMere, Stock} from '@shared/models';
+import {BobineMere, Stock, Schedule} from '@shared/models';
 
 interface Props {
   id: number;
+  start: number;
+  end: number;
 }
 
 interface State {
   stocks?: Map<string, Stock[]>;
+  schedule?: Schedule;
 }
 
 export class PapierPickerApp extends React.Component<Props, State> {
   public static displayName = 'PapierPickerApp';
+  private readonly planProdStore: PlanProdStore;
 
   constructor(props: Props) {
     super(props);
     this.state = {};
+    const {start, end} = props;
+    this.planProdStore = new PlanProdStore(start, end);
   }
 
   private readonly handlePapierSelected = (bobineMere: BobineMere) => {
@@ -47,14 +54,19 @@ export class PapierPickerApp extends React.Component<Props, State> {
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
+    this.planProdStore.start(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
+    this.planProdStore.stop();
   }
 
   private readonly handleValuesChanged = (): void => {
-    this.setState({stocks: stocksStore.getStockIndex()});
+    this.setState({
+      stocks: stocksStore.getStockIndex(),
+      schedule: this.planProdStore.getSchedule(),
+    });
   };
 
   public render(): JSX.Element {

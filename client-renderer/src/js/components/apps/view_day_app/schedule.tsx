@@ -1,36 +1,29 @@
+import {min, max} from 'lodash-es';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {PlanProdBlock} from '@root/components/apps/view_day_app/plan_prod_block';
 import {WithColor} from '@root/components/core/with_colors';
-import {
-  PlansProdOrder,
-  DonePlanProduction,
-  InProgressPlanProduction,
-  ScheduledPlanProduction,
-} from '@root/lib/plan_prod_order';
-import {isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
+import {getSchedulesForDay} from '@root/lib/schedule_utils';
+import {isRoundHour, isHalfHour, padNumber} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
-import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
+import {Stock, ProdRange, Schedule, PlanProdSchedule, Stop, Color, Prod} from '@shared/models';
 
-interface ScheduleProps {
+interface ScheduleViewProps {
   day: Date;
-  orderedPlans?: PlansProdOrder;
+  schedule?: Schedule;
   stocks?: Map<string, Stock[]>;
-  cadencier?: Map<string, Map<number, number>>;
-  bobineQuantities?: BobineQuantities[];
-  plansProd?: PlanProduction[];
-  operations?: Operation[];
   prodRanges?: Map<string, ProdRange>;
 }
 
-export class Schedule extends React.Component<ScheduleProps> {
-  public static displayName = 'Schedule';
+export class ScheduleView extends React.Component<ScheduleViewProps> {
+  public static displayName = 'ScheduleView';
 
   private scheduleRange: {start: number; end: number};
 
-  constructor(props: ScheduleProps) {
+  constructor(props: ScheduleViewProps) {
     super(props);
     this.scheduleRange = this.getScheduleRange();
   }
@@ -55,37 +48,15 @@ export class Schedule extends React.Component<ScheduleProps> {
 
   private getScheduleRange(): {start: number; end: number} {
     const {start, end} = this.getProdHours();
-    const {orderedPlans, day} = this.props;
-    if (!orderedPlans) {
+    const {schedule, day} = this.props;
+    if (!schedule) {
       return {start: start.getTime(), end: end.getTime()};
     }
-    const {done, inProgress, scheduled} = orderedPlans;
-    let minStart = start.getTime();
-    let maxEnd = end.getTime();
-    const checkStartTime = (startTime: number | undefined) => {
-      if (startTime && isSameDay(new Date(startTime), day) && startTime < minStart) {
-        minStart = startTime;
-      }
-    };
-    const checkEndTime = (endTime: number | undefined) => {
-      if (endTime && isSameDay(new Date(endTime), day) && endTime > maxEnd) {
-        maxEnd = endTime;
-      }
-    };
-    done.forEach(p => {
-      checkStartTime(p.plan.startTime);
-      checkEndTime(p.plan.endTime);
-      checkEndTime(p.plan.stopTime);
-    });
-    if (inProgress) {
-      checkStartTime(inProgress.plan.startTime);
-      checkEndTime(inProgress.plan.stopTime);
-      checkEndTime(inProgress.end.getTime());
-    }
-    scheduled.forEach(p => {
-      checkStartTime(p.estimatedReglageStart.getTime());
-      checkEndTime(p.estimatedProductionEnd.getTime());
-    });
+    const planSchedules = getSchedulesForDay(schedule, day);
+    const scheduleStarts = planSchedules.map(s => s.start);
+    const scheduleEnds = planSchedules.map(s => s.end);
+    const minStart = Math.min(min(scheduleStarts) || start.getTime(), start.getTime());
+    const maxEnd = Math.max(max(scheduleEnds) || end.getTime(), end.getTime());
     return {start: minStart, end: maxEnd};
   }
 
@@ -169,79 +140,97 @@ export class Schedule extends React.Component<ScheduleProps> {
     };
   }
 
-  private renderPlanProd(
-    planStart: Date,
-    planEnd: Date,
-    couleurPapier: string | undefined,
-    children: JSX.Element | JSX.Element[]
-  ): JSX.Element {
-    const {start, end} = this.getScheduleRange();
-    const adjustedStart = Math.max(start, planStart.getTime());
-    const adjustedEnd = Math.min(end, planEnd.getTime());
-    console.log(couleurPapier);
+  // private renderPlanProd(
+  //   planStart: Date,
+  //   planEnd: Date,
+  //   couleurPapier: string | undefined,
+  //   children: JSX.Element | JSX.Element[]
+  // ): JSX.Element {
+  //   const {start, end} = this.getScheduleRange();
+  //   const adjustedStart = Math.max(start, planStart.getTime());
+  //   const adjustedEnd = Math.min(end, planEnd.getTime());
+  //   return (
+  //     <WithColor color={couleurPapier}>
+  //       {color => (
+  //         <div
+  //           style={{
+  //             ...this.getPositionStyleForDates(new Date(adjustedStart), new Date(adjustedEnd)),
+  //             backgroundColor: color.backgroundHex,
+  //             border: 'solid 1px black',
+  //             borderRadius: 16,
+  //           }}
+  //         >
+  //           {children}
+  //         </div>
+  //       )}
+  //     </WithColor>
+  //   );
+  // }
+
+  private renderStop(stop: Stop, color: Color): JSX.Element {
+    if (!stop.end) {
+      console.log(stop);
+      throw new Error('invalid stop');
+    }
     return (
-      <WithColor color={couleurPapier}>
+      <StopWrapper
+        style={{
+          ...this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end)),
+          backgroundColor: color.backgroundHex,
+          border: 'solid 1px black',
+        }}
+      >
+        STOP
+        {stop.stopType} - {(stop.end - stop.start) / 1000} - {(stop.end - stop.start) / 60000}
+      </StopWrapper>
+    );
+  }
+
+  private renderProd(prod: Prod, color: Color): JSX.Element {
+    if (!prod.end) {
+      console.log(prod);
+      throw new Error('invalid prod');
+    }
+    return (
+      <StopWrapper
+        style={{
+          ...this.getPositionStyleForDates(new Date(prod.start), new Date(prod.end)),
+          backgroundColor: color.backgroundHex,
+          border: 'solid 1px black',
+        }}
+      >
+        PROD
+        {prod.avgSpeed} - {(prod.end - prod.start) / 1000} - {(prod.end - prod.start) / 60000}
+      </StopWrapper>
+    );
+  }
+
+  private renderPlanProdSchedule(planSchedule: PlanProdSchedule): JSX.Element {
+    return (
+      <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>
         {color => (
-          <div
-            style={{
-              ...this.getPositionStyleForDates(new Date(adjustedStart), new Date(adjustedEnd)),
-              backgroundColor: color.backgroundHex,
-              border: 'solid 1px black',
-              borderRadius: 16,
-            }}
-          >
-            {children}
-          </div>
+          <React.Fragment>
+            {([] as JSX.Element[])
+              .concat(planSchedule.stops.map(s => this.renderStop(s, color)))
+              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, color)))
+              .concat(planSchedule.prods.map(p => this.renderProd(p, color)))
+              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color)))}
+          </React.Fragment>
         )}
       </WithColor>
     );
   }
 
-  private renderDonePlanProd(donePlanProd: DonePlanProduction): JSX.Element {
-    const inner = <span>Done</span>;
-    return this.renderPlanProd(
-      donePlanProd.start,
-      donePlanProd.end,
-      donePlanProd.plan.data.papier.couleurPapier,
-      inner
-    );
-  }
-
-  private renderInProgressPlanProd(inProgressPlanProd: InProgressPlanProduction): JSX.Element {
-    const inner = <span>In Progress</span>;
-    return this.renderPlanProd(
-      inProgressPlanProd.start,
-      inProgressPlanProd.end,
-      inProgressPlanProd.plan.data.papier.couleurPapier,
-      inner
-    );
-  }
-
-  private renderScheduledPlanProd(scheduledPlanProd: ScheduledPlanProduction): JSX.Element {
-    const inner = <PlanProdBlock planProd={scheduledPlanProd} />;
-    return this.renderPlanProd(
-      scheduledPlanProd.start,
-      scheduledPlanProd.end,
-      scheduledPlanProd.plan.data.papier.couleurPapier,
-      inner
-    );
-  }
-
   private renderPlanProds(): JSX.Element[] {
-    const {orderedPlans} = this.props;
-    if (!orderedPlans) {
+    const {schedule, day} = this.props;
+    console.log(schedule);
+    if (!schedule) {
       return [];
     }
-    console.log(orderedPlans);
-    const {done, inProgress, scheduled} = orderedPlans;
-    const planProdElements: JSX.Element[] = [];
-    done.forEach(plan => planProdElements.push(this.renderDonePlanProd(plan)));
-    if (inProgress) {
-      planProdElements.push(this.renderInProgressPlanProd(inProgress));
-    }
-    scheduled.forEach(plan => planProdElements.push(this.renderScheduledPlanProd(plan)));
-
-    return planProdElements;
+    return schedule.plans.map(p => {
+      const planSchedule = p.schedulePerDay.get(dateAtHour(day, 0).getTime());
+      return planSchedule ? this.renderPlanProdSchedule(planSchedule) : <React.Fragment />;
+    });
   }
 
   public render(): JSX.Element {
@@ -256,3 +245,5 @@ export class Schedule extends React.Component<ScheduleProps> {
     );
   }
 }
+
+const StopWrapper = styled.div``;

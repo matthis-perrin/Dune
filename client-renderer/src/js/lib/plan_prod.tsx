@@ -2,7 +2,7 @@ import {MAX_SPEED_RATIO} from '@root/lib/constants';
 import {padNumber} from '@root/lib/utils';
 
 import {getWeekDay} from '@shared/lib/time';
-import {PlanProductionInfo, PlanProduction, ProdRange} from '@shared/models';
+import {ProdRange} from '@shared/models';
 
 export const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
@@ -10,23 +10,12 @@ export function getPlanProdTitle(id: number): string {
   return `PRODUCTION N°${padNumber(id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
 }
 
-export function getPreviousPlanProd(
-  current: PlanProductionInfo,
-  allPlansProd: PlanProduction[]
-): PlanProduction | undefined {
-  const currentIndex = current.index;
-  if (currentIndex !== undefined) {
-    if (currentIndex === 0) {
-      return allPlansProd
-        .filter(p => p.startTime !== undefined)
-        .sort((p1, p2) => (p2.startTime || 0) - (p1.startTime || 0))[0];
-    }
-    return allPlansProd.filter(p => p.index === currentIndex - 1)[0];
-  }
-  const currentStartTime = current.startTime || 0;
-  return allPlansProd
-    .filter(p => p.startTime !== undefined && p.startTime < currentStartTime)
-    .sort((p1, p2) => (p2.startTime || 0) - (p1.startTime || 0))[0];
+export function metersToProductionTime(meters: number, speed: number): number {
+  return (meters / (speed * MAX_SPEED_RATIO)) * 60 * 1000;
+}
+
+export function productionTimeToMeters(productionTime: number, speed: number): number {
+  return (productionTime / 60 / 1000) * (speed * MAX_SPEED_RATIO);
 }
 
 export function computeProductionTime(

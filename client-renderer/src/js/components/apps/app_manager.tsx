@@ -37,7 +37,6 @@ import {
   refentesStore,
   bobinesFillesWithMultiPoseStore,
   cadencierStore,
-  plansProductionStore,
 } from '@root/stores/list_store';
 import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
@@ -79,27 +78,20 @@ export class AppManager extends React.Component<Props, State> {
       return StoreManager.AllStores;
     }
     if (type === ClientAppType.ListBobinesFillesApp) {
-      return [bobinesFillesStore, stocksStore, colorsStore, plansProductionStore];
+      return [bobinesFillesStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListPapiersApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
+      return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListPolyprosApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
+      return [bobinesMeresStore, stocksStore, colorsStore];
     }
     if (type === ClientAppType.ListClichesApp) {
       return [clichesStore, colorsStore];
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [
-        stocksStore,
-        cadencierStore,
-        bobinesQuantitiesStore,
-        colorsStore,
-        plansProductionStore,
-        operationsStore,
-      ];
+      return [stocksStore, cadencierStore, bobinesQuantitiesStore, colorsStore, operationsStore];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [
@@ -110,7 +102,7 @@ export class AppManager extends React.Component<Props, State> {
         cadencierStore,
         bobinesQuantitiesStore,
         colorsStore,
-        plansProductionStore,
+        operationsStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -120,10 +112,10 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, plansProductionStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
     }
 
     if (type === ClientAppType.ViewBobineApp) {
@@ -143,7 +135,6 @@ export class AppManager extends React.Component<Props, State> {
         stocksStore,
         cadencierStore,
         bobinesQuantitiesStore,
-        plansProductionStore,
         operationsStore,
         prodHoursStore,
       ];
@@ -155,7 +146,6 @@ export class AppManager extends React.Component<Props, State> {
         stocksStore,
         cadencierStore,
         bobinesQuantitiesStore,
-        plansProductionStore,
         operationsStore,
         unplannedStopsStore,
         cleaningsStore,
@@ -189,12 +179,21 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      const {id, isCreating} = asMap(data);
-      return <PlanProdEditorApp id={asNumber(id, 0)} isCreating={asBoolean(isCreating)} />;
+      const {id, start, end, isCreating} = asMap(data);
+      return (
+        <PlanProdEditorApp
+          id={asNumber(id, 0)}
+          start={asNumber(start, 0)}
+          end={asNumber(end, 0)}
+          isCreating={asBoolean(isCreating)}
+        />
+      );
     }
     if (type === ClientAppType.BobinesPickerApp) {
-      const {id} = asMap(data);
-      return <BobinesPickerApp id={asNumber(id, 0)} />;
+      const {id, start, end} = asMap(data);
+      return (
+        <BobinesPickerApp id={asNumber(id, 0)} start={asNumber(start, 0)} end={asNumber(end, 0)} />
+      );
     }
     if (type === ClientAppType.RefentePickerApp) {
       const {id} = asMap(data);
@@ -205,12 +204,16 @@ export class AppManager extends React.Component<Props, State> {
       return <PerfoPickerApp id={asNumber(id, 0)} />;
     }
     if (type === ClientAppType.PapierPickerApp) {
-      const {id} = asMap(data);
-      return <PapierPickerApp id={asNumber(id, 0)} />;
+      const {id, start, end} = asMap(data);
+      return (
+        <PapierPickerApp id={asNumber(id, 0)} start={asNumber(start, 0)} end={asNumber(end, 0)} />
+      );
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      const {id} = asMap(data);
-      return <PolyproPickerApp id={asNumber(id, 0)} />;
+      const {id, start, end} = asMap(data);
+      return (
+        <PolyproPickerApp id={asNumber(id, 0)} start={asNumber(start, 0)} end={asNumber(end, 0)} />
+      );
     }
 
     if (type === ClientAppType.ViewBobineApp) {

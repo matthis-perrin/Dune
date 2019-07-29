@@ -1,31 +1,29 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
-import {OperationTable} from '@root/components/apps/plan_prod_editor/operations_table';
+import {StaticBobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
+import {OperationTableView} from '@root/components/apps/plan_prod_editor/operations_table';
 import {OrderableEncrier} from '@root/components/apps/plan_prod_editor/orderable_encrier';
-import {ProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
-import {TopBar} from '@root/components/apps/plan_prod_editor/top_bar';
+import {SimpleProductionTable} from '@root/components/apps/plan_prod_editor/production_table';
+import {TopBarView} from '@root/components/apps/plan_prod_editor/top_bar';
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
-import {BobineMereContent} from '@root/components/common/bobine_mere_content';
+import {SimpleBobineMereContent} from '@root/components/common/bobine_mere_content';
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
 import {PlanProdComment} from '@root/components/common/plan_prod_comment';
 import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getPlanProdTitle, getPreviousPlanProd} from '@root/lib/plan_prod';
+import {getPlanProdTitle} from '@root/lib/plan_prod';
+import {getScheduleOperationTime} from '@root/lib/schedule_utils';
 import {theme} from '@root/theme';
 
-import {Stock, BobineQuantities, PlanProduction, Operation} from '@shared/models';
+import {BobineQuantities, ScheduledPlanProd} from '@shared/models';
 
 interface PlanProdViewerProps {
-  planProd: PlanProduction;
-  width: number;
-  stocks: Map<string, Stock[]>;
-  plansProd: PlanProduction[];
+  schedule: ScheduledPlanProd;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
-  operations: Operation[];
+  width: number;
   onHeightAvailable?(height: number): void;
 }
 
@@ -50,16 +48,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
   }
 
   public render(): JSX.Element {
-    const {
-      width,
-      planProd,
-      bobineQuantities,
-      cadencier,
-      stocks,
-      plansProd,
-      operations,
-      onHeightAvailable,
-    } = this.props;
+    const {width, schedule, cadencier, bobineQuantities, onHeightAvailable} = this.props;
     const {
       bobines,
       refente,
@@ -72,7 +61,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       bobinesMax,
       speed,
       comment,
-    } = planProd.data;
+    } = schedule.planProd.data;
 
     const INNER_PADDING_APPROXIMATION_RATIO = 1.5;
     const INNER_PADDING =
@@ -84,13 +73,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
     const pixelPerMM = INNER_RENDERING_WIDTH / CAPACITE_MACHINE;
 
     const bobinesBlock = (
-      <BobinesForm
-        planId={planProd.id}
-        selectedBobines={bobines}
-        selectableBobines={[]}
-        selectedRefente={refente}
+      <StaticBobinesForm
+        planId={schedule.planProd.id}
         pixelPerMM={pixelPerMM}
-        onReorder={() => {}}
+        selectedBobines={bobines}
+        selectedRefente={refente}
       />
     );
 
@@ -117,16 +104,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
             color={color.backgroundHex}
             strokeWidth={theme.planProd.selectedStrokeWidth}
           >
-            <BobineMereContent
+            <SimpleBobineMereContent
               color={color}
               pixelPerMM={pixelPerMM}
               bobine={papier}
               isPolypro={false}
-              stocks={stocks}
-              plansProd={plansProd}
-              info={planProd}
-              tourCount={tourCount}
-              selectedBobines={bobines}
             />
           </Bobine>
         )}
@@ -145,16 +127,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
             color={color.backgroundHex}
             strokeWidth={theme.planProd.selectedStrokeWidth}
           >
-            <BobineMereContent
+            <SimpleBobineMereContent
               color={color}
               pixelPerMM={pixelPerMM}
               bobine={polypro}
               isPolypro
-              stocks={stocks}
-              plansProd={plansProd}
-              info={planProd}
-              tourCount={tourCount}
-              selectedBobines={bobines}
             />
           </Bobine>
         )}
@@ -168,43 +145,27 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       bobines.length > 0 ? (
         <React.Fragment>
           {padding}
-          <ProductionTable
+          <SimpleProductionTable
             width={INNER_RENDERING_WIDTH}
             planProduction={{selectedBobines: bobines, tourCount}}
-            stocks={stocks}
             cadencier={cadencier}
             bobineQuantities={bobineQuantities}
-            canRemove={false}
             minimums={new Map<string, number>(bobinesMini)}
             maximums={new Map<string, number>(bobinesMax)}
-            onMiniUpdated={() => {}}
-            onMaxUpdated={() => {}}
-            showQuantity
-            planInfo={planProd}
-            plansProd={plansProd}
           />
         </React.Fragment>
       ) : (
         <React.Fragment />
       );
 
-    const previousPlanProd = getPreviousPlanProd(planProd, plansProd || []);
-
-    const operationTable = previousPlanProd ? (
+    const operationTable = (
       <React.Fragment>
-        <OperationTable
-          width={INNER_RENDERING_WIDTH}
-          planProduction={planProd.data}
-          previousPlanProduction={previousPlanProd.data}
-          operations={operations}
-        />
+        <OperationTableView width={INNER_RENDERING_WIDTH} operationsSplits={schedule.operations} />
         {padding}
       </React.Fragment>
-    ) : (
-      <React.Fragment />
     );
 
-    const planProdTitle = getPlanProdTitle(planProd.id);
+    const planProdTitle = getPlanProdTitle(schedule.planProd.id);
     const scale = width / RENDERING_WIDTH;
     const scalingStyles = onHeightAvailable
       ? {transformOrigin: 'left top', transform: `scale(${scale})`}
@@ -212,25 +173,15 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
 
     return (
       <PlanProdEditorContainer ref={this.containerRef} style={scalingStyles}>
-        <TopBar
-          stocks={stocks}
+        <TopBarView
           width={RENDERING_WIDTH}
+          planProdTitle={planProdTitle}
           bobines={bobines}
           papier={papier}
-          polypro={polypro}
-          refente={refente}
-          perfo={perfo}
-          isComplete
-          isPrinting
-          onSpeedChange={() => {}}
-          onTourCountChange={() => {}}
-          planProdTitle={planProdTitle}
-          speed={speed}
           tourCount={tourCount}
-          planProdInfo={planProd}
-          plansProd={plansProd}
-          encriers={encriers}
-          operations={operations}
+          speed={speed}
+          isPrinting
+          operationTime={getScheduleOperationTime(schedule)}
         />
         <Wrapper style={{width: INNER_RENDERING_WIDTH}}>
           <PlanProdComment

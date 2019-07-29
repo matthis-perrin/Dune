@@ -17,7 +17,7 @@ import {
   MAXIMUM_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
-import {getBobineState} from '@root/lib/bobine';
+import {getBobineState, getBobineSellingPastYear, getQuantityToProduce} from '@root/lib/bobine';
 import {getStockTerme} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
@@ -27,8 +27,8 @@ import {
   BobineQuantities,
   PlanProductionState,
   BobineFilleWithPose,
-  PlanProduction,
   PlanProductionInfo,
+  Schedule,
 } from '@shared/models';
 
 interface ProductionTableProps {
@@ -37,7 +37,7 @@ interface ProductionTableProps {
   stocks: Map<string, Stock[]>;
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
-  plansProd: PlanProduction[];
+  schedule: Schedule;
   planInfo: PlanProductionInfo;
   onRemove?(ref: string): void;
   canRemove: boolean;
@@ -59,7 +59,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
       stocks,
       cadencier,
       bobineQuantities,
-      plansProd,
+      schedule,
       onRemove,
       canRemove,
       onMiniUpdated,
@@ -86,7 +86,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         cadencier,
         bobineQuantities,
         0,
-        plansProd,
+        schedule,
         planInfo
       );
       const newStock = stock + production;
@@ -96,7 +96,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         cadencier,
         bobineQuantities,
         production,
-        plansProd,
+        schedule,
         planInfo
       );
 
@@ -159,6 +159,72 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     if (!canRemove) {
       columns = columns.slice(0, columns.length - 1);
     }
+
+    return (
+      <SortableTable
+        width={width}
+        height={data.length * theme.table.rowHeight + theme.table.headerHeight}
+        data={data}
+        columns={columns}
+        initialSort={{
+          index: 0,
+          asc: true,
+        }}
+      />
+    );
+  }
+}
+
+interface SimpleProductionTableProps {
+  width: number;
+  planProduction: Pick<PlanProductionState, 'selectedBobines' | 'tourCount'>;
+  cadencier: Map<string, Map<number, number>>;
+  bobineQuantities: BobineQuantities[];
+  minimums: Map<string, number>;
+  maximums: Map<string, number>;
+}
+
+export class SimpleProductionTable extends React.Component<SimpleProductionTableProps> {
+  public static displayName = 'ProductionTable';
+
+  public render(): JSX.Element {
+    const {width, planProduction, cadencier, bobineQuantities, minimums, maximums} = this.props;
+
+    const selectedBobines = new Map<string, BobineFilleWithPose>();
+    const selectedPistesSum = new Map<string, number>();
+    planProduction.selectedBobines.forEach(b => {
+      const piste = selectedPistesSum.get(b.ref) || 0;
+      selectedPistesSum.set(b.ref, piste + getPoseSize(b.pose));
+      selectedBobines.set(b.ref, b);
+    });
+    const data = Array.from(selectedBobines.entries()).map(([ref, bobine]) => {
+      const pistes = selectedPistesSum.get(ref) || 0;
+      const production = (planProduction.tourCount || 0) * pistes;
+
+      const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
+      const {quantity} = getQuantityToProduce(lastYearSelling, bobineQuantities);
+
+      return {
+        ref: bobine.ref,
+        laize: bobine.laize,
+        pistes,
+        quantity,
+        minimum: (minimums && minimums.get(bobine.ref)) || production,
+        production,
+        maximum: (maximums && maximums.get(bobine.ref)) || 0,
+      };
+    });
+
+    // tslint:disable-next-line:no-any
+    const columns = [
+      withWidth(toStaticColumn(BOBINE_FILLE_REF_COLUMN), undefined),
+      toStaticColumn(LAIZE_COLUMN),
+      toStaticColumn(PISTES_COLUMN),
+      toStaticColumn(QUANTITY_COLUMN),
+      MINIMUM_COLUMN<{ref: string; minimum: number}>(() => {}),
+      toStaticColumn(PRODUCTION_COLUMN),
+      MAXIMUM_COLUMN<{ref: string; maximum: number}>(() => {}),
+    ];
 
     return (
       <SortableTable

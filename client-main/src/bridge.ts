@@ -35,7 +35,6 @@ import {
   SetPlanTourCount,
   ListColors,
   SaveToPDF,
-  ListPlansProduction,
   OpenContextMenu,
   ContextMenuClosed,
   ContextMenuClicked,
@@ -61,16 +60,17 @@ import {listColors} from '@shared/db/colors';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
-  listPlansProduction,
   deletePlanProduction,
   createPlanProduction,
   updatePlanProductionData,
   updatePlanProductionInfo,
   movePlanProduction,
   getPlanProd,
+  getNotStartedPlanProds,
+  getStartedPlanProdsInRange,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
+import {getLastUsableSpeed} from '@shared/db/speed_minutes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
 import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
@@ -119,10 +119,6 @@ export async function handleCommand(
   if (command === ListCadencier) {
     const {localUpdate} = asMap(params);
     return {data: cadencier.list(asNumber(localUpdate, 0))};
-  }
-  if (command === ListPlansProduction) {
-    const {localUpdate} = asMap(params);
-    return {data: await listPlansProduction(SQLITE_DB.Prod, asNumber(localUpdate, 0))};
   }
   if (command === ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
@@ -316,16 +312,17 @@ export async function handleCommand(
   }
 
   if (command === GetProdInfo) {
-    const {day} = asMap(params);
-    const date = new Date(asNumber(day, 0));
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    const [speeds, prods, stops] = await Promise.all([
-      getMinutesSpeedsBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
-      getSpeedProdBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
-      getSpeedStopBetween(SQLITE_DB.Prod, start.getTime(), end.getTime()),
+    const {start, end} = asMap(params);
+    const rangeStart = asNumber(start, 0);
+    const rangeEnd = asNumber(end, 0);
+    const [stops, prods, notStartedPlans, startedPlans, lastMinuteSpeed] = await Promise.all([
+      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getNotStartedPlanProds(SQLITE_DB.Prod),
+      getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getLastUsableSpeed(SQLITE_DB.Prod),
     ]);
-    return {speeds, prods, stops};
+    return {stops, prods, notStartedPlans, startedPlans, lastMinuteSpeed};
   }
 
   if (command === UpdateStop) {

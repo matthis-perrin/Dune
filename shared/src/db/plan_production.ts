@@ -1,7 +1,7 @@
 import knex from 'knex';
 
-import {getLatestStopWithPlanIdBefore} from '@shared/db/speed_stops';
-import {PLANS_PRODUCTION_TABLE_NAME} from '@shared/db/table_names';
+import {getLatestStopWithPlanIdBefore, SpeedStopsColumn} from '@shared/db/speed_stops';
+import {PLANS_PRODUCTION_TABLE_NAME, SPEED_STOPS_TABLE_NAME} from '@shared/db/table_names';
 import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
 
@@ -23,7 +23,7 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
         .integer(PlansProductionColumn.ID_COLUMN)
         .notNullable()
         .primary();
-      table.integer(PlansProductionColumn.INDEX_COLUMN);
+      table.integer(PlansProductionColumn.INDEX_COLUMN).notNullable();
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
       table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
@@ -210,7 +210,7 @@ function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
   const r = asMap(line);
   return {
     id: asNumber(r[PlansProductionColumn.ID_COLUMN], 0),
-    index: asNumber(r[PlansProductionColumn.INDEX_COLUMN], undefined),
+    index: asNumber(r[PlansProductionColumn.INDEX_COLUMN], 0),
     operationAtStartOfDay: asBoolean(r[PlansProductionColumn.OPERATION_AT_START_OF_DAY]),
     productionAtStartOfDay: asBoolean(r[PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]),
     data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
@@ -248,7 +248,7 @@ export async function getClosestPlanProdBefore(
   if (!latestStopWithPlanId || !latestStopWithPlanId.planProdId) {
     return undefined;
   }
-  return await getPlanProd(db, latestStopWithPlanId.planProdId);
+  return getPlanProd(db, latestStopWithPlanId.planProdId);
 }
 
 export async function getPlanProd(db: knex, id: number): Promise<PlanProductionRaw | undefined> {
@@ -258,7 +258,44 @@ export async function getPlanProd(db: knex, id: number): Promise<PlanProductionR
     .map(mapLineToPlanProductionRaw))[0];
 }
 
-// export async function getNotStartedPlanProds(
-//   planProdDB: knex,
-//   stopsDB: knex
-// ): Promise<PlanProductionRaw[]> {}
+export async function getNotStartedPlanProds(db: knex): Promise<PlanProductionRaw[]> {
+  return db
+    .select()
+    .from(PLANS_PRODUCTION_TABLE_NAME)
+    .leftOuterJoin(
+      SPEED_STOPS_TABLE_NAME,
+      `${PLANS_PRODUCTION_TABLE_NAME}.${PlansProductionColumn.ID_COLUMN}`,
+      `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`
+    )
+    .whereNull(`${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`)
+    .map(mapLineToPlanProductionRaw);
+}
+
+export async function getStartedPlanProdsInRange(
+  db: knex,
+  start: number,
+  end: number
+): Promise<PlanProductionRaw[]> {
+  const speedStartColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.Start}`;
+  const speedEndColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.End}`;
+  const speedPlanIdColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`;
+  return db
+    .select()
+    .from(PLANS_PRODUCTION_TABLE_NAME)
+    .leftOuterJoin(
+      SPEED_STOPS_TABLE_NAME,
+      `${PLANS_PRODUCTION_TABLE_NAME}.${PlansProductionColumn.ID_COLUMN}`,
+      speedPlanIdColumn
+    )
+    .whereNotNull(speedPlanIdColumn)
+    .andWhere(function(): void {
+      // tslint:disable:no-invalid-this
+      this.where(speedStartColumn, '>=', start)
+        .andWhere(speedStartColumn, '<', end)
+        .orWhere(function(): void {
+          this.where(speedEndColumn, '>=', start).andWhere(speedEndColumn, '<', end);
+        });
+      // tslint:enable:no-invalid-this
+    })
+    .map(mapLineToPlanProductionRaw);
+}

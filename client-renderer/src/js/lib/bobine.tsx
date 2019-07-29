@@ -11,8 +11,8 @@ import {
   BobineQuantities,
   BobineState,
   POSE_NEUTRE,
-  PlanProduction,
   PlanProductionInfo,
+  Schedule,
 } from '@shared/models';
 
 const MONTHS_IN_YEAR = 12;
@@ -103,7 +103,7 @@ export function getBobineState(
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
   additionalStock: number,
-  plansProd: PlanProduction[],
+  schedule: Schedule,
   currentPlanProd: PlanProductionInfo
 ): {
   state: BobineState;
@@ -117,7 +117,7 @@ export function getBobineState(
   infoValue: number;
 } {
   const currentStock =
-    getStockTermePrevisionel(ref, stocks, plansProd, currentPlanProd) + additionalStock;
+    getStockTermePrevisionel(ref, stocks, schedule, currentPlanProd) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity, minSell, maxSell} = getQuantityToProduce(
@@ -190,14 +190,14 @@ export function getBobinePoseState(
   stocks: Map<string, Stock[]>,
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
-  plansProd: PlanProduction[],
+  schedule: Schedule,
   currentPlanProd: PlanProductionInfo
 ): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
     .filter(
       b =>
         [BobineState.Rupture, BobineState.Alerte].indexOf(
-          getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, plansProd, currentPlanProd)
+          getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, schedule, currentPlanProd)
             .state
         ) !== -1
     )
@@ -214,7 +214,7 @@ export function getBobinePoseState(
         cadencier,
         bobineQuantities,
         additionalStock,
-        plansProd,
+        schedule,
         currentPlanProd
       );
       const poseStr = pose === POSE_NEUTRE ? 'neutre' : pose;

@@ -32,10 +32,12 @@ function lineAsMinuteSpeed(lineData: any): MinuteSpeed {
 }
 
 export async function getLastMinute(db: knex): Promise<MinuteSpeed | undefined> {
-  const res = await db(SPEED_MINUTES_TABLE_NAME)
-    .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
-    .orderBy(SpeedMinutesColumn.Minute, 'desc')
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_MINUTES_TABLE_NAME)
+      .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
+      .orderBy(SpeedMinutesColumn.Minute, 'desc')
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }
@@ -117,6 +119,7 @@ export async function insertOrUpdateMinutesSpeeds(
             SPEED_MINUTES_TABLE_NAME,
             Array.from(minutesSpeeds.entries()).map(([minute, speed]) => ({
               [SpeedMinutesColumn.Minute]: minute,
+              // tslint:disable-next-line:no-null-keyword
               [SpeedMinutesColumn.Speed]: speed === undefined ? null : speed,
             })),
             100

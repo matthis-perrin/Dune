@@ -38,7 +38,6 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     // stocksStore.addListener(this.handleStoresChanged);
     // cadencierStore.addListener(this.handleStoresChanged);
     // bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    // plansProductionStore.addListener(this.recomputePlanOrder);
     // operationsStore.addListener(this.recomputePlanOrder);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
   }
@@ -47,7 +46,6 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     //     stocksStore.removeListener(this.handleStoresChanged);
     //     cadencierStore.removeListener(this.handleStoresChanged);
     //     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    //     plansProductionStore.removeListener(this.recomputePlanOrder);
     //     operationsStore.removeListener(this.recomputePlanOrder);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
   }

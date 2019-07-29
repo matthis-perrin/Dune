@@ -23,7 +23,7 @@ class PlanProductionStore {
 
   public async createEngine(
     id: number,
-    index: number | undefined,
+    index: number,
     operationAtStartOfDay: boolean,
     productionAtStartOfDay: boolean
   ): Promise<PlanProductionEngine> {
@@ -40,9 +40,7 @@ class PlanProductionStore {
       listCliches(SQLITE_DB.Gescom, 0),
       listPerfos(SQLITE_DB.Params, 0),
       listRefentes(SQLITE_DB.Params, 0),
-      index === undefined
-        ? Promise.resolve(undefined)
-        : getClosestPlanProdBefore(SQLITE_DB.Prod, index),
+      getClosestPlanProdBefore(SQLITE_DB.Prod, index),
     ]);
 
     let previousPlanProd: PlanProduction | undefined;
@@ -84,7 +82,7 @@ class PlanProductionStore {
     if (!planProd) {
       return;
     }
-    const {index = 0, operationAtStartOfDay, productionAtStartOfDay} = planProd;
+    const {index, operationAtStartOfDay, productionAtStartOfDay} = planProd;
     const newEngine = await this.createEngine(
       id,
       index,

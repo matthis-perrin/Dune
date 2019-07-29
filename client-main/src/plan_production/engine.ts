@@ -64,7 +64,7 @@ export class PlanProductionEngine {
   private calculationTime: number = 0;
 
   constructor(
-    private readonly index: number | undefined,
+    private readonly index: number,
     private readonly operationAtStartOfDay: boolean,
     private readonly productionAtStartOfDay: boolean,
     private readonly previousPlanProd: PlanProductionModel | undefined,

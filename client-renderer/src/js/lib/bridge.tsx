@@ -34,7 +34,6 @@ import {
   ListColors,
   SaveToPDF,
   Print,
-  ListPlansProduction,
   OpenContextMenu,
   DeletePlanProduction,
   SaveNewPlanProduction,
@@ -135,11 +134,6 @@ export class Bridge {
   }
   public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
     return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
-  }
-  public async listPlansProduction(
-    localUpdate: number
-  ): Promise<BridgeListResponse<PlanProductionRaw>> {
-    return this.listGeneric<PlanProductionRaw>(ListPlansProduction, localUpdate);
   }
   public async listCadencierForBobine(bobineRef: string): Promise<Vente[]> {
     return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine, {bobineRef});
@@ -264,8 +258,8 @@ export class Bridge {
     return this.openApp(ClientAppType.StopApp, {day, stopStart});
   }
 
-  public async getProdInfo(day: number): Promise<ProdInfo> {
-    return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {day});
+  public async getProdInfo(start: number, end: number): Promise<ProdInfo> {
+    return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {start, end});
   }
   public async updateStop(
     start: number,

@@ -1,16 +1,17 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {Schedule} from '@root/components/apps/view_day_app/schedule';
+import {ScheduleView} from '@root/components/apps/view_day_app/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {PlansProdOrder, orderPlansProd, getPlanProdsForDate} from '@root/lib/plan_prod_order';
+import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
 import {capitalize} from '@root/lib/utils';
-import {bobinesQuantitiesStore, operationsStore, prodHoursStore} from '@root/stores/data_store';
-import {stocksStore, cadencierStore, plansProductionStore} from '@root/stores/list_store';
+import {prodHoursStore} from '@root/stores/data_store';
+import {stocksStore} from '@root/stores/list_store';
+import {PlanProdStore} from '@root/stores/plan_prod_store';
 import {theme, Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {Stock, BobineQuantities, PlanProduction, Operation, ProdRange} from '@shared/models';
+import {Stock, ProdRange, Schedule} from '@shared/models';
 
 interface ViewDayAppProps {
   initialDay: number;
@@ -18,60 +19,48 @@ interface ViewDayAppProps {
 
 interface ViewDayAppState {
   day: number;
+  schedule?: Schedule;
   stocks?: Map<string, Stock[]>;
-  cadencier?: Map<string, Map<number, number>>;
-  bobineQuantities?: BobineQuantities[];
-  plansProd?: PlanProduction[];
-  operations?: Operation[];
-  orderedPlans?: PlansProdOrder;
   prodRanges?: Map<string, ProdRange>;
 }
 
 export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState> {
   public static displayName = 'ViewDayApp';
+  private readonly planProdStore: PlanProdStore;
 
   public constructor(props: ViewDayAppProps) {
     super(props);
     this.state = {day: props.initialDay};
+    const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
+    this.planProdStore = new PlanProdStore(start, end);
     document.title = this.formatDay(props.initialDay);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
-    cadencierStore.addListener(this.handleStoresChanged);
-    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    plansProductionStore.addListener(this.recomputePlanOrder);
-    operationsStore.addListener(this.recomputePlanOrder);
-    prodHoursStore.addListener(this.recomputePlanOrder);
+    prodHoursStore.addListener(this.handleStoresChanged);
+    this.planProdStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
-    cadencierStore.removeListener(this.handleStoresChanged);
-    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    plansProductionStore.removeListener(this.recomputePlanOrder);
-    operationsStore.removeListener(this.recomputePlanOrder);
-    prodHoursStore.removeListener(this.recomputePlanOrder);
+    prodHoursStore.removeListener(this.handleStoresChanged);
+    this.planProdStore.stop();
   }
 
-  private readonly recomputePlanOrder = (newDay?: number): void => {
-    const day = newDay === undefined ? this.state.day : newDay;
-    const activePlansProd = plansProductionStore.getActivePlansProd();
-    const operations = operationsStore.getData();
-    const prodRanges = prodHoursStore.getProdRanges();
-    if (activePlansProd && operations && prodRanges) {
-      const orderedPlans = orderPlansProd(activePlansProd, operations, [], prodRanges);
-      const orderedPlansForDay = getPlanProdsForDate(orderedPlans, new Date(day));
-      this.setState({
-        day,
-        // TODO - Fetch non prod here
-        orderedPlans: orderedPlansForDay,
-        plansProd: activePlansProd,
-        operations,
-        prodRanges,
-      });
-    }
+  private readonly handleStoresChanged = (): void => {
+    this.setState({
+      stocks: stocksStore.getStockIndex(),
+      prodRanges: prodHoursStore.getProdRanges(),
+      schedule: this.planProdStore.getSchedule(),
+    });
   };
+
+  private updateCurrentDay(newDay: Date): void {
+    this.setState({day: newDay.getTime()});
+    const {start, end} = getMinimumScheduleRangeForDate(newDay);
+    this.planProdStore.setRange(start, end);
+  }
 
   private readonly handlePreviousClick = (): void => {
     const newDay = new Date(this.state.day);
@@ -83,7 +72,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() - 1);
     }
-    this.recomputePlanOrder(newDay.getTime());
+    this.updateCurrentDay(newDay);
   };
 
   private readonly handleNextClick = (): void => {
@@ -96,15 +85,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     while (prodRanges.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() + 1);
     }
-    this.recomputePlanOrder(newDay.getTime());
-  };
-
-  private readonly handleStoresChanged = (): void => {
-    this.setState({
-      stocks: stocksStore.getStockIndex(),
-      cadencier: cadencierStore.getCadencierIndex(),
-      bobineQuantities: bobinesQuantitiesStore.getData(),
-    });
+    this.updateCurrentDay(newDay);
   };
 
   private formatDay(ts: number): string {
@@ -117,16 +98,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
   }
 
   public render(): JSX.Element {
-    const {
-      bobineQuantities,
-      cadencier,
-      operations,
-      plansProd,
-      day,
-      orderedPlans,
-      stocks,
-      prodRanges,
-    } = this.state;
+    const {day, schedule, stocks, prodRanges} = this.state;
 
     return (
       <AppWrapper>
@@ -141,13 +113,9 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
             </div>
           </TopBar>
           <ScheduleWrapper>
-            <Schedule
-              bobineQuantities={bobineQuantities}
-              cadencier={cadencier}
-              operations={operations}
-              plansProd={plansProd}
+            <ScheduleView
               day={new Date(day)}
-              orderedPlans={orderedPlans}
+              schedule={schedule}
               stocks={stocks}
               prodRanges={prodRanges}
             />

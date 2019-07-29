@@ -222,7 +222,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.ProductionApp) {
-      return {id: `production`, size: {}};
+      return {id: 'production', size: {}};
     }
     if (appInfo.type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(appInfo.data);
