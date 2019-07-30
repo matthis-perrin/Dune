@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {WithColor} from '@root/components/core/with_colors';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {isRoundHour, isHalfHour, padNumber} from '@root/lib/utils';
-import {theme} from '@root/theme';
+import {theme, Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {Stock, ProdRange, Schedule, PlanProdSchedule, Stop, Color, Prod} from '@shared/models';
@@ -67,7 +67,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderHours(): JSX.Element {
-    const WIDTH = 980;
     const hourLabelLeftMargin = 16;
     const hourLabelOffsetFromLine = 8;
     const hourLineStyles: React.SVGProps<SVGLineElement> = {
@@ -93,7 +92,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       const currentDate = new Date(current);
       if (isRoundHour(currentDate)) {
         svgComponents.push(
-          <line key={current} x1={0} y1={distance} x2={WIDTH} y2={distance} {...hourLineStyles} />
+          <line key={current} x1={0} y1={distance} x2={'100%'} y2={distance} {...hourLineStyles} />
         );
         svgComponents.push(
           <text x={hourLabelLeftMargin} y={distance - hourLabelOffsetFromLine}>
@@ -107,7 +106,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
             key={current}
             x1={0}
             y1={distance}
-            x2={WIDTH}
+            x2={'100%'}
             y2={distance}
             {...halfHourLineStyles}
           />
@@ -117,16 +116,16 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
 
     return (
-      <svg style={{position: 'absolute'}} width={WIDTH} height={height}>
+      <HoursSVG style={{position: 'absolute'}} height={height} width="100%">
         {svgComponents}
-      </svg>
+      </HoursSVG>
     );
   }
 
   private getPositionStyleForDates(start: Date, end: Date): React.CSSProperties {
     const left = 96;
     const right = 96;
-    const width = 980 - left - right;
+    const width = `calc(100% - ${left + right}px)`;
     const top = this.getYPosForTime(start.getTime());
     const bottom = this.getYPosForTime(end.getTime());
     const height = bottom - top - 1; // -1 for the border
@@ -209,12 +208,21 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // it is available to the other render methods. This avoids computing it too many times.
     this.scheduleRange = this.getScheduleRange();
     return (
-      <div style={{position: 'relative'}}>
+      <ScheduleWrapper>
         {this.renderHours()}
         {this.renderPlanProds()}
-      </div>
+      </ScheduleWrapper>
     );
   }
 }
 
+const ScheduleWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
 const StopWrapper = styled.div``;
+
+const HoursSVG = styled.svg`
+  background-color: ${Palette.Clouds};
+`;

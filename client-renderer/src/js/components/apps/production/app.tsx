@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {StopView} from '@root/components/apps/production/stop_view';
+import {ScheduleView} from '@root/components/apps/view_day_app/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
 import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
@@ -12,7 +13,7 @@ import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {ProdInfo, Schedule} from '@shared/models';
+import {ProdInfo, Schedule, ProdRange} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -22,6 +23,7 @@ interface ProductionAppState {
   day: number;
   schedule?: Schedule;
   prodInfo: ProdInfo;
+  prodRanges?: Map<string, ProdRange>;
 }
 
 export class ProductionApp extends React.Component<ProductionAppProps, ProductionAppState> {
@@ -41,6 +43,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   public componentDidMount(): void {
+    prodHoursStore.addListener(this.handleStoresChanged);
     // stocksStore.addListener(this.handleStoresChanged);
     // cadencierStore.addListener(this.handleStoresChanged);
     // bobinesQuantitiesStore.addListener(this.handleStoresChanged);
@@ -50,6 +53,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   public componentWillUnmount(): void {
+    prodHoursStore.removeListener(this.handleStoresChanged);
     //     stocksStore.removeListener(this.handleStoresChanged);
     //     cadencierStore.removeListener(this.handleStoresChanged);
     //     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
@@ -75,13 +79,11 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   //     }
   //   };
 
-  //   private readonly handleStoresChanged = (): void => {
-  //     this.setState({
-  //       stocks: stocksStore.getStockIndex(),
-  //       cadencier: cadencierStore.getCadencierIndex(),
-  //       bobineQuantities: bobinesQuantitiesStore.getData(),
-  //     });
-  //   };
+  private readonly handleStoresChanged = (): void => {
+    this.setState({
+      prodRanges: prodHoursStore.getProdRanges(),
+    });
+  };
 
   private readonly handleProdInfoChanged = (): void => {
     const {day} = this.state;
@@ -153,7 +155,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   public render(): JSX.Element {
-    const {day} = this.state;
+    const {day, prodRanges, schedule} = this.state;
 
     const stopsElements = this.renderStops();
     const histoStartTimes = Array.from(stopsElements.keys())
@@ -172,23 +174,23 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
     return (
       <AppWrapper>
-        <LeftColumn>
-          <TopBar>
-            <div onClick={this.handlePreviousClick}>
-              <SVGIcon name="caret-left" width={12} height={12} />
-            </div>
-            {this.formatDay(day)}
-            <div onClick={this.handleNextClick}>
-              <SVGIcon name="caret-right" width={12} height={12} />
-            </div>
-          </TopBar>
-          <ChartContainer>Chart</ChartContainer>
-          <InfosContainer>
-            <HistoContainer>{histoElements}</HistoContainer>
-            <StatsContainer>Stats</StatsContainer>
-          </InfosContainer>
-        </LeftColumn>
-        <RightColumn>Plans de productions</RightColumn>
+        <TopBar>
+          <div onClick={this.handlePreviousClick}>
+            <SVGIcon name="caret-left" width={12} height={12} />
+          </div>
+          {this.formatDay(day)}
+          <div onClick={this.handleNextClick}>
+            <SVGIcon name="caret-right" width={12} height={12} />
+          </div>
+        </TopBar>
+        <ChartContainer>Chart</ChartContainer>
+        <ProdStateContainer>
+          <ScheduleContainer>
+            <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
+          </ScheduleContainer>
+          <EventsContainer>{histoElements}</EventsContainer>
+          <CurrentPlanContainer />
+        </ProdStateContainer>
       </AppWrapper>
     );
   }
@@ -201,14 +203,8 @@ const AppWrapper = styled.div`
   left: 0;
   right: 0;
   display: flex;
-  background-color: ${theme.page.backgroundColor};
-`;
-
-const LeftColumn = styled.div`
-  flex-grow: 1;
-  flex-shrink: 0;
-  display: flex;
   flex-direction: column;
+  background-color: ${theme.page.backgroundColor};
 `;
 
 const TopBar = styled.div`
@@ -222,33 +218,32 @@ const TopBar = styled.div`
 `;
 
 const ChartContainer = styled.div`
-  flex-grow: 1;
-  flex-basis: 1px;
+  flex-shrink: 0;
+  height: 256px;
 `;
 
-const InfosContainer = styled.div`
+const ProdStateContainer = styled.div`
   flex-grow: 1;
-  flex-basis: 1px;
   display: flex;
 `;
 
-const HistoContainer = styled.div`
+const ScheduleContainer = styled.div`
+  flex-grow: 1;
+  flex-basis: 1px;
+  display: flex;
+  overflow-y: auto;
+`;
+
+const EventsContainer = styled.div`
+  flex-grow: 1;
+  flex-basis: 1px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CurrentPlanContainer = styled.div`
   flex-grow: 1;
   flex-basis: 1px;
   display: flex;
   flex-direction: column;
-`;
-
-const StatsContainer = styled.div`
-  flex-grow: 1;
-  flex-basis: 1px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const RightColumn = styled.div`
-  width: 384px;
-  display: flex;
-  flex-direction: column;
-  background-color: ${Colors.PrimaryLight};
 `;
