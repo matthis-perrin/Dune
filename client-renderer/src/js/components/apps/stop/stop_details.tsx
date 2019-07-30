@@ -1,11 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {Select, Option} from '@root/components/core/select';
 import {SVGIcon} from '@root/components/core/svg_icon';
+import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {colorForStopType, labelForStopType} from '@root/lib/stop';
 import {Palette} from '@root/theme';
 
-import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
+import {
+  Stop,
+  StopType,
+  UnplannedStop,
+  Cleaning,
+  ScheduledPlanProd,
+  Maintenance,
+} from '@shared/models';
 
 interface StopDetailsProps {
   stop: Stop;
@@ -13,12 +22,16 @@ interface StopDetailsProps {
   unplannedStops: UnplannedStop[];
   comments: string[];
   cleanings: Cleaning[];
-  planProdId?: string;
-  maintenanceId?: string;
+  planProdId?: number;
+  maintenanceId?: number;
+  availablePlanProds: ScheduledPlanProd[];
+  availableMaintenances: Maintenance[];
   onRemoveType(): void;
   onRemoveUnplannedStop(name: string): void;
   onRemoveCleaning(name: string): void;
   onRemoveComment(index: number): void;
+  onPlanProdIdChanged(newPlanProdId: number): void;
+  onMaintenanceIdChanged(newMaintenanceId: number): void;
 }
 
 export class StopDetails extends React.Component<StopDetailsProps> {
@@ -40,10 +53,16 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     return <EmptyDetails>non renseigné</EmptyDetails>;
   }
 
-  private renderLine(title: string, color: string, handleClose: () => void): JSX.Element {
+  private renderLine(
+    title: string,
+    color: string,
+    handleClose: () => void,
+    rightElement?: JSX.Element
+  ): JSX.Element {
     return (
       <ListLineWrapper style={{backgroundColor: color}}>
         <ListLineTitle>{title}</ListLineTitle>
+        <ListLineRight>{rightElement}</ListLineRight>
         <ListLineRemove onClick={handleClose}>
           <SVGIcon name="cross" width={12} height={12} />
         </ListLineRemove>
@@ -51,11 +70,48 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     );
   }
 
+  private renderPlanProdForm(selectedPlanProdId: number): JSX.Element {
+    const {availablePlanProds, onPlanProdIdChanged} = this.props;
+    return (
+      <PlanProdSelect
+        onChange={event => onPlanProdIdChanged(parseFloat(event.target.value))}
+        value={selectedPlanProdId}
+      >
+        {availablePlanProds.map(p => (
+          <PlanProdOption value={p.planProd.id}>{getPlanProdTitle(p.planProd.id)}</PlanProdOption>
+        ))}
+      </PlanProdSelect>
+    );
+  }
+
+  private renderMaintenanceForm(selectedMaintenanceId: number): JSX.Element {
+    const {availableMaintenances, onMaintenanceIdChanged} = this.props;
+    return (
+      <MaintenanceSelect
+        onChange={event => onMaintenanceIdChanged(parseFloat(event.target.value))}
+        value={selectedMaintenanceId}
+      >
+        {availableMaintenances.map(m => (
+          <MaintenanceOption value={m.id}>{m.title}</MaintenanceOption>
+        ))}
+      </MaintenanceSelect>
+    );
+  }
+
   private renderType(type: StopType): JSX.Element {
+    const {maintenanceId, planProdId} = this.props;
+    let rightForm = <React.Fragment />;
+    if (planProdId !== undefined) {
+      rightForm = this.renderPlanProdForm(planProdId);
+    }
+    if (maintenanceId !== undefined) {
+      rightForm = this.renderMaintenanceForm(maintenanceId);
+    }
     return this.renderLine(
       labelForStopType.get(type) || '',
       colorForStopType.get(type) || 'white',
-      this.props.onRemoveType
+      this.props.onRemoveType,
+      rightForm
     );
   }
 
@@ -115,6 +171,10 @@ const ListLineTitle = styled.div`
   margin-left: 8px;
 `;
 
+const ListLineRight = styled.div`
+  flex-shrink: 0;
+`;
+
 const ListLineRemove = styled.div`
   flex-shrink: 0;
   padding: 4px 8px;
@@ -135,3 +195,15 @@ const EmptyDetails = styled.div`
   justify-content: center;
   font-style: italic;
 `;
+
+const PlanProdSelect = styled(Select)`
+  padding: 0px 2px;
+`;
+
+const PlanProdOption = styled(Option)``;
+
+const MaintenanceSelect = styled(Select)`
+  padding: 0px 2px;
+`;
+
+const MaintenanceOption = styled(Option)``;

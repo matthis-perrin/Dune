@@ -8,12 +8,18 @@ import {UnplannedStopsForm} from '@root/components/apps/stop/stop_other_reasons_
 import {StopTypeForm} from '@root/components/apps/stop/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
+import {
+  getAllPlannedSchedules,
+  getAllPlannedMaintenances,
+  getCurrentPlanId,
+} from '@root/lib/schedule_utils';
 import {Palette, Colors} from '@root/theme';
 
-import {Stop, StopType, UnplannedStop, Cleaning} from '@shared/models';
+import {Stop, StopType, UnplannedStop, Cleaning, Schedule} from '@shared/models';
 
 interface StopFormProps {
   stop: Stop;
+  schedule: Schedule;
 }
 
 interface StopFormState {
@@ -21,8 +27,8 @@ interface StopFormState {
   unplannedStops: UnplannedStop[];
   cleanings: Cleaning[];
   comments: string[];
-  planProdId?: string;
-  maintenanceId?: string;
+  planProdId?: number;
+  maintenanceId?: number;
 }
 
 export class StopForm extends React.Component<StopFormProps, StopFormState> {
@@ -34,15 +40,15 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private readonly handleSave = (): void => {
-    console.log('Save');
+    console.log('Save', this.state);
   };
 
   private readonly handleStopTypeChange = (
     newType: StopType,
-    newPlanProdId?: string,
-    newMaintenanceId?: string
+    newPlanProdId: number,
+    newMaintenanceId?: number
   ): void => {
-    this.setState({stopType: newType});
+    this.setState({stopType: newType, planProdId: newPlanProdId, maintenanceId: newMaintenanceId});
   };
 
   private readonly handleOtherReasonsChanged = (newOtherReasons: UnplannedStop[]): void => {
@@ -71,6 +77,14 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
 
   private readonly handleCommentAdded = (newComment: string): void => {
     this.setState({comments: this.state.comments.concat([newComment])});
+  };
+
+  private readonly handlePlanProdIdChanged = (newPlanProdId: number): void => {
+    this.setState({planProdId: newPlanProdId});
+  };
+
+  private readonly handleMaintenanceIdChanged = (newMaintenanceId: number): void => {
+    this.setState({maintenanceId: newMaintenanceId});
   };
 
   private formatTime(time?: number): string {
@@ -105,6 +119,8 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     if (stopType === undefined) {
       return <React.Fragment />;
     }
+    const availablePlanProds = getAllPlannedSchedules(this.props.schedule);
+    const availableMaintenances = getAllPlannedMaintenances(this.props.schedule);
     return (
       <SummaryWrapper>
         <ContentBlock>
@@ -117,11 +133,15 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
               cleanings={cleanings}
               comments={comments}
               planProdId={planProdId}
+              availablePlanProds={availablePlanProds}
               maintenanceId={maintenanceId}
+              availableMaintenances={availableMaintenances}
               onRemoveType={this.handleRemoveType}
               onRemoveUnplannedStop={this.handleRemoveUnplannedStop}
               onRemoveComment={this.handleRemoveComment}
               onRemoveCleaning={this.handleRemoveCleaning}
+              onPlanProdIdChanged={this.handlePlanProdIdChanged}
+              onMaintenanceIdChanged={this.handleMaintenanceIdChanged}
             />
           </ContentInside>
         </ContentBlock>
@@ -131,7 +151,10 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
 
   private renderStopType(): JSX.Element {
     const {stop} = this.props;
-    const {stopType, planProdId, maintenanceId} = this.state;
+    const {stopType} = this.state;
+    const availablePlanProds = getAllPlannedSchedules(this.props.schedule);
+    const availableMaintenances = getAllPlannedMaintenances(this.props.schedule);
+    const currentPlanId = getCurrentPlanId(this.props.schedule);
     return (
       <StopTypeBlock>
         <ContentTitle>TYPE D'ARRÊT</ContentTitle>
@@ -139,8 +162,9 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
           <StopTypeForm
             stop={stop}
             type={stopType}
-            planProdId={planProdId}
-            maintenanceId={maintenanceId}
+            lastPlanId={currentPlanId}
+            availablePlanProds={availablePlanProds}
+            availableMaintenances={availableMaintenances}
             onChange={this.handleStopTypeChange}
           />
         </ContentInside>

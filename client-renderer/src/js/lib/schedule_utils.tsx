@@ -1,7 +1,13 @@
 import {startOfDay, dateIsBeforeOrSameDay, dateIsAfterOrSameDay} from '@root/lib/utils';
 
 import {dateAtHour} from '@shared/lib/time';
-import {ScheduledPlanProd, Schedule, PlanProdSchedule, PlanProductionStatus} from '@shared/models';
+import {
+  ScheduledPlanProd,
+  Schedule,
+  PlanProdSchedule,
+  PlanProductionStatus,
+  Maintenance,
+} from '@shared/models';
 
 // function getPlanByIndex(schedule: Schedule, index: number): ScheduledPlanProd | undefined {
 //   for (const plan of schedule.plans) {
@@ -117,4 +123,39 @@ export function getPlanStatus(plan: ScheduledPlanProd): PlanProductionStatus {
 
 export function getAllPlannedSchedules(schedule: Schedule): ScheduledPlanProd[] {
   return schedule.plans.filter(p => getPlanStatus(p) === PlanProductionStatus.PLANNED);
+}
+
+export function getAllPlannedMaintenances(schedule: Schedule): Maintenance[] {
+  const plannedMaintenanceIds = new Map<number, void>();
+  schedule.plans.forEach(p => {
+    p.schedulePerDay.forEach(s => {
+      s.plannedStops.forEach(stop => {
+        if (stop.maintenanceId !== undefined) {
+          plannedMaintenanceIds.set(stop.maintenanceId);
+        }
+      });
+    });
+  });
+  return schedule.maintenances
+    .filter(m => plannedMaintenanceIds.has(m.id))
+    .sort((m1, m2) => m1.startTime - m2.startTime);
+}
+
+export function getCurrentPlanId(schedule: Schedule): number | undefined {
+  const allSchedulesDoneOrInProgress = schedule.plans.reduce(
+    (schedules, plan) => {
+      plan.schedulePerDay.forEach(s => {
+        if (s.status !== PlanProductionStatus.PLANNED) {
+          schedules.push(s);
+        }
+      });
+      return schedules;
+    },
+    [] as PlanProdSchedule[]
+  );
+  const lastSchedule = allSchedulesDoneOrInProgress.sort((s1, s2) => s2.start - s1.start)[0];
+  if (lastSchedule === undefined) {
+    return undefined;
+  }
+  lastSchedule.planProd.id;
 }

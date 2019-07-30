@@ -272,10 +272,12 @@ export interface Schedule {
   plans: ScheduledPlanProd[];
   unassignedStops: Stop[];
   unassignedProds: Prod[];
+  maintenances: Maintenance[];
 }
 
 export interface Maintenance {
   id: number;
+  title: string;
   startTime: number;
   endTime: number;
 }

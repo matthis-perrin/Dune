@@ -155,13 +155,13 @@ export class AppManager extends React.Component<Props, State> {
         cadencierStore,
         bobinesQuantitiesStore,
         operationsStore,
+        prodHoursStore,
         unplannedStopsStore,
         cleaningsStore,
-        prodHoursStore,
       ];
     }
     if (type === ClientAppType.StopApp) {
-      return [unplannedStopsStore, cleaningsStore];
+      return [unplannedStopsStore, cleaningsStore, operationsStore, prodHoursStore];
     }
 
     return [];

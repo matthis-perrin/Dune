@@ -986,7 +986,7 @@ export function createSchedule(
     );
   });
 
-  return {lastMinuteSpeed, plans: scheduledPlans, unassignedProds, unassignedStops};
+  return {lastMinuteSpeed, plans: scheduledPlans, unassignedProds, unassignedStops, maintenances};
 }
 
 // export function orderPlansProd(

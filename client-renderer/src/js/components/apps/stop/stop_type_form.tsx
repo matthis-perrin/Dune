@@ -4,14 +4,15 @@ import styled from 'styled-components';
 import {labelForStopType} from '@root/lib/stop';
 import {Palette, Colors} from '@root/theme';
 
-import {Stop, StopType} from '@shared/models';
+import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
 
 interface StopTypeFormProps {
   stop: Stop;
   type?: StopType;
-  planProdId?: string;
-  maintenanceId?: string;
-  onChange(newType: StopType, newPlanProdId?: string, newMaintenanceId?: string): void;
+  availablePlanProds: ScheduledPlanProd[];
+  availableMaintenances: Maintenance[];
+  lastPlanId?: number;
+  onChange(newType: StopType, newPlanProdId: number, newMaintenanceId?: number): void;
 }
 
 interface StopTypeFormState {}
@@ -28,7 +29,22 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (event.target.checked) {
-      this.props.onChange(value, this.props.planProdId, this.props.maintenanceId);
+      const {lastPlanId, onChange, availablePlanProds, availableMaintenances} = this.props;
+      let planProdId = lastPlanId;
+      let maintenanceId: number | undefined;
+
+      if (value === StopType.ChangePlanProd) {
+        planProdId = availablePlanProds[0].planProd.id;
+      }
+      if (value === StopType.Maintenance) {
+        maintenanceId = availableMaintenances[0].id;
+      }
+
+      if (planProdId === undefined) {
+        return;
+      }
+
+      onChange(value, planProdId, maintenanceId);
     }
   };
 
@@ -53,9 +69,27 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
   }
 
   public render(): JSX.Element {
+    const {availablePlanProds, availableMaintenances, lastPlanId} = this.props;
+    const changePlanProdOption =
+      availablePlanProds.length > 0 ? (
+        this.renderOption(StopType.ChangePlanProd)
+      ) : (
+        <React.Fragment />
+      );
+
+    if (lastPlanId === undefined) {
+      return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
+    }
+
+    const maintenanceOption =
+      availableMaintenances.length > 0 ? (
+        this.renderOption(StopType.Maintenance)
+      ) : (
+        <React.Fragment />
+      );
     return (
       <OptionWrapper>
-        {this.renderOption(StopType.ChangePlanProd)}
+        {changePlanProdOption}
         {this.renderOption(StopType.ReprisePlanProd)}
         {this.renderOption(StopType.ChangeBobinePapier)}
         {this.renderOption(StopType.ChangeBobinePolypro)}
@@ -63,7 +97,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
         {this.renderOption(StopType.EndOfDayEndProd)}
         {this.renderOption(StopType.EndOfDayPauseProd)}
         {this.renderOption(StopType.Unplanned)}
-        {this.renderOption(StopType.Maintenance)}
+        {maintenanceOption}
       </OptionWrapper>
     );
   }

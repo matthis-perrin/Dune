@@ -153,6 +153,7 @@ export class ScheduleStore {
       stops,
       maintenances: [
         {
+          title: 'Test Maintenance',
           startTime: new Date(2019, 6, 30, 6, 10).getTime(),
           endTime: new Date(2019, 6, 30, 6, 20).getTime(),
           id: 2,
