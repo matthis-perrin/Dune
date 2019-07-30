@@ -91,7 +91,14 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [stocksStore, cadencierStore, bobinesQuantitiesStore, colorsStore, operationsStore];
+      return [
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        colorsStore,
+        operationsStore,
+        prodHoursStore,
+      ];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [
@@ -103,6 +110,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesQuantitiesStore,
         colorsStore,
         operationsStore,
+        prodHoursStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -112,10 +120,10 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, prodHoursStore];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, prodHoursStore];
     }
 
     if (type === ClientAppType.ViewBobineApp) {

@@ -447,6 +447,32 @@ function generatePlannedEventsForProdLeft(
   let plannedEvents = new Map<number, PlanProdSchedule>();
   // Find the next valid operation time
   let current = nextValidTime(startTime, supportData.prodRanges);
+
+  // If we are at the beggining of the day we need to add a "RepriseProd" stop
+  // before attempting to generate more prod events.
+  if (isStartOfDay(current, supportData.prodRanges)) {
+    const repriseProdEvents = generatePlannedEventsForStopLeft(
+      ADDITIONAL_TIME_TO_RESTART_PROD,
+      {
+        start: 0,
+        planProdId: planProd.id,
+        stopType: StopType.ReprisePlanProd,
+      },
+      current,
+      planProd,
+      supportData
+    );
+    plannedEvents = mergeSchedules([plannedEvents, repriseProdEvents]);
+    // Recompute the current time
+    const lastRepriseSchedule = getLastSchedule(repriseProdEvents);
+    if (lastRepriseSchedule) {
+      const lastRepriseEvent = getLastEvent(lastRepriseSchedule);
+      if (lastRepriseEvent && lastRepriseEvent.end) {
+        current = nextValidTime(lastRepriseEvent.end, supportData.prodRanges);
+      }
+    }
+  }
+
   // Perform a maintenance if we need to
   const maintenance = getMaintenanceForTime(current, supportData.maintenances);
   if (maintenance) {
@@ -498,32 +524,9 @@ function generatePlannedEventsForProdLeft(
   });
   // If we can't fit everything in one go, call the function again
   if (endTime < targetEndTime) {
-    const nextStart = nextValidTime(endTime, supportData.prodRanges);
-    // If the next start is the beginning of the day we need to add a "RepriseProd" stop
-    // before attempting to generate more prod events.
-    const repriseProdEvents = generatePlannedEventsForStopLeft(
-      ADDITIONAL_TIME_TO_RESTART_PROD,
-      {
-        start: 0,
-        planProdId: planProd.id,
-        stopType: StopType.ReprisePlanProd,
-      },
-      nextStart,
-      planProd,
-      supportData
-    );
-    plannedEvents = mergeSchedules([plannedEvents, repriseProdEvents]);
-    // Recompute the current time
-    const lastRepriseSchedule = getLastSchedule(repriseProdEvents);
-    if (lastRepriseSchedule) {
-      const lastRepriseEvent = getLastEvent(lastRepriseSchedule);
-      if (lastRepriseEvent && lastRepriseEvent.end) {
-        current = nextValidTime(lastRepriseEvent.end, supportData.prodRanges);
-      }
-    }
     const restOfEvents = generatePlannedEventsForProdLeft(
       metersToProduce - actualProd,
-      current,
+      endTime,
       planProd,
       supportData
     );

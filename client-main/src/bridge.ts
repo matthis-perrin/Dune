@@ -1,4 +1,5 @@
 import {BrowserWindow} from 'electron';
+import * as log from 'electron-log';
 
 import {cadencier} from '@root/cadencier';
 import {openContextMenu} from '@root/context_menu';
@@ -91,6 +92,10 @@ export async function handleCommand(
   params: any
   // tslint:disable-next-line:no-any
 ): Promise<any> {
+  function debugLog(): void {
+    log.debug(command, params);
+  }
+
   // Listing commands
   if (command === ListBobinesFilles) {
     const {localUpdate} = asMap(params);
@@ -145,6 +150,7 @@ export async function handleCommand(
 
   // Window Management
   if (command === GetAppInfo) {
+    debugLog();
     const {windowId} = asMap(params);
     const appInfo = windowManager.getAppInfo(asString(windowId, ''));
     if (!appInfo) {
@@ -153,36 +159,43 @@ export async function handleCommand(
     return Promise.resolve(appInfo);
   }
   if (command === OpenApp) {
+    debugLog();
     const {type, data} = asMap(params);
     const appType = asString(type, '') as ClientAppType;
     return windowManager.openWindow({type: appType, data});
   }
   if (command === CloseApp) {
+    debugLog();
     const {windowId} = asMap(params);
     windowManager.closeWindow(asString(windowId, ''));
     return Promise.resolve();
   }
   if (command === CloseAppOfType) {
+    debugLog();
     const {type} = asMap(params);
     windowManager.closeWindowOfType(asString(type, '') as ClientAppType);
     return Promise.resolve();
   }
   if (command === SaveToPDF) {
+    debugLog();
     const {windowId, title} = asMap(params);
     return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
   }
 
   // Plan Production
   if (command === CreateNewPlanProduction) {
+    debugLog();
     const {index} = asMap(params);
     const id = await planProductionStore.createNewPlan(asNumber(index, 0));
     return {id};
   }
   if (command === DeletePlanProduction) {
+    debugLog();
     const {index} = asMap(params);
     await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
   }
   if (command === MovePlanProduction) {
+    debugLog();
     const {id, fromIndex, toIndex} = asMap(params);
     await movePlanProduction(
       SQLITE_DB.Prod,
@@ -192,6 +205,7 @@ export async function handleCommand(
     );
   }
   if (command === SaveNewPlanProduction) {
+    debugLog();
     const {id, index, operationAtStartOfDay, productionAtStartOfDay, data} = asMap(params);
     return createPlanProduction(
       SQLITE_DB.Prod,
@@ -203,15 +217,18 @@ export async function handleCommand(
     );
   }
   if (command === UpdatePlanProduction) {
+    debugLog();
     const {id, data} = asMap(params);
     return updatePlanProductionData(SQLITE_DB.Prod, asNumber(id, 0), asString(data, '{}'));
   }
   if (command === UpdatePlanProductionInfo) {
+    debugLog();
     const {id, info} = asMap(params);
     return updatePlanProductionInfo(SQLITE_DB.Prod, asNumber(id, 0), info as PlanProductionInfo);
   }
 
   if (command === GetPlanProductionEngineInfo) {
+    debugLog();
     const {id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -220,6 +237,7 @@ export async function handleCommand(
     return Promise.resolve({...engine.getPlanProductionState(), ...engine.getPlanProductionInfo()});
   }
   if (command === GetPlanProduction) {
+    debugLog();
     const {id} = asMap(params);
     const planProd = await getPlanProd(SQLITE_DB.Prod, asNumber(id, 0));
     if (!planProd) {
@@ -229,6 +247,7 @@ export async function handleCommand(
   }
 
   if (command === SetPlanPerfo) {
+    debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -238,6 +257,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanTourCount) {
+    debugLog();
     const {tourCount, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -247,6 +267,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanRefente) {
+    debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -256,6 +277,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanPapier) {
+    debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -265,6 +287,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === SetPlanPolypro) {
+    debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -274,6 +297,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === AddPlanBobine) {
+    debugLog();
     const {ref, pose, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -283,6 +307,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === RemovePlanBobine) {
+    debugLog();
     const {ref, pose, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -292,6 +317,7 @@ export async function handleCommand(
     return Promise.resolve();
   }
   if (command === ClearPlan) {
+    debugLog();
     const {id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
     if (!engine) {
@@ -326,6 +352,7 @@ export async function handleCommand(
   }
 
   if (command === UpdateStop) {
+    debugLog();
     const {start, type, info, planProdId, maintenanceId} = asMap(params);
     const prodRanges = prodHoursStore.getProdRanges();
     return updateStopInfo(

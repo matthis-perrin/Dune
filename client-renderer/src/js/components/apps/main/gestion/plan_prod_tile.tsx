@@ -344,6 +344,10 @@ export class PlanProdTile extends React.Component<Props> {
     if (planProdSchedule.status === PlanProductionStatus.IN_PROGRESS) {
       return <RotatingSVG name="progress" width={16} height={16} />;
     }
+    const planIndex = this.getPlanIndex();
+    if (planIndex === -1) {
+      return <React.Fragment />;
+    }
     return <div>{`n°${this.getPlanIndex() + 1}`}</div>;
   }
 
@@ -363,7 +367,7 @@ export class PlanProdTile extends React.Component<Props> {
       return <React.Fragment />;
     }
 
-    const rest = omit(this.props, ['data', 'ref']);
+    const rest = omit(this.props, ['data', 'ref', 'onPlanProdRefreshNeeded']);
 
     return (
       <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>

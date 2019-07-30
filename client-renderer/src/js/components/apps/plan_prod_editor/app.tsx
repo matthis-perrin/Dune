@@ -133,6 +133,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleScheduleChange = (): void => {
+    console.log(this.planProdStore.getSchedule());
     this.setState({
       schedule: this.planProdStore.getSchedule(),
     });
@@ -396,6 +397,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = this.state;
 
     if (!planProduction || !stocks || !schedule || !operations) {
+      console.log(planProduction, stocks, schedule, operations);
       return <LoadingScreen />;
     }
 

@@ -279,6 +279,7 @@ export async function getStartedPlanProdsInRange(
   const speedStartColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.Start}`;
   const speedEndColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.End}`;
   const speedPlanIdColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`;
+
   return db
     .select()
     .from(PLANS_PRODUCTION_TABLE_NAME)
