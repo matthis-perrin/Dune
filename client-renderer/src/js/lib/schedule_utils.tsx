@@ -95,3 +95,26 @@ export function getSchedulesForDay(schedule: Schedule, day: Date): PlanProdSched
     [] as PlanProdSchedule[]
   );
 }
+
+export function getPlanStatus(plan: ScheduledPlanProd): PlanProductionStatus {
+  let status = PlanProductionStatus.PLANNED;
+  plan.schedulePerDay.forEach(schedule => {
+    if (
+      status === PlanProductionStatus.PLANNED &&
+      (schedule.status === PlanProductionStatus.IN_PROGRESS ||
+        schedule.status === PlanProductionStatus.DONE)
+    ) {
+      status = schedule.status;
+    } else if (
+      status === PlanProductionStatus.IN_PROGRESS &&
+      schedule.status === PlanProductionStatus.DONE
+    ) {
+      status = schedule.status;
+    }
+  });
+  return status;
+}
+
+export function getAllPlannedSchedules(schedule: Schedule): ScheduledPlanProd[] {
+  return schedule.plans.filter(p => getPlanStatus(p) === PlanProductionStatus.PLANNED);
+}

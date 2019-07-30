@@ -73,7 +73,7 @@ export class PlanProdStore {
     this.recompute();
   };
 
-  private refresh(): void {
+  public refresh(): void {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }

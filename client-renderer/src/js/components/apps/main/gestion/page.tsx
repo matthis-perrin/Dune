@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
+import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
@@ -10,6 +11,7 @@ import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {PlanProdStore} from '@root/stores/plan_prod_store';
 
+import {dateAtHour} from '@shared/lib/time';
 import {Stock, BobineQuantities, ClientAppType, Schedule} from '@shared/models';
 
 const LAST_MONTH = 11;
@@ -27,29 +29,29 @@ interface State {
 
 export class GestionPage extends React.Component<Props, State> {
   public static displayName = 'GestionPage';
-  // private readonly planProdStore: PlanProdStore;
+  private readonly planProdStore: PlanProdStore;
 
   public constructor(props: Props) {
     super(props);
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
     this.state = {month, year};
-    // const {start, end} = this.getProdStoreRange(year, month);
-    // this.planProdStore = new PlanProdStore(start, end);
+    const {start, end} = this.getProdStoreRange(year, month);
+    this.planProdStore = new PlanProdStore(start, end);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    // this.planProdStore.start(this.handleStoresChanged);
+    this.planProdStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    // this.planProdStore.stop();
+    this.planProdStore.stop();
   }
 
   private getProdStoreRange(year: number, month: number): {start: number; end: number} {
@@ -63,6 +65,7 @@ export class GestionPage extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
+      schedule: this.planProdStore.getSchedule(),
     });
   };
 
@@ -71,8 +74,8 @@ export class GestionPage extends React.Component<Props, State> {
     const newYear = month === LAST_MONTH ? year + 1 : year;
     const newMonth = month === LAST_MONTH ? 0 : month + 1;
     this.setState({year: newYear, month: newMonth});
-    // const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    // this.planProdStore.setRange(start, end);
+    const {start, end} = this.getProdStoreRange(newYear, newMonth);
+    this.planProdStore.setRange(start, end);
   };
 
   private readonly goToPreviousMonth = (): void => {
@@ -80,8 +83,8 @@ export class GestionPage extends React.Component<Props, State> {
     const newYear = month === 0 ? year - 1 : year;
     const newMonth = month === 0 ? LAST_MONTH : month - 1;
     this.setState({year: newYear, month: newMonth});
-    // const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    // this.planProdStore.setRange(start, end);
+    const {start, end} = this.getProdStoreRange(newYear, newMonth);
+    this.planProdStore.setRange(start, end);
   };
 
   private isValidDateToCreatePlanProd(date: Date): boolean {
@@ -136,55 +139,35 @@ export class GestionPage extends React.Component<Props, State> {
     bridge.viewDay(date.getTime()).catch(console.error);
   };
 
-  // public renderDay(date: Date): JSX.Element {
-  //   const {stocks, cadencier, bobineQuantities, schedule} = this.state;
-  //   if (!stocks || !cadencier || !bobineQuantities || !schedule) {
-  //     return <div />;
-  //   }
-  //   const {done, inProgress, scheduled} = getPlanProdsForDate(orderedPlans, date);
-  //   return (
-  //     <div>
-  //       {done.map(p => (
-  //         <PlanProdTile
-  //           key={p.plan.id}
-  //           date={date}
-  //           planProd={p}
-  //           stocks={stocks}
-  //           cadencier={cadencier}
-  //           bobineQuantities={bobineQuantities}
-  //           operations={operations}
-  //           plansProd={plansProd}
-  //         />
-  //       ))}
-  //       {inProgress ? (
-  //         <PlanProdTile
-  //           key={inProgress.plan.id}
-  //           date={date}
-  //           planProd={inProgress}
-  //           stocks={stocks}
-  //           cadencier={cadencier}
-  //           bobineQuantities={bobineQuantities}
-  //           operations={operations}
-  //           plansProd={plansProd}
-  //         />
-  //       ) : (
-  //         <React.Fragment />
-  //       )}
-  //       {scheduled.map(p => (
-  //         <PlanProdTile
-  //           key={p.plan.id}
-  //           date={date}
-  //           planProd={p}
-  //           stocks={stocks}
-  //           cadencier={cadencier}
-  //           bobineQuantities={bobineQuantities}
-  //           operations={operations}
-  //           plansProd={plansProd}
-  //         />
-  //       ))}
-  //     </div>
-  //   );
-  // }
+  private readonly handlePlanProdRefreshNeeded = (): void => {
+    this.planProdStore.refresh();
+  };
+
+  public renderDay(date: Date): JSX.Element {
+    const {stocks, cadencier, bobineQuantities, schedule} = this.state;
+    if (!stocks || !cadencier || !bobineQuantities || !schedule) {
+      return <div />;
+    }
+    const startOfDay = dateAtHour(date, 0).getTime();
+    return (
+      <React.Fragment>
+        {schedule.plans
+          .filter(planSchedule => planSchedule.schedulePerDay.has(startOfDay))
+          .map(plan => (
+            <PlanProdTile
+              key={plan.planProd.id}
+              date={date}
+              planSchedule={plan}
+              schedule={schedule}
+              stocks={stocks}
+              cadencier={cadencier}
+              bobineQuantities={bobineQuantities}
+              onPlanProdRefreshNeeded={this.handlePlanProdRefreshNeeded}
+            />
+          ))}
+      </React.Fragment>
+    );
+  }
 
   public render(): JSX.Element {
     const {month, year} = this.state;
@@ -198,7 +181,7 @@ export class GestionPage extends React.Component<Props, State> {
           onDayContextMenu={this.handleDayContextMenu}
           onDayClick={this.handleDayClick}
         >
-          {(date: Date) => <div>TODO</div>}
+          {(date: Date) => this.renderDay(date)}
         </Calendar>
       </Page>
     );
