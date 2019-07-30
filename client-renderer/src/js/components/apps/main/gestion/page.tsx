@@ -9,7 +9,7 @@ import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
 import {dateIsAfterOrSameDay, startOfDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
-import {PlanProdStore} from '@root/stores/plan_prod_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 
 import {dateAtHour} from '@shared/lib/time';
 import {Stock, BobineQuantities, ClientAppType, Schedule} from '@shared/models';
@@ -29,7 +29,7 @@ interface State {
 
 export class GestionPage extends React.Component<Props, State> {
   public static displayName = 'GestionPage';
-  private readonly planProdStore: PlanProdStore;
+  private readonly scheduleStore: ScheduleStore;
 
   public constructor(props: Props) {
     super(props);
@@ -37,21 +37,21 @@ export class GestionPage extends React.Component<Props, State> {
     const month = new Date().getMonth();
     this.state = {month, year};
     const {start, end} = this.getProdStoreRange(year, month);
-    this.planProdStore = new PlanProdStore(start, end);
+    this.scheduleStore = new ScheduleStore(start, end);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    this.planProdStore.start(this.handleStoresChanged);
+    this.scheduleStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    this.planProdStore.stop();
+    this.scheduleStore.stop();
   }
 
   private getProdStoreRange(year: number, month: number): {start: number; end: number} {
@@ -65,7 +65,7 @@ export class GestionPage extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
-      schedule: this.planProdStore.getSchedule(),
+      schedule: this.scheduleStore.getSchedule(),
     });
   };
 
@@ -75,7 +75,7 @@ export class GestionPage extends React.Component<Props, State> {
     const newMonth = month === LAST_MONTH ? 0 : month + 1;
     this.setState({year: newYear, month: newMonth});
     const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    this.planProdStore.setRange(start, end);
+    this.scheduleStore.setRange(start, end);
   };
 
   private readonly goToPreviousMonth = (): void => {
@@ -84,7 +84,7 @@ export class GestionPage extends React.Component<Props, State> {
     const newMonth = month === 0 ? LAST_MONTH : month - 1;
     this.setState({year: newYear, month: newMonth});
     const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    this.planProdStore.setRange(start, end);
+    this.scheduleStore.setRange(start, end);
   };
 
   private isValidDateToCreatePlanProd(date: Date): boolean {
@@ -140,7 +140,7 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private readonly handlePlanProdRefreshNeeded = (): void => {
-    this.planProdStore.refresh();
+    this.scheduleStore.refresh();
   };
 
   public renderDay(date: Date): JSX.Element {

@@ -441,12 +441,17 @@ export interface ContextMenuForBridge {
   submenus?: ContextMenuForBridge[];
 }
 
-export interface ProdInfo {
+export interface ScheduleInfo {
   stops: Stop[];
   prods: Prod[];
   notStartedPlans: PlanProductionRaw[];
   startedPlans: PlanProductionRaw[];
   lastMinuteSpeed?: MinuteSpeed;
+}
+
+export interface ProdInfo {
+  stops: Stop[];
+  minuteSpeeds: MinuteSpeed[];
 }
 
 export interface UnplannedStop {

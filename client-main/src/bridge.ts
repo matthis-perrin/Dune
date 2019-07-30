@@ -51,6 +51,7 @@ import {
   ListCleanings,
   UpdateStop,
   ListProdHours,
+  GetScheduleInfo,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -71,7 +72,7 @@ import {
   getStartedPlanProdsInRange,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {getLastUsableSpeed} from '@shared/db/speed_minutes';
+import {getLastUsableSpeed, getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
 import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
@@ -337,7 +338,7 @@ export async function handleCommand(
     );
   }
 
-  if (command === GetProdInfo) {
+  if (command === GetScheduleInfo) {
     const {start, end} = asMap(params);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
@@ -349,6 +350,17 @@ export async function handleCommand(
       getLastUsableSpeed(SQLITE_DB.Prod),
     ]);
     return {stops, prods, notStartedPlans, startedPlans, lastMinuteSpeed};
+  }
+
+  if (command === GetProdInfo) {
+    const {start, end} = asMap(params);
+    const rangeStart = asNumber(start, 0);
+    const rangeEnd = asNumber(end, 0);
+    const [stops, minuteSpeeds] = await Promise.all([
+      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getMinutesSpeedsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+    ]);
+    return {stops, minuteSpeeds};
   }
 
   if (command === UpdateStop) {

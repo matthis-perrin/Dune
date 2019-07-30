@@ -16,7 +16,7 @@ import {
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
-export class PlanProdStore {
+export class ScheduleStore {
   private listener?: () => void;
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
   private refreshTimeout: number | undefined;
@@ -139,10 +139,13 @@ export class PlanProdStore {
   }
 
   private async performRefresh(): Promise<void> {
-    const {notStartedPlans, prods, startedPlans, stops, lastMinuteSpeed} = await bridge.getProdInfo(
-      this.startRange,
-      this.endRange
-    );
+    const {
+      notStartedPlans,
+      prods,
+      startedPlans,
+      stops,
+      lastMinuteSpeed,
+    } = await bridge.getScheduleInfo(this.startRange, this.endRange);
     this.prodData = {
       startedPlans: this.transformPlanProdRaw(startedPlans),
       notStartedPlans: this.transformPlanProdRaw(notStartedPlans),

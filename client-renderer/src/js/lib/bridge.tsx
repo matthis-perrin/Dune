@@ -46,6 +46,7 @@ import {
   ListCleanings,
   UpdateStop,
   ListProdHours,
+  GetScheduleInfo,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -73,6 +74,7 @@ import {
   StopType,
   StopInfo,
   ProdHours,
+  ScheduleInfo,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -258,6 +260,9 @@ export class Bridge {
     return this.openApp(ClientAppType.StopApp, {day, stopStart});
   }
 
+  public async getScheduleInfo(start: number, end: number): Promise<ScheduleInfo> {
+    return this.bridgeTransport.sendBridgeCommand<ScheduleInfo>(GetScheduleInfo, {start, end});
+  }
   public async getProdInfo(start: number, end: number): Promise<ProdInfo> {
     return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {start, end});
   }

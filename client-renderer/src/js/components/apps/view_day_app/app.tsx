@@ -7,7 +7,7 @@ import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
 import {capitalize} from '@root/lib/utils';
 import {prodHoursStore} from '@root/stores/data_store';
 import {stocksStore} from '@root/stores/list_store';
-import {PlanProdStore} from '@root/stores/plan_prod_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
@@ -26,40 +26,40 @@ interface ViewDayAppState {
 
 export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState> {
   public static displayName = 'ViewDayApp';
-  private readonly planProdStore: PlanProdStore;
+  private readonly scheduleStore: ScheduleStore;
 
   public constructor(props: ViewDayAppProps) {
     super(props);
     this.state = {day: props.initialDay};
     const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
-    this.planProdStore = new PlanProdStore(start, end);
+    this.scheduleStore = new ScheduleStore(start, end);
     document.title = this.formatDay(props.initialDay);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
     prodHoursStore.addListener(this.handleStoresChanged);
-    this.planProdStore.start(this.handleStoresChanged);
+    this.scheduleStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
     prodHoursStore.removeListener(this.handleStoresChanged);
-    this.planProdStore.stop();
+    this.scheduleStore.stop();
   }
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
       stocks: stocksStore.getStockIndex(),
       prodRanges: prodHoursStore.getProdRanges(),
-      schedule: this.planProdStore.getSchedule(),
+      schedule: this.scheduleStore.getSchedule(),
     });
   };
 
   private updateCurrentDay(newDay: Date): void {
     this.setState({day: newDay.getTime()});
     const {start, end} = getMinimumScheduleRangeForDate(newDay);
-    this.planProdStore.setRange(start, end);
+    this.scheduleStore.setRange(start, end);
   }
 
   private readonly handlePreviousClick = (): void => {

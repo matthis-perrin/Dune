@@ -4,13 +4,15 @@ import styled from 'styled-components';
 import {StopView} from '@root/components/apps/production/stop_view';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
+import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
 import {capitalize} from '@root/lib/utils';
 import {prodHoursStore} from '@root/stores/data_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {ProdInfo} from '@shared/models';
+import {ProdInfo, Schedule} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -18,6 +20,7 @@ interface ProductionAppProps {
 
 interface ProductionAppState {
   day: number;
+  schedule?: Schedule;
   prodInfo: ProdInfo;
 }
 
@@ -25,11 +28,14 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   public static displayName = 'ProductionApp';
 
   private readonly prodInfoStore: ProdInfoStore;
+  private readonly scheduleStore: ScheduleStore;
   private readonly openedStops = new Map<string, void>();
 
   public constructor(props: ProductionAppProps) {
     super(props);
     this.prodInfoStore = new ProdInfoStore(props.initialDay);
+    const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
+    this.scheduleStore = new ScheduleStore(start, end);
     this.state = {day: props.initialDay, prodInfo: this.prodInfoStore.getState()};
     document.title = this.formatDay(props.initialDay);
   }
@@ -40,6 +46,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     // bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     // operationsStore.addListener(this.recomputePlanOrder);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
+    this.scheduleStore.start(this.handleScheduleChanged);
   }
 
   public componentWillUnmount(): void {
@@ -48,6 +55,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     //     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     //     operationsStore.removeListener(this.recomputePlanOrder);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
+    this.scheduleStore.stop();
   }
 
   //   private readonly recomputePlanOrder = (newDay?: number): void => {
@@ -89,8 +97,14 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.setState({prodInfo});
   };
 
+  private readonly handleScheduleChanged = (): void => {
+    this.setState({schedule: this.scheduleStore.getSchedule()});
+  };
+
   private changeDay(newDay: number): void {
+    const {start, end} = getMinimumScheduleRangeForDate(new Date(newDay));
     this.prodInfoStore.setDay(newDay);
+    this.scheduleStore.setRange(start, end);
     this.setState({day: newDay});
   }
 
@@ -132,8 +146,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderStops(): Map<number, JSX.Element> {
-    const {stops} = this.state.prodInfo;
     const stopsElements = new Map<number, JSX.Element>();
+    const {stops} = this.state.prodInfo;
     stops.forEach(stop => stopsElements.set(stop.start, <StopView stop={stop} />));
     return stopsElements;
   }

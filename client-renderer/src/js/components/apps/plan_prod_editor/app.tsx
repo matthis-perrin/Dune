@@ -30,7 +30,7 @@ import {getPreviousSchedule} from '@root/lib/schedule_utils';
 import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
-import {PlanProdStore} from '@root/stores/plan_prod_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme} from '@root/theme';
 
 import {PlanProductionChanged} from '@shared/bridge/commands';
@@ -81,7 +81,7 @@ interface State {
 
 export class PlanProdEditorApp extends React.Component<Props, State> {
   public static displayName = 'PlanProdEditorApp';
-  private readonly planProdStore: PlanProdStore;
+  private readonly scheduleStore: ScheduleStore;
 
   public constructor(props: Props) {
     super(props);
@@ -93,7 +93,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment: '',
     };
     const {start, end} = props;
-    this.planProdStore = new PlanProdStore(start, end);
+    this.scheduleStore = new ScheduleStore(start, end);
   }
 
   public componentDidMount(): void {
@@ -102,7 +102,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     operationsStore.addListener(this.handleStoresChanged);
-    this.planProdStore.start(this.handleScheduleChange);
+    this.scheduleStore.start(this.handleScheduleChange);
     this.refreshPlanProduction(true);
   }
 
@@ -112,7 +112,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     operationsStore.removeListener(this.handleStoresChanged);
-    this.planProdStore.stop();
+    this.scheduleStore.stop();
   }
 
   // tslint:disable-next-line:no-any
@@ -133,9 +133,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleScheduleChange = (): void => {
-    console.log(this.planProdStore.getSchedule());
     this.setState({
-      schedule: this.planProdStore.getSchedule(),
+      schedule: this.scheduleStore.getSchedule(),
     });
   };
 
@@ -192,7 +191,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
             speed: planProduction.data.speed,
             comment: planProduction.data.comment,
           };
-          this.setState(newState, () => console.log('done'));
+          this.setState(newState);
         })
         .catch(err => console.error(err));
     } else {
@@ -397,7 +396,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     } = this.state;
 
     if (!planProduction || !stocks || !schedule || !operations) {
-      console.log(planProduction, stocks, schedule, operations);
       return <LoadingScreen />;
     }
 

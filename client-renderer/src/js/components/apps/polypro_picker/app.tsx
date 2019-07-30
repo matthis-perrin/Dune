@@ -16,7 +16,7 @@ import {
 import {SortableTable} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
-import {PlanProdStore} from '@root/stores/plan_prod_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme} from '@root/theme';
 
 import {BobineMere, Stock, Schedule} from '@shared/models';
@@ -34,13 +34,13 @@ interface State {
 
 export class PolyproPickerApp extends React.Component<Props, State> {
   public static displayName = 'PolyproPickerApp';
-  private readonly planProdStore: PlanProdStore;
+  private readonly scheduleStore: ScheduleStore;
 
   constructor(props: Props) {
     super(props);
     this.state = {};
     const {start, end} = props;
-    this.planProdStore = new PlanProdStore(start, end);
+    this.scheduleStore = new ScheduleStore(start, end);
   }
 
   private readonly handlePolyproSelected = (bobineMere: BobineMere) => {
@@ -54,18 +54,18 @@ export class PolyproPickerApp extends React.Component<Props, State> {
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
-    this.planProdStore.start(this.handleValuesChanged);
+    this.scheduleStore.start(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
-    this.planProdStore.stop();
+    this.scheduleStore.stop();
   }
 
   private readonly handleValuesChanged = (): void => {
     this.setState({
       stocks: stocksStore.getStockIndex(),
-      schedule: this.planProdStore.getSchedule(),
+      schedule: this.scheduleStore.getSchedule(),
     });
   };
 

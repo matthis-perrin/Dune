@@ -2,7 +2,6 @@ import {min, max} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {PlanProdBlock} from '@root/components/apps/view_day_app/plan_prod_block';
 import {WithColor} from '@root/components/core/with_colors';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {isRoundHour, isHalfHour, padNumber} from '@root/lib/utils';
@@ -140,33 +139,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     };
   }
 
-  // private renderPlanProd(
-  //   planStart: Date,
-  //   planEnd: Date,
-  //   couleurPapier: string | undefined,
-  //   children: JSX.Element | JSX.Element[]
-  // ): JSX.Element {
-  //   const {start, end} = this.getScheduleRange();
-  //   const adjustedStart = Math.max(start, planStart.getTime());
-  //   const adjustedEnd = Math.min(end, planEnd.getTime());
-  //   return (
-  //     <WithColor color={couleurPapier}>
-  //       {color => (
-  //         <div
-  //           style={{
-  //             ...this.getPositionStyleForDates(new Date(adjustedStart), new Date(adjustedEnd)),
-  //             backgroundColor: color.backgroundHex,
-  //             border: 'solid 1px black',
-  //             borderRadius: 16,
-  //           }}
-  //         >
-  //           {children}
-  //         </div>
-  //       )}
-  //     </WithColor>
-  //   );
-  // }
-
   private renderStop(stop: Stop, color: Color): JSX.Element {
     if (!stop.end) {
       console.log(stop);
@@ -223,7 +195,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private renderPlanProds(): JSX.Element[] {
     const {schedule, day} = this.props;
-    console.log(schedule);
     if (!schedule) {
       return [];
     }

@@ -30,7 +30,7 @@ import {
   stocksStore,
   cadencierStore,
 } from '@root/stores/list_store';
-import {PlanProdStore} from '@root/stores/plan_prod_store';
+import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme} from '@root/theme';
 
 import {
@@ -60,7 +60,7 @@ interface State {
 
 export class BobinesPickerApp extends React.Component<Props, State> {
   public static displayName = 'BobinesPickerApp';
-  private readonly planProdStore: PlanProdStore;
+  private readonly scheduleStore: ScheduleStore;
 
   private lastStocks: Map<string, Stock[]> | undefined;
   private lastCadencier: Map<string, Map<number, number>> | undefined;
@@ -76,21 +76,21 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     super(props);
     this.state = {};
     const {start, end} = props;
-    this.planProdStore = new PlanProdStore(start, end);
+    this.scheduleStore = new ScheduleStore(start, end);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleValuesChanged);
     cadencierStore.addListener(this.handleValuesChanged);
     bobinesQuantitiesStore.addListener(this.handleValuesChanged);
-    this.planProdStore.start(this.handleValuesChanged);
+    this.scheduleStore.start(this.handleValuesChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleValuesChanged);
     cadencierStore.removeListener(this.handleValuesChanged);
     bobinesQuantitiesStore.removeListener(this.handleValuesChanged);
-    this.planProdStore.stop();
+    this.scheduleStore.stop();
   }
 
   private readonly handleValuesChanged = (): void => {
@@ -98,7 +98,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
-      schedule: this.planProdStore.getSchedule(),
+      schedule: this.scheduleStore.getSchedule(),
     });
   };
 
@@ -163,7 +163,6 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     const {stocks, cadencier, bobineQuantities, schedule} = this.state;
 
     if (!stocks || !cadencier || !bobineQuantities || !schedule) {
-      console.log(stocks, cadencier, bobineQuantities, schedule);
       return <LoadingScreen />;
     }
 
