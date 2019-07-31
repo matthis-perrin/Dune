@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {WithColor} from '@root/components/core/with_colors';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType} from '@root/lib/stop';
-import {isRoundHour, isHalfHour, padNumber} from '@root/lib/utils';
+import {isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
 import {theme, Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
@@ -73,11 +73,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const hourLabelLeftMargin = 16;
     const hourLabelOffsetFromLine = 8;
     const hourLineStyles: React.SVGProps<SVGLineElement> = {
-      stroke: '#000',
+      stroke: '#000000',
       strokeWidth: 1,
     };
     const halfHourLineStyles: React.SVGProps<SVGLineElement> = {
-      stroke: '#aaa',
+      stroke: '#AAAAAA',
       strokeWidth: 1,
     };
 
@@ -197,7 +197,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               style={this.getPositionStyleForDates(
                 new Date(planSchedule.start),
                 new Date(planSchedule.end),
-                2
+                planBorderThickness
               )}
             />
           </React.Fragment>
@@ -217,6 +217,32 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     });
   }
 
+  private renderCurrentTimeIndicator(): JSX.Element {
+    const {schedule, day} = this.props;
+    if (schedule) {
+      const {lastMinuteSpeed} = schedule;
+      if (lastMinuteSpeed && isSameDay(new Date(day), new Date(lastMinuteSpeed.minute))) {
+        const left = 96;
+        const right = 96;
+        const width = `calc(100% - ${left + right - planBorderThickness}px)`;
+        const top = this.getYPosForTime(lastMinuteSpeed.minute);
+        const height = 1;
+        return (
+          <CurrentTimeLine
+            style={{
+              position: 'absolute',
+              top,
+              left,
+              height,
+              width,
+            }}
+          />
+        );
+      }
+    }
+    return <React.Fragment />;
+  }
+
   public render(): JSX.Element {
     // Little hack where we compute the schedule range here and store it on a class property so
     // it is available to the other render methods. This avoids computing it too many times.
@@ -225,10 +251,13 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       <ScheduleWrapper>
         {this.renderHours()}
         {this.renderPlanProds()}
+        {this.renderCurrentTimeIndicator()}
       </ScheduleWrapper>
     );
   }
 }
+
+const planBorderThickness = 2;
 
 const ScheduleWrapper = styled.div`
   position: relative;
@@ -242,5 +271,9 @@ const HoursSVG = styled.svg`
 `;
 
 const PlanProdBorder = styled.div`
-  border: solid 2px black;
+  border: solid ${planBorderThickness}px black;
+`;
+
+const CurrentTimeLine = styled.div`
+  background-color: red;
 `;
