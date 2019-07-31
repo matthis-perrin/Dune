@@ -13,7 +13,7 @@ export const labelForStopType = new Map<StopType, string>([
   [StopType.Maintenance, 'Maintenance'],
 ]);
 
-export const colorForStopType = new Map<StopType, string>([
+const colorForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, Palette.PeterRiver],
   [StopType.ReprisePlanProd, Palette.PeterRiver],
   [StopType.ChangeBobinePapier, Palette.PeterRiver],
@@ -24,3 +24,10 @@ export const colorForStopType = new Map<StopType, string>([
   [StopType.Unplanned, Colors.Danger],
   [StopType.Maintenance, Palette.Asbestos],
 ]);
+
+const colorForUnknownStopType = Palette.Silver;
+
+export function getColorForStopType(stopType: StopType | undefined): string {
+  const color = stopType ? colorForStopType.get(stopType) : undefined;
+  return color || colorForUnknownStopType;
+}

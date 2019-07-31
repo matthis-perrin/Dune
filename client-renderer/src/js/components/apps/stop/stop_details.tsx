@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Select, Option} from '@root/components/core/select';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
-import {colorForStopType, labelForStopType} from '@root/lib/stop';
+import {getColorForStopType, labelForStopType} from '@root/lib/stop';
 import {Palette} from '@root/theme';
 
 import {
@@ -101,15 +101,15 @@ export class StopDetails extends React.Component<StopDetailsProps> {
   private renderType(type: StopType): JSX.Element {
     const {maintenanceId, planProdId} = this.props;
     let rightForm = <React.Fragment />;
-    if (planProdId !== undefined) {
+    if (planProdId !== undefined && type === StopType.ChangePlanProd) {
       rightForm = this.renderPlanProdForm(planProdId);
     }
-    if (maintenanceId !== undefined) {
+    if (maintenanceId !== undefined && type === StopType.Maintenance) {
       rightForm = this.renderMaintenanceForm(maintenanceId);
     }
     return this.renderLine(
       labelForStopType.get(type) || '',
-      colorForStopType.get(type) || 'white',
+      getColorForStopType(type),
       this.props.onRemoveType,
       rightForm
     );

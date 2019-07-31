@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {StopView} from '@root/components/apps/production/stop_view';
-import {ScheduleView} from '@root/components/apps/view_day_app/schedule';
+import {ScheduleView} from '@root/components/common/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
 import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
@@ -156,6 +156,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
   public render(): JSX.Element {
     const {day, prodRanges, schedule} = this.state;
+
+    console.log(schedule);
 
     const stopsElements = this.renderStops();
     const histoStartTimes = Array.from(stopsElements.keys())

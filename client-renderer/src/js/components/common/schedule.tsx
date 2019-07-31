@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
+import {getColorForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, padNumber} from '@root/lib/utils';
 import {theme, Palette} from '@root/theme';
 
@@ -16,6 +17,8 @@ interface ScheduleViewProps {
   stocks?: Map<string, Stock[]>;
   prodRanges?: Map<string, ProdRange>;
 }
+
+const PLANNED_EVENT_OPACITY = 0.75;
 
 export class ScheduleView extends React.Component<ScheduleViewProps> {
   public static displayName = 'ScheduleView';
@@ -122,13 +125,17 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     );
   }
 
-  private getPositionStyleForDates(start: Date, end: Date): React.CSSProperties {
+  private getPositionStyleForDates(
+    start: Date,
+    end: Date,
+    borderSize: number = 0
+  ): React.CSSProperties {
     const left = 96;
     const right = 96;
-    const width = `calc(100% - ${left + right}px)`;
+    const width = `calc(100% - ${left + right}px - ${borderSize}px)`;
     const top = this.getYPosForTime(start.getTime());
     const bottom = this.getYPosForTime(end.getTime());
-    const height = bottom - top - 1; // -1 for the border
+    const height = bottom - top - borderSize;
     return {
       position: 'absolute',
       top,
@@ -138,7 +145,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     };
   }
 
-  private renderStop(stop: Stop, color: Color): JSX.Element {
+  private renderStop(stop: Stop, isPlanned: boolean): JSX.Element {
     if (!stop.end) {
       console.log(stop);
       throw new Error('invalid stop');
@@ -147,8 +154,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       <StopWrapper
         style={{
           ...this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end)),
-          backgroundColor: color.backgroundHex,
-          border: 'solid 1px black',
+          backgroundColor: getColorForStopType(stop.stopType),
+          opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
         }}
       >
         STOP
@@ -157,7 +164,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     );
   }
 
-  private renderProd(prod: Prod, color: Color): JSX.Element {
+  private renderProd(prod: Prod, color: Color, isPlanned: boolean): JSX.Element {
     if (!prod.end) {
       console.log(prod);
       throw new Error('invalid prod');
@@ -167,7 +174,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         style={{
           ...this.getPositionStyleForDates(new Date(prod.start), new Date(prod.end)),
           backgroundColor: color.backgroundHex,
-          border: 'solid 1px black',
+          opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
         }}
       >
         PROD
@@ -182,10 +189,17 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         {color => (
           <React.Fragment>
             {([] as JSX.Element[])
-              .concat(planSchedule.stops.map(s => this.renderStop(s, color)))
-              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, color)))
-              .concat(planSchedule.prods.map(p => this.renderProd(p, color)))
-              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color)))}
+              .concat(planSchedule.stops.map(s => this.renderStop(s, false)))
+              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, true)))
+              .concat(planSchedule.prods.map(p => this.renderProd(p, color, false)))
+              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color, true)))}
+            <PlanProdBorder
+              style={this.getPositionStyleForDates(
+                new Date(planSchedule.start),
+                new Date(planSchedule.end),
+                2
+              )}
+            />
           </React.Fragment>
         )}
       </WithColor>
@@ -225,4 +239,8 @@ const StopWrapper = styled.div``;
 
 const HoursSVG = styled.svg`
   background-color: ${Palette.Clouds};
+`;
+
+const PlanProdBorder = styled.div`
+  border: solid 2px black;
 `;

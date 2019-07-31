@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {ScheduleView} from '@root/components/apps/view_day_app/schedule';
+import {ScheduleView} from '@root/components/common/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
 import {capitalize} from '@root/lib/utils';

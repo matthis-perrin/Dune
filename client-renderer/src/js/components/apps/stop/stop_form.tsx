@@ -8,6 +8,7 @@ import {UnplannedStopsForm} from '@root/components/apps/stop/stop_other_reasons_
 import {StopTypeForm} from '@root/components/apps/stop/stop_type_form';
 import {Timer} from '@root/components/common/timer';
 import {Button} from '@root/components/core/button';
+import {bridge} from '@root/lib/bridge';
 import {
   getAllPlannedSchedules,
   getAllPlannedMaintenances,
@@ -36,11 +37,47 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
 
   public constructor(props: StopFormProps) {
     super(props);
-    this.state = {unplannedStops: [], cleanings: [], comments: []};
+    const {stop} = props;
+    if (!stop) {
+      this.state = {unplannedStops: [], cleanings: [], comments: []};
+    } else {
+      const {stopInfo} = stop;
+      if (!stopInfo) {
+        this.state = {stopType: stop.stopType, unplannedStops: [], cleanings: [], comments: []};
+      } else {
+        const {stopType, planProdId, maintenanceId} = stop;
+        const {unplannedStops, cleanings, comments} = stopInfo;
+        this.state = {
+          stopType,
+          unplannedStops,
+          cleanings,
+          comments,
+          planProdId,
+          maintenanceId,
+        };
+      }
+    }
   }
 
   private readonly handleSave = (): void => {
-    console.log('Save', this.state);
+    const {stop} = this.props;
+    const {stopType, unplannedStops, cleanings, comments, planProdId, maintenanceId} = this.state;
+    if (stopType !== undefined && planProdId !== undefined) {
+      bridge
+        .updateStop(
+          stop.start,
+          stopType,
+          {
+            cleanings,
+            comments,
+            unplannedStops,
+          },
+          planProdId,
+          maintenanceId
+        )
+        .then(() => bridge.closeApp().catch(console.error))
+        .catch(console.error);
+    }
   };
 
   private readonly handleStopTypeChange = (
@@ -155,6 +192,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     const availablePlanProds = getAllPlannedSchedules(this.props.schedule);
     const availableMaintenances = getAllPlannedMaintenances(this.props.schedule);
     const currentPlanId = getCurrentPlanId(this.props.schedule);
+
     return (
       <StopTypeBlock>
         <ContentTitle>TYPE D'ARRÊT</ContentTitle>

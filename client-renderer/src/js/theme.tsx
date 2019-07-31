@@ -267,7 +267,7 @@ export const theme = {
     shadow: '0px 0px 16px 0px rgba(0,0,0,0.75)',
   },
   schedule: {
-    hourHeight: 100,
+    hourHeight: 120,
     verticalPadding: 48,
   },
 };

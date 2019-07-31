@@ -59,6 +59,20 @@ export async function getLastStop(db: knex): Promise<Stop | undefined> {
   return lineAsStop(res[0]);
 }
 
+export async function getLastStopWithPlanProdId(db: knex): Promise<Stop | undefined> {
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .orderBy(SpeedStopsColumn.Start, 'desc')
+      .whereNotNull(SpeedStopsColumn.PlanProdId)
+      .limit(1)
+  );
+  if (res.length === 0) {
+    return undefined;
+  }
+  return lineAsStop(res[0]);
+}
+
 export async function getRowCount(db: knex): Promise<number> {
   const countRes = await db(SPEED_STOPS_TABLE_NAME).count(`${SpeedStopsColumn.Start} as c`);
   return asNumber(asMap(asArray(countRes)[0])['c'], 0);
@@ -100,9 +114,10 @@ export async function insertOrUpdateStop(db: knex, start: number, end?: number):
   }
 }
 
-export async function recordStopStart(db: knex, start: number): Promise<void> {
+export async function recordStopStart(db: knex, start: number, planProd?: number): Promise<void> {
   return db(SPEED_STOPS_TABLE_NAME).insert({
     [SpeedStopsColumn.Start]: start,
+    [SpeedStopsColumn.PlanProdId]: planProd,
   });
 }
 

@@ -648,8 +648,9 @@ function finishPlanProd(
     return newSchedules;
   }
 
-  // If there is a stop in progress we need to "finish" it first
+  // If there is something in progress we need to "finish" it first
   if (lastSchedule && lastSchedule.status === PlanProductionStatus.IN_PROGRESS) {
+    // Finish the last stop
     const lastStopEvent = maxBy(lastSchedule.stops, p => p.start);
     if (lastStopEvent !== undefined && lastStopEvent.end === undefined) {
       const endTime = supportData.currentTime;
@@ -682,6 +683,9 @@ function finishPlanProd(
             stopLeft =
               maintenance.endTime - maintenance.startTime - (endTime - lastStopEvent.start);
           }
+          supportData.maintenances = supportData.maintenances.filter(
+            m => m.id !== lastStopEvent.maintenanceId
+          );
         }
       }
 
@@ -695,6 +699,7 @@ function finishPlanProd(
         );
         newSchedules = mergeSchedules([newSchedules, plannedEventsForStop]);
       }
+      lastStopEvent.end = endTime;
       if (lastStopEvent.stopType === StopType.EndOfDayEndProd) {
         return newSchedules;
       }
@@ -737,6 +742,18 @@ function finishPlanProd(
           }
         }
       }
+    }
+    // Finish the last prod
+    const lastProdEvent = maxBy(lastSchedule.prods, p => p.start);
+    if (lastProdEvent !== undefined && lastProdEvent.end === undefined) {
+      const endTime = supportData.currentTime;
+      const prodDuration = endTime - lastProdEvent.start;
+      lastProdEvent.end = endTime;
+      lastSchedule.doneProdMs += prodDuration;
+      lastSchedule.doneProdMeters += productionTimeToMeters(
+        prodDuration,
+        lastProdEvent.avgSpeed || 0
+      );
     }
   }
 
@@ -825,6 +842,7 @@ function schedulePlanProd(
   schedulePerDay.forEach(schedule => {
     schedule.status = PlanProductionStatus.DONE;
   });
+
   // Except for the last schedule that could still be in progress
   // i.e the next plan has not started yet and there is no end of day stops
   if (lastSchedule && !hasNextPlanStarted) {
@@ -836,7 +854,6 @@ function schedulePlanProd(
       // to be the last minute speed
       if (lastEvent && lastEvent.end === undefined) {
         lastSchedule.end = supportData.currentTime;
-        lastEvent.end = supportData.currentTime;
       }
     }
   }
@@ -895,6 +912,7 @@ export function createSchedule(
   maintenances: Maintenance[],
   lastMinuteSpeed?: MinuteSpeed
 ): Schedule {
+  // Remove startedPlans from the notStartedPlans array (happens when a plan is in progress)
   const allPlans = [...startedPlans, ...notStartedPlans];
 
   const prodsById = new Map<number, Prod[]>();
@@ -929,7 +947,7 @@ export function createSchedule(
         stopsForId.push(s);
       }
     }
-    if (s.maintenanceId !== undefined) {
+    if (s.maintenanceId !== undefined && s.end !== undefined) {
       doneMaintenances.set(s.maintenanceId);
     }
   });

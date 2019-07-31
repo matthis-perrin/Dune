@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import {StopTile} from '@root/components/apps/production/stop_tile';
 import {Timer} from '@root/components/common/timer';
-import {Palette} from '@root/theme';
+import {getColorForStopType} from '@root/lib/stop';
 
 import {Stop} from '@shared/models';
 
@@ -25,10 +25,10 @@ export class StopView extends React.Component<StopViewProps, StopViewState> {
 
     return (
       <StopTile
-        color={Palette.Alizarin}
+        color={getColorForStopType(stop.stopType)}
         start={stop.start}
         end={stop.end}
-        right={<span>Right</span>}
+        right={<span>{stop.stopType || '???'}</span>}
         indicators={[
           {
             label: 'DURÉE',

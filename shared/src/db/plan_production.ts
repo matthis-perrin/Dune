@@ -298,5 +298,6 @@ export async function getStartedPlanProdsInRange(
         });
       // tslint:enable:no-invalid-this
     })
+    .groupBy(speedPlanIdColumn)
     .map(mapLineToPlanProductionRaw);
 }

@@ -270,7 +270,7 @@ export class Bridge {
     start: number,
     type: StopType,
     info: StopInfo,
-    planProdId: number | undefined,
+    planProdId: number,
     maintenanceId: number | undefined
   ): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(UpdateStop, {

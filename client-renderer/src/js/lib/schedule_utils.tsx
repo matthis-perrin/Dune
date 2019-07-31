@@ -154,8 +154,9 @@ export function getCurrentPlanId(schedule: Schedule): number | undefined {
     [] as PlanProdSchedule[]
   );
   const lastSchedule = allSchedulesDoneOrInProgress.sort((s1, s2) => s2.start - s1.start)[0];
+
   if (lastSchedule === undefined) {
     return undefined;
   }
-  lastSchedule.planProd.id;
+  return lastSchedule.planProd.id;
 }

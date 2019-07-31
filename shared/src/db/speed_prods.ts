@@ -50,6 +50,20 @@ export async function getLastProd(db: knex): Promise<Prod | undefined> {
   return lineAsProd(res[0]);
 }
 
+export async function getLastProdWithPlanProdId(db: knex): Promise<Prod | undefined> {
+  const res = asArray(
+    await db(SPEED_PRODS_TABLE_NAME)
+      .select()
+      .orderBy(SpeedProdsColumn.Start, 'desc')
+      .whereNotNull(SpeedProdsColumn.PlanProdId)
+      .limit(1)
+  );
+  if (res.length === 0) {
+    return undefined;
+  }
+  return lineAsProd(res[0]);
+}
+
 export async function getRowCount(db: knex): Promise<number> {
   const countRes = await db(SPEED_PRODS_TABLE_NAME).count(`${SpeedProdsColumn.Start} as c`);
   return asNumber(asMap(asArray(countRes)[0])['c'], 0);
@@ -101,4 +115,12 @@ export async function getSpeedProdBetween(db: knex, start: number, end: number):
       this.where(SpeedProdsColumn.End, '>=', start).andWhere(SpeedProdsColumn.End, '<', end);
     })
     .map(lineAsProd);
+}
+
+export async function updateProdSpeed(db: knex, start: number, avgSpeed: number): Promise<void> {
+  return db(SPEED_PRODS_TABLE_NAME)
+    .where(SpeedProdsColumn.Start, '=', start)
+    .update({
+      [SpeedProdsColumn.AvgSpeed]: avgSpeed,
+    });
 }
