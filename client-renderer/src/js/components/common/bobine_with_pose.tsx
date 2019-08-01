@@ -20,6 +20,7 @@ interface BobineWithPoseProps extends DivProps {
   pixelPerMM: number;
   bobine: BobineFilleWithPose;
   negativeMargin: boolean;
+  nonInteractive?: boolean;
 }
 
 export class BobineWithPose extends React.Component<BobineWithPoseProps> {
@@ -31,7 +32,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
   };
 
   public render(): JSX.Element {
-    const {bobine, pixelPerMM, negativeMargin} = this.props;
+    const {bobine, pixelPerMM, negativeMargin, nonInteractive} = this.props;
     const poseSize = getPoseSize(bobine.pose);
 
     const initialSize = bobine.laize || 0;
@@ -42,7 +43,13 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
     const curveOffset = pixelPerMM * CAPACITE_MACHINE * CURVE_EXTRA_SPACE * 2;
     const offset = curveOffset + theme.planProd.selectedStrokeWidth * 2;
 
-    const rest = omit(this.props, ['pixelPerMM', 'bobine', 'negativeMargin', 'style']);
+    const rest = omit(this.props, [
+      'pixelPerMM',
+      'bobine',
+      'negativeMargin',
+      'style',
+      'nonInteractive',
+    ]);
     const style: React.CSSProperties = {
       ...(this.props.style || {}),
       display: 'flex',
@@ -50,46 +57,51 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
 
     return (
       <WithColor color={bobine.couleurPapier}>
-        {papierColor => (
-          <ClosableWithHover
-            color={papierColor.closeHex}
-            onClose={this.handleClose}
-            {...rest}
-            style={style}
-            offset={curveOffset}
-            size={size * poseSize + offset}
-          >
-            {range(poseSize).map((pose, i) => (
-              <Bobine
-                key={i}
-                style={{marginLeft: negativeMargin || i > 0 ? -offset : 0, zIndex: i + 1}}
-                pixelPerMM={pixelPerMM}
-                size={size}
-                color={papierColor.backgroundHex}
-                strokeWidth={1}
-                faceDown
+        {papierColor => {
+          const bobineElements = range(poseSize).map((pose, i) => (
+            <Bobine
+              key={i}
+              style={{marginLeft: negativeMargin || i > 0 ? -offset : 0, zIndex: i + 1}}
+              pixelPerMM={pixelPerMM}
+              size={size}
+              color={papierColor.backgroundHex}
+              strokeWidth={1}
+              faceDown
+            >
+              <AutoFontWeight
+                fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}
+                style={{userSelect: 'none'}}
               >
-                <AutoFontWeight
-                  fontSize={theme.planProd.elementsBaseSmallFontSize * pixelPerMM}
-                  style={{userSelect: 'none'}}
-                >
-                  <BobineDescription style={{color: papierColor.textHex}}>
-                    <RefLink
-                      style={{width: size * pixelPerMM}}
-                      color={papierColor.textHex}
-                      noIcon
-                      onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
-                    >
-                      {bobine.ref}
-                    </RefLink>
-                    <br />
-                    {`${bobine.laize} - ${bobine.grammage}g`}
-                  </BobineDescription>
-                </AutoFontWeight>
-              </Bobine>
-            ))}
-          </ClosableWithHover>
-        )}
+                <BobineDescription style={{color: papierColor.textHex}}>
+                  <RefLink
+                    style={{width: size * pixelPerMM}}
+                    color={papierColor.textHex}
+                    noIcon
+                    onClick={() => bridge.viewBobine(bobine.ref).catch(console.error)}
+                  >
+                    {bobine.ref}
+                  </RefLink>
+                  <br />
+                  {`${bobine.laize} - ${bobine.grammage}g`}
+                </BobineDescription>
+              </AutoFontWeight>
+            </Bobine>
+          ));
+          return nonInteractive ? (
+            <div style={style}>{bobineElements}</div>
+          ) : (
+            <ClosableWithHover
+              color={papierColor.closeHex}
+              onClose={this.handleClose}
+              {...rest}
+              style={style}
+              offset={curveOffset}
+              size={size * poseSize + offset}
+            >
+              {bobineElements}
+            </ClosableWithHover>
+          );
+        }}
       </WithColor>
     );
   }

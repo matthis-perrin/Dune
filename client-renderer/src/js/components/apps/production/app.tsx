@@ -10,7 +10,6 @@ import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
 import {
   getMinimumScheduleRangeForDate,
-  getCurrentPlanId,
   getPlanProd,
   getCurrentPlanSchedule,
 } from '@root/lib/schedule_utils';
@@ -22,7 +21,7 @@ import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {ProdInfo, Schedule, ProdRange, StopType} from '@shared/models';
+import {ProdInfo, Schedule, ProdRange, StopType, BobineQuantities} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -117,6 +116,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.prodInfoStore.setDay(newDay);
     this.scheduleStore.setRange(start, end);
     this.setState({day: newDay});
+    document.title = this.formatDay(newDay);
   }
 
   private readonly handlePreviousClick = (): void => {
@@ -187,6 +187,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
               cadencier={cadencier}
               schedule={planProdSchedule}
               width={planProdViewerWidth}
+              hideOperationTable
+              nonInteractive
             />
           );
         }

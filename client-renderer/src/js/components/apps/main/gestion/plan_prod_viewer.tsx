@@ -24,6 +24,8 @@ interface PlanProdViewerProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   width: number;
+  hideOperationTable?: boolean;
+  nonInteractive?: boolean;
   onHeightAvailable?(height: number): void;
 }
 
@@ -48,7 +50,15 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
   }
 
   public render(): JSX.Element {
-    const {width, schedule, cadencier, bobineQuantities, onHeightAvailable} = this.props;
+    const {
+      width,
+      schedule,
+      cadencier,
+      bobineQuantities,
+      hideOperationTable,
+      onHeightAvailable,
+      nonInteractive,
+    } = this.props;
     const {
       bobines,
       refente,
@@ -91,6 +101,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
         allValidEncrierColors={[encriers]}
         encrierColors={encriers}
         onReorder={() => {}}
+        nonInteractive
       />
     );
 
@@ -158,7 +169,9 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
         <React.Fragment />
       );
 
-    const operationTable = (
+    const operationTable = hideOperationTable ? (
+      <React.Fragment />
+    ) : (
       <React.Fragment>
         <OperationTableView width={INNER_RENDERING_WIDTH} operationsSplits={schedule.operations} />
         {padding}
@@ -172,7 +185,11 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       : {zoom: scale};
 
     return (
-      <PlanProdEditorContainer ref={this.containerRef} style={scalingStyles}>
+      <PlanProdEditorContainer
+        ref={this.containerRef}
+        style={scalingStyles}
+        nonInteractive={nonInteractive}
+      >
         <TopBarView
           width={RENDERING_WIDTH}
           planProdTitle={planProdTitle}
@@ -211,9 +228,12 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
   }
 }
 
-const PlanProdEditorContainer = styled.div`
+const PlanProdEditorContainer = styled.div<{nonInteractive?: boolean}>`
   margin: auto;
   background-color: ${theme.planProd.contentBackgroundColor};
+  input {
+    pointer-events: ${props => (props.nonInteractive ? 'none' : 'initial')};
+  }
 `;
 
 const Wrapper = styled.div`

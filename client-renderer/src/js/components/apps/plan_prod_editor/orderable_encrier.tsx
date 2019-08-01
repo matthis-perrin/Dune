@@ -16,6 +16,7 @@ interface OrderableEncrierProps extends DivProps {
   encrierColors: EncrierColor[];
   allValidEncrierColors: EncrierColor[][];
   onReorder(newOrder: EncrierColor[]): void;
+  nonInteractive?: boolean;
 }
 
 interface OrderableEncrierState {
@@ -164,7 +165,13 @@ export class OrderableEncrier extends React.Component<
   }
 
   public render(): JSX.Element {
-    const {pixelPerMM, selectedBobines, selectedRefente, encrierColors} = this.props;
+    const {
+      pixelPerMM,
+      selectedBobines,
+      selectedRefente,
+      encrierColors,
+      nonInteractive,
+    } = this.props;
     const {dragStart, dragEnd} = this.state;
     const draggedEncrierIndex = this.getDraggedEncrierIndex();
     const orderedEncriers = this.getNewEncriersOrder(draggedEncrierIndex, dragStart, dragEnd);
@@ -193,6 +200,15 @@ export class OrderableEncrier extends React.Component<
       );
     }
 
+    const eventHandlers = nonInteractive
+      ? {}
+      : {
+          onMouseDown: (event: React.MouseEvent) => this.handleMouseDown(event),
+          onMouseMove: (event: React.MouseEvent) => this.handleMouseMove(event),
+          onMouseUp: (event: React.MouseEvent) => this.handleMouseUp(event),
+          onMouseLeave: (event: React.MouseEvent) => this.handleMouseLeave(event),
+        };
+
     return (
       <div style={{position: 'relative'}}>
         <OrderableEncrierWrapper
@@ -200,10 +216,7 @@ export class OrderableEncrier extends React.Component<
             userSelect: 'none',
           }}
           ref={this.wrapperRef}
-          onMouseDown={(event: React.MouseEvent) => this.handleMouseDown(event)}
-          onMouseMove={(event: React.MouseEvent) => this.handleMouseMove(event)}
-          onMouseUp={(event: React.MouseEvent) => this.handleMouseUp(event)}
-          onMouseLeave={(event: React.MouseEvent) => this.handleMouseLeave(event)}
+          {...eventHandlers}
         >
           {orderedEncriers.map((encrierColor, index) => {
             return (

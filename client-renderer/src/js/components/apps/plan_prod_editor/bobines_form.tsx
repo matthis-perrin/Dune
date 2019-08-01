@@ -151,6 +151,7 @@ export class StaticBobinesForm extends React.Component<StaticBobinesFormProps> {
             bobine={b}
             style={{zIndex: index + 1}}
             negativeMargin
+            nonInteractive
           >{`${b.ref}-${b.pose}`}</BobineWithPose>
         ))}
       </FlexBlock>
