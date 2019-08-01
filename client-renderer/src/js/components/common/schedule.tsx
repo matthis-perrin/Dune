@@ -3,11 +3,12 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
+import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {computeMetrage} from '@root/lib/prod';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, padNumber, isSameDay, roundedToDigit} from '@root/lib/utils';
-import {theme, Palette} from '@root/theme';
+import {theme, Palette, FontWeight} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {Stock, ProdRange, Schedule, PlanProdSchedule, Stop, Color, Prod} from '@shared/models';
@@ -131,9 +132,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     end: Date,
     borderSize: number = 0
   ): React.CSSProperties {
-    const left = 96;
-    const right = 96;
-    const width = `calc(100% - ${left + right}px - ${borderSize}px)`;
+    const left = paddingLeft + planTitleWidth;
+    const width = `calc(100% - ${left + paddingRight}px - ${borderSize}px)`;
     const top = this.getYPosForTime(start.getTime());
     const bottom = this.getYPosForTime(end.getTime());
     const height = bottom - top - borderSize;
@@ -188,6 +188,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderPlanProdSchedule(planSchedule: PlanProdSchedule): JSX.Element {
+    const planBorderPosition = this.getPositionStyleForDates(
+      new Date(planSchedule.start),
+      new Date(planSchedule.end),
+      planBorderThickness
+    );
     return (
       <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>
         {color => (
@@ -197,13 +202,17 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               .concat(planSchedule.plannedStops.map(s => this.renderStop(s, true)))
               .concat(planSchedule.prods.map(p => this.renderProd(p, color, false)))
               .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color, true)))}
-            <PlanProdBorder
-              style={this.getPositionStyleForDates(
-                new Date(planSchedule.start),
-                new Date(planSchedule.end),
-                planBorderThickness
-              )}
-            />
+            <PlanProdBorder style={planBorderPosition} />
+            <PlanTitle
+              style={{
+                ...planBorderPosition,
+                width: planTitleWidth,
+                left: paddingLeft,
+                background: color.backgroundHex,
+              }}
+            >
+              {getPlanProdTitle(planSchedule.planProd.id)}
+            </PlanTitle>
           </React.Fragment>
         )}
       </WithColor>
@@ -226,8 +235,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     if (schedule) {
       const {lastMinuteSpeed} = schedule;
       if (lastMinuteSpeed && isSameDay(new Date(day), new Date(lastMinuteSpeed.minute))) {
-        const left = 96;
-        const right = 96;
+        const left = paddingLeft;
+        const right = paddingRight;
         const width = `calc(100% - ${left + right - planBorderThickness}px)`;
         const top = this.getYPosForTime(lastMinuteSpeed.minute);
         const height = 1;
@@ -262,6 +271,9 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 }
 
 const planBorderThickness = 2;
+const planTitleWidth = 48;
+const paddingLeft = 96;
+const paddingRight = 96;
 
 const ScheduleWrapper = styled.div`
   position: relative;
@@ -282,6 +294,16 @@ const HoursSVG = styled.svg`
 
 const PlanProdBorder = styled.div`
   border: solid ${planBorderThickness}px black;
+`;
+
+const PlanTitle = styled.div`
+  border: solid ${planBorderThickness}px black;
+  writing-mode: vertical-lr;
+  transform: rotate(-180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${FontWeight.SemiBold};
 `;
 
 const CurrentTimeLine = styled.div`
