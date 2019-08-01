@@ -804,10 +804,7 @@ function schedulePlanProd(
     [] as number[]
   );
 
-  const minStart = startTimes.reduce(
-    (minTime, start) => Math.min(minTime, start),
-    supportData.currentTime
-  );
+  const minStart = startTimes.reduce((minTime, start) => Math.min(minTime, start), Date.now() * 2);
   const maxEnd = endTimes.reduce((maxTime, end) => Math.max(maxTime, end), 0);
 
   return {

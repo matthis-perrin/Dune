@@ -204,7 +204,8 @@ export class TopBar extends React.Component<TopBarProps> {
 
     if (previousSchedule && encriers && papier && perfo && polypro && refente) {
       const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
-      operationTime = getOperationTime(operations, previousSchedule.planProd.data, currentPlanProd);
+      operationTime =
+        1000 * getOperationTime(operations, previousSchedule.planProd.data, currentPlanProd);
     }
 
     return (

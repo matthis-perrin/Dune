@@ -6,7 +6,7 @@ import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
 import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
-import {dateIsAfterOrSameDay, startOfDay} from '@root/lib/utils';
+import {dateIsAfterOrSameDay, startOfDay, endOfDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
@@ -96,10 +96,10 @@ export class GestionPage extends React.Component<Props, State> {
     if (!schedule) {
       return 0;
     }
-    const dayStart = startOfDay(date).getTime();
+    const dayEnd = endOfDay(date).getTime();
     const lastPlanBeforeOrAtDate = schedule.plans
-      .filter(p => startOfDay(p.start).getTime() <= dayStart)
-      .sort((p1, p2) => p2.start.getTime() - p1.start.getTime())[0];
+      .filter(p => startOfDay(p.start).getTime() <= dayEnd)
+      .sort((p1, p2) => p2.planProd.index - p1.planProd.index)[0];
     if (!lastPlanBeforeOrAtDate) {
       return 0;
     }

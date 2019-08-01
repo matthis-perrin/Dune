@@ -78,11 +78,20 @@ export function isWeekDay(date: Date): boolean {
 }
 
 export function startOfDay(date?: Date): Date {
-  const d = date || new Date();
+  const d = date ? new Date(date.getTime()) : new Date();
   d.setHours(0);
   d.setMinutes(0);
   d.setSeconds(0);
   d.setMilliseconds(0);
+  return d;
+}
+
+export function endOfDay(date?: Date): Date {
+  const d = date ? new Date(date.getTime()) : new Date();
+  d.setHours(24);
+  d.setMinutes(0);
+  d.setSeconds(0);
+  d.setMilliseconds(-1);
   return d;
 }
 
