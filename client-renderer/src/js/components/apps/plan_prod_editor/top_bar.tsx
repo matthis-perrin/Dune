@@ -282,7 +282,7 @@ export class TopBarView extends React.Component<TopBarViewProps> {
           color: Colors.SecondaryDark,
         }
       : {};
-    const operationTimeElement = <Duration durationMs={operationTime * 1000} />;
+    const operationTimeElement = <Duration durationMs={operationTime} />;
 
     return (
       <TopBarWrapper style={{...style, width}}>
