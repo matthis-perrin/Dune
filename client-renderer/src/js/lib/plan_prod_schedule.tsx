@@ -1,4 +1,4 @@
-import {max, maxBy, minBy} from 'lodash-es';
+import {max, maxBy} from 'lodash-es';
 
 import {ADDITIONAL_TIME_TO_RESTART_PROD, MAX_SPEED_RATIO} from '@root/lib/constants';
 import {metersToProductionTime, productionTimeToMeters} from '@root/lib/plan_prod';
@@ -63,22 +63,49 @@ function getProdDoneMeters(schedules: Map<number, PlanProdSchedule>): number {
   );
 }
 
+function eventsOrder(event1: AutomateEvent, event2: AutomateEvent): number {
+  if (event1.start !== event2.start) {
+    return event1.start - event2.start;
+  }
+  if (event1.end !== undefined) {
+    if (event2.end !== undefined) {
+      return event1.end - event2.end;
+    } else {
+      return -1;
+    }
+  } else {
+    if (event1.end === undefined) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+
+function getFirstAutomateEvent(list: AutomateEvent[]): AutomateEvent | undefined {
+  return list.sort(eventsOrder)[0];
+}
+
+function getLastAutomateEvent(list: AutomateEvent[]): AutomateEvent | undefined {
+  return list.sort((e1, e2) => -eventsOrder(e1, e2))[0];
+}
+
 function getFirstEvent(planEvents: PlanEvents): AutomateEvent | undefined {
-  const minProd = minBy(planEvents.prods, e => e.start);
-  const minPlannedProd = minBy(planEvents.plannedProds, e => e.start);
-  const minStop = minBy(planEvents.stops, e => e.start);
-  const minPlannedStop = minBy(planEvents.plannedStops, e => e.start);
+  const minProd = getFirstAutomateEvent(planEvents.prods);
+  const minPlannedProd = getFirstAutomateEvent(planEvents.plannedProds);
+  const minStop = getFirstAutomateEvent(planEvents.stops);
+  const minPlannedStop = getFirstAutomateEvent(planEvents.plannedStops);
   const mins = removeUndefined([minProd, minPlannedProd, minStop, minPlannedStop]);
-  return minBy(mins, e => e.start);
+  return getFirstAutomateEvent(mins);
 }
 
 function getLastEvent(planEvents: PlanEvents): AutomateEvent | undefined {
-  const maxProd = maxBy(planEvents.prods, e => e.start);
-  const maxPlannedProd = maxBy(planEvents.plannedProds, e => e.start);
-  const maxStop = maxBy(planEvents.stops, e => e.start);
-  const maxPlannedStop = maxBy(planEvents.plannedStops, e => e.start);
+  const maxProd = getLastAutomateEvent(planEvents.prods);
+  const maxPlannedProd = getLastAutomateEvent(planEvents.plannedProds);
+  const maxStop = getLastAutomateEvent(planEvents.stops);
+  const maxPlannedStop = getLastAutomateEvent(planEvents.plannedStops);
   const maxs = removeUndefined([maxProd, maxPlannedProd, maxStop, maxPlannedStop]);
-  return maxBy(maxs, e => e.start);
+  return getLastAutomateEvent(maxs);
 }
 
 function getLastSchedule(
@@ -459,6 +486,15 @@ function generateProdLeft(
   startTime: number,
   supportData: ScheduleSupportData
 ): Map<number, PlanProdSchedule> {
+  // We don't finisht the prod if the last stop is a EndOfDayEndOfProd stop
+  const lastSchedule = getLastSchedule(currentSchedules);
+  if (lastSchedule) {
+    const lastStopEvent = getLastAutomateEvent(lastSchedule.stops) as Stop | undefined;
+    if (lastStopEvent !== undefined && lastStopEvent.stopType === StopType.EndOfDayEndProd) {
+      return new Map<number, PlanProdSchedule>();
+    }
+  }
+
   const prodAlreadyDoneMeters = getProdDoneMeters(currentSchedules);
   const prodLengthMeters = getProductionLengthMeters(planProd);
   const leftToProduce = prodLengthMeters - prodAlreadyDoneMeters;
@@ -593,6 +629,7 @@ function finishPlanProd(
         }
       }
     }
+
     // Finish the last prod unless the last stop is a EndOfDayEndOfProd stop
     const lastProdEvent = maxBy(lastSchedule.prods, p => p.start);
     if (

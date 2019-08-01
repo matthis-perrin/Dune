@@ -290,6 +290,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private renderPlanProds(): JSX.Element[] {
     const {schedule, day} = this.props;
+    console.log(schedule);
     if (!schedule) {
       return [];
     }

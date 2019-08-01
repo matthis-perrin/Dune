@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {StopView} from '@root/components/apps/production/stop_view';
+import {SpeedChart} from '@root/components/charts/speed_chart';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
@@ -20,7 +21,7 @@ import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
 
-import {getWeekDay} from '@shared/lib/time';
+import {getWeekDay, dateAtHour} from '@shared/lib/time';
 import {ProdInfo, Schedule, ProdRange, StopType, BobineQuantities} from '@shared/models';
 
 interface ProductionAppProps {
@@ -198,6 +199,17 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     return <div>Pas de plan de production en cours</div>;
   }
 
+  private renderChart(): JSX.Element {
+    const {day, prodInfo, prodRanges} = this.state;
+    const prodRange = (prodRanges && prodRanges.get(getWeekDay(new Date(day)))) || {
+      startHour: 0,
+      startMinute: 0,
+      endHour: 23,
+      endMinute: 59,
+    };
+    return <SpeedChart day={day} prodRange={prodRange} speeds={prodInfo.minuteSpeeds} />;
+  }
+
   public render(): JSX.Element {
     const {day, prodRanges, schedule} = this.state;
 
@@ -227,7 +239,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <SVGIcon name="caret-right" width={12} height={12} />
           </div>
         </TopBar>
-        <ChartContainer>Chart</ChartContainer>
+        <ChartContainer>{this.renderChart()}</ChartContainer>
         <ProdStateContainer>
           <ScheduleContainer>
             <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
