@@ -1,7 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {bridge} from '@root/lib/bridge';
 import {Palette} from '@root/theme';
+
+import {dateAtHour} from '@shared/lib/time';
 
 interface StopTileProps {
   start: number;
@@ -18,11 +21,17 @@ export class StopTile extends React.Component<StopTileProps> {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
   }
 
+  private readonly handleClick = (): void => {
+    const {start} = this.props;
+    const day = dateAtHour(new Date(start), 0).getTime();
+    bridge.openDayStopWindow(day, start).catch(console.error);
+  };
+
   public render(): JSX.Element {
     const {start, end, right, color, indicators} = this.props;
 
     return (
-      <StopTileWrapper style={{borderLeftColor: color}}>
+      <StopTileWrapper style={{borderLeftColor: color}} onClick={this.handleClick}>
         <StopTileTimes>
           <StopTileEnd>
             <StopTileLabel>FIN</StopTileLabel>
@@ -51,6 +60,10 @@ const StopTileWrapper = styled.div`
   display: flex;
   background-color: ${Palette.White};
   margin: 4px 4px 0 4px;
+  &:hover {
+    background: ${Palette.Clouds};
+    cursor: pointer;
+  }
 `;
 
 const StopTileTimes = styled.div`

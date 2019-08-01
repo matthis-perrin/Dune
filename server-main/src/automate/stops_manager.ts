@@ -1,7 +1,11 @@
 import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
-import {firstSpeedMatchingSince, getAverageSpeedBetween} from '@shared/db/speed_minutes';
+import {
+  firstSpeedMatchingBetween,
+  getAverageSpeedBetween,
+  getLastMinute,
+} from '@shared/db/speed_minutes';
 import {
   getLastProd,
   recordProdEnd,
@@ -22,7 +26,10 @@ const SPEED_THRESHOLD_FOR_STOP = 50;
 
 class StopsManager {
   // If a stop has started, returns the new stop start time, otherwise returns undefined
-  private async getNextStopStart(lastStop: Stop | undefined): Promise<number | undefined> {
+  private async getNextStopStart(
+    lastStop: Stop | undefined,
+    lastMinute: number
+  ): Promise<number | undefined> {
     let lastStopEndTime = 0;
     if (lastStop !== undefined) {
       if (lastStop.end === undefined) {
@@ -33,9 +40,10 @@ class StopsManager {
       }
     }
 
-    const nextStopStart = await firstSpeedMatchingSince(
+    const nextStopStart = await firstSpeedMatchingBetween(
       SQLITE_DB.Prod,
       lastStopEndTime,
+      lastMinute,
       '<',
       SPEED_THRESHOLD_FOR_STOP
     );
@@ -43,7 +51,10 @@ class StopsManager {
   }
 
   // If a prod has started, returns the new prod start time, otherwise returns undefined
-  private async getNextProdStart(lastProd: Stop | undefined): Promise<number | undefined> {
+  private async getNextProdStart(
+    lastProd: Prod | undefined,
+    lastMinute: number
+  ): Promise<number | undefined> {
     let lastProdEndTime = 0;
     if (lastProd !== undefined) {
       if (lastProd.end === undefined) {
@@ -54,9 +65,10 @@ class StopsManager {
       }
     }
 
-    const nextProdStart = await firstSpeedMatchingSince(
+    const nextProdStart = await firstSpeedMatchingBetween(
       SQLITE_DB.Prod,
       lastProdEndTime,
+      lastMinute,
       '>=',
       SPEED_THRESHOLD_FOR_STOP
     );
@@ -85,15 +97,26 @@ class StopsManager {
   }
 
   private async analyseStopsAndProds(): Promise<boolean> {
-    const [lastStop, lastProd, lastStopWithPlanProdId, lastProdWithPlanProdId] = await Promise.all([
+    const [
+      lastStop,
+      lastProd,
+      lastStopWithPlanProdId,
+      lastProdWithPlanProdId,
+      lastMinute,
+    ] = await Promise.all([
       getLastStop(SQLITE_DB.Prod),
       getLastProd(SQLITE_DB.Prod),
       getLastStopWithPlanProdId(SQLITE_DB.Prod),
       getLastProdWithPlanProdId(SQLITE_DB.Prod),
+      getLastMinute(SQLITE_DB.Prod),
     ]);
 
-    const newStopStartTime = await this.getNextStopStart(lastStop);
-    const newProdStartTime = await this.getNextProdStart(lastProd);
+    if (lastMinute === undefined) {
+      return false;
+    }
+
+    const newStopStartTime = await this.getNextStopStart(lastStop, lastMinute.minute);
+    const newProdStartTime = await this.getNextProdStart(lastProd, lastMinute.minute);
     const lastPlanProdId = this.getLastPlanProdId(lastStopWithPlanProdId, lastProdWithPlanProdId);
 
     if (newStopStartTime !== undefined) {
@@ -117,7 +140,11 @@ class StopsManager {
       }
       await recordProdStart(SQLITE_DB.Prod, newProdStartTime, lastPlanProdId);
     } else if (lastProd !== undefined && lastProd.end === undefined) {
-      const averageSpeed = await getAverageSpeedBetween(SQLITE_DB.Prod, lastProd.start, Date.now());
+      const averageSpeed = await getAverageSpeedBetween(
+        SQLITE_DB.Prod,
+        lastProd.start,
+        lastMinute.minute
+      );
       if (averageSpeed !== lastProd.avgSpeed) {
         await updateProdSpeed(SQLITE_DB.Prod, lastProd.start, averageSpeed);
       }

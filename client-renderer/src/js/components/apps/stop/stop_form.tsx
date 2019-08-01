@@ -13,10 +13,21 @@ import {
   getAllPlannedSchedules,
   getAllPlannedMaintenances,
   getCurrentPlanId,
+  getMaintenance,
+  getPlanProd,
+  getPreviousStop,
 } from '@root/lib/schedule_utils';
 import {Palette, Colors} from '@root/theme';
 
-import {Stop, StopType, UnplannedStop, Cleaning, Schedule} from '@shared/models';
+import {
+  Stop,
+  StopType,
+  UnplannedStop,
+  Cleaning,
+  Schedule,
+  ScheduledPlanProd,
+  Maintenance,
+} from '@shared/models';
 
 interface StopFormProps {
   stop: Stop;
@@ -38,24 +49,26 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   public constructor(props: StopFormProps) {
     super(props);
     const {stop} = props;
-    if (!stop) {
-      this.state = {unplannedStops: [], cleanings: [], comments: []};
+    const {stopInfo, stopType, planProdId, maintenanceId} = stop;
+    if (!stopInfo) {
+      this.state = {
+        stopType: stop.stopType,
+        unplannedStops: [],
+        cleanings: [],
+        comments: [],
+        planProdId,
+        maintenanceId,
+      };
     } else {
-      const {stopInfo} = stop;
-      if (!stopInfo) {
-        this.state = {stopType: stop.stopType, unplannedStops: [], cleanings: [], comments: []};
-      } else {
-        const {stopType, planProdId, maintenanceId} = stop;
-        const {unplannedStops, cleanings, comments} = stopInfo;
-        this.state = {
-          stopType,
-          unplannedStops,
-          cleanings,
-          comments,
-          planProdId,
-          maintenanceId,
-        };
-      }
+      const {unplannedStops, cleanings, comments} = stopInfo;
+      this.state = {
+        stopType,
+        unplannedStops,
+        cleanings,
+        comments,
+        planProdId,
+        maintenanceId,
+      };
     }
   }
 
@@ -128,6 +141,33 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
   }
 
+  private getAvailablePlanProds(): ScheduledPlanProd[] {
+    const {schedule, stop} = this.props;
+    const availablePlanProds = getAllPlannedSchedules(schedule);
+    if (stop.planProdId !== undefined && stop.stopType === StopType.ChangePlanProd) {
+      const planProd = getPlanProd(schedule, stop.planProdId);
+      if (
+        planProd &&
+        availablePlanProds.map(p => p.planProd.id).indexOf(planProd.planProd.id) === -1
+      ) {
+        availablePlanProds.unshift(planProd);
+      }
+    }
+    return availablePlanProds;
+  }
+
+  private getAvailableMaintenances(): Maintenance[] {
+    const {schedule, stop} = this.props;
+    const availableMaintenances = getAllPlannedMaintenances(schedule);
+    if (stop.maintenanceId !== undefined && stop.stopType === StopType.Maintenance) {
+      const maintenance = getMaintenance(schedule, stop.maintenanceId);
+      if (maintenance && availableMaintenances.map(m => m.id).indexOf(maintenance.id) === -1) {
+        availableMaintenances.unshift(maintenance);
+      }
+    }
+    return availableMaintenances;
+  }
+
   private renderHeader(): JSX.Element {
     const {stop} = this.props;
     return (
@@ -156,8 +196,9 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     if (stopType === undefined) {
       return <React.Fragment />;
     }
-    const availablePlanProds = getAllPlannedSchedules(this.props.schedule);
-    const availableMaintenances = getAllPlannedMaintenances(this.props.schedule);
+    const availablePlanProds = this.getAvailablePlanProds();
+    const availableMaintenances = this.getAvailableMaintenances();
+
     return (
       <SummaryWrapper>
         <ContentBlock>
@@ -187,11 +228,12 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private renderStopType(): JSX.Element {
-    const {stop} = this.props;
+    const {stop, schedule} = this.props;
     const {stopType} = this.state;
-    const availablePlanProds = getAllPlannedSchedules(this.props.schedule);
-    const availableMaintenances = getAllPlannedMaintenances(this.props.schedule);
-    const currentPlanId = getCurrentPlanId(this.props.schedule);
+    const availablePlanProds = this.getAvailablePlanProds();
+    const availableMaintenances = this.getAvailableMaintenances();
+    const currentPlanId = getCurrentPlanId(schedule);
+    const previousStop = getPreviousStop(schedule, stop);
 
     return (
       <StopTypeBlock>
@@ -200,6 +242,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
           <StopTypeForm
             stop={stop}
             type={stopType}
+            previousStopType={previousStop && previousStop.stopType}
             lastPlanId={currentPlanId}
             availablePlanProds={availablePlanProds}
             availableMaintenances={availableMaintenances}

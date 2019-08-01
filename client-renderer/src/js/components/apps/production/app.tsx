@@ -13,7 +13,7 @@ import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {ProdInfo, Schedule, ProdRange} from '@shared/models';
+import {ProdInfo, Schedule, ProdRange, StopType} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay: number;
@@ -150,7 +150,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private renderStops(): Map<number, JSX.Element> {
     const stopsElements = new Map<number, JSX.Element>();
     const {stops} = this.state.prodInfo;
-    stops.forEach(stop => stopsElements.set(stop.start, <StopView stop={stop} />));
+    stops
+      .filter(s => s.stopType !== StopType.NotProdHours)
+      .forEach(stop => stopsElements.set(stop.start, <StopView stop={stop} />));
     return stopsElements;
   }
 

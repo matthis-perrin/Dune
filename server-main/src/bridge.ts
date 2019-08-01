@@ -47,12 +47,13 @@ export async function handleCommand(
   if (command === ServerSimulateAutomate) {
     const {speed, minutes} = asMap(data);
     const last = await getLastMinute(SQLITE_DB.Prod);
-    const startTs = last ? last.minute : Date.now();
+    const startTs = last ? last.minute + 60 * 1000 : Date.now();
+    const rounded = Math.floor(startTs / 1000) * 1000;
     const minutesSpeeds = new Map<number, number | undefined>();
     const parsedMinutes = asNumber(minutes, 0);
     const parseSpeed = asNumber(speed, undefined);
     for (let i = 0; i < parsedMinutes; i++) {
-      minutesSpeeds.set(startTs + i * 60 * 1000, parseSpeed);
+      minutesSpeeds.set(rounded + i * 60 * 1000, parseSpeed);
     }
     return insertOrUpdateMinutesSpeeds(SQLITE_DB.Prod, minutesSpeeds);
   }

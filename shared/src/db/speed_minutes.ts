@@ -142,15 +142,17 @@ export async function insertOrUpdateMinutesSpeeds(
   });
 }
 
-export async function firstSpeedMatchingSince(
+export async function firstSpeedMatchingBetween(
   db: knex,
-  since: number,
+  start: number, // included
+  end: number, // not included
   operator: string,
   threshold: number
 ): Promise<MinuteSpeed | undefined> {
   return (await db(SPEED_MINUTES_TABLE_NAME)
     .select([SpeedMinutesColumn.Minute, SpeedMinutesColumn.Speed])
-    .where(SpeedMinutesColumn.Minute, '>', since)
+    .where(SpeedMinutesColumn.Minute, '>=', start)
+    .where(SpeedMinutesColumn.Minute, '<', end)
     .whereNotNull(SpeedMinutesColumn.Speed)
     .andWhere(SpeedMinutesColumn.Speed, operator, threshold)
     .orderBy(SpeedMinutesColumn.Minute, 'asc')

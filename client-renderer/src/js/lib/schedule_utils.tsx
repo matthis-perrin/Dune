@@ -7,6 +7,7 @@ import {
   PlanProdSchedule,
   PlanProductionStatus,
   Maintenance,
+  Stop,
 } from '@shared/models';
 
 // function getPlanByIndex(schedule: Schedule, index: number): ScheduledPlanProd | undefined {
@@ -26,6 +27,14 @@ import {
 //   }
 //   return undefined;
 // }
+
+export function getMaintenance(schedule: Schedule, maintenanceId: number): Maintenance | undefined {
+  return schedule.maintenances.filter(m => m.id === maintenanceId)[0];
+}
+
+export function getPlanProd(schedule: Schedule, planProdId: number): ScheduledPlanProd | undefined {
+  return schedule.plans.filter(p => p.planProd.id === planProdId)[0];
+}
 
 function allSchedulesAfterDate(schedule: Schedule, date: number): PlanProdSchedule[] {
   return schedule.plans.reduce(
@@ -159,4 +168,20 @@ export function getCurrentPlanId(schedule: Schedule): number | undefined {
     return undefined;
   }
   return lastSchedule.planProd.id;
+}
+
+function getPlanStops(plan: ScheduledPlanProd): Stop[] {
+  return Array.from(plan.schedulePerDay.values()).reduce(
+    (stops, schedule) => stops.concat(schedule.stops),
+    [] as Stop[]
+  );
+}
+
+function getAllStops(schedule: Schedule): Stop[] {
+  return schedule.plans.reduce((stops, s) => stops.concat(getPlanStops(s)), [] as Stop[]);
+}
+
+export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefined {
+  const allStops = getAllStops(schedule);
+  return allStops.filter(s => s.start < stop.start).sort((s1, s2) => s2.start - s1.start)[0];
 }

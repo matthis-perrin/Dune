@@ -9,6 +9,7 @@ import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
 interface StopTypeFormProps {
   stop: Stop;
   type?: StopType;
+  previousStopType?: StopType;
   availablePlanProds: ScheduledPlanProd[];
   availableMaintenances: Maintenance[];
   lastPlanId?: number;
@@ -69,37 +70,81 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
   }
 
   public render(): JSX.Element {
-    const {availablePlanProds, availableMaintenances, lastPlanId} = this.props;
+    const {availablePlanProds, availableMaintenances, lastPlanId, previousStopType} = this.props;
+
+    const emptyOption = <React.Fragment />;
     const changePlanProdOption =
-      availablePlanProds.length > 0 ? (
-        this.renderOption(StopType.ChangePlanProd)
-      ) : (
-        <React.Fragment />
-      );
+      availablePlanProds.length > 0 ? this.renderOption(StopType.ChangePlanProd) : emptyOption;
+
+    const reprisePlanProdOption = this.renderOption(StopType.ReprisePlanProd);
+    const changeBobinePapierOption = this.renderOption(StopType.ChangeBobinePapier);
+    const changeBobinePolyproOption = this.renderOption(StopType.ChangeBobinePolypro);
+    const changeBobinePapierAndPolyproOption = this.renderOption(
+      StopType.ChangeBobinePapierAndPolypro
+    );
+    const endOfDayEndProdOption = this.renderOption(StopType.EndOfDayEndProd);
+    const endOfDayPauseProdOption = this.renderOption(StopType.EndOfDayPauseProd);
+    const unplannedOption = this.renderOption(StopType.Unplanned);
+
+    const maintenanceOption =
+      availableMaintenances.length > 0 ? this.renderOption(StopType.Maintenance) : emptyOption;
+
+    // const changePlanProdOption =
+    //   availablePlanProds.length > 0 ? (
+    //     this.renderOption(StopType.ChangePlanProd)
+    //   ) : (
+    //     <React.Fragment />
+    //   );
 
     if (lastPlanId === undefined) {
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
 
-    const maintenanceOption =
-      availableMaintenances.length > 0 ? (
-        this.renderOption(StopType.Maintenance)
-      ) : (
-        <React.Fragment />
+    if (previousStopType === StopType.EndOfDayEndProd) {
+      return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
+    }
+
+    if (previousStopType === StopType.EndOfDayPauseProd) {
+      return <OptionWrapper>{reprisePlanProdOption}</OptionWrapper>;
+    }
+
+    if (previousStopType === StopType.ChangePlanProd || previousStopType === StopType.Maintenance) {
+      return (
+        <OptionWrapper>
+          {changePlanProdOption}
+          {changeBobinePapierOption}
+          {changeBobinePolyproOption}
+          {changeBobinePapierAndPolyproOption}
+          {endOfDayEndProdOption}
+          {endOfDayPauseProdOption}
+          {unplannedOption}
+          {maintenanceOption}
+        </OptionWrapper>
       );
-    return (
-      <OptionWrapper>
-        {changePlanProdOption}
-        {this.renderOption(StopType.ReprisePlanProd)}
-        {this.renderOption(StopType.ChangeBobinePapier)}
-        {this.renderOption(StopType.ChangeBobinePolypro)}
-        {this.renderOption(StopType.ChangeBobinePapierAndPolypro)}
-        {this.renderOption(StopType.EndOfDayEndProd)}
-        {this.renderOption(StopType.EndOfDayPauseProd)}
-        {this.renderOption(StopType.Unplanned)}
-        {maintenanceOption}
-      </OptionWrapper>
-    );
+    }
+
+    if (
+      previousStopType === undefined ||
+      previousStopType === StopType.ChangeBobinePapier ||
+      previousStopType === StopType.ChangeBobinePolypro ||
+      previousStopType === StopType.ChangeBobinePapierAndPolypro ||
+      previousStopType === StopType.Unplanned
+    ) {
+      return (
+        <OptionWrapper>
+          {changePlanProdOption}
+          {changeBobinePapierOption}
+          {changeBobinePolyproOption}
+          {changeBobinePapierAndPolyproOption}
+          {endOfDayEndProdOption}
+          {endOfDayPauseProdOption}
+          {unplannedOption}
+          {maintenanceOption}
+        </OptionWrapper>
+      );
+    }
+
+    return <OptionWrapper />;
   }
 }
 

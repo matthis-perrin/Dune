@@ -3,9 +3,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
+import {computeMetrage} from '@root/lib/prod';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType} from '@root/lib/stop';
-import {isRoundHour, isHalfHour, padNumber, isSameDay} from '@root/lib/utils';
+import {isRoundHour, isHalfHour, padNumber, isSameDay, roundedToDigit} from '@root/lib/utils';
 import {theme, Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
@@ -169,17 +170,20 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       console.log(prod);
       throw new Error('invalid prod');
     }
+    const avgSpeed = roundedToDigit(prod.avgSpeed || 0, 1);
+    const meters = roundedToDigit(computeMetrage(prod.end - prod.start, prod.avgSpeed || 0), 1);
+    const durationMinutes = roundedToDigit((prod.end - prod.start) / 60000, 1);
     return (
-      <StopWrapper
+      <ProdWrapper
         style={{
           ...this.getPositionStyleForDates(new Date(prod.start), new Date(prod.end)),
           backgroundColor: color.backgroundHex,
+          color: color.textHex,
           opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
         }}
       >
-        PROD
-        {prod.avgSpeed} - {(prod.end - prod.start) / 1000} - {(prod.end - prod.start) / 60000}
-      </StopWrapper>
+        {`PROD ${avgSpeed} m/s - ${meters} m - ${durationMinutes}min`}
+      </ProdWrapper>
     );
   }
 
@@ -264,7 +268,13 @@ const ScheduleWrapper = styled.div`
   width: 100%;
 `;
 
-const StopWrapper = styled.div``;
+const EventWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+const StopWrapper = styled(EventWrapper)``;
+const ProdWrapper = styled(EventWrapper)``;
 
 const HoursSVG = styled.svg`
   background-color: ${Palette.Clouds};
