@@ -10,6 +10,10 @@ export function getPlanProdTitle(id: number): string {
   return `PRODUCTION N°${padNumber(id, PLAN_PROD_NUMBER_DIGIT_COUNT)}`;
 }
 
+export function getShortPlanProdTitle(id: number): string {
+  return padNumber(id, PLAN_PROD_NUMBER_DIGIT_COUNT);
+}
+
 export function metersToProductionTime(meters: number, speed: number): number {
   return (meters / (speed * MAX_SPEED_RATIO)) * 60 * 1000;
 }

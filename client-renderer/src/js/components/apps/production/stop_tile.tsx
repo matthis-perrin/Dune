@@ -33,14 +33,14 @@ export class StopTile extends React.Component<StopTileProps> {
     return (
       <StopTileWrapper style={{borderLeftColor: color}} onClick={this.handleClick}>
         <StopTileTimes>
-          <StopTileEnd>
-            <StopTileLabel>FIN</StopTileLabel>
-            <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
-          </StopTileEnd>
           <StopTileStart>
             <StopTileLabel>DÉBUT</StopTileLabel>
             <StopTileTimeValue>{this.formatTime(start)}</StopTileTimeValue>
           </StopTileStart>
+          <StopTileEnd>
+            <StopTileLabel>FIN</StopTileLabel>
+            <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
+          </StopTileEnd>
         </StopTileTimes>
         {indicators.map(indicator => (
           <StopTileIndicator>
@@ -85,7 +85,7 @@ const StopTileEnd = styled.div`
 
 const StopTileLabel = styled.div`
     display: inline-block;
-    width: 48px;
+    width: 54px;
     font-size: 13px
     color: ${Palette.Asbestos}
 `;

@@ -1,7 +1,7 @@
 import {Colors, Palette} from '@root/theme';
 import {StopType} from '@shared/models';
 
-export const labelForStopType = new Map<StopType, string>([
+const labelForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, 'Changement de plan de production'],
   [StopType.ReprisePlanProd, 'Reprise de prodution'],
   [StopType.ChangeBobinePapier, 'Changement de bobine papier'],
@@ -12,6 +12,13 @@ export const labelForStopType = new Map<StopType, string>([
   [StopType.Unplanned, 'Imprévu'],
   [StopType.Maintenance, 'Maintenance'],
 ]);
+
+const labelForUnknownStopType = '???';
+
+export function getLabelForStopType(stopType: StopType | undefined): string {
+  const label = stopType ? labelForStopType.get(stopType) : undefined;
+  return label || labelForUnknownStopType;
+}
 
 const colorForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, Palette.PeterRiver],

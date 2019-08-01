@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {Select, Option} from '@root/components/core/select';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
-import {getColorForStopType, labelForStopType} from '@root/lib/stop';
+import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {Palette} from '@root/theme';
 
 import {
@@ -108,7 +108,7 @@ export class StopDetails extends React.Component<StopDetailsProps> {
       rightForm = this.renderMaintenanceForm(maintenanceId);
     }
     return this.renderLine(
-      labelForStopType.get(type) || '',
+      getLabelForStopType(type) || '',
       getColorForStopType(type),
       this.props.onRemoveType,
       rightForm

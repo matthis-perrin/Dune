@@ -150,7 +150,7 @@ export function getAllPlannedMaintenances(schedule: Schedule): Maintenance[] {
     .sort((m1, m2) => m1.startTime - m2.startTime);
 }
 
-export function getCurrentPlanId(schedule: Schedule): number | undefined {
+export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | undefined {
   const allSchedulesDoneOrInProgress = schedule.plans.reduce(
     (schedules, plan) => {
       plan.schedulePerDay.forEach(s => {
@@ -163,7 +163,11 @@ export function getCurrentPlanId(schedule: Schedule): number | undefined {
     [] as PlanProdSchedule[]
   );
   const lastSchedule = allSchedulesDoneOrInProgress.sort((s1, s2) => s2.start - s1.start)[0];
+  return lastSchedule;
+}
 
+export function getCurrentPlanId(schedule: Schedule): number | undefined {
+  const lastSchedule = getCurrentPlanSchedule(schedule);
   if (lastSchedule === undefined) {
     return undefined;
   }

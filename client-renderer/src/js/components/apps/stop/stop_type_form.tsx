@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {labelForStopType} from '@root/lib/stop';
+import {getLabelForStopType} from '@root/lib/stop';
 import {Palette, Colors} from '@root/theme';
 
 import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
@@ -62,7 +62,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
             checked={type === value}
             onChange={this.handleInputChange(value)}
           />
-          {labelForStopType.get(value) || ''}
+          {getLabelForStopType(value)}
         </RadioLabel>
         {extra}
       </OptionLine>
@@ -128,7 +128,8 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       previousStopType === StopType.ChangeBobinePapier ||
       previousStopType === StopType.ChangeBobinePolypro ||
       previousStopType === StopType.ChangeBobinePapierAndPolypro ||
-      previousStopType === StopType.Unplanned
+      previousStopType === StopType.Unplanned ||
+      previousStopType === StopType.ReprisePlanProd
     ) {
       return (
         <OptionWrapper>

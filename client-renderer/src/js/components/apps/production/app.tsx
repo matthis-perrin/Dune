@@ -1,13 +1,22 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {StopView} from '@root/components/apps/production/stop_view';
 import {ScheduleView} from '@root/components/common/schedule';
+import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
-import {capitalize} from '@root/lib/utils';
-import {prodHoursStore} from '@root/stores/data_store';
+import {
+  getMinimumScheduleRangeForDate,
+  getCurrentPlanId,
+  getPlanProd,
+  getCurrentPlanSchedule,
+} from '@root/lib/schedule_utils';
+import {capitalize, isSameDay} from '@root/lib/utils';
+import {prodHoursStore, bobinesQuantitiesStore} from '@root/stores/data_store';
+import {cadencierStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors} from '@root/theme';
@@ -22,6 +31,8 @@ interface ProductionAppProps {
 interface ProductionAppState {
   day: number;
   schedule?: Schedule;
+  cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
   prodInfo: ProdInfo;
   prodRanges?: Map<string, ProdRange>;
 }
@@ -44,20 +55,16 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
   public componentDidMount(): void {
     prodHoursStore.addListener(this.handleStoresChanged);
-    // stocksStore.addListener(this.handleStoresChanged);
-    // cadencierStore.addListener(this.handleStoresChanged);
-    // bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    // operationsStore.addListener(this.recomputePlanOrder);
+    cadencierStore.addListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.start(this.handleScheduleChanged);
   }
 
   public componentWillUnmount(): void {
     prodHoursStore.removeListener(this.handleStoresChanged);
-    //     stocksStore.removeListener(this.handleStoresChanged);
-    //     cadencierStore.removeListener(this.handleStoresChanged);
-    //     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    //     operationsStore.removeListener(this.recomputePlanOrder);
+    cadencierStore.removeListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.stop();
   }
@@ -82,6 +89,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private readonly handleStoresChanged = (): void => {
     this.setState({
       prodRanges: prodHoursStore.getProdRanges(),
+      cadencier: cadencierStore.getCadencierIndex(),
+      bobineQuantities: bobinesQuantitiesStore.getData(),
     });
   };
 
@@ -150,16 +159,45 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private renderStops(): Map<number, JSX.Element> {
     const stopsElements = new Map<number, JSX.Element>();
     const {stops} = this.state.prodInfo;
+    const {schedule} = this.state;
+    const lastMinute =
+      (schedule && schedule.lastMinuteSpeed && schedule.lastMinuteSpeed.minute) || Date.now();
     stops
       .filter(s => s.stopType !== StopType.NotProdHours)
-      .forEach(stop => stopsElements.set(stop.start, <StopView stop={stop} />));
+      .forEach(stop =>
+        stopsElements.set(stop.start, <StopView stop={stop} lastMinute={lastMinute} />)
+      );
     return stopsElements;
+  }
+
+  private renderCurrentPlan(): JSX.Element {
+    const {schedule, cadencier, bobineQuantities, day} = this.state;
+    if (!schedule || !cadencier || !bobineQuantities) {
+      return <LoadingIndicator size="large" />;
+    }
+
+    const currentPlanSchedule = getCurrentPlanSchedule(schedule);
+    if (currentPlanSchedule) {
+      if (isSameDay(new Date(day), new Date(currentPlanSchedule.start))) {
+        const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
+        if (planProdSchedule) {
+          return (
+            <PlanProdViewer
+              bobineQuantities={bobineQuantities}
+              cadencier={cadencier}
+              schedule={planProdSchedule}
+              width={planProdViewerWidth}
+            />
+          );
+        }
+      }
+    }
+
+    return <div>Pas de plan de production en cours</div>;
   }
 
   public render(): JSX.Element {
     const {day, prodRanges, schedule} = this.state;
-
-    console.log(schedule);
 
     const stopsElements = this.renderStops();
     const histoStartTimes = Array.from(stopsElements.keys())
@@ -193,12 +231,14 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
           </ScheduleContainer>
           <EventsContainer>{histoElements}</EventsContainer>
-          <CurrentPlanContainer />
+          <CurrentPlanContainer>{this.renderCurrentPlan()}</CurrentPlanContainer>
         </ProdStateContainer>
       </AppWrapper>
     );
   }
 }
+
+const planProdViewerWidth = 640;
 
 const AppWrapper = styled.div`
   position: fixed;
@@ -246,8 +286,8 @@ const EventsContainer = styled.div`
 `;
 
 const CurrentPlanContainer = styled.div`
-  flex-grow: 1;
-  flex-basis: 1px;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
+  width: ${planProdViewerWidth + SCROLLBAR_WIDTH}px;
+  height: 100%;
+  overflow-y: auto;
 `;

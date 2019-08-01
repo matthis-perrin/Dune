@@ -226,7 +226,7 @@ class WindowManager {
     }
     if (appInfo.type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(appInfo.data);
-      return {id: `stop-${day}-${stopStart}`, size: {width: 1200}, closable: false};
+      return {id: `stop-${day}-${stopStart}`, size: {width: 1200}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
