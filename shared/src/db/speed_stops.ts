@@ -326,3 +326,38 @@ export async function updateStopInfo(
     .where(SpeedStopsColumn.Start, '=', start)
     .update(fields);
 }
+
+export async function createStop(db: knex, stopStart: number, stopEnd: number): Promise<void> {
+  const stop = await getStop(db, stopStart);
+  if (stop === undefined) {
+    throw new Error(`Can not create stop. Stop with start time ${stopStart} does not exist.`);
+  }
+  if (stop.end !== undefined) {
+    throw new Error(`Can not create stop. Stop with start time ${stopStart} is not in progress.`);
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    db.transaction(tx =>
+      tx(SPEED_STOPS_TABLE_NAME)
+        .where(SpeedStopsColumn.Start, '=', stopStart)
+        .update({
+          [SpeedStopsColumn.End]: stopEnd,
+        })
+        .then(() => {
+          return tx(SPEED_STOPS_TABLE_NAME).insert({
+            [SpeedStopsColumn.Start]: stopEnd,
+            [SpeedStopsColumn.PlanProdId]: stop.planProdId,
+            [SpeedStopsColumn.MaintenanceId]: stop.maintenanceId,
+          });
+        })
+        .then(() => {
+          tx.commit();
+          resolve();
+        })
+        .catch(() => {
+          tx.rollback();
+          reject();
+        })
+    );
+  });
+}

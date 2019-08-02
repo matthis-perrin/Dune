@@ -4,6 +4,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {PlottableCSS} from '@root/components/charts/plottable_css';
+import {padNumber} from '@root/lib/utils';
 import {Palette} from '@root/theme';
 
 import {dateAtHour, roundToMiddleOfMinute} from '@shared/lib/time';
@@ -16,6 +17,8 @@ interface SpeedChartProps {
 }
 
 type Datum = [Date, number | undefined];
+
+Plottable.Plots.Bar._BAR_THICKNESS_RATIO = 1;
 
 export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
@@ -92,7 +95,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const firstDate = data[0][0];
     const lastDate = data[data.length - 1][0];
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
-    const yScale = new Plottable.Scales.Linear().domain([0, 220]);
+    const yScale = new Plottable.Scales.Linear().domain([0, 190]);
+    yScale.defaultTicks = () => [0, 50, 100, 150, 180];
 
     // Bars
     const bars = new Plottable.Plots.Bar<Date, number>()
@@ -100,26 +104,48 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .x((d: Datum) => d[0], xScale)
       .y((d: Datum) => (d[1] !== undefined ? d[1] : 10), yScale)
       .attr('fill', (d: Datum) =>
-        d[1] === undefined ? '#aaaaaa' : d[1] < 50 ? '#ff0000' : '#00FF00'
+        d[1] === undefined ? Palette.Asbestos : d[1] < 50 ? Palette.Alizarin : Palette.Nephritis
       );
 
-    // const rectangles = new Plottable.Plots.Rectangle<Date, number>()
-    //   .x((d: Datum) => d[0], xScale)
-    //   .y((d: Datum) => (d[1] === undefined ? 10 : d[1]), yScale)
-    //   .x2((d: Datum) => new Date(d[0] + 60 * 1000))
-    //   .y2((d: Datum) => 0)
-    //   //   .attr('fill', (d: Datum) =>
-    //   //     d[1] === undefined ? '#aaaaaa' : d[1] < 50 ? '#ff0000' : '#00FF00'
-    //   //   )
-    //   .addDataset(new Plottable.Dataset(data));
-
     // Axis
-    const xAxis = new Plottable.Axes.Time(xScale, 'bottom');
+    const hourSplit = 10;
+    const xAxis = new Plottable.Axes.Time(xScale, 'bottom').axisConfigurations([
+      [
+        {
+          interval: 'minute',
+          step: 1,
+          formatter: (date: Date) =>
+            `${padNumber(date.getHours(), 2)}:${padNumber(date.getMinutes(), 2)}`,
+        },
+      ],
+      [
+        {
+          interval: 'minute',
+          step: hourSplit,
+          formatter: (date: Date) =>
+            `${padNumber(date.getHours(), 2)}:${padNumber(
+              date.getMinutes() - (date.getMinutes() % hourSplit),
+              2
+            )}`,
+        },
+      ],
+      [
+        {
+          interval: 'hour',
+          step: 1,
+          formatter: (date: Date) => `${padNumber(date.getHours(), 2)}:00`,
+        },
+      ],
+    ]);
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
+    (yAxis as any)._hasOverlapWithInterval = () => true;
+
+    // Grid lines
+    const gridline = new Plottable.Components.Gridlines(xScale, yScale);
 
     // Final Plot
-    this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
-    // this.plot = new Plottable.Components.Table([[yAxis, rectangles], [undefined, xAxis]]);
+    const center = new Plottable.Components.Group([gridline, bars]);
+    this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, xAxis]]);
 
     // Gesture
     const pziXAxis = new Plottable.Interactions.PanZoom();
@@ -129,7 +155,6 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .maxDomainValue(xScale, lastDate.getTime());
     pziXAxis.attachTo(xAxis);
     pziXAxis.attachTo(bars);
-    // pziXAxis.attachTo(rectangles);
 
     // Rendering
     chartElement.innerHTML = '';
@@ -153,13 +178,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 }
 
-const horizontalMargin = 32;
-const verticalMargin = 16;
-
 const ChartContainer = styled.div`
-  width: calc(100% - ${2 * horizontalMargin}px);
-  height: calc(100% - ${2 * verticalMargin}px);
-  box-sizing: border-box;
-  margin: ${verticalMargin}px ${horizontalMargin}px;
+  width: 100%;
+  height: 100%;
   background-color: ${Palette.White};
 `;

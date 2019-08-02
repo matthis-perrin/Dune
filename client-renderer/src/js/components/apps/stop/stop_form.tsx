@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {CleaningsForm} from '@root/components/apps/production/cleanings_form';
+import {CleaningsForm} from '@root/components/apps/stop/cleanings_form';
 import {StopCommentForm} from '@root/components/apps/stop/stop_comment_form';
 import {StopDetails} from '@root/components/apps/stop/stop_details';
 import {UnplannedStopsForm} from '@root/components/apps/stop/stop_other_reasons_form';

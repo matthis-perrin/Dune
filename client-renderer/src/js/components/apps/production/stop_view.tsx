@@ -11,19 +11,12 @@ interface StopViewProps {
   lastMinute: number;
 }
 
-interface StopViewState {}
-
-export class StopView extends React.Component<StopViewProps, StopViewState> {
+export class StopView extends React.Component<StopViewProps> {
   public static displayName = 'StopView';
-
-  public constructor(props: StopViewProps) {
-    super(props);
-    this.state = {};
-  }
 
   public render(): JSX.Element {
     const {stop, lastMinute} = this.props;
-    const duration = (stop.end || lastMinute) - stop.start;
+    const duration = (stop.end || lastMinute + 60 * 1000) - stop.start;
 
     const hours = Math.floor(duration / (60 * 60 * 1000));
     const minutes = Math.round((duration - hours * 60 * 60 * 1000) / (60 * 1000));

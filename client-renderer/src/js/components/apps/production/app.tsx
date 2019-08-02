@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
-import {StopView} from '@root/components/apps/production/stop_view';
+import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChart} from '@root/components/charts/speed_chart';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
@@ -19,9 +19,9 @@ import {prodHoursStore, bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
-import {theme, Colors} from '@root/theme';
+import {theme, Colors, Palette} from '@root/theme';
 
-import {getWeekDay, dateAtHour} from '@shared/lib/time';
+import {getWeekDay} from '@shared/lib/time';
 import {ProdInfo, Schedule, ProdRange, StopType, BobineQuantities} from '@shared/models';
 
 interface ProductionAppProps {
@@ -50,7 +50,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
     this.scheduleStore = new ScheduleStore(start, end);
     this.state = {day: props.initialDay, prodInfo: this.prodInfoStore.getState()};
-    document.title = this.formatDay(props.initialDay);
+    document.title = this.getWindowTitle(props.initialDay);
   }
 
   public componentDidMount(): void {
@@ -68,23 +68,6 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.stop();
   }
-
-  //   private readonly recomputePlanOrder = (newDay?: number): void => {
-  //     const day = newDay === undefined ? this.state.day : newDay;
-  //     const activePlansProd = plansProductionStore.getActivePlansProd();
-  //     const operations = operationsStore.getData();
-  //     if (activePlansProd && operations) {
-  //       const orderedPlans = orderPlansProd(activePlansProd, operations, []);
-  //       const orderedPlansForDay = getPlanProdsForDate(orderedPlans, new Date(day));
-  //       this.setState({
-  //         day,
-  //         // TODO - Fetch non prod here
-  //         orderedPlans: orderedPlansForDay,
-  //         plansProd: activePlansProd,
-  //         operations,
-  //       });
-  //     }
-  //   };
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
@@ -117,7 +100,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.prodInfoStore.setDay(newDay);
     this.scheduleStore.setRange(start, end);
     this.setState({day: newDay});
-    document.title = this.formatDay(newDay);
+    document.title = this.getWindowTitle(newDay);
   }
 
   private readonly handlePreviousClick = (): void => {
@@ -148,27 +131,30 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.changeDay(newDay.getTime());
   };
 
+  private getWindowTitle(ts: number): string {
+    return `Production - ${this.formatDay(ts)}`;
+  }
+
   private formatDay(ts: number): string {
     const date = new Date(ts);
     const dayOfWeek = capitalize(getWeekDay(date));
     const day = date.getDate();
     const month = date.toLocaleString('fr-FR', {month: 'long'});
     const year = date.getFullYear();
-    return `Production - ${dayOfWeek} ${day} ${month} ${year}`;
+    return `${dayOfWeek} ${day} ${month} ${year}`;
   }
 
-  private renderStops(): Map<number, JSX.Element> {
-    const stopsElements = new Map<number, JSX.Element>();
+  private renderStops(): JSX.Element {
     const {stops} = this.state.prodInfo;
     const {schedule} = this.state;
-    const lastMinute =
-      (schedule && schedule.lastMinuteSpeed && schedule.lastMinuteSpeed.minute) || Date.now();
-    stops
+    const lastMinute = schedule && schedule.lastMinuteSpeed && schedule.lastMinuteSpeed.minute;
+    if (lastMinute === undefined) {
+      return <React.Fragment />;
+    }
+    const orderedStops = stops
       .filter(s => s.stopType !== StopType.NotProdHours)
-      .forEach(stop =>
-        stopsElements.set(stop.start, <StopView stop={stop} lastMinute={lastMinute} />)
-      );
-    return stopsElements;
+      .sort((s1, s2) => s2.start - s1.start);
+    return <StopList lastMinute={lastMinute} stops={orderedStops} />;
   }
 
   private renderCurrentPlan(): JSX.Element {
@@ -213,38 +199,23 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   public render(): JSX.Element {
     const {day, prodRanges, schedule} = this.state;
 
-    const stopsElements = this.renderStops();
-    const histoStartTimes = Array.from(stopsElements.keys())
-      .sort()
-      .reverse();
-    const histoElements = histoStartTimes.reduce(
-      (elements, startTime) => {
-        const stopElement = stopsElements.get(startTime);
-        if (stopElement) {
-          elements.push(stopElement);
-        }
-        return elements;
-      },
-      [] as JSX.Element[]
-    );
-
     return (
       <AppWrapper>
         <TopBar>
-          <div onClick={this.handlePreviousClick}>
-            <SVGIcon name="caret-left" width={12} height={12} />
-          </div>
-          {this.formatDay(day)}
-          <div onClick={this.handleNextClick}>
-            <SVGIcon name="caret-right" width={12} height={12} />
-          </div>
+          <NavigationIcon onClick={this.handlePreviousClick}>
+            <SVGIcon name="caret-left" width={iconSize} height={iconSize} />
+          </NavigationIcon>
+          <TopBarTitle>{this.formatDay(day)}</TopBarTitle>
+          <NavigationIcon onClick={this.handleNextClick}>
+            <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
+          </NavigationIcon>
         </TopBar>
         <ChartContainer>{this.renderChart()}</ChartContainer>
         <ProdStateContainer>
           <ScheduleContainer>
             <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
           </ScheduleContainer>
-          <EventsContainer>{histoElements}</EventsContainer>
+          <EventsContainer>{this.renderStops()}</EventsContainer>
           <CurrentPlanContainer>{this.renderCurrentPlan()}</CurrentPlanContainer>
         </ProdStateContainer>
       </AppWrapper>
@@ -252,6 +223,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 }
 
+const iconSize = 16;
 const planProdViewerWidth = 640;
 
 const AppWrapper = styled.div`
@@ -269,15 +241,33 @@ const TopBar = styled.div`
   flex-shrink: 0;
   height: 64px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   background-color: ${Colors.PrimaryDark};
   color: ${Colors.TextOnPrimary};
 `;
 
+const TopBarTitle = styled.div``;
+
+const NavigationIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 48px;
+  &:hover svg {
+    fill: ${Palette.White};
+  }
+  svg {
+    fill: ${Palette.Clouds};
+  }
+`;
+
 const ChartContainer = styled.div`
   flex-shrink: 0;
   height: 256px;
+  background-color: ${Palette.White};
+  box-sizing: border-box;
+  padding: 16px 16px 0 0;
 `;
 
 const ProdStateContainer = styled.div`

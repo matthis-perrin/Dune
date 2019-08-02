@@ -52,6 +52,7 @@ import {
   UpdateStop,
   ListProdHours,
   GetScheduleInfo,
+  CreateStop,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -74,7 +75,7 @@ import {
 import {listRefentes} from '@shared/db/refentes';
 import {getLastUsableSpeed, getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
-import {getSpeedStopBetween, updateStopInfo} from '@shared/db/speed_stops';
+import {getSpeedStopBetween, updateStopInfo, createStop} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
 import {
@@ -376,5 +377,10 @@ export async function handleCommand(
       asNumber(planProdId, undefined),
       asNumber(maintenanceId, undefined)
     );
+  }
+  if (command === CreateStop) {
+    debugLog();
+    const {stopStart, stopEnd} = asMap(params);
+    return createStop(SQLITE_DB.Prod, asNumber(stopStart, 0), asNumber(stopEnd, 0));
   }
 }

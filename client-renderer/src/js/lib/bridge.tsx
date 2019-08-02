@@ -47,6 +47,7 @@ import {
   UpdateStop,
   ListProdHours,
   GetScheduleInfo,
+  CreateStop,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -279,6 +280,12 @@ export class Bridge {
       info,
       planProdId,
       maintenanceId,
+    });
+  }
+  public async createStop(stopStart: number, stopEnd: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CreateStop, {
+      stopStart,
+      stopEnd,
     });
   }
 
