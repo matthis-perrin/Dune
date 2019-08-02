@@ -55,11 +55,12 @@ export class StopTile extends React.Component<StopTileProps> {
 }
 
 const StopTileWrapper = styled.div`
+  width: 100%;
+  box-sizing: border-box;
   border-left: solid 8px;
   padding: 8px;
   display: flex;
   background-color: ${Palette.White};
-  margin: 4px 4px 0 4px;
   &:hover {
     background: ${Palette.Clouds};
     cursor: pointer;

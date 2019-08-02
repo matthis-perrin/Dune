@@ -343,20 +343,52 @@ export async function createStop(db: knex, stopStart: number, stopEnd: number): 
         .update({
           [SpeedStopsColumn.End]: stopEnd,
         })
-        .then(() => {
-          return tx(SPEED_STOPS_TABLE_NAME).insert({
+        .then(() =>
+          tx(SPEED_STOPS_TABLE_NAME).insert({
             [SpeedStopsColumn.Start]: stopEnd,
             [SpeedStopsColumn.PlanProdId]: stop.planProdId,
             [SpeedStopsColumn.MaintenanceId]: stop.maintenanceId,
-          });
-        })
+          })
+        )
         .then(() => {
           tx.commit();
           resolve();
         })
-        .catch(() => {
+        .catch(err => {
           tx.rollback();
-          reject();
+          reject(err);
+        })
+    );
+  });
+}
+
+export async function mergeStops(
+  db: knex,
+  start1: number,
+  start2: number,
+  mergedInfo: StopInfo,
+  newEnd: number | undefined
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    db.transaction(tx =>
+      tx(SPEED_STOPS_TABLE_NAME)
+        .where(SpeedStopsColumn.Start, start1)
+        .del()
+        .then(() =>
+          tx(SPEED_STOPS_TABLE_NAME)
+            .where(SpeedStopsColumn.Start, start2)
+            .update({
+              [SpeedStopsColumn.End]: newEnd === undefined ? null : newEnd,
+              [SpeedStopsColumn.StopInfo]: JSON.stringify(mergedInfo),
+            })
+        )
+        .then(() => {
+          tx.commit();
+          resolve();
+        })
+        .catch(err => {
+          tx.rollback();
+          reject(err);
         })
     );
   });

@@ -53,6 +53,7 @@ import {
   ListProdHours,
   GetScheduleInfo,
   CreateStop,
+  MergeStops,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -75,7 +76,7 @@ import {
 import {listRefentes} from '@shared/db/refentes';
 import {getLastUsableSpeed, getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
-import {getSpeedStopBetween, updateStopInfo, createStop} from '@shared/db/speed_stops';
+import {getSpeedStopBetween, updateStopInfo, createStop, mergeStops} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
 import {
@@ -382,5 +383,16 @@ export async function handleCommand(
     debugLog();
     const {stopStart, stopEnd} = asMap(params);
     return createStop(SQLITE_DB.Prod, asNumber(stopStart, 0), asNumber(stopEnd, 0));
+  }
+  if (command === MergeStops) {
+    debugLog();
+    const {start1, start2, mergedInfo, newEnd} = asMap(params);
+    return mergeStops(
+      SQLITE_DB.Prod,
+      asNumber(start1, 0),
+      asNumber(start2, 0),
+      asMap(mergedInfo) as StopInfo,
+      asNumber(newEnd, undefined)
+    );
   }
 }
