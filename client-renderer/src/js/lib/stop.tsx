@@ -3,6 +3,7 @@ import {StopType} from '@shared/models';
 
 const labelForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, 'Changement de plan de production'],
+  [StopType.ReglagesAdditionel, 'Reprise de réglages'],
   [StopType.ReprisePlanProd, 'Reprise de prodution'],
   [StopType.ChangeBobinePapier, 'Changement de bobine papier'],
   [StopType.ChangeBobinePolypro, 'Changement de bobine polypro'],
@@ -22,6 +23,7 @@ export function getLabelForStopType(stopType: StopType | undefined): string {
 
 const colorForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, Palette.PeterRiver],
+  [StopType.ReglagesAdditionel, Palette.PeterRiver],
   [StopType.ReprisePlanProd, Palette.PeterRiver],
   [StopType.ChangeBobinePapier, Palette.PeterRiver],
   [StopType.ChangeBobinePolypro, Palette.PeterRiver],

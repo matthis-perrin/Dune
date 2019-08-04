@@ -10,6 +10,7 @@ interface StopTypeFormProps {
   stop: Stop;
   type?: StopType;
   previousStopType?: StopType;
+  hadProd: boolean;
   availablePlanProds: ScheduledPlanProd[];
   availableMaintenances: Maintenance[];
   lastPlanId?: number;
@@ -70,11 +71,19 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
   }
 
   public render(): JSX.Element {
-    const {availablePlanProds, availableMaintenances, lastPlanId, previousStopType} = this.props;
-
+    const {
+      availablePlanProds,
+      availableMaintenances,
+      lastPlanId,
+      previousStopType,
+      hadProd,
+    } = this.props;
     const emptyOption = <React.Fragment />;
     const changePlanProdOption =
       availablePlanProds.length > 0 ? this.renderOption(StopType.ChangePlanProd) : emptyOption;
+    const reglagesAdditionel = hadProd
+      ? emptyOption
+      : this.renderOption(StopType.ReglagesAdditionel);
 
     const reprisePlanProdOption = this.renderOption(StopType.ReprisePlanProd);
     const changeBobinePapierOption = this.renderOption(StopType.ChangeBobinePapier);
@@ -89,13 +98,6 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
     const maintenanceOption =
       availableMaintenances.length > 0 ? this.renderOption(StopType.Maintenance) : emptyOption;
 
-    // const changePlanProdOption =
-    //   availablePlanProds.length > 0 ? (
-    //     this.renderOption(StopType.ChangePlanProd)
-    //   ) : (
-    //     <React.Fragment />
-    //   );
-
     if (lastPlanId === undefined) {
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
@@ -108,44 +110,19 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       return <OptionWrapper>{reprisePlanProdOption}</OptionWrapper>;
     }
 
-    if (previousStopType === StopType.ChangePlanProd || previousStopType === StopType.Maintenance) {
-      return (
-        <OptionWrapper>
-          {changePlanProdOption}
-          {changeBobinePapierOption}
-          {changeBobinePolyproOption}
-          {changeBobinePapierAndPolyproOption}
-          {endOfDayEndProdOption}
-          {endOfDayPauseProdOption}
-          {unplannedOption}
-          {maintenanceOption}
-        </OptionWrapper>
-      );
-    }
-
-    if (
-      previousStopType === undefined ||
-      previousStopType === StopType.ChangeBobinePapier ||
-      previousStopType === StopType.ChangeBobinePolypro ||
-      previousStopType === StopType.ChangeBobinePapierAndPolypro ||
-      previousStopType === StopType.Unplanned ||
-      previousStopType === StopType.ReprisePlanProd
-    ) {
-      return (
-        <OptionWrapper>
-          {changePlanProdOption}
-          {changeBobinePapierOption}
-          {changeBobinePolyproOption}
-          {changeBobinePapierAndPolyproOption}
-          {endOfDayEndProdOption}
-          {endOfDayPauseProdOption}
-          {unplannedOption}
-          {maintenanceOption}
-        </OptionWrapper>
-      );
-    }
-
-    return <OptionWrapper />;
+    return (
+      <OptionWrapper>
+        {changePlanProdOption}
+        {reglagesAdditionel}
+        {changeBobinePapierOption}
+        {changeBobinePolyproOption}
+        {changeBobinePapierAndPolyproOption}
+        {endOfDayEndProdOption}
+        {endOfDayPauseProdOption}
+        {unplannedOption}
+        {maintenanceOption}
+      </OptionWrapper>
+    );
   }
 }
 

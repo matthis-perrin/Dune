@@ -12,10 +12,10 @@ import {bridge} from '@root/lib/bridge';
 import {
   getAllPlannedSchedules,
   getAllPlannedMaintenances,
-  getCurrentPlanId,
   getMaintenance,
   getPlanProd,
   getPreviousStop,
+  getCurrentPlanSchedule,
 } from '@root/lib/schedule_utils';
 import {Palette, Colors} from '@root/theme';
 
@@ -86,7 +86,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
             unplannedStops,
           },
           planProdId,
-          maintenanceId
+          stopType === StopType.Maintenance ? maintenanceId : undefined
         )
         .then(() => bridge.closeApp().catch(console.error))
         .catch(console.error);
@@ -169,7 +169,11 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private renderHeader(): JSX.Element {
-    const {stop} = this.props;
+    const {schedule, stop} = this.props;
+    let end = stop.end;
+    if (end === undefined && schedule.lastMinuteSpeed !== undefined) {
+      end = schedule.lastMinuteSpeed.minute + 60 * 1000;
+    }
     return (
       <Header>
         <HeaderLeft>
@@ -184,7 +188,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
         </HeaderLeft>
         <HeaderCenter>ARRÊT</HeaderCenter>
         <HeaderRight>
-          <Timer start={stop.start} end={stop.end} />
+          <Timer start={stop.start} end={end} />
         </HeaderRight>
       </Header>
     );
@@ -232,7 +236,14 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     const {stopType} = this.state;
     const availablePlanProds = this.getAvailablePlanProds();
     const availableMaintenances = this.getAvailableMaintenances();
-    const currentPlanId = getCurrentPlanId(schedule);
+    const currentPlanSchedule = getCurrentPlanSchedule(schedule);
+    const prods =
+      currentPlanSchedule === undefined
+        ? []
+        : currentPlanSchedule.prods.concat(currentPlanSchedule.plannedProds);
+    const prodsBeforeStop = prods.filter(p => p.start < stop.start);
+    const hadProd = prodsBeforeStop.length > 0;
+    const currentPlanId = currentPlanSchedule && currentPlanSchedule.planProd.id;
     const previousStop = getPreviousStop(schedule, stop);
 
     return (
@@ -243,6 +254,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
             stop={stop}
             type={stopType}
             previousStopType={previousStop && previousStop.stopType}
+            hadProd={hadProd}
             lastPlanId={currentPlanId}
             availablePlanProds={availablePlanProds}
             availableMaintenances={availableMaintenances}

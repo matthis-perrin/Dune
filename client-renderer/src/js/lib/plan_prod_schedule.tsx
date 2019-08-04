@@ -445,6 +445,11 @@ function generatePlannedEventsForStopLeft(
         current = nextValidTime(lastMaintenanceEvent.end, supportData.prodRanges);
       }
     }
+    // Special case, if we were previously doing a ChangePlanProd or a RepriseProd.
+    // After the maintenance this becomes a ReglagesAdditionel stop.
+    if (stop.stopType === StopType.ChangePlanProd || stop.stopType === StopType.ReprisePlanProd) {
+      stop = {...stop, stopType: StopType.ReglagesAdditionel};
+    }
   }
   // Check how far we can go in time
   const targetEndTime = current + stopLeft;
@@ -458,8 +463,8 @@ function generatePlannedEventsForStopLeft(
   if (schedule.end < endTime) {
     schedule.end = endTime;
   }
-  if (stop.stopType === StopType.ChangePlanProd) {
-    schedule.plannedOperationsMs += endTime - targetEndTime;
+  if (stop.stopType === StopType.ChangePlanProd || stop.stopType === StopType.ReglagesAdditionel) {
+    schedule.plannedOperationsMs += endTime - current;
   }
   schedule.plannedStops.push({
     ...stop,
@@ -540,11 +545,15 @@ function finishPlanProd(
     const lastStopEvent = maxBy(lastSchedule.stops, p => p.start);
     if (lastStopEvent !== undefined && lastStopEvent.end === undefined) {
       const endTime = supportData.currentTime;
+      const lastStopEventType = lastStopEvent.stopType;
       let stopLeft = 0;
-      // ChangePlanProd stop - Finish the operation time of the plan prod.
-      if (lastStopEvent.stopType === StopType.ChangePlanProd) {
+      // ChangePlanProd & ReglagesAdditionel stop - Finish the operation time of the plan prod.
+      if (
+        lastStopEventType === StopType.ChangePlanProd ||
+        lastStopEventType === StopType.ReglagesAdditionel
+      ) {
         stopLeft = operationsTime - getTotalOperationTimeDone(newSchedules);
-      } else if (lastStopEvent.stopType === StopType.ReprisePlanProd) {
+      } else if (lastStopEventType === StopType.ReprisePlanProd) {
         stopLeft = ADDITIONAL_TIME_TO_RESTART_PROD - (endTime - lastStopEvent.start);
       } else if (isEndOfDayStop(lastStopEvent)) {
         const startDate = new Date(lastStopEvent.start);
@@ -553,14 +562,14 @@ function finishPlanProd(
           stopLeft =
             dateAtHour(startDate, endOfDay.endHour, endOfDay.endMinute).getTime() - endTime;
         }
-      } else if (lastStopEvent.stopType === StopType.EndOfDayPauseProd) {
+      } else if (lastStopEventType === StopType.EndOfDayPauseProd) {
         const startDate = new Date(lastStopEvent.start);
         const endOfDay = supportData.prodRanges.get(getWeekDay(startDate));
         if (endOfDay) {
           stopLeft =
             dateAtHour(startDate, endOfDay.endHour, endOfDay.endMinute).getTime() - endTime;
         }
-      } else if (lastStopEvent.stopType === StopType.Maintenance) {
+      } else if (lastStopEventType === StopType.Maintenance) {
         if (lastStopEvent.maintenanceId !== undefined) {
           const maintenance = supportData.maintenances.filter(
             m => m.id === lastStopEvent.maintenanceId
@@ -575,35 +584,50 @@ function finishPlanProd(
         }
       }
 
-      if (lastStopEvent.stopType !== undefined && stopLeft > 0) {
+      if (lastStopEventType !== undefined && stopLeft > 0) {
         const plannedEventsForStop = generatePlannedEventsForStopLeft(
           stopLeft,
-          lastStopEvent,
+          {
+            start: 0,
+            planProdId: lastStopEvent.planProdId,
+            stopType: lastStopEventType,
+          },
           endTime,
           planProd,
           supportData
         );
         newSchedules = mergeSchedules([newSchedules, plannedEventsForStop]);
       }
+
       lastStopEvent.end = endTime;
-      if (lastStopEvent.stopType === StopType.EndOfDayEndProd) {
+      if (lastStopEventType === StopType.EndOfDayEndProd) {
         return newSchedules;
       }
-      // Check if the event prior to the maintenance
-      // was a ChangePlanProd stop. If so we finish that one to. We then finish the prod
-      if (lastStopEvent.stopType === StopType.Maintenance) {
+      // Check if the first non-Maintenance event prior to a maintenance stop or an unknown stop
+      // was a ChangePlanProd or a ReglagesAdditionel stop. If so we "finish" it with a
+      // ReglagesAdditionel stop. We then finish the prod
+      if (lastStopEventType === undefined || lastStopEventType === StopType.Maintenance) {
+        const lastProd = Array.from(newSchedules.values())
+          .reduce((prods, schedule) => prods.concat(schedule.prods), [] as Prod[])
+          .sort((p1, p2) => -eventsOrder(p1, p2))[0];
+        const lastProdEndTime =
+          lastProd === undefined ? 0 : lastProd.end || supportData.currentTime;
         const stopBefore = Array.from(newSchedules.values())
           .reduce((stops, schedule) => stops.concat(schedule.stops), [] as Stop[])
-          .filter(s => s.end === lastStopEvent.start)[0] as Stop | undefined;
+          .filter(s => s.start >= lastProdEndTime && s.stopType !== StopType.Maintenance)
+          .sort(eventsOrder)[0] as Stop | undefined;
         if (stopBefore !== undefined) {
           let otherStopLeft = 0;
-          if (stopBefore.stopType === StopType.ChangePlanProd) {
+          if (
+            stopBefore.stopType === StopType.ChangePlanProd ||
+            stopBefore.stopType === StopType.ReglagesAdditionel
+          ) {
             otherStopLeft = operationsTime - getTotalOperationTimeDone(newSchedules);
           }
           if (stopBefore.stopType === StopType.ReprisePlanProd) {
             otherStopLeft = ADDITIONAL_TIME_TO_RESTART_PROD - (endTime - lastStopEvent.start);
           }
-          if (stopLeft > 0) {
+          if (otherStopLeft > 0) {
             const lastScheduleAfterMaintenance = getLastSchedule(newSchedules);
             if (lastScheduleAfterMaintenance) {
               const lastStopEventAfterMaintenance = maxBy(
@@ -617,7 +641,11 @@ function finishPlanProd(
                     : supportData.currentTime;
                 const plannedEventsForStop = generatePlannedEventsForStopLeft(
                   otherStopLeft,
-                  stopBefore,
+                  {
+                    start: 0,
+                    planProdId: stopBefore.planProdId,
+                    stopType: StopType.ReglagesAdditionel,
+                  },
                   lastStopEndTime,
                   planProd,
                   supportData

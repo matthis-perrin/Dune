@@ -18,7 +18,7 @@ export class StopList extends React.Component<StopListProps> {
 
   private readonly handleNewStopClick = (): void => {
     const {lastMinute, stops} = this.props;
-    const lastStop = stops[0];
+    const lastStop = stops[stops.length - 1];
     if (lastStop) {
       bridge.createStop(lastStop.start, lastMinute);
     }
@@ -55,7 +55,7 @@ export class StopList extends React.Component<StopListProps> {
 
   private canCreateNewStop(): boolean {
     const {lastMinute, stops} = this.props;
-    const lastStop = stops[0];
+    const lastStop = stops[stops.length - 1];
     return lastStop !== undefined && lastStop.end === undefined && lastStop.start !== lastMinute;
   }
 

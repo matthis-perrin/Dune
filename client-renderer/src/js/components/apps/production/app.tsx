@@ -42,7 +42,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
   private readonly prodInfoStore: ProdInfoStore;
   private readonly scheduleStore: ScheduleStore;
-  private readonly openedStops = new Map<string, void>();
+  private openedStops = new Map<string, void>();
 
   public constructor(props: ProductionAppProps) {
     super(props);
@@ -99,6 +99,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     const {start, end} = getMinimumScheduleRangeForDate(new Date(newDay));
     this.prodInfoStore.setDay(newDay);
     this.scheduleStore.setRange(start, end);
+    this.openedStops = new Map<string, void>();
     this.setState({day: newDay});
     document.title = this.getWindowTitle(newDay);
   }
@@ -246,7 +247,12 @@ const TopBar = styled.div`
   color: ${Colors.TextOnPrimary};
 `;
 
-const TopBarTitle = styled.div``;
+const TopBarTitle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+`;
 
 const NavigationIcon = styled.div`
   display: flex;

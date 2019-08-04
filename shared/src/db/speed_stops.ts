@@ -267,8 +267,8 @@ export async function updateStopInfo(
   const fields = {
     [SpeedStopsColumn.StopType]: type,
     [SpeedStopsColumn.StopInfo]: JSON.stringify(info),
-    [SpeedStopsColumn.PlanProdId]: newPlanId,
-    [SpeedStopsColumn.MaintenanceId]: maintenanceId,
+    [SpeedStopsColumn.PlanProdId]: newPlanId === undefined ? null : newPlanId,
+    [SpeedStopsColumn.MaintenanceId]: maintenanceId === undefined ? null : maintenanceId,
   };
 
   const isEndOfDay = endOfDayTypes.indexOf(type) !== -1;
@@ -318,7 +318,7 @@ export async function updateStopInfo(
       await db(SPEED_STOPS_TABLE_NAME)
         .where(SpeedStopsColumn.Start, '=', stop.end)
         .del();
-      fields[SpeedStopsColumn.End] = undefined;
+      fields[SpeedStopsColumn.End] = null;
     }
   }
 

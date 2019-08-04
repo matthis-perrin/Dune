@@ -89,6 +89,7 @@ export function getMinimumScheduleRangeForDate(date: Date): {start: number; end:
 }
 
 export function getScheduleOperationTime(schedule: ScheduledPlanProd): number {
+  console.log(schedule);
   let operationTime = 0;
   schedule.schedulePerDay.forEach(
     s => (operationTime += s.doneOperationsMs + s.plannedOperationsMs)

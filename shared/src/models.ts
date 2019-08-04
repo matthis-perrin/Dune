@@ -425,6 +425,7 @@ export interface StopInfo {
 
 export enum StopType {
   ChangePlanProd = 'ChangePlanProd',
+  ReglagesAdditionel = 'ReglagesAdditionel',
   ReprisePlanProd = 'ReprisePlanProd',
   ChangeBobinePapier = 'ChangeBobinePapier',
   ChangeBobinePolypro = 'ChangeBobinePolypro',
