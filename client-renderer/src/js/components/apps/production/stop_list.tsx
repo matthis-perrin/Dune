@@ -42,15 +42,12 @@ export class StopList extends React.Component<StopListProps> {
   }
 
   private merge(stop1: Stop, stop2: Stop): void {
-    if (stop2.end === undefined) {
-      return;
-    }
     const mergedInfo = this.mergeStopInfo(stop1.stopInfo, stop2.stopInfo) || {
       cleanings: [],
       comments: [],
       unplannedStops: [],
     };
-    bridge.mergeStops(stop1.start, stop2.start, mergedInfo, stop1.end);
+    bridge.mergeStops(stop1.start, stop2.start, mergedInfo, stop2.end);
   }
 
   private canCreateNewStop(): boolean {

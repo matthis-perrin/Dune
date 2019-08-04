@@ -372,11 +372,11 @@ export async function mergeStops(
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx =>
       tx(SPEED_STOPS_TABLE_NAME)
-        .where(SpeedStopsColumn.Start, start1)
+        .where(SpeedStopsColumn.Start, start2)
         .del()
         .then(() =>
           tx(SPEED_STOPS_TABLE_NAME)
-            .where(SpeedStopsColumn.Start, start2)
+            .where(SpeedStopsColumn.Start, start1)
             .update({
               [SpeedStopsColumn.End]: newEnd === undefined ? null : newEnd,
               [SpeedStopsColumn.StopInfo]: JSON.stringify(mergedInfo),
