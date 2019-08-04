@@ -153,7 +153,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     }
     const orderedStops = stops
       .filter(s => s.stopType !== StopType.NotProdHours)
-      .sort((s1, s2) => s2.start - s1.start);
+      .sort((s1, s2) => s1.start - s2.start);
     return <StopList lastMinute={lastMinute} stops={orderedStops} />;
   }
 

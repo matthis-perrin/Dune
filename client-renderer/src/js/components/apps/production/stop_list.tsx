@@ -1,4 +1,4 @@
-import {uniq, uniqBy} from 'lodash-es';
+import {uniqBy} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -71,7 +71,7 @@ export class StopList extends React.Component<StopListProps> {
         if (lastStopOfLastGroup === undefined) {
           lastGroup.push(s);
         } else {
-          if (lastStopOfLastGroup.start === s.end) {
+          if (lastStopOfLastGroup.end === s.start) {
             lastGroup.push(s);
           } else {
             groups.push([s]);
@@ -83,7 +83,7 @@ export class StopList extends React.Component<StopListProps> {
   }
 
   private renderMergeButton(stop1: Stop, stop2: Stop): JSX.Element {
-    return <MergeButton onClick={() => this.merge(stop1, stop2)}>🡓 Fusionner 🡓</MergeButton>;
+    return <MergeButton onClick={() => this.merge(stop1, stop2)}>↑ Fusionner ↑</MergeButton>;
   }
 
   private renderStopGroup(stopGroup: Stop[]): JSX.Element {
