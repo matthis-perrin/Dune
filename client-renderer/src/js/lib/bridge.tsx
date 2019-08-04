@@ -49,6 +49,8 @@ import {
   GetScheduleInfo,
   CreateStop,
   MergeStops,
+  CreateMaintenance,
+  ListMaintenance,
 } from '@shared/bridge/commands';
 import {
   BobineFille,
@@ -77,6 +79,7 @@ import {
   StopInfo,
   ProdHours,
   ScheduleInfo,
+  Maintenance,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -305,6 +308,13 @@ export class Bridge {
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
     return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});
+  }
+
+  public async createMaintenance(start: number, end: number, title: string): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(CreateMaintenance, {start, end, title});
+  }
+  public async listMaintenances(): Promise<Maintenance[]> {
+    return this.bridgeTransport.sendBridgeCommand<Maintenance[]>(ListMaintenance);
   }
 
   public async getAppInfo(windowId: string): Promise<ClientAppInfo> {

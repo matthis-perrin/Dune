@@ -18,10 +18,9 @@ export const UNPLANNED_STOPS_TABLE_NAME = 'unplanned_stops';
 export const CLEANINGS_TABLE_NAME = 'cleanings';
 export const PROD_HOURS = 'prod_hours';
 
-// Data
+// Prod
 export const PLANS_PRODUCTION_TABLE_NAME = 'plan_production';
-
-// Speed
+export const MAINTENANCE_TABLE_NAME = 'maintenance';
 export const SPEED_MINUTES_TABLE_NAME = 'minutes';
 export const SPEED_HOURS_TABLE_NAME = 'hours';
 export const SPEED_STOPS_TABLE_NAME = 'stops';

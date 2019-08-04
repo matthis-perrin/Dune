@@ -1,6 +1,6 @@
 import {bridge} from '@root/lib/bridge';
 import {createSchedule} from '@root/lib/plan_prod_schedule';
-import {operationsStore, prodHoursStore} from '@root/stores/data_store';
+import {operationsStore, prodHoursStore, maintenancesStore} from '@root/stores/data_store';
 
 import {
   Operation,
@@ -23,12 +23,12 @@ export class ScheduleStore {
 
   private operations?: Operation[];
   private prodRanges?: Map<string, ProdRange>;
+  private maintenances?: Maintenance[];
   private prodData?: {
     startedPlans: PlanProduction[];
     notStartedPlans: PlanProduction[];
     prods: Prod[];
     stops: Stop[];
-    maintenances: Maintenance[];
     lastMinuteSpeed?: MinuteSpeed;
   };
 
@@ -37,6 +37,7 @@ export class ScheduleStore {
   public constructor(private startRange: number, private endRange: number) {
     operationsStore.addListener(this.handleOperationsChanged);
     prodHoursStore.addListener(this.handleProdHoursChanged);
+    maintenancesStore.addListener(this.handleMaintenancesChanged);
   }
 
   public start(listener: () => void): void {
@@ -73,6 +74,11 @@ export class ScheduleStore {
     this.recompute();
   };
 
+  private readonly handleMaintenancesChanged = (): void => {
+    this.maintenances = maintenancesStore.getData();
+    this.recompute();
+  };
+
   public refresh(): void {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
@@ -87,17 +93,10 @@ export class ScheduleStore {
   }
 
   private recompute(): void {
-    if (!this.operations || !this.prodRanges || !this.prodData) {
+    if (!this.operations || !this.prodRanges || !this.prodData || !this.maintenances) {
       return;
     }
-    const {
-      maintenances,
-      stops,
-      startedPlans,
-      prods,
-      notStartedPlans,
-      lastMinuteSpeed,
-    } = this.prodData;
+    const {stops, startedPlans, prods, notStartedPlans, lastMinuteSpeed} = this.prodData;
     this.schedule = createSchedule(
       this.operations,
       this.prodRanges,
@@ -105,9 +104,11 @@ export class ScheduleStore {
       notStartedPlans,
       prods,
       stops,
-      maintenances,
+      this.maintenances,
       lastMinuteSpeed
     );
+
+    console.log(this.schedule);
 
     this.emit();
   }
@@ -151,14 +152,6 @@ export class ScheduleStore {
       notStartedPlans: this.transformPlanProdRaw(notStartedPlans),
       prods,
       stops,
-      maintenances: [
-        {
-          title: 'Test Maintenance',
-          startTime: new Date(2019, 6, 30, 6, 10).getTime(),
-          endTime: new Date(2019, 6, 30, 6, 20).getTime(),
-          id: 2,
-        },
-      ],
       lastMinuteSpeed,
     };
     this.recompute();

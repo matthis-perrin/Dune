@@ -54,6 +54,8 @@ import {
   GetScheduleInfo,
   CreateStop,
   MergeStops,
+  CreateMaintenance,
+  ListMaintenance,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -62,6 +64,7 @@ import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {listOperations} from '@shared/db/operations';
+import {createMaintenance, listMaintenances} from '@shared/db/maintenances';
 import {listPerfos} from '@shared/db/perfos';
 import {
   deletePlanProduction,
@@ -394,5 +397,19 @@ export async function handleCommand(
       asMap(mergedInfo) as StopInfo,
       asNumber(newEnd, undefined)
     );
+  }
+
+  if (command === CreateMaintenance) {
+    debugLog();
+    const {start, end, title} = asMap(params);
+    return createMaintenance(
+      SQLITE_DB.Prod,
+      asNumber(start, 0),
+      asNumber(end, 0),
+      asString(title, '')
+    );
+  }
+  if (command === ListMaintenance) {
+    return listMaintenances(SQLITE_DB.Prod);
   }
 }

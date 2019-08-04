@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
+import {MaintenanceModal} from '@root/components/apps/main/gestion/maintenance_modal';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
@@ -25,6 +26,7 @@ interface State {
   schedule?: Schedule;
   month: number;
   year: number;
+  showMaintenanceModal?: Date;
 }
 
 export class GestionPage extends React.Component<Props, State> {
@@ -130,6 +132,12 @@ export class GestionPage extends React.Component<Props, State> {
                 .catch(err => console.error(err));
             },
           },
+          {
+            label: `Ajouter une opération de maintenance le ${date.toLocaleDateString('fr')}`,
+            callback: () => {
+              this.setState({showMaintenanceModal: date});
+            },
+          },
         ])
         .catch(console.error);
     }
@@ -170,9 +178,17 @@ export class GestionPage extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const {month, year} = this.state;
+    const {month, year, showMaintenanceModal} = this.state;
     return (
       <Page>
+        {showMaintenanceModal ? (
+          <MaintenanceModal
+            date={showMaintenanceModal}
+            onDone={() => this.setState({showMaintenanceModal: undefined})}
+          />
+        ) : (
+          <React.Fragment />
+        )}
         <Calendar
           month={month}
           year={year}

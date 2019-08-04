@@ -27,6 +27,7 @@ import {
   unplannedStopsStore,
   cleaningsStore,
   prodHoursStore,
+  maintenancesStore,
 } from '@root/stores/data_store';
 import {
   bobinesFillesStore,
@@ -98,6 +99,7 @@ export class AppManager extends React.Component<Props, State> {
         colorsStore,
         operationsStore,
         prodHoursStore,
+        maintenancesStore,
       ];
     }
     if (type === ClientAppType.BobinesPickerApp) {
@@ -111,6 +113,7 @@ export class AppManager extends React.Component<Props, State> {
         colorsStore,
         operationsStore,
         prodHoursStore,
+        maintenancesStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -120,10 +123,24 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, prodHoursStore];
+      return [
+        bobinesMeresStore,
+        stocksStore,
+        colorsStore,
+        operationsStore,
+        prodHoursStore,
+        maintenancesStore,
+      ];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, prodHoursStore];
+      return [
+        bobinesMeresStore,
+        stocksStore,
+        colorsStore,
+        operationsStore,
+        prodHoursStore,
+        maintenancesStore,
+      ];
     }
 
     if (type === ClientAppType.ViewBobineApp) {
@@ -145,6 +162,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesQuantitiesStore,
         operationsStore,
         prodHoursStore,
+        maintenancesStore,
       ];
     }
 
@@ -158,10 +176,17 @@ export class AppManager extends React.Component<Props, State> {
         prodHoursStore,
         unplannedStopsStore,
         cleaningsStore,
+        maintenancesStore,
       ];
     }
     if (type === ClientAppType.StopApp) {
-      return [unplannedStopsStore, cleaningsStore, operationsStore, prodHoursStore];
+      return [
+        unplannedStopsStore,
+        cleaningsStore,
+        operationsStore,
+        prodHoursStore,
+        maintenancesStore,
+      ];
     }
 
     return [];
