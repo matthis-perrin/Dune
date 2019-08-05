@@ -3,7 +3,7 @@ import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {PlottableCSS} from '@root/components/charts/plottable_css';
+import {PlottableSpeedCSS} from '@root/components/charts/plottable_css';
 import {padNumber} from '@root/lib/utils';
 import {Palette} from '@root/theme';
 
@@ -18,7 +18,7 @@ interface SpeedChartProps {
 
 type Datum = [Date, number | undefined];
 
-Plottable.Plots.Bar._BAR_THICKNESS_RATIO = 1;
+Plottable.Plots.Bar._BAR_THICKNESS_RATIO = 1.05;
 
 export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
@@ -171,7 +171,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   public render(): JSX.Element {
     return (
       <React.Fragment>
-        <PlottableCSS />
+        <PlottableSpeedCSS />
         <ChartContainer ref={this.chartRef} />
       </React.Fragment>
     );
@@ -181,5 +181,4 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 const ChartContainer = styled.div`
   width: 100%;
   height: 100%;
-  background-color: ${Palette.White};
 `;

@@ -214,10 +214,17 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         <ChartContainer>{this.renderChart()}</ChartContainer>
         <ProdStateContainer>
           <ScheduleContainer>
+            <BlockTitle>PLANNING</BlockTitle>
             <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
           </ScheduleContainer>
-          <EventsContainer>{this.renderStops()}</EventsContainer>
-          <CurrentPlanContainer>{this.renderCurrentPlan()}</CurrentPlanContainer>
+          <EventsContainer>
+            <BlockTitle>ARRÊTS MACHINE</BlockTitle>
+            {this.renderStops()}
+          </EventsContainer>
+          <CurrentPlanContainer>
+            <BlockTitle>PRODUCTION EN COURS</BlockTitle>
+            {this.renderCurrentPlan()}
+          </CurrentPlanContainer>
         </ProdStateContainer>
       </AppWrapper>
     );
@@ -235,7 +242,7 @@ const AppWrapper = styled.div`
   right: 0;
   display: flex;
   flex-direction: column;
-  background-color: ${theme.page.backgroundColor};
+  background-color: ${Palette.White};
 `;
 
 const TopBar = styled.div`
@@ -268,11 +275,32 @@ const NavigationIcon = styled.div`
   }
 `;
 
-const ChartContainer = styled.div`
+const Block = styled.div`
+  position: relative;
+  font-size: 20px;
+  padding: 16px;
+  padding-top: 64px;
+  background-color: ${Colors.PrimaryDark};
+`;
+
+const BlockTitle = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background-color: ${Colors.SecondaryDark};
+  color: ${Colors.TextOnSecondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ChartContainer = styled(Block)`
   flex-shrink: 0;
   height: 200px;
-  background-color: ${Palette.White};
   box-sizing: border-box;
+  margin: 16px;
   padding: 16px 16px 0 0;
 `;
 
@@ -281,29 +309,31 @@ const ProdStateContainer = styled.div`
   display: flex;
 `;
 
-const ScheduleContainer = styled.div`
+const ScheduleContainer = styled(Block)`
   flex-grow: 1;
   flex-basis: 1px;
   display: flex;
   overflow-y: auto;
+  margin: 0 16px 16px 16px;
 `;
 
-const EventsContainer = styled.div`
+const EventsContainer = styled(Block)`
   flex-grow: 1;
   flex-basis: 1px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  margin: 0 16px 16px 0;
 `;
 
-const CurrentPlanContainer = styled.div`
+const CurrentPlanContainer = styled(Block)`
   flex-shrink: 0;
   width: ${planProdViewerWidth + SCROLLBAR_WIDTH}px;
   height: 100%;
   box-sizing: border-box;
   overflow-y: auto;
-  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 16px 16px 0;
 `;
