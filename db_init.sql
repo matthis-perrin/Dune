@@ -128,6 +128,6 @@ INSERT INTO "prod_hours" VALUES ("lundi", 6, 0, 22, 0);
 INSERT INTO "prod_hours" VALUES ("mardi", 6, 0, 22, 0);
 INSERT INTO "prod_hours" VALUES ("mercredi", 6, 0, 22, 0);
 INSERT INTO "prod_hours" VALUES ("jeudi", 6, 0, 22, 0);
-INSERT INTO "prod_hours" VALUES ("vendredi", 6, 0, 19, 0);
+INSERT INTO "prod_hours" VALUES ("vendredi", 6, 0, 20, 0);
 
 COMMIT;

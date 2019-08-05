@@ -14,12 +14,22 @@ export function getShortPlanProdTitle(id: number): string {
   return padNumber(id, PLAN_PROD_NUMBER_DIGIT_COUNT);
 }
 
-export function metersToProductionTime(meters: number, speed: number): number {
-  return (meters / (speed * MAX_SPEED_RATIO)) * 60 * 1000;
+export function metersToProductionTime(
+  meters: number,
+  speed: number,
+  includeChangeBobineMere: boolean
+): number {
+  const ratio = includeChangeBobineMere ? MAX_SPEED_RATIO : 1;
+  return (meters / (speed * ratio)) * 60 * 1000;
 }
 
-export function productionTimeToMeters(productionTime: number, speed: number): number {
-  return (productionTime / 60 / 1000) * (speed * MAX_SPEED_RATIO);
+export function productionTimeToMeters(
+  productionTime: number,
+  speed: number,
+  includeChangeBobineMere: boolean
+): number {
+  const ratio = includeChangeBobineMere ? MAX_SPEED_RATIO : 1;
+  return (productionTime / 60 / 1000) * (speed * ratio);
 }
 
 export function computeProductionTime(

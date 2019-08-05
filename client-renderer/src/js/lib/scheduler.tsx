@@ -374,7 +374,7 @@ function generatePlannedEventsForProdLeft(
     }
   }
   // Check how far we can go in time
-  const targetProdTime = metersToProductionTime(metersToProduce, planProd.data.speed);
+  const targetProdTime = metersToProductionTime(metersToProduce, planProd.data.speed, true);
   const targetEndTime = current + targetProdTime;
   const schedule = getOrCreateScheduleForTime(current, planProd, plannedEvents);
   const lastPossibleEndTime = lastValidConsecutiveProdTime(current, supportData);
@@ -386,7 +386,7 @@ function generatePlannedEventsForProdLeft(
   if (schedule.end < endTime) {
     schedule.end = endTime;
   }
-  const actualProd = productionTimeToMeters(endTime - current, planProd.data.speed);
+  const actualProd = productionTimeToMeters(endTime - current, planProd.data.speed, true);
   schedule.plannedProdMeters += actualProd;
   schedule.plannedProdMs += endTime - current;
   schedule.plannedProds.push({
@@ -671,7 +671,8 @@ function finishPlanProd(
       lastSchedule.doneProdMs += prodDuration;
       lastSchedule.doneProdMeters += productionTimeToMeters(
         prodDuration,
-        lastProdEvent.avgSpeed || 0
+        lastProdEvent.avgSpeed || 0,
+        false
       );
     }
   }
@@ -731,10 +732,12 @@ function schedulePlanProd(
     const scheduleForEvent = getOrCreateScheduleForTime(event.start, planProd, schedulePerDay);
     if (isProd) {
       const prodEvent = event as Prod;
-      const prodTime = getEventDuration(prodEvent, supportData.currentTime);
-      const prodMeters = computeMetrage(prodTime, prodEvent.avgSpeed || 0);
-      scheduleForEvent.doneOperationsMs += prodTime;
-      scheduleForEvent.doneProdMeters += prodMeters;
+      if (prodEvent.end !== undefined) {
+        const prodTime = getEventDuration(prodEvent, supportData.currentTime);
+        const prodMeters = computeMetrage(prodTime, prodEvent.avgSpeed || 0);
+        scheduleForEvent.doneOperationsMs += prodTime;
+        scheduleForEvent.doneProdMeters += prodMeters;
+      }
       scheduleForEvent.prods.push(prodEvent);
     } else {
       const stopEvent = event as Stop;

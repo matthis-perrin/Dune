@@ -1,5 +1,5 @@
 import {bridge} from '@root/lib/bridge';
-import {createSchedule} from '@root/lib/plan_prod_schedule';
+import {createSchedule} from '@root/lib/scheduler';
 import {operationsStore, prodHoursStore, maintenancesStore} from '@root/stores/data_store';
 
 import {
