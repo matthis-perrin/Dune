@@ -170,7 +170,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // tslint:disable:no-magic-number
     if (height >= 60) {
       return {
-        fontSize: 20,
+        fontSize: 19,
         fontWeight: FontWeight.Regular,
       };
     }
@@ -434,8 +434,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
 const planBorderThickness = 2;
 const sideBlockWidth = 56;
-const paddingLeft = 96;
-const paddingRight = 96;
+const paddingLeft = 72;
+const paddingRight = 72;
 
 const ScheduleWrapper = styled.div`
   position: relative;

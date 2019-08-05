@@ -277,7 +277,6 @@ const NavigationIcon = styled.div`
 
 const Block = styled.div`
   position: relative;
-  font-size: 20px;
   padding: 16px;
   padding-top: 64px;
   background-color: ${Colors.PrimaryDark};
@@ -292,6 +291,7 @@ const BlockTitle = styled.div`
   background-color: ${Colors.SecondaryDark};
   color: ${Colors.TextOnSecondary};
   display: flex;
+  font-size: 20px;
   align-items: center;
   justify-content: center;
 `;
@@ -300,7 +300,7 @@ const ChartContainer = styled(Block)`
   flex-shrink: 0;
   height: 200px;
   box-sizing: border-box;
-  margin: 16px;
+  margin: 8px;
   padding: 16px 16px 0 0;
 `;
 
@@ -314,7 +314,7 @@ const ScheduleContainer = styled(Block)`
   flex-basis: 1px;
   display: flex;
   overflow-y: auto;
-  margin: 0 16px 16px 16px;
+  margin: 0 8px 8px 8px;
 `;
 
 const EventsContainer = styled(Block)`
@@ -323,7 +323,7 @@ const EventsContainer = styled(Block)`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  margin: 0 16px 16px 0;
+  margin: 0 8px 8px 0;
 `;
 
 const CurrentPlanContainer = styled(Block)`
@@ -335,5 +335,5 @@ const CurrentPlanContainer = styled(Block)`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 16px 16px 0;
+  margin: 0 8px 8px 0;
 `;

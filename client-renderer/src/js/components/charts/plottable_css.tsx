@@ -443,4 +443,8 @@ export const PlottableSpeedCSS = createGlobalStyle`
   .plottable .pie-plot .arc.outline {
     stroke-linejoin: round;
   }
+
+  .plottable  .plot {
+    background-color: white;
+  }
 `;
