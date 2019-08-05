@@ -82,30 +82,30 @@ function eventsOrder(event1: AutomateEvent, event2: AutomateEvent): number {
   }
 }
 
-function getFirstAutomateEvent(list: AutomateEvent[]): AutomateEvent | undefined {
+function getFirstEvent<T extends AutomateEvent>(list: T[]): T | undefined {
   return list.sort(eventsOrder)[0];
 }
 
-function getLastAutomateEvent(list: AutomateEvent[]): AutomateEvent | undefined {
+function getLastEvent<T extends AutomateEvent>(list: T[]): T | undefined {
   return list.sort((e1, e2) => -eventsOrder(e1, e2))[0];
 }
 
-function getFirstEvent(planEvents: PlanEvents): AutomateEvent | undefined {
-  const minProd = getFirstAutomateEvent(planEvents.prods);
-  const minPlannedProd = getFirstAutomateEvent(planEvents.plannedProds);
-  const minStop = getFirstAutomateEvent(planEvents.stops);
-  const minPlannedStop = getFirstAutomateEvent(planEvents.plannedStops);
+function getFirstPlanEvent(planEvents: PlanEvents): AutomateEvent | undefined {
+  const minProd = getFirstEvent(planEvents.prods);
+  const minPlannedProd = getFirstEvent(planEvents.plannedProds);
+  const minStop = getFirstEvent(planEvents.stops);
+  const minPlannedStop = getFirstEvent(planEvents.plannedStops);
   const mins = removeUndefined([minProd, minPlannedProd, minStop, minPlannedStop]);
-  return getFirstAutomateEvent(mins);
+  return getFirstEvent(mins);
 }
 
-function getLastEvent(planEvents: PlanEvents): AutomateEvent | undefined {
-  const maxProd = getLastAutomateEvent(planEvents.prods);
-  const maxPlannedProd = getLastAutomateEvent(planEvents.plannedProds);
-  const maxStop = getLastAutomateEvent(planEvents.stops);
-  const maxPlannedStop = getLastAutomateEvent(planEvents.plannedStops);
+function getLastPlanEvent(planEvents: PlanEvents): AutomateEvent | undefined {
+  const maxProd = getLastEvent(planEvents.prods);
+  const maxPlannedProd = getLastEvent(planEvents.plannedProds);
+  const maxStop = getLastEvent(planEvents.stops);
+  const maxPlannedStop = getLastEvent(planEvents.plannedStops);
   const maxs = removeUndefined([maxProd, maxPlannedProd, maxStop, maxPlannedStop]);
-  return getLastAutomateEvent(maxs);
+  return getLastEvent(maxs);
 }
 
 function getLastSchedule(
@@ -131,18 +131,14 @@ function mergeSchedule(schedule1: PlanProdSchedule, schedule2: PlanProdSchedule)
     end: Math.max(schedule1.end, schedule2.end),
     planProd: schedule1.planProd,
     // Done
-    prods: schedule1.prods.concat(schedule2.prods).sort((p1, p2) => p1.start - p2.start),
-    stops: schedule1.stops.concat(schedule2.stops).sort((s1, s2) => s1.start - s2.start),
+    prods: schedule1.prods.concat(schedule2.prods).sort(eventsOrder),
+    stops: schedule1.stops.concat(schedule2.stops).sort(eventsOrder),
     doneOperationsMs: schedule1.doneOperationsMs + schedule2.doneOperationsMs,
     doneProdMs: schedule1.doneProdMs + schedule2.doneProdMs,
     doneProdMeters: schedule1.doneProdMeters + schedule2.doneProdMeters,
     // Planned
-    plannedProds: schedule1.plannedProds
-      .concat(schedule2.plannedProds)
-      .sort((p1, p2) => p1.start - p2.start),
-    plannedStops: schedule1.plannedStops
-      .concat(schedule2.plannedStops)
-      .sort((s1, s2) => s1.start - s2.start),
+    plannedProds: schedule1.plannedProds.concat(schedule2.plannedProds).sort(eventsOrder),
+    plannedStops: schedule1.plannedStops.concat(schedule2.plannedStops).sort(eventsOrder),
     plannedOperationsMs: schedule1.plannedOperationsMs + schedule2.plannedOperationsMs,
     plannedProdMs: schedule1.plannedProdMs + schedule2.plannedProdMs,
     plannedProdMeters: schedule1.plannedProdMeters + schedule2.plannedProdMeters,
@@ -339,7 +335,7 @@ function generatePlannedEventsForProdLeft(
     // Recompute the current time
     const lastRepriseSchedule = getLastSchedule(repriseProdEvents);
     if (lastRepriseSchedule) {
-      const lastRepriseEvent = getLastEvent(lastRepriseSchedule);
+      const lastRepriseEvent = getLastPlanEvent(lastRepriseSchedule);
       if (lastRepriseEvent && lastRepriseEvent.end) {
         current = nextValidTime(lastRepriseEvent.end, supportData.prodRanges);
       }
@@ -367,7 +363,7 @@ function generatePlannedEventsForProdLeft(
     // Recompute the current time
     const lastMaintenanceSchedule = getLastSchedule(maintenanceEvents);
     if (lastMaintenanceSchedule) {
-      const lastMaintenanceEvent = getLastEvent(lastMaintenanceSchedule);
+      const lastMaintenanceEvent = getLastPlanEvent(lastMaintenanceSchedule);
       if (lastMaintenanceEvent && lastMaintenanceEvent.end) {
         current = nextValidTime(lastMaintenanceEvent.end, supportData.prodRanges);
       }
@@ -432,7 +428,7 @@ function generatePlannedEventsForStopLeft(
     // Save the last event type before we generate the maitnenance event (will be useful later)
     const lastScheduleBeforeMaintenance = getLastSchedule(plannedEvents);
     const lastEventBeforeMaintenance =
-      lastScheduleBeforeMaintenance && (getLastEvent(lastScheduleBeforeMaintenance) as Stop);
+      lastScheduleBeforeMaintenance && (getLastPlanEvent(lastScheduleBeforeMaintenance) as Stop);
     const maintenanceEvents = generatePlannedEventsForStopLeft(
       maintenance.endTime - maintenance.startTime,
       maintenanceStop,
@@ -444,7 +440,7 @@ function generatePlannedEventsForStopLeft(
     // Recompute the current time
     const lastMaintenanceSchedule = getLastSchedule(maintenanceEvents);
     if (lastMaintenanceSchedule) {
-      const lastMaintenanceEvent = getLastEvent(lastMaintenanceSchedule);
+      const lastMaintenanceEvent = getLastPlanEvent(lastMaintenanceSchedule);
       if (lastMaintenanceEvent && lastMaintenanceEvent.end) {
         current = nextValidTime(lastMaintenanceEvent.end, supportData.prodRanges);
       }
@@ -509,7 +505,7 @@ function generateProdLeft(
   // We don't finisht the prod if the last stop is a EndOfDayEndOfProd stop
   const lastSchedule = getLastSchedule(currentSchedules);
   if (lastSchedule) {
-    const lastStopEvent = getLastAutomateEvent(lastSchedule.stops) as Stop | undefined;
+    const lastStopEvent = getLastEvent(lastSchedule.stops);
     if (lastStopEvent !== undefined && lastStopEvent.stopType === StopType.EndOfDayEndProd) {
       return new Map<number, PlanProdSchedule>();
     }
@@ -557,7 +553,7 @@ function finishPlanProd(
   // If there is something in progress we need to "finish" it first
   if (lastSchedule && lastSchedule.status === PlanProductionStatus.IN_PROGRESS) {
     // Finish the last stop
-    const lastStopEvent = maxBy(lastSchedule.stops, p => p.start);
+    const lastStopEvent = getLastEvent(lastSchedule.stops);
     if (lastStopEvent !== undefined && lastStopEvent.end === undefined) {
       const endTime = supportData.currentTime;
       const lastStopEventType = lastStopEvent.stopType;
@@ -567,7 +563,10 @@ function finishPlanProd(
         lastStopEventType === StopType.ChangePlanProd ||
         lastStopEventType === StopType.ReglagesAdditionel
       ) {
-        stopLeft = operationsTime - getTotalOperationTimeDone(newSchedules);
+        stopLeft =
+          operationsTime -
+          getTotalOperationTimeDone(newSchedules) -
+          (endTime - lastStopEvent.start);
       } else if (lastStopEventType === StopType.ReprisePlanProd) {
         stopLeft = ADDITIONAL_TIME_TO_RESTART_PROD - (endTime - lastStopEvent.start);
       } else if (isEndOfDayStop(lastStopEvent)) {
@@ -645,9 +644,8 @@ function finishPlanProd(
           if (otherStopLeft > 0) {
             const lastScheduleAfterMaintenance = getLastSchedule(newSchedules);
             if (lastScheduleAfterMaintenance) {
-              const lastStopEventAfterMaintenance = maxBy(
-                lastScheduleAfterMaintenance.stops,
-                p => p.start
+              const lastStopEventAfterMaintenance = getLastEvent(
+                lastScheduleAfterMaintenance.stops.concat(lastScheduleAfterMaintenance.plannedStops)
               );
               if (lastStopEventAfterMaintenance) {
                 const lastStopEndTime =
@@ -674,7 +672,7 @@ function finishPlanProd(
     }
 
     // Finish the last prod unless the last stop is a EndOfDayEndOfProd stop
-    const lastProdEvent = maxBy(lastSchedule.prods, p => p.start);
+    const lastProdEvent = getLastEvent(lastSchedule.prods);
     if (
       (lastStopEvent === undefined || lastStopEvent.stopType !== StopType.EndOfDayEndProd) &&
       lastProdEvent !== undefined &&
@@ -699,7 +697,7 @@ function finishPlanProd(
     if (previousPlan) {
       const previousPlanLastSchedule = getLastSchedule(previousPlan.schedulePerDay);
       if (previousPlanLastSchedule) {
-        const previousPlanLastEvent = getLastEvent(previousPlanLastSchedule);
+        const previousPlanLastEvent = getLastPlanEvent(previousPlanLastSchedule);
         if (previousPlanLastEvent && previousPlanLastEvent.end) {
           startTime = previousPlanLastEvent.end;
         }
@@ -789,7 +787,7 @@ function schedulePlanProd(
     const endOfDayPauseProdStops = lastSchedule.stops.filter(
       s => s.stopType === StopType.EndOfDayPauseProd
     );
-    const lastEvent = getLastEvent(lastSchedule);
+    const lastEvent = getLastPlanEvent(lastSchedule);
     if (
       (endOfDayEndProdStops.length === 0 && endOfDayPauseProdStops.length === 0) ||
       (lastEvent && lastEvent.end === undefined)
@@ -935,8 +933,8 @@ export function createSchedule(
     if (!p1ProdData || !p2ProdData) {
       return 0;
     }
-    const p1FirstEvent = getFirstEvent(p1ProdData);
-    const p2FirstEvent = getFirstEvent(p2ProdData);
+    const p1FirstEvent = getFirstPlanEvent(p1ProdData);
+    const p2FirstEvent = getFirstPlanEvent(p2ProdData);
     const p1Start = p1FirstEvent ? p1FirstEvent.start : future;
     const p2Start = p2FirstEvent ? p2FirstEvent.start : future;
     return p1Start < p2Start ? -1 : p2Start < p1Start ? 1 : p1.index - p2.index;
