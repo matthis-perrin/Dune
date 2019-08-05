@@ -225,7 +225,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 }
 
 const iconSize = 16;
-const planProdViewerWidth = 640;
+const planProdViewerWidth = 500;
 
 const AppWrapper = styled.div`
   position: fixed;
@@ -270,7 +270,7 @@ const NavigationIcon = styled.div`
 
 const ChartContainer = styled.div`
   flex-shrink: 0;
-  height: 256px;
+  height: 200px;
   background-color: ${Palette.White};
   box-sizing: border-box;
   padding: 16px 16px 0 0;
@@ -293,11 +293,17 @@ const EventsContainer = styled.div`
   flex-basis: 1px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 `;
 
 const CurrentPlanContainer = styled.div`
   flex-shrink: 0;
   width: ${planProdViewerWidth + SCROLLBAR_WIDTH}px;
   height: 100%;
+  box-sizing: border-box;
   overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

@@ -94,6 +94,7 @@ export class PlanProdTile extends React.Component<Props> {
         width={width}
         bobineQuantities={bobineQuantities}
         cadencier={cadencier}
+        hideOperationTable
         onHeightAvailable={heightCallback}
       />,
       viewerContainer

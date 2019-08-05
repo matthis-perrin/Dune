@@ -95,7 +95,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const firstDate = data[0][0];
     const lastDate = data[data.length - 1][0];
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
-    const yScale = new Plottable.Scales.Linear().domain([0, 190]);
+    const yScale = new Plottable.Scales.Linear().domain([0, 200]);
     yScale.defaultTicks = () => [0, 50, 100, 150, 180];
 
     // Bars

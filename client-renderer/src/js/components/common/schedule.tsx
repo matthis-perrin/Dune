@@ -7,11 +7,28 @@ import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
 import {computeMetrage} from '@root/lib/prod';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
-import {isRoundHour, isHalfHour, padNumber, isSameDay, roundedToDigit} from '@root/lib/utils';
+import {
+  isRoundHour,
+  isHalfHour,
+  padNumber,
+  isSameDay,
+  roundedToDigit,
+  numberWithSeparator,
+} from '@root/lib/utils';
 import {theme, Palette, FontWeight} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
-import {Stock, ProdRange, Schedule, PlanProdSchedule, Stop, Color, Prod} from '@shared/models';
+import {
+  Stock,
+  ProdRange,
+  Schedule,
+  PlanProdSchedule,
+  Stop,
+  Color,
+  Prod,
+  StopType,
+  PlanProductionStatus,
+} from '@shared/models';
 
 interface ScheduleViewProps {
   day: Date;
@@ -132,7 +149,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     end: Date,
     borderSize: number = 0
   ): React.CSSProperties {
-    const left = paddingLeft + planTitleWidth;
+    const left = paddingLeft + sideBlockWidth;
     const width = `calc(100% - ${left + paddingRight}px)`;
     const top = this.getYPosForTime(start.getTime());
     const bottom = this.getYPosForTime(end.getTime());
@@ -163,44 +180,47 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         fontWeight: FontWeight.Regular,
       };
     }
-    if (height >= 13) {
+    if (height >= 17) {
       return {
         fontSize: 11,
+        lineHeight: '14px',
         fontWeight: FontWeight.SemiBold,
       };
     }
-    if (height >= 9) {
-      return {
-        fontSize: 9,
-        fontWeight: FontWeight.SemiBold,
-      };
-    }
-    if (height >= 5) {
-      return {
-        fontSize: 7,
-        fontWeight: FontWeight.Bold,
-      };
-    }
-    return {fontSize: 0};
+    return {display: 'none'};
     // tslint:enable:no-magic-number
   }
 
-  private getPlanProdTitleForHeight(id: number, height: number): string {
+  private getTitleForHeight(schedule: PlanProdSchedule, height: number): JSX.Element {
+    const id = schedule.planProd.id;
+    const showMetrage = schedule.status !== PlanProductionStatus.PLANNED;
     // tslint:disable:no-magic-number
-    if (height >= 200) {
-      return getPlanProdTitle(id);
+    let title = <React.Fragment />;
+    const metrage = (
+      <PlanTitleMetrage>{`${numberWithSeparator(
+        Math.round(schedule.doneProdMeters)
+      )} m`}</PlanTitleMetrage>
+    );
+    if (height >= 180) {
+      title = <PlanTitleId>{getPlanProdTitle(id)}</PlanTitleId>;
+    } else if (height >= 50) {
+      title = <PlanTitleId>{getShortPlanProdTitle(id)}</PlanTitleId>;
     }
-    if (height >= 50) {
-      return getShortPlanProdTitle(id);
-    }
-    return '';
+    return (
+      <React.Fragment>
+        {title}
+        {showMetrage ? metrage : <React.Fragment />}
+      </React.Fragment>
+    );
     // tslint:enable:no-magic-number
   }
 
-  private getStripesForColor(color: string): string {
+  private getStripesForColor(
+    backgroundColor: string,
+    stripesColor: string = 'rgba(0, 0, 0, 0.5)'
+  ): string {
     const stripesSize = 10;
-    const stripesColor = 'rgba(0, 0, 0, 0.2)';
-    return `${color} repeating-linear-gradient(
+    return `${backgroundColor} repeating-linear-gradient(
       -45deg,
       ${stripesColor},
       ${stripesColor} ${stripesSize}px,
@@ -209,24 +229,78 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     )`;
   }
 
-  private renderStop(stop: Stop, isPlanned: boolean): JSX.Element {
+  private renderMinuteDuration(duration: number): JSX.Element {
+    const minutes = Math.round(duration / (60 * 1000));
+    return (
+      <React.Fragment>
+        <MinuteValue>{minutes}</MinuteValue>
+        <MinuteLabel> min</MinuteLabel>
+      </React.Fragment>
+    );
+  }
+
+  private renderDurationLabel(duration: number, height: number): JSX.Element {
+    if (height < 17) {
+      return <React.Fragment />;
+    }
+    if (height < 47) {
+      const lineHeight = duration < 7.5 * 60 * 1000 ? {lineHeight: '14px'} : {};
+      return (
+        <HorizontalDuration style={lineHeight}>
+          {this.renderMinuteDuration(duration)}
+        </HorizontalDuration>
+      );
+    }
+    const hours = Math.floor(duration / (60 * 60 * 1000));
+    const minutes = Math.round((duration - hours * 60 * 60 * 1000) / (60 * 1000));
+    const minutesStr = padNumber(minutes, 2);
+
+    if (hours === 0) {
+      return <VerticalDuration>{this.renderMinuteDuration(duration)}</VerticalDuration>;
+    }
+
+    return <VerticalDuration>{`${hours}h${minutesStr}`}</VerticalDuration>;
+  }
+
+  private renderStop(stop: Stop, color: Color, isPlanned: boolean): JSX.Element {
     if (!stop.end) {
       console.log(stop);
       throw new Error('invalid stop');
     }
     const stopLabel = getLabelForStopType(stop.stopType);
-    const durationMinutes = roundedToDigit((stop.end - stop.start) / 60000, 1);
+    const positionStyles = this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end));
+    const durationLabel = this.renderDurationLabel(
+      stop.end - stop.start,
+      positionStyles.height as number
+    );
+    const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
     return (
-      <StopWrapper
-        style={{
-          ...this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end)),
-          ...this.getTextStyleForDates(new Date(stop.start), new Date(stop.end)),
-          background: this.getStripesForColor(getColorForStopType(stop.stopType)),
-          opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
-        }}
-      >
-        {`${stopLabel} : ${durationMinutes} min`}
-      </StopWrapper>
+      <React.Fragment>
+        <StopWrapper
+          style={{
+            ...positionStyles,
+            background: this.getStripesForColor(
+              color.backgroundHex,
+              stop.stopType === StopType.Unplanned ? getColorForStopType(stop.stopType) : undefined
+            ),
+            opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
+          }}
+        >
+          <StopLabel style={labelTextStyles}>{stopLabel}</StopLabel>
+        </StopWrapper>
+        <DurationWrapper
+          style={{
+            ...positionStyles,
+            backgroundColor: getColorForStopType(stop.stopType),
+
+            left: `calc(100% - ${paddingRight}px - 2px)`,
+            width: sideBlockWidth,
+            opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
+          }}
+        >
+          {durationLabel}
+        </DurationWrapper>
+      </React.Fragment>
     );
   }
 
@@ -235,21 +309,38 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       console.log(prod);
       throw new Error('invalid prod');
     }
-    const avgSpeed = roundedToDigit(prod.avgSpeed || 0, 1);
-    const meters = roundedToDigit(computeMetrage(prod.end - prod.start, prod.avgSpeed || 0), 1);
-    const durationMinutes = roundedToDigit((prod.end - prod.start) / 60000, 1);
+    // const meters = roundedToDigit(computeMetrage(prod.end - prod.start, prod.avgSpeed || 0), 1);
+    const start = new Date(prod.start);
+    const end = new Date(prod.end);
+    const labelPositionStyles = this.getPositionStyleForDates(start, end, 2);
+    const positionStyles = this.getPositionStyleForDates(start, end);
+    const durationLabel = this.renderDurationLabel(
+      prod.end - prod.start,
+      positionStyles.height as number
+    );
     return (
-      <ProdWrapper
-        style={{
-          ...this.getPositionStyleForDates(new Date(prod.start), new Date(prod.end)),
-          ...this.getTextStyleForDates(new Date(prod.start), new Date(prod.end)),
-          backgroundColor: color.backgroundHex,
-          color: color.textHex,
-          opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
-        }}
-      >
-        {`PROD à ${avgSpeed} m/s - ${durationMinutes} min - ${meters} m`}
-      </ProdWrapper>
+      <React.Fragment>
+        <ProdWrapper
+          style={{
+            ...positionStyles,
+            backgroundColor: color.backgroundHex,
+            color: color.textHex,
+            opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
+          }}
+        />
+        <DurationWrapper
+          style={{
+            ...labelPositionStyles,
+            backgroundColor: color.backgroundHex,
+            top: (labelPositionStyles.top as number) - 1,
+            left: `calc(100% - ${paddingRight}px - 2px)`,
+            width: sideBlockWidth,
+            opacity: isPlanned ? PLANNED_EVENT_OPACITY : 1,
+          }}
+        >
+          {durationLabel}
+        </DurationWrapper>
+      </React.Fragment>
     );
   }
 
@@ -264,23 +355,25 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         {color => (
           <React.Fragment>
             {([] as JSX.Element[])
-              .concat(planSchedule.stops.map(s => this.renderStop(s, false)))
-              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, true)))
+              .concat(planSchedule.stops.map(s => this.renderStop(s, color, false)))
+              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, color, true)))
               .concat(planSchedule.prods.map(p => this.renderProd(p, color, false)))
               .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color, true)))}
-            <PlanProdBorder style={planBorderPosition} />
+            <PlanProdBorder
+              style={{
+                ...planBorderPosition,
+                width: `calc(100% - ${paddingLeft + paddingRight}px - ${planBorderThickness}px)`,
+              }}
+            />
             <PlanTitle
               style={{
                 ...planBorderPosition,
-                width: planTitleWidth,
+                width: sideBlockWidth,
                 left: paddingLeft,
                 background: color.backgroundHex,
               }}
             >
-              {this.getPlanProdTitleForHeight(
-                planSchedule.planProd.id,
-                planBorderPosition.height as number
-              )}
+              {this.getTitleForHeight(planSchedule, planBorderPosition.height as number)}
             </PlanTitle>
           </React.Fragment>
         )}
@@ -340,7 +433,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 }
 
 const planBorderThickness = 2;
-const planTitleWidth = 48;
+const sideBlockWidth = 56;
 const paddingLeft = 96;
 const paddingRight = 96;
 
@@ -357,8 +450,48 @@ const EventWrapper = styled.div`
   box-sizing: border-box;
   text-align: center;
 `;
-const StopWrapper = styled(EventWrapper)``;
+const StopWrapper = styled(EventWrapper)`
+  border-top: solid 1px ${Palette.Black};
+  border-bottom: solid 1px ${Palette.Black};
+`;
 const ProdWrapper = styled(EventWrapper)``;
+
+const StopLabel = styled.span`
+  background-color: rgba(255, 255, 255, 0.75);
+  padding: 2px 12px;
+  border-radius: 4px;
+`;
+
+const MinuteValue = styled.div``;
+const MinuteLabel = styled.div`
+  font-size: 11px;
+  margin-inline-start: 2px;
+`;
+const DurationWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: solid 2px ${Palette.Black};
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  box-sizing: border-box;
+`;
+const Duration = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: ${FontWeight.SemiBold};
+  background: rgba(255, 2555, 255, 0.5);
+  border-radius: 4px;
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
+`;
+const HorizontalDuration = styled(Duration)``;
+const VerticalDuration = styled(Duration)`
+  writing-mode: vertical-rl;
+  transform: rotate(-180deg);
+  margin-left: -4px;
+`;
 
 const HoursSVG = styled.svg`
   background-color: ${Palette.Clouds};
@@ -375,11 +508,16 @@ const PlanTitle = styled.div`
   writing-mode: vertical-rl;
   transform: rotate(-180deg);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-weight: ${FontWeight.SemiBold};
   box-sizing: border-box;
 `;
+
+const PlanTitleId = styled.div``;
+
+const PlanTitleMetrage = styled.div``;
 
 const CurrentTimeLine = styled.div`
   background-color: red;
