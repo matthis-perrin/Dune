@@ -429,6 +429,10 @@ function generatePlannedEventsForStopLeft(
       planProdId: planProd.id,
       stopType: StopType.Maintenance,
     };
+    // Save the last event type before we generate the maitnenance event (will be useful later)
+    const lastScheduleBeforeMaintenance = getLastSchedule(plannedEvents);
+    const lastEventBeforeMaintenance =
+      lastScheduleBeforeMaintenance && (getLastEvent(lastScheduleBeforeMaintenance) as Stop);
     const maintenanceEvents = generatePlannedEventsForStopLeft(
       maintenance.endTime - maintenance.startTime,
       maintenanceStop,
@@ -447,8 +451,19 @@ function generatePlannedEventsForStopLeft(
     }
     // Special case, if we were previously doing a ChangePlanProd or a RepriseProd.
     // After the maintenance this becomes a ReglagesAdditionel stop.
-    if (stop.stopType === StopType.ChangePlanProd || stop.stopType === StopType.ReprisePlanProd) {
-      stop = {...stop, stopType: StopType.ReglagesAdditionel};
+    if (
+      stop.stopType &&
+      [StopType.ChangePlanProd, StopType.ReprisePlanProd].indexOf(stop.stopType) !== -1
+    ) {
+      if (
+        lastEventBeforeMaintenance &&
+        lastEventBeforeMaintenance.stopType !== undefined &&
+        [StopType.ChangePlanProd, StopType.ReprisePlanProd, StopType.ReglagesAdditionel].indexOf(
+          lastEventBeforeMaintenance.stopType
+        ) !== -1
+      ) {
+        stop = {...stop, stopType: StopType.ReglagesAdditionel};
+      }
     }
   }
   // Check how far we can go in time
