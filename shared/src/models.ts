@@ -268,7 +268,7 @@ export interface ScheduledPlanProd {
 }
 
 export interface Schedule {
-  lastMinuteSpeed?: MinuteSpeed;
+  lastSpeedTime?: SpeedTime;
   plans: ScheduledPlanProd[];
   unassignedStops: Stop[];
   unassignedProds: Prod[];
@@ -355,10 +355,10 @@ export interface ServerStatus {
 }
 
 export interface SpeedStatus {
-  firstMinute?: MinuteSpeed;
-  lastMinute?: MinuteSpeed;
+  firstMinute?: SpeedTime;
+  lastMinute?: SpeedTime;
   rowCount: number;
-  lastReceived?: MinuteSpeed;
+  lastReceived?: SpeedTime;
 }
 
 export interface StopStatus {
@@ -391,8 +391,8 @@ export enum ClientAppType {
   StopApp = 'StopApp',
 }
 
-export interface MinuteSpeed {
-  minute: number;
+export interface SpeedTime {
+  time: number;
   speed?: number;
 }
 
@@ -458,12 +458,12 @@ export interface ScheduleInfo {
   startedPlans: PlanProductionRaw[];
   maintenances: Maintenance[];
   nonProds: NonProd[];
-  lastMinuteSpeed?: MinuteSpeed;
+  lastSpeedTime?: SpeedTime;
 }
 
 export interface ProdInfo {
   stops: Stop[];
-  minuteSpeeds: MinuteSpeed[];
+  minuteSpeeds: SpeedTime[];
 }
 
 export interface UnplannedStop {

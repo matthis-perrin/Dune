@@ -171,8 +171,8 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   private renderHeader(): JSX.Element {
     const {schedule, stop} = this.props;
     let end = stop.end;
-    if (end === undefined && schedule.lastMinuteSpeed !== undefined) {
-      end = schedule.lastMinuteSpeed.minute + 60 * 1000;
+    if (end === undefined && schedule.lastSpeedTime !== undefined) {
+      end = schedule.lastSpeedTime.minute + 60 * 1000;
     }
     return (
       <Header>

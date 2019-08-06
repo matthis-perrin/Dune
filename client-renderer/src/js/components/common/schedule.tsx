@@ -387,12 +387,12 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private renderCurrentTimeIndicator(): JSX.Element {
     const {schedule, day} = this.props;
     if (schedule) {
-      const {lastMinuteSpeed} = schedule;
-      if (lastMinuteSpeed && isSameDay(new Date(day), new Date(lastMinuteSpeed.minute))) {
+      const {lastSpeedTime} = schedule;
+      if (lastSpeedTime && isSameDay(new Date(day), new Date(lastSpeedTime.minute))) {
         const left = paddingLeft;
         const right = paddingRight;
         const width = `calc(100% - ${left + right}px)`;
-        const top = this.getYPosForTime(lastMinuteSpeed.minute);
+        const top = this.getYPosForTime(lastSpeedTime.minute);
         const height = 1;
         return (
           <CurrentTimeLine

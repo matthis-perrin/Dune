@@ -78,7 +78,7 @@ import {
   getStartedPlanProdsInRange,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {getLastUsableSpeed, getMinutesSpeedsBetween} from '@shared/db/speed_minutes';
+import {getLastUsableSpeedTime, getSpeedTimesBetween} from '@shared/db/speed_times';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
 import {getSpeedStopBetween, updateStopInfo, createStop, mergeStops} from '@shared/db/speed_stops';
 import {listStocks} from '@shared/db/stocks';
@@ -356,7 +356,7 @@ export async function handleCommand(
       startedPlans,
       maintenances,
       nonProds,
-      lastMinuteSpeed,
+      lastSpeedTime,
     ] = await Promise.all([
       getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
@@ -364,7 +364,7 @@ export async function handleCommand(
       getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getLastUsableSpeed(SQLITE_DB.Prod),
+      getLastUsableSpeedTime(SQLITE_DB.Prod),
     ]);
     const res: ScheduleInfo = {
       stops,
@@ -373,7 +373,7 @@ export async function handleCommand(
       startedPlans,
       maintenances,
       nonProds,
-      lastMinuteSpeed,
+      lastSpeedTime,
     };
     return res;
   }
@@ -384,7 +384,7 @@ export async function handleCommand(
     const rangeEnd = asNumber(end, 0);
     const [stops, minuteSpeeds] = await Promise.all([
       getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getMinutesSpeedsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getSpeedTimesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
     ]);
     return {stops, minuteSpeeds};
   }

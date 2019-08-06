@@ -148,7 +148,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private renderStops(): JSX.Element {
     const {stops} = this.state.prodInfo;
     const {schedule} = this.state;
-    const lastMinute = schedule && schedule.lastMinuteSpeed && schedule.lastMinuteSpeed.minute;
+    const lastMinute = schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.minute;
     if (lastMinute === undefined) {
       return <React.Fragment />;
     }

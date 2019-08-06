@@ -2,11 +2,11 @@ import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
 import {
-  getLastMinute,
-  getMinutesSpeedsSince,
-  insertOrUpdateMinutesSpeeds,
-} from '@shared/db/speed_minutes';
-import {MinuteSpeed} from '@shared/models';
+  getLastSpeedTime,
+  getSpeedTimesSince,
+  insertOrUpdateSpeedTimes,
+} from '@shared/db/speed_times';
+import {SpeedTime} from '@shared/models';
 
 function min<T>(values: T[]): T | undefined {
   return values.reduce((acc, curr) => (acc === undefined || curr < acc ? curr : acc), undefined as
@@ -33,22 +33,20 @@ function sum(values: number[]): number {
   return values.reduce((acc, curr) => acc + curr, 0);
 }
 
-const WAIT_BETWEEN_BUFFER_PROCESS = 5000;
-const MAX_VALUES_IN_CURRENT_MINUTE_FOR_INSTANT_PROCESS = 5;
+const AGGREGATION_SIZE_MS = 5000;
+const WAIT_BETWEEN_BUFFER_PROCESS_ATTEMPT = 500;
 
 class Aggregator {
-  private lastSpeed: MinuteSpeed | undefined;
+  private lastSpeed: SpeedTime | undefined;
   private readonly queries = new Map<number, number | undefined>();
   private readonly buffers = new Map<number, number[]>();
-  private lastInsertedMinute: number = 0;
-  private lastProcessingTime: number = 0;
+  private lastInsertedTime: number = 0;
   private processBufferTimeout: NodeJS.Timeout | undefined;
 
   public async start(): Promise<void> {
-    const lastMinuteSpeed = await getLastMinute(SQLITE_DB.Prod);
-    const lastMinute =
-      lastMinuteSpeed === undefined ? this.getStartOfDay() : lastMinuteSpeed.minute;
-    this.lastInsertedMinute = lastMinute;
+    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod);
+    const lastMinute = lastSpeedTime === undefined ? this.getStartOfDay() : lastSpeedTime.time;
+    this.lastInsertedTime = lastMinute;
     this.processBuffersIfNeeded();
   }
 
@@ -60,16 +58,15 @@ class Aggregator {
     this.updateQueries()
       .then(() => {
         if (this.queries.size > 0) {
-          const minutesToInsert = Array.from(this.queries.keys())
+          const timesToInsert = Array.from(this.queries.keys())
             .sort()
             .slice(0, 500);
-          const minuteSpeeds = new Map<number, number | undefined>();
-          minutesToInsert.forEach(m => minuteSpeeds.set(m, this.queries.get(m)));
-          insertOrUpdateMinutesSpeeds(SQLITE_DB.Prod, minuteSpeeds)
+          const speedByTime = new Map<number, number | undefined>();
+          timesToInsert.forEach(m => speedByTime.set(m, this.queries.get(m)));
+          insertOrUpdateSpeedTimes(SQLITE_DB.Prod, speedByTime)
             .then(() => {
-              this.lastInsertedMinute = max(Array.from(minuteSpeeds.keys())) || 0;
-              this.lastProcessingTime = Date.now();
-              minuteSpeeds.forEach((speed, minute) => {
+              this.lastInsertedTime = max(Array.from(speedByTime.keys())) || 0;
+              speedByTime.forEach((speed, minute) => {
                 this.queries.delete(minute);
               });
               if (this.queries.size > 0) {
@@ -99,44 +96,29 @@ class Aggregator {
   }
 
   private scheduleBufferProcessing(): void {
-    this.processBufferTimeout = setTimeout(() => this.processBuffersIfNeeded(), 100);
+    this.processBufferTimeout = setTimeout(
+      () => this.processBuffersIfNeeded(),
+      WAIT_BETWEEN_BUFFER_PROCESS_ATTEMPT
+    );
   }
 
   private async updateQueries(): Promise<void> {
-    const minutes = Array.from(this.buffers.keys());
-    const start = Math.min(this.lastInsertedMinute, min(minutes) || this.lastInsertedMinute);
-    const currentMinute = this.getCurrentMinute();
-
-    if (start === currentMinute) {
-      const currentMinuteBuffer = this.buffers.get(currentMinute);
-      if (currentMinuteBuffer !== undefined) {
-        const shouldProcessCurrentMinute =
-          currentMinuteBuffer.length > 0 &&
-          (currentMinuteBuffer.length <= MAX_VALUES_IN_CURRENT_MINUTE_FOR_INSTANT_PROCESS ||
-            Date.now() - this.lastProcessingTime > WAIT_BETWEEN_BUFFER_PROCESS);
-        if (shouldProcessCurrentMinute) {
-          this.queries.set(currentMinute, this.getAverageSpeed(currentMinuteBuffer));
-        }
+    const times = Array.from(this.buffers.keys());
+    const start = Math.min(this.lastInsertedTime, min(times) || this.lastInsertedTime);
+    const currentTime = this.getCurrentMinute();
+    debugger;
+    const valuesInDB = await getSpeedTimesSince(SQLITE_DB.Prod, start);
+    const timesToProcess = this.allTimesInRange(start, currentTime);
+    timesToProcess.forEach(m => {
+      const timeBuffer = this.buffers.get(m);
+      this.buffers.delete(m);
+      const dbValue = find(valuesInDB, v => v.time === m);
+      if (timeBuffer !== undefined && timeBuffer.length > 0) {
+        this.queries.set(m, this.getAverageSpeed(timeBuffer));
+      } else if (dbValue === undefined) {
+        this.queries.set(m, undefined);
       }
-    } else {
-      const valuesInDB = await getMinutesSpeedsSince(SQLITE_DB.Prod, start);
-      const minutesToProcess = this.allMinutesInRange(start, currentMinute);
-      minutesToProcess.forEach(m => {
-        const minuteBuffer = this.buffers.get(m);
-        this.buffers.delete(m);
-        const dbValue = find(valuesInDB, v => v.minute === m);
-        if (minuteBuffer !== undefined && minuteBuffer.length > 0) {
-          this.queries.set(m, this.getAverageSpeed(minuteBuffer));
-        } else if (!dbValue) {
-          this.queries.set(m, undefined);
-        }
-      });
-
-      const currentMinuteBuffer = this.buffers.get(currentMinute);
-      if (currentMinuteBuffer !== undefined && currentMinuteBuffer.length > 0) {
-        this.queries.set(currentMinute, this.getAverageSpeed(currentMinuteBuffer));
-      }
-    }
+    });
   }
 
   private getAverageSpeed(speeds: number[]): number {
@@ -150,26 +132,21 @@ class Aggregator {
   }
 
   // end not included
-  private allMinutesInRange(start: number, end: number): number[] {
+  private allTimesInRange(start: number, end: number): number[] {
     if (start >= end) {
       return [];
     }
     let current = start;
-    const minutes = [];
+    const times = [];
     while (current < end) {
-      minutes.push(current);
-      const currentDate = new Date(current);
-      currentDate.setMinutes(currentDate.getMinutes() + 1);
-      current = currentDate.getTime();
+      times.push(current);
+      current += AGGREGATION_SIZE_MS;
     }
-    return minutes;
+    return times;
   }
 
   private getCurrentMinute(): number {
-    const now = new Date();
-    now.setSeconds(0);
-    now.setMilliseconds(0);
-    return now.getTime();
+    return Math.round(Date.now() / AGGREGATION_SIZE_MS) * AGGREGATION_SIZE_MS;
   }
 
   private getStartOfDay(): number {
@@ -181,18 +158,18 @@ class Aggregator {
     return now.getTime();
   }
 
-  public getLastReceivedSpeed(): MinuteSpeed | undefined {
+  public getLastReceivedSpeed(): SpeedTime | undefined {
     return this.lastSpeed;
   }
 
   public addSpeed(speed: number): void {
-    const currentMinute = this.getCurrentMinute();
-    const currentBuffer = this.buffers.get(currentMinute);
-    this.lastSpeed = {minute: Date.now(), speed};
+    const currentTime = this.getCurrentMinute();
+    const currentBuffer = this.buffers.get(currentTime);
+    this.lastSpeed = {time: Date.now(), speed};
     if (currentBuffer) {
       currentBuffer.push(speed);
     } else {
-      this.buffers.set(currentMinute, [speed]);
+      this.buffers.set(currentTime, [speed]);
     }
   }
 }

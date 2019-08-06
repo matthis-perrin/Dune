@@ -1,6 +1,6 @@
 import knex from 'knex';
 
-import {getLastMinute} from '@shared/db/speed_minutes';
+import {getLastSpeedTime} from '@shared/db/speed_times';
 import {SpeedProdsColumn} from '@shared/db/speed_prods';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {getNextProdStart} from '@shared/lib/time';
@@ -280,8 +280,8 @@ export async function updateStopInfo(
     const startDate = new Date(start);
     const dayOfWeek = startDate.toLocaleString('fr', {weekday: 'long'});
     const prodRange = prodRanges.get(dayOfWeek);
-    const lastMinuteSpeed = await getLastMinute(db);
-    let stopEndTime = stop.end || (lastMinuteSpeed !== undefined ? lastMinuteSpeed.minute : start);
+    const lastSpeedTime = await getLastSpeedTime(db);
+    let stopEndTime = stop.end || (lastSpeedTime !== undefined ? lastSpeedTime.time : start);
     if (prodRange) {
       const prodHourEnd = new Date(
         startDate.getFullYear(),

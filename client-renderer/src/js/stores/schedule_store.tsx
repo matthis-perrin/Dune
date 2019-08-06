@@ -12,7 +12,7 @@ import {
   PlanProductionRaw,
   Schedule,
   Maintenance,
-  MinuteSpeed,
+  SpeedTime,
   NonProd,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
@@ -31,7 +31,7 @@ export class ScheduleStore {
     stops: Stop[];
     maintenances: Maintenance[];
     nonProds: NonProd[];
-    lastMinuteSpeed?: MinuteSpeed;
+    lastSpeedTime?: SpeedTime;
   };
 
   private schedule?: Schedule;
@@ -97,7 +97,7 @@ export class ScheduleStore {
       startedPlans,
       prods,
       notStartedPlans,
-      lastMinuteSpeed,
+      lastSpeedTime,
       maintenances,
       nonProds,
     } = this.prodData;
@@ -110,7 +110,7 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
-      lastMinuteSpeed
+      lastSpeedTime
     );
 
     console.log(this.schedule);
@@ -152,7 +152,7 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
-      lastMinuteSpeed,
+      lastSpeedTime,
     } = await bridge.getScheduleInfo(this.startRange, this.endRange);
     this.prodData = {
       startedPlans: this.transformPlanProdRaw(startedPlans),
@@ -161,7 +161,7 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
-      lastMinuteSpeed,
+      lastSpeedTime,
     };
     this.recompute();
   }

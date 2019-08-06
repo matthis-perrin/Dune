@@ -15,7 +15,7 @@ import {
   Prod,
   Stop,
   Schedule,
-  MinuteSpeed,
+  SpeedTime,
   AutomateEvent,
   ScheduledPlanProd,
   PlanProdSchedule,
@@ -869,7 +869,7 @@ export function createSchedule(
   stops: Stop[],
   maintenances: Maintenance[],
   nonProds: NonProd[],
-  lastMinuteSpeed?: MinuteSpeed
+  lastSpeedTime?: SpeedTime
 ): Schedule {
   // Remove startedPlans from the notStartedPlans array (happens when a plan is in progress)
   const allPlans = [...startedPlans, ...notStartedPlans];
@@ -924,7 +924,7 @@ export function createSchedule(
   const supportData: ScheduleSupportData = {
     maintenances: notDoneMaintenances,
     prodRanges,
-    currentTime: lastMinuteSpeed !== undefined ? lastMinuteSpeed.minute : Date.now(),
+    currentTime: lastSpeedTime !== undefined ? lastSpeedTime.minute : Date.now(),
   };
 
   const sortedPlans = allPlans.sort((p1, p2) => {
@@ -963,5 +963,5 @@ export function createSchedule(
     );
   });
 
-  return {lastMinuteSpeed, plans: scheduledPlans, unassignedProds, unassignedStops, maintenances};
+  return {lastSpeedTime, plans: scheduledPlans, unassignedProds, unassignedStops, maintenances};
 }

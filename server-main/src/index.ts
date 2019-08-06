@@ -2,7 +2,6 @@ import {app, session} from 'electron';
 import log from 'electron-log';
 
 import {aggregator} from '@root/automate/aggregator';
-import {hoursManager} from '@root/automate/hours_manager';
 import {stopsManager} from '@root/automate/stops_manager';
 import {automateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
@@ -41,15 +40,13 @@ async function startServer(): Promise<void> {
     await gescomCadencier.start();
   }
   if (process.env.MODE !== 'development' || forceProdMode) {
-    log.info('Starting Automate aggregator');
-    await aggregator.start();
     log.info('Starting Automate watcher');
     automateWatcher.start();
+    log.info('Starting Automate aggregator');
+    await aggregator.start();
   }
   log.info('Starting Stops manager');
   stopsManager.start();
-  log.info('Starting Hours aggregator');
-  hoursManager.start();
 }
 
 startServer().catch(log.error);

@@ -97,7 +97,7 @@ export class Monitoring extends React.Component<Props> {
           <td>
             <ServiceRowCount>
               {lastReceived
-                ? `${lastReceived.speed} (${this.formatPreciseTime(lastReceived.minute)})`
+                ? `${lastReceived.speed} (${this.formatPreciseTime(lastReceived.time)})`
                 : '-'}
             </ServiceRowCount>
           </td>
@@ -105,7 +105,7 @@ export class Monitoring extends React.Component<Props> {
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Vitesse dernière minute</ServiceTitle>
+            <ServiceTitle>Vitesse dernier temps</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>{lastMinute ? lastMinute.speed : '-'}</ServiceRowCount>
@@ -114,22 +114,22 @@ export class Monitoring extends React.Component<Props> {
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Dernière minute</ServiceTitle>
+            <ServiceTitle>Dernier temps</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>
-              {lastMinute ? new Date(lastMinute.minute).toLocaleString('fr') : '-'}
+              {lastMinute ? new Date(lastMinute.time).toLocaleString('fr') : '-'}
             </ServiceRowCount>
           </td>
           <td />
         </tr>
         <tr>
           <td>
-            <ServiceTitle>Première minute</ServiceTitle>
+            <ServiceTitle>Première temps</ServiceTitle>
           </td>
           <td>
             <ServiceRowCount>
-              {firstMinute ? new Date(firstMinute.minute).toLocaleString('fr') : '-'}
+              {firstMinute ? new Date(firstMinute.time).toLocaleString('fr') : '-'}
             </ServiceRowCount>
           </td>
           <td />

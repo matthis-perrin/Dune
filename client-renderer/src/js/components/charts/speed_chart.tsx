@@ -8,10 +8,10 @@ import {padNumber} from '@root/lib/utils';
 import {Palette} from '@root/theme';
 
 import {dateAtHour, roundToMiddleOfMinute} from '@shared/lib/time';
-import {MinuteSpeed, ProdRange} from '@shared/models';
+import {SpeedTime, ProdRange} from '@shared/models';
 
 interface SpeedChartProps {
-  speeds: MinuteSpeed[];
+  speeds: SpeedTime[];
   day: number;
   prodRange: ProdRange;
 }

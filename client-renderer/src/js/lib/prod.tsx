@@ -1,11 +1,11 @@
-import {Prod, MinuteSpeed} from '@shared/models';
+import {Prod, SpeedTime} from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
 export function computeMetrage(duration: number, speed: number): number {
   return (speed * duration) / 1000 / 60;
 }
 
-export function getProdMetrage(prod: Prod, allSpeeds: MinuteSpeed[]): number {
+export function getProdMetrage(prod: Prod, allSpeeds: SpeedTime[]): number {
   const end = prod.end === undefined ? Date.now() : prod.end;
   const duration = end - prod.start;
   if (prod.avgSpeed === undefined) {

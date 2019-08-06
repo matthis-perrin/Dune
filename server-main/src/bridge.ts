@@ -7,9 +7,9 @@ import {BridgeCommand, ServerGetStatus, ServerSimulateAutomate} from '@shared/br
 import {getStatus} from '@shared/db/gescom_sync';
 import {
   getStats as getSpeedStats,
-  insertOrUpdateMinutesSpeeds,
-  getLastMinute,
-} from '@shared/db/speed_minutes';
+  insertOrUpdateSpeedTimes,
+  getLastSpeedTime,
+} from '@shared/db/speed_times';
 import {getStats as getStopsStats} from '@shared/db/speed_stops';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
@@ -46,15 +46,15 @@ export async function handleCommand(
   }
   if (command === ServerSimulateAutomate) {
     const {speed, minutes} = asMap(data);
-    const last = await getLastMinute(SQLITE_DB.Prod);
-    const startTs = last ? last.minute + 60 * 1000 : Date.now();
-    const rounded = Math.floor(startTs / 1000) * 1000;
+    const last = await getLastSpeedTime(SQLITE_DB.Prod);
+    const startTs = last ? last.time + 5000 : Date.now() % 5000;
     const minutesSpeeds = new Map<number, number | undefined>();
     const parsedMinutes = asNumber(minutes, 0);
+    const valueToInsert = Math.round(minutes === 0 ? 1 : parsedMinutes * 12);
     const parseSpeed = asNumber(speed, undefined);
-    for (let i = 0; i < parsedMinutes; i++) {
-      minutesSpeeds.set(rounded + i * 60 * 1000, parseSpeed);
+    for (let i = 0; i < valueToInsert; i++) {
+      minutesSpeeds.set(startTs + i * 5000, parseSpeed);
     }
-    return insertOrUpdateMinutesSpeeds(SQLITE_DB.Prod, minutesSpeeds);
+    return insertOrUpdateSpeedTimes(SQLITE_DB.Prod, minutesSpeeds);
   }
 }
