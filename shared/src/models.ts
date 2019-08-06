@@ -456,6 +456,8 @@ export interface ScheduleInfo {
   prods: Prod[];
   notStartedPlans: PlanProductionRaw[];
   startedPlans: PlanProductionRaw[];
+  maintenances: Maintenance[];
+  nonProds: NonProd[];
   lastMinuteSpeed?: MinuteSpeed;
 }
 

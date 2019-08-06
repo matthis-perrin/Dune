@@ -45,7 +45,7 @@ export const CreateStop = 'create-stop' as BridgeCommand;
 export const MergeStops = 'merge-stops' as BridgeCommand;
 
 export const CreateMaintenance = 'create-maintenance' as BridgeCommand;
-export const ListMaintenance = 'list-maintenance' as BridgeCommand;
+export const CreateNonProd = 'create-non-prod' as BridgeCommand;
 
 export const ListOperations = 'list-operations' as BridgeCommand;
 export const ListUnplannedStops = 'list-unplanned-stops' as BridgeCommand;

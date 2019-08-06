@@ -11,7 +11,6 @@ import {
   UnplannedStop,
   ProdHours,
   ProdRange,
-  Maintenance,
 } from '@shared/models';
 import {BaseStore} from '@shared/store';
 
@@ -64,13 +63,6 @@ class CleaningsStore extends DataStore<Cleaning> {
   }
 }
 export const cleaningsStore = new CleaningsStore();
-
-class MaintenanceStore extends DataStore<Maintenance> {
-  public async fetch(): Promise<Maintenance[]> {
-    return bridge.listMaintenances();
-  }
-}
-export const maintenancesStore = new MaintenanceStore();
 
 class ColorsStore extends DataStore<Color> {
   private getDefaultColor(ref: string): Color {

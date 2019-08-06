@@ -55,7 +55,7 @@ import {
   CreateStop,
   MergeStops,
   CreateMaintenance,
-  ListMaintenance,
+  CreateNonProd,
 } from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
@@ -63,7 +63,8 @@ import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
-import {createMaintenance, listMaintenances} from '@shared/db/maintenances';
+import {createMaintenance, getMaintenancesBetween} from '@shared/db/maintenances';
+import {createNonProd, getNonProdsBetween} from '@shared/db/non_prod';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
@@ -88,6 +89,7 @@ import {
   PlanProductionInfo,
   StopInfo,
   StopType,
+  ScheduleInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
@@ -347,14 +349,33 @@ export async function handleCommand(
     const {start, end} = asMap(params);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
-    const [stops, prods, notStartedPlans, startedPlans, lastMinuteSpeed] = await Promise.all([
+    const [
+      stops,
+      prods,
+      notStartedPlans,
+      startedPlans,
+      maintenances,
+      nonProds,
+      lastMinuteSpeed,
+    ] = await Promise.all([
       getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getNotStartedPlanProds(SQLITE_DB.Prod),
       getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getLastUsableSpeed(SQLITE_DB.Prod),
     ]);
-    return {stops, prods, notStartedPlans, startedPlans, lastMinuteSpeed};
+    const res: ScheduleInfo = {
+      stops,
+      prods,
+      notStartedPlans,
+      startedPlans,
+      maintenances,
+      nonProds,
+      lastMinuteSpeed,
+    };
+    return res;
   }
 
   if (command === GetProdInfo) {
@@ -409,7 +430,14 @@ export async function handleCommand(
       asString(title, '')
     );
   }
-  if (command === ListMaintenance) {
-    return listMaintenances(SQLITE_DB.Prod);
+  if (command === CreateNonProd) {
+    debugLog();
+    const {start, end, title} = asMap(params);
+    return createMaintenance(
+      SQLITE_DB.Prod,
+      asNumber(start, 0),
+      asNumber(end, 0),
+      asString(title, '')
+    );
   }
 }

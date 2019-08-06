@@ -1,6 +1,6 @@
 import {bridge} from '@root/lib/bridge';
 import {createSchedule} from '@root/lib/scheduler';
-import {operationsStore, prodHoursStore, maintenancesStore} from '@root/stores/data_store';
+import {operationsStore, prodHoursStore} from '@root/stores/data_store';
 
 import {
   Operation,
@@ -13,6 +13,7 @@ import {
   Schedule,
   Maintenance,
   MinuteSpeed,
+  NonProd,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -23,12 +24,13 @@ export class ScheduleStore {
 
   private operations?: Operation[];
   private prodRanges?: Map<string, ProdRange>;
-  private maintenances?: Maintenance[];
   private prodData?: {
     startedPlans: PlanProduction[];
     notStartedPlans: PlanProduction[];
     prods: Prod[];
     stops: Stop[];
+    maintenances: Maintenance[];
+    nonProds: NonProd[];
     lastMinuteSpeed?: MinuteSpeed;
   };
 
@@ -37,7 +39,6 @@ export class ScheduleStore {
   public constructor(private startRange: number, private endRange: number) {
     operationsStore.addListener(this.handleOperationsChanged);
     prodHoursStore.addListener(this.handleProdHoursChanged);
-    maintenancesStore.addListener(this.handleMaintenancesChanged);
   }
 
   public start(listener: () => void): void {
@@ -74,11 +75,6 @@ export class ScheduleStore {
     this.recompute();
   };
 
-  private readonly handleMaintenancesChanged = (): void => {
-    this.maintenances = maintenancesStore.getData();
-    this.recompute();
-  };
-
   public refresh(): void {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
@@ -93,10 +89,18 @@ export class ScheduleStore {
   }
 
   private recompute(): void {
-    if (!this.operations || !this.prodRanges || !this.prodData || !this.maintenances) {
+    if (!this.operations || !this.prodRanges || !this.prodData) {
       return;
     }
-    const {stops, startedPlans, prods, notStartedPlans, lastMinuteSpeed} = this.prodData;
+    const {
+      stops,
+      startedPlans,
+      prods,
+      notStartedPlans,
+      lastMinuteSpeed,
+      maintenances,
+      nonProds,
+    } = this.prodData;
     this.schedule = createSchedule(
       this.operations,
       this.prodRanges,
@@ -104,7 +108,8 @@ export class ScheduleStore {
       notStartedPlans,
       prods,
       stops,
-      this.maintenances,
+      maintenances,
+      nonProds,
       lastMinuteSpeed
     );
 
@@ -145,6 +150,8 @@ export class ScheduleStore {
       prods,
       startedPlans,
       stops,
+      maintenances,
+      nonProds,
       lastMinuteSpeed,
     } = await bridge.getScheduleInfo(this.startRange, this.endRange);
     this.prodData = {
@@ -152,6 +159,8 @@ export class ScheduleStore {
       notStartedPlans: this.transformPlanProdRaw(notStartedPlans),
       prods,
       stops,
+      maintenances,
+      nonProds,
       lastMinuteSpeed,
     };
     this.recompute();

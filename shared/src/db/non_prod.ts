@@ -26,31 +26,27 @@ export async function createNonProdsTable(db: knex): Promise<void> {
   }
 }
 
-export async function listNonProds(db: knex): Promise<NonProd[]> {
-  return db(NON_PROD_TABLE_NAME)
-    .select()
-    .map(maintenanceLine => {
-      const m = asMap(maintenanceLine);
-      return {
-        id: asNumber(m[NonProdColumns.ID], 0),
-        title: asString(m[NonProdColumns.TITLE], ''),
-        start: asNumber(m[NonProdColumns.START_TIME], 0),
-        end: asNumber(m[NonProdColumns.END_TIME], 0),
-      };
-    });
+// tslint:disable-next-line:no-any
+function mapLineToNonProd(data: any): NonProd {
+  const m = asMap(data);
+  return {
+    id: asNumber(m[NonProdColumns.ID], 0),
+    title: asString(m[NonProdColumns.TITLE], ''),
+    start: asNumber(m[NonProdColumns.START_TIME], 0),
+    end: asNumber(m[NonProdColumns.END_TIME], 0),
+  };
 }
 
-export async function createNonProd(
-  db: knex,
-  start: number,
-  end: number,
-  title: string
-): Promise<void> {
-  return db(NON_PROD_TABLE_NAME).insert({
-    [NonProdColumns.TITLE]: title,
-    [NonProdColumns.START_TIME]: start,
-    [NonProdColumns.END_TIME]: end,
-  });
+export async function getNonProdsBetween(db: knex, start: number, end: number): Promise<NonProd[]> {
+  return db(NON_PROD_TABLE_NAME)
+    .select()
+    .where(NonProdColumns.START_TIME, '>=', start)
+    .andWhere(NonProdColumns.START_TIME, '<', end)
+    .orWhere(function(): void {
+      // tslint:disable-next-line:no-invalid-this
+      this.where(NonProdColumns.END_TIME, '>=', start).andWhere(NonProdColumns.END_TIME, '<', end);
+    })
+    .map(mapLineToNonProd);
 }
 
 export async function deleteNonProd(db: knex, id: number): Promise<void> {

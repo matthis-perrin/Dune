@@ -26,18 +26,35 @@ export async function createMaintenancesTable(db: knex): Promise<void> {
   }
 }
 
-export async function listMaintenances(db: knex): Promise<Maintenance[]> {
+// tslint:disable-next-line:no-any
+function mapLineToMaintenance(data: any): Maintenance {
+  const m = asMap(data);
+  return {
+    id: asNumber(m[MaintenanceColumns.ID], 0),
+    title: asString(m[MaintenanceColumns.TITLE], ''),
+    start: asNumber(m[MaintenanceColumns.START_TIME], 0),
+    end: asNumber(m[MaintenanceColumns.END_TIME], 0),
+  };
+}
+
+export async function getMaintenancesBetween(
+  db: knex,
+  start: number,
+  end: number
+): Promise<Maintenance[]> {
   return db(MAINTENANCE_TABLE_NAME)
     .select()
-    .map(maintenanceLine => {
-      const m = asMap(maintenanceLine);
-      return {
-        id: asNumber(m[MaintenanceColumns.ID], 0),
-        title: asString(m[MaintenanceColumns.TITLE], ''),
-        start: asNumber(m[MaintenanceColumns.START_TIME], 0),
-        end: asNumber(m[MaintenanceColumns.END_TIME], 0),
-      };
-    });
+    .where(MaintenanceColumns.START_TIME, '>=', start)
+    .andWhere(MaintenanceColumns.START_TIME, '<', end)
+    .orWhere(function(): void {
+      // tslint:disable-next-line:no-invalid-this
+      this.where(MaintenanceColumns.END_TIME, '>=', start).andWhere(
+        MaintenanceColumns.END_TIME,
+        '<',
+        end
+      );
+    })
+    .map(mapLineToMaintenance);
 }
 
 export async function createMaintenance(

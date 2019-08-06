@@ -21,6 +21,7 @@ import {
   PlanProdSchedule,
   StopType,
   PlanProductionStatus,
+  NonProd,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -867,6 +868,7 @@ export function createSchedule(
   prods: Prod[],
   stops: Stop[],
   maintenances: Maintenance[],
+  nonProds: NonProd[],
   lastMinuteSpeed?: MinuteSpeed
 ): Schedule {
   // Remove startedPlans from the notStartedPlans array (happens when a plan is in progress)
