@@ -19,7 +19,7 @@ import {prodHoursStore, bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
-import {theme, Colors, Palette} from '@root/theme';
+import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {ProdInfo, Schedule, ProdRange, StopType, BobineQuantities} from '@shared/models';

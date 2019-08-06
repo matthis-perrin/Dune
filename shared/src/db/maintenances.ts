@@ -34,8 +34,8 @@ export async function listMaintenances(db: knex): Promise<Maintenance[]> {
       return {
         id: asNumber(m[MaintenanceColumns.ID], 0),
         title: asString(m[MaintenanceColumns.TITLE], ''),
-        startTime: asNumber(m[MaintenanceColumns.START_TIME], 0),
-        endTime: asNumber(m[MaintenanceColumns.END_TIME], 0),
+        start: asNumber(m[MaintenanceColumns.START_TIME], 0),
+        end: asNumber(m[MaintenanceColumns.END_TIME], 0),
       };
     });
 }

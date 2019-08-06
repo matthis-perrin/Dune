@@ -63,8 +63,8 @@ import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
-import {listOperations} from '@shared/db/operations';
 import {createMaintenance, listMaintenances} from '@shared/db/maintenances';
+import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
   deletePlanProduction,

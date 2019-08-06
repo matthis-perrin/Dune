@@ -1,4 +1,4 @@
-import {max, maxBy} from 'lodash-es';
+import {max} from 'lodash-es';
 
 import {ADDITIONAL_TIME_TO_RESTART_PROD, MAX_SPEED_RATIO} from '@root/lib/constants';
 import {metersToProductionTime, productionTimeToMeters} from '@root/lib/plan_prod';
@@ -240,16 +240,16 @@ function lastValidConsecutiveProdTime(time: number, supportData: ScheduleSupport
   }
   const lastValidTime = end.getTime();
   const maintenanceBefore = supportData.maintenances
-    .filter(m => m.startTime <= lastValidTime)
-    .sort((m1, m2) => m1.startTime - m2.startTime)[0];
+    .filter(m => m.start <= lastValidTime)
+    .sort(eventsOrder)[0];
   if (maintenanceBefore) {
-    return Math.max(time, maintenanceBefore.startTime);
+    return Math.max(time, maintenanceBefore.start);
   }
   return lastValidTime;
 }
 
 function getMaintenanceForTime(time: number, maintenances: Maintenance[]): Maintenance | undefined {
-  return maintenances.filter(m => m.startTime <= time)[0];
+  return maintenances.filter(m => m.start <= time)[0];
 }
 
 function shouldCreateRestartProdStop(
@@ -353,7 +353,7 @@ function generatePlannedEventsForProdLeft(
       stopType: StopType.Maintenance,
     };
     const maintenanceEvents = generatePlannedEventsForStopLeft(
-      maintenance.endTime - maintenance.startTime,
+      maintenance.end - maintenance.start,
       maintenanceStop,
       current,
       planProd,
@@ -430,7 +430,7 @@ function generatePlannedEventsForStopLeft(
     const lastEventBeforeMaintenance =
       lastScheduleBeforeMaintenance && (getLastPlanEvent(lastScheduleBeforeMaintenance) as Stop);
     const maintenanceEvents = generatePlannedEventsForStopLeft(
-      maintenance.endTime - maintenance.startTime,
+      maintenance.end - maintenance.start,
       maintenanceStop,
       current,
       planProd,
@@ -589,8 +589,7 @@ function finishPlanProd(
             m => m.id === lastStopEvent.maintenanceId
           )[0];
           if (maintenance) {
-            stopLeft =
-              maintenance.endTime - maintenance.startTime - (endTime - lastStopEvent.start);
+            stopLeft = maintenance.end - maintenance.start - (endTime - lastStopEvent.start);
           }
           supportData.maintenances = supportData.maintenances.filter(
             m => m.id !== lastStopEvent.maintenanceId

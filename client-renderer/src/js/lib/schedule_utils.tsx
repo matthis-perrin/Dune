@@ -148,7 +148,7 @@ export function getAllPlannedMaintenances(schedule: Schedule): Maintenance[] {
   });
   return schedule.maintenances
     .filter(m => plannedMaintenanceIds.has(m.id))
-    .sort((m1, m2) => m1.startTime - m2.startTime);
+    .sort((m1, m2) => m1.start - m2.start);
 }
 
 export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | undefined {

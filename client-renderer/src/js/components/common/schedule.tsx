@@ -4,17 +4,9 @@ import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {computeMetrage} from '@root/lib/prod';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
-import {
-  isRoundHour,
-  isHalfHour,
-  padNumber,
-  isSameDay,
-  roundedToDigit,
-  numberWithSeparator,
-} from '@root/lib/utils';
+import {isRoundHour, isHalfHour, padNumber, isSameDay, numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';

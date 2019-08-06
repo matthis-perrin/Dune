@@ -22,6 +22,7 @@ import {createRefentesTable} from '@shared/db/refentes';
 import {createSpeedHoursTable} from '@shared/db/speed_hours';
 import {createSpeedMinutesTable} from '@shared/db/speed_minutes';
 import {createMaintenancesTable} from '@shared/db/maintenances';
+import {createNonProdsTable} from '@shared/db/non_prod';
 import {createSpeedProdsTable} from '@shared/db/speed_prods';
 import {createSpeedStopsTable} from '@shared/db/speed_stops';
 import {createStocksTable} from '@shared/db/stocks';
@@ -49,6 +50,7 @@ export async function setupSqliteDB(): Promise<void> {
 
     createPlansProductionTable(SQLITE_DB.Prod),
     createMaintenancesTable(SQLITE_DB.Prod),
+    createNonProdsTable(SQLITE_DB.Prod),
     createSpeedMinutesTable(SQLITE_DB.Prod),
     createSpeedHoursTable(SQLITE_DB.Prod),
     createSpeedStopsTable(SQLITE_DB.Prod),

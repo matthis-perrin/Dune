@@ -278,8 +278,15 @@ export interface Schedule {
 export interface Maintenance {
   id: number;
   title: string;
-  startTime: number;
-  endTime: number;
+  start: number;
+  end: number;
+}
+
+export interface NonProd {
+  id: number;
+  title: string;
+  start: number;
+  end: number;
 }
 
 export enum OperationGroup {
