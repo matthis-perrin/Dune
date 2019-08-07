@@ -32,7 +32,7 @@ export class GescomWatcherStocks extends GescomWatcher {
   protected fetch(): knex.QueryBuilder {
     return this.gescomDB(GESCOM_STOCK_TABLE_NAME)
       .select(STOCK_COLUMNS)
-      .where(function() {
+      .where(function(): void {
         this.where(ARTICLE_REF_COLUMN, 'like', BOBINE_FILLE_REF_PATTERN).orWhere(
           ARTICLE_REF_COLUMN,
           'like',
@@ -62,6 +62,7 @@ export class GescomWatcherStocks extends GescomWatcher {
 
   // tslint:disable-next-line:no-any
   protected getRef(gescomLine: any): string {
-    return `${asMap(gescomLine)[ARTICLE_REF_COLUMN]}-${gescomLine[STOCK_NUM_DEPOT]}`;
+    const line = asMap(gescomLine);
+    return `${line[ARTICLE_REF_COLUMN]}-${line[STOCK_NUM_DEPOT]}`;
   }
 }

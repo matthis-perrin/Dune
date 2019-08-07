@@ -1,7 +1,7 @@
 import knex from 'knex';
 
 import {GESCOM_SYNC_TABLE_NAME} from '@shared/db/table_names';
-import {asDate} from '@shared/type_utils';
+import {asDate, asArray, asMap, asString, asNumber} from '@shared/type_utils';
 
 const TABLE_NAME_COLUMN = 'table_name';
 const LAST_UPDATED_COLUMN = 'last_updated';
@@ -29,11 +29,11 @@ export async function createGescomSyncTable(db: knex): Promise<void> {
 export async function getStatus(
   db: knex
 ): Promise<{name: string; rowCount: number; rowCountSommeil?: number; lastUpdate: number}[]> {
-  const data: any[] = await db(GESCOM_SYNC_TABLE_NAME).select();
-  const promises = data.map(d => getTableRowCount(db, d[TABLE_NAME_COLUMN]));
+  const data = asArray(await db(GESCOM_SYNC_TABLE_NAME).select());
+  const promises = data.map(d => getTableRowCount(db, asString(asMap(d)[TABLE_NAME_COLUMN], '')));
   const rest = data.map(d => ({
-    lastUpdate: d[LAST_CHECKED_COLUMN],
-    name: d[TABLE_NAME_COLUMN],
+    lastUpdate: asNumber(asMap(d)[LAST_CHECKED_COLUMN], 0),
+    name: asString(asMap(d)[TABLE_NAME_COLUMN], ''),
   }));
   const rowCounts = await Promise.all(promises);
   return rest.map((r, i) => ({

@@ -33,8 +33,9 @@ function sum(values: number[]): number {
   return values.reduce((acc, curr) => acc + curr, 0);
 }
 
-const AGGREGATION_SIZE_MS = 5000;
+export const AGGREGATION_SIZE_MS = 5000;
 const WAIT_BETWEEN_BUFFER_PROCESS_ATTEMPT = 500;
+const INSERT_BATCH_SIZE = 500;
 
 class Aggregator {
   private lastSpeed: SpeedTime | undefined;
@@ -44,7 +45,7 @@ class Aggregator {
   private processBufferTimeout: NodeJS.Timeout | undefined;
 
   public async start(): Promise<void> {
-    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod);
+    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod, true);
     const lastMinute = lastSpeedTime === undefined ? this.getStartOfDay() : lastSpeedTime.time;
     this.lastInsertedTime = lastMinute;
     this.processBuffersIfNeeded();
@@ -60,7 +61,7 @@ class Aggregator {
         if (this.queries.size > 0) {
           const timesToInsert = Array.from(this.queries.keys())
             .sort()
-            .slice(0, 500);
+            .slice(0, INSERT_BATCH_SIZE);
           const speedByTime = new Map<number, number | undefined>();
           timesToInsert.forEach(m => speedByTime.set(m, this.queries.get(m)));
           insertOrUpdateSpeedTimes(SQLITE_DB.Prod, speedByTime)
@@ -105,8 +106,7 @@ class Aggregator {
   private async updateQueries(): Promise<void> {
     const times = Array.from(this.buffers.keys());
     const start = Math.min(this.lastInsertedTime, min(times) || this.lastInsertedTime);
-    const currentTime = this.getCurrentMinute();
-    debugger;
+    const currentTime = this.getCurrentTime();
     const valuesInDB = await getSpeedTimesSince(SQLITE_DB.Prod, start);
     const timesToProcess = this.allTimesInRange(start, currentTime);
     timesToProcess.forEach(m => {
@@ -145,7 +145,7 @@ class Aggregator {
     return times;
   }
 
-  private getCurrentMinute(): number {
+  public getCurrentTime(): number {
     return Math.round(Date.now() / AGGREGATION_SIZE_MS) * AGGREGATION_SIZE_MS;
   }
 
@@ -163,7 +163,7 @@ class Aggregator {
   }
 
   public addSpeed(speed: number): void {
-    const currentTime = this.getCurrentMinute();
+    const currentTime = this.getCurrentTime();
     const currentBuffer = this.buffers.get(currentTime);
     this.lastSpeed = {time: Date.now(), speed};
     if (currentBuffer) {

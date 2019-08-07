@@ -2,11 +2,6 @@ import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
 import {
-  firstSpeedTimeMatchingBetween,
-  getAverageSpeedBetween,
-  getLastSpeedTime,
-} from '@shared/db/speed_times';
-import {
   getLastProd,
   recordProdEnd,
   recordProdStart,
@@ -19,6 +14,11 @@ import {
   recordStopEnd,
   getLastStopWithPlanProdId,
 } from '@shared/db/speed_stops';
+import {
+  firstSpeedTimeMatchingBetween,
+  getAverageSpeedBetween,
+  getLastSpeedTime,
+} from '@shared/db/speed_times';
 import {Stop, Prod} from '@shared/models';
 
 const WAIT_BETWEEN_PROCESS = 1000;
@@ -108,7 +108,7 @@ class StopsManager {
       getLastProd(SQLITE_DB.Prod),
       getLastStopWithPlanProdId(SQLITE_DB.Prod),
       getLastProdWithPlanProdId(SQLITE_DB.Prod),
-      getLastSpeedTime(SQLITE_DB.Prod),
+      getLastSpeedTime(SQLITE_DB.Prod, true),
     ]);
 
     if (lastTime === undefined) {
@@ -163,7 +163,7 @@ class StopsManager {
         }
       })
       .catch(err => {
-        addError("Erreur dans le gestionnaire d'arrêts", err);
+        addError("Erreur dans le gestionnaire d'arrêts", err as string);
         setTimeout(() => this.process(), WAIT_BETWEEN_PROCESS);
       });
   }

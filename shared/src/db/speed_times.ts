@@ -31,29 +31,22 @@ function lineAsSpeedTime(lineData: any): SpeedTime {
   };
 }
 
-export async function getLastSpeedTime(db: knex): Promise<SpeedTime | undefined> {
-  const res = asArray(
-    await db(SPEED_TIMES_TABLE_NAME)
-      .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
-      .orderBy(SpeedTimesColumn.Time, 'desc')
-      .limit(1)
-  );
+export async function getLastSpeedTime(
+  db: knex,
+  allowNull: boolean
+): Promise<SpeedTime | undefined> {
+  let query = db(SPEED_TIMES_TABLE_NAME)
+    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
+    .orderBy(SpeedTimesColumn.Time, 'desc')
+    .limit(1);
+  if (!allowNull) {
+    query.whereNotNull(SpeedTimesColumn.Speed);
+  }
+  const res = asArray(await query);
   if (res.length === 0) {
     return undefined;
   }
   return lineAsSpeedTime(res[0]);
-}
-
-export async function getLastUsableSpeedTime(db: knex): Promise<SpeedTime | undefined> {
-  const res = await db(SPEED_TIMES_TABLE_NAME)
-    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
-    .whereNotNull(SpeedTimesColumn.Speed)
-    .orderBy(SpeedTimesColumn.Time, 'desc')
-    .limit(2);
-  if (res.length < 2) {
-    return undefined;
-  }
-  return lineAsSpeedTime(res[1]);
 }
 
 export async function getFirstSpeedTime(db: knex): Promise<SpeedTime | undefined> {
@@ -77,7 +70,7 @@ export async function getRowCount(db: knex): Promise<number> {
 export async function getStats(db: knex): Promise<SpeedStatus> {
   const [firstMinute, lastMinute, rowCount] = await Promise.all([
     getFirstSpeedTime(db),
-    getLastSpeedTime(db),
+    getLastSpeedTime(db, true),
     getRowCount(db),
   ]);
   return {firstMinute, lastMinute, rowCount};
@@ -112,7 +105,14 @@ export async function insertOrUpdateSpeedTimes(
         .transacting(tx)
         .whereIn(SpeedTimesColumn.Time, Array.from(minutesSpeeds.keys()))
         .del()
-        .then(() => {
+        .then(res => {
+          const deleteCount = asNumber(res, 0);
+          if (deleteCount > 0) {
+            console.warn(
+              `Updating ${deleteCount} time_speeds. This should not happend.`,
+              minutesSpeeds
+            );
+          }
           db.batchInsert(
             SPEED_TIMES_TABLE_NAME,
             Array.from(minutesSpeeds.entries()).map(([minute, speed]) => ({
@@ -143,14 +143,14 @@ export async function insertOrUpdateSpeedTimes(
 export async function firstSpeedTimeMatchingBetween(
   db: knex,
   start: number, // included
-  end: number, // not included
+  end: number, // included
   operator: string,
   threshold: number
 ): Promise<SpeedTime | undefined> {
   return (await db(SPEED_TIMES_TABLE_NAME)
     .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
     .where(SpeedTimesColumn.Time, '>=', start)
-    .where(SpeedTimesColumn.Time, '<', end)
+    .where(SpeedTimesColumn.Time, '<=', end)
     .whereNotNull(SpeedTimesColumn.Speed)
     .andWhere(SpeedTimesColumn.Speed, operator, threshold)
     .orderBy(SpeedTimesColumn.Time, 'asc')

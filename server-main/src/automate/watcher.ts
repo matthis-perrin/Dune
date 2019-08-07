@@ -32,7 +32,7 @@ class AutomateWatcher {
     this.socket.destroy();
   }
 
-  private setupSocketEventHandlers() {
+  private setupSocketEventHandlers(): void {
     this.socket.on('data', buffer => {
       // tslint:disable-next-line:no-magic-numbers
       const value = buffer.readUInt32BE(buffer.length - 4);

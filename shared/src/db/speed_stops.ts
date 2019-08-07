@@ -1,7 +1,7 @@
 import knex from 'knex';
 
-import {getLastSpeedTime} from '@shared/db/speed_times';
 import {SpeedProdsColumn} from '@shared/db/speed_prods';
+import {getLastSpeedTime} from '@shared/db/speed_times';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {getNextProdStart} from '@shared/lib/time';
 import {Stop, StopStatus, StopInfo, StopType, ProdRange} from '@shared/models';
@@ -280,7 +280,7 @@ export async function updateStopInfo(
     const startDate = new Date(start);
     const dayOfWeek = startDate.toLocaleString('fr', {weekday: 'long'});
     const prodRange = prodRanges.get(dayOfWeek);
-    const lastSpeedTime = await getLastSpeedTime(db);
+    const lastSpeedTime = await getLastSpeedTime(db, true);
     let stopEndTime = stop.end || (lastSpeedTime !== undefined ? lastSpeedTime.time : start);
     if (prodRange) {
       const prodHourEnd = new Date(

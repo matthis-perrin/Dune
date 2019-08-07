@@ -8,6 +8,7 @@ import {createBobinesFillesTable} from '@shared/db/bobines_filles';
 import {createBobinesMeresTable} from '@shared/db/bobines_meres';
 import {createBobinesQuantitiesTable} from '@shared/db/bobines_quantities';
 import {createCadencierTable} from '@shared/db/cadencier';
+import {createCleaningTable} from '@shared/db/cleanings';
 import {createClichesTable} from '@shared/db/cliches';
 import {createColorsTable} from '@shared/db/colors';
 import {
@@ -15,20 +16,19 @@ import {
   getGescomSyncData,
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
+import {createMaintenancesTable} from '@shared/db/maintenances';
+import {createNonProdsTable} from '@shared/db/non_prod';
 import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createPlansProductionTable} from '@shared/db/plan_production';
+import {createProdHoursTable} from '@shared/db/prod_hours';
 import {createRefentesTable} from '@shared/db/refentes';
-// import {createSpeedHoursTable} from '@shared/db/speed_hours';
-import {createSpeedTimesTable} from '@shared/db/speed_times';
-import {createMaintenancesTable} from '@shared/db/maintenances';
-import {createNonProdsTable} from '@shared/db/non_prod';
 import {createSpeedProdsTable} from '@shared/db/speed_prods';
 import {createSpeedStopsTable} from '@shared/db/speed_stops';
+import {createSpeedTimesTable} from '@shared/db/speed_times';
 import {createStocksTable} from '@shared/db/stocks';
-import {createCleaningTable} from '@shared/db/cleanings';
 import {createUnplannedStopTable} from '@shared/db/unplanned_stops';
-import {createProdHoursTable} from '@shared/db/prod_hours';
+import {errorAsString, asArray, asMap, asDate} from '@shared/type_utils';
 
 export async function setupSqliteDB(): Promise<void> {
   await Promise.all([
@@ -52,7 +52,6 @@ export async function setupSqliteDB(): Promise<void> {
     createMaintenancesTable(SQLITE_DB.Prod),
     createNonProdsTable(SQLITE_DB.Prod),
     createSpeedTimesTable(SQLITE_DB.Prod),
-    // createSpeedHoursTable(SQLITE_DB.Prod),
     createSpeedStopsTable(SQLITE_DB.Prod),
     createSpeedProdsTable(SQLITE_DB.Prod),
   ]);
@@ -146,6 +145,7 @@ export abstract class GescomWatcher {
       this.deleteRefs(refs)
         .then(() => {
           this.sqliteDB(this.tableName)
+            // tslint:disable-next-line:no-unsafe-any
             .insert(chunk.map(l => this.mapGescomLineToSqliteLine(localDate, l)))
             .then(() => {
               log.info(
@@ -162,24 +162,24 @@ export abstract class GescomWatcher {
                 `Erreur lors de l'insertion de ${chunk.length} ligne(s) dans la table ${
                   this.tableName
                 }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
-                err.toString()
+                errorAsString(err)
               );
               setTimeout(() => this.insertBatch(localDate, lines, offset), this.WAIT_ON_ERROR_MS);
             });
         })
-        .catch((err: any) => {
+        .catch(err => {
           addError(
             `Erreur lors de la suppression de ${chunk.length} ligne(s) dans la table ${
               this.tableName
             }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
-            err.toString()
+            errorAsString(err)
           );
           setTimeout(() => this.insertBatch(localDate, lines, offset), this.WAIT_ON_ERROR_MS);
         });
     });
   }
 
-  private fetchNextBatch() {
+  private fetchNextBatch(): void {
     getGescomSyncData(this.sqliteDB, this.tableName)
       .then(({lastChecked, lastUpdated}) => {
         const operator = this.hasPossiblyChanged(lastChecked, lastUpdated) ? '>=' : '>';
@@ -189,17 +189,19 @@ export abstract class GescomWatcher {
         const queryTime = new Date();
 
         fetchQuery
+          // tslint:disable-next-line:no-any
           .then((lines: any) => {
             // log.info(
             //   `Fetched ${lines.length} for ${
             //     this.tableName
             //   } with ${operator} (lastChecked=${lastChecked}, lastUpdated=${lastUpdated})`
             // );
-            if (lines.length > 0) {
-              this.insertBatch(queryTime, lines)
+            const lineArray = asArray(lines);
+            if (lineArray.length > 0) {
+              this.insertBatch(queryTime, lineArray)
                 .then(() => {
-                  const lastLine = lines[lines.length - 1];
-                  const newLastUpdated = lastLine[LAST_UPDATE_COLUMN];
+                  const lastLine = lineArray[lineArray.length - 1];
+                  const newLastUpdated = asDate(asMap(lastLine)[LAST_UPDATE_COLUMN]);
                   updateGescomSyncData(this.sqliteDB, this.tableName, newLastUpdated, queryTime)
                     .then(() => {
                       // When we detect a change, we need to keep inserting it in the database for around a minute
@@ -209,7 +211,7 @@ export abstract class GescomWatcher {
                       // next batch to not query the GESCOM too much. So if we are not inserting too many rows, it's likely we
                       // are in this case and not in a "big update phase".
                       const wait =
-                        lines.length >= this.MIN_LINES_FOR_NO_WAIT_AFTER_INSERT
+                        lineArray.length >= this.MIN_LINES_FOR_NO_WAIT_AFTER_INSERT
                           ? 0
                           : this.WAIT_WHEN_NO_NEW_CHANGE_MS;
                       setTimeout(() => {
@@ -221,13 +223,13 @@ export abstract class GescomWatcher {
                         `Erreur lors de la mise à jour de la table de synchronisation pour la table ${
                           this.tableName
                         }. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
-                        err.toString()
+                        errorAsString(err)
                       );
                       setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
                     });
                 })
                 .catch(err => {
-                  addError('This error should never happen', err.toString());
+                  addError('This error should never happen', errorAsString(err));
                 });
             } else {
               updateGescomSyncData(this.sqliteDB, this.tableName, lastUpdated, queryTime)
@@ -237,7 +239,7 @@ export abstract class GescomWatcher {
                     `Erreur lors de la mise à jour de la table de synchronisation pour la table ${
                       this.tableName
                     }. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
-                    err.toString()
+                    errorAsString(err)
                   );
                   setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
                 });
@@ -248,7 +250,7 @@ export abstract class GescomWatcher {
               `Erreur lors de la récupération des ${this.tableName}. Réessaie dans ${
                 this.WAIT_ON_ERROR_MS
               }ms.`,
-              err.toString()
+              errorAsString(err)
             );
             setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
           });
@@ -258,7 +260,7 @@ export abstract class GescomWatcher {
           `Erreur lors de la récupération des données de syncronisation pour la table ${
             this.tableName
           }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
-          err.toString()
+          errorAsString(err)
         );
         setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
       });
@@ -266,13 +268,16 @@ export abstract class GescomWatcher {
 
   protected createRandomUnknownRef(): string {
     return `INCONNU-${Math.random()
+      // tslint:disable-next-line:no-magic-numbers
       .toString(36)
       .substr(2)
       .toUpperCase()}`;
   }
 
   protected abstract fetch(): knex.QueryBuilder;
+  // tslint:disable-next-line:no-any
   protected abstract mapGescomLineToSqliteLine(localDate: Date, gescomLine: any): any;
   protected abstract deleteRefs(refs: string[]): Promise<void>;
+  // tslint:disable-next-line:no-any
   protected abstract getRef(gescomLine: any): string;
 }

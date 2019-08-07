@@ -2,7 +2,7 @@ import {BrowserWindow} from 'electron';
 import log from 'electron-log';
 
 import {BridgeCommand, BridgeEvent} from '@shared/bridge/commands';
-import {asFunction, asMap, asString} from '@shared/type_utils';
+import {asMap, asString, errorAsString} from '@shared/type_utils';
 
 // tslint:disable-next-line:no-any
 function sendResponse(browserWindow: BrowserWindow, id: string, response: any): void {
@@ -57,18 +57,7 @@ export function setupBridge(
         }
         handleCommand(browserWindow, command, msgJSON.data)
           .then(result => sendResponse(browserWindow, id, result))
-          .catch(err => {
-            let errorString = asString(err, undefined);
-            if (!errorString) {
-              const errorObject = asMap(err);
-              const errorToString = asFunction<() => string | undefined>(
-                errorObject.toString,
-                () => undefined
-              );
-              errorString = errorToString ? errorObject.toString() : String(err);
-            }
-            sendError(browserWindow, id, errorString);
-          });
+          .catch(err => sendError(browserWindow, id, errorAsString(err)));
       } catch {
         log.error(`Received invalid bridge message (message is not a valid JSON): ${data}`);
         return;
