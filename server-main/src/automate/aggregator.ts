@@ -67,8 +67,8 @@ class Aggregator {
           insertOrUpdateSpeedTimes(SQLITE_DB.Prod, speedByTime)
             .then(() => {
               this.lastInsertedTime = max(Array.from(speedByTime.keys())) || 0;
-              speedByTime.forEach((speed, minute) => {
-                this.queries.delete(minute);
+              speedByTime.forEach((speed, time) => {
+                this.queries.delete(time);
               });
               if (this.queries.size > 0) {
                 this.processBuffersIfNeeded();

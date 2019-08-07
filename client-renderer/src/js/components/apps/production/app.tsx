@@ -9,127 +9,159 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {
-  getMinimumScheduleRangeForDate,
-  getPlanProd,
-  getCurrentPlanSchedule,
-} from '@root/lib/schedule_utils';
-import {capitalize, isSameDay} from '@root/lib/utils';
-import {prodHoursStore, bobinesQuantitiesStore} from '@root/stores/data_store';
+import {getPlanProd, getCurrentPlanSchedule, getStopsForDay} from '@root/lib/schedule_utils';
+import {isSameDay} from '@root/lib/utils';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {ProdInfo, Schedule, ProdRange, StopType, BobineQuantities} from '@shared/models';
+import {startOfDay, endOfDay, capitalize} from '@shared/lib/utils';
+import {ProdInfo, Schedule, StopType, BobineQuantities} from '@shared/models';
 
 interface ProductionAppProps {
-  initialDay: number;
+  initialDay?: number;
 }
 
+// Left here
+// ---------
+// Keep day in state as an option
+// Initialize it with initialDay if available
+// Update get current day to read this value and use the schedule if not available
+
 interface ProductionAppState {
-  day: number;
+  day?: Date;
   schedule?: Schedule;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
-  prodInfo: ProdInfo;
-  prodRanges?: Map<string, ProdRange>;
+  prodInfo?: ProdInfo;
 }
 
 export class ProductionApp extends React.Component<ProductionAppProps, ProductionAppState> {
   public static displayName = 'ProductionApp';
 
-  private readonly prodInfoStore: ProdInfoStore;
   private readonly scheduleStore: ScheduleStore;
+  private prodInfoStore: ProdInfoStore | undefined;
   private openedStops = new Map<string, void>();
 
   public constructor(props: ProductionAppProps) {
     super(props);
-    this.prodInfoStore = new ProdInfoStore(props.initialDay);
-    const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
-    this.scheduleStore = new ScheduleStore(start, end);
-    this.state = {day: props.initialDay, prodInfo: this.prodInfoStore.getState()};
-    document.title = this.getWindowTitle(props.initialDay);
+    let range: {start: number; end: number} | undefined;
+    if (props.initialDay) {
+      const date = new Date(props.initialDay);
+      range = {start: startOfDay(date).getTime(), end: endOfDay(date).getTime()};
+      this.state = {day: date};
+    } else {
+      this.state = {};
+    }
+    this.scheduleStore = new ScheduleStore(range);
   }
 
   public componentDidMount(): void {
-    prodHoursStore.addListener(this.handleStoresChanged);
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
-    this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.start(this.handleScheduleChanged);
   }
 
   public componentWillUnmount(): void {
-    prodHoursStore.removeListener(this.handleStoresChanged);
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
-    this.prodInfoStore.addListener(this.handleProdInfoChanged);
+    if (this.prodInfoStore) {
+      this.prodInfoStore.removeListener(this.handleProdInfoChanged);
+    }
     this.scheduleStore.stop();
   }
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
-      prodRanges: prodHoursStore.getProdRanges(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
     });
   };
 
-  private readonly handleProdInfoChanged = (): void => {
-    const {day} = this.state;
-    const prodInfo = this.prodInfoStore.getState();
-    const {stops} = prodInfo;
-    stops.forEach(s => {
-      const hash = `${day}-${s.start}`;
-      if (s.stopType === undefined && !this.openedStops.has(hash)) {
-        this.openedStops.set(hash);
-        bridge.openDayStopWindow(day, s.start).catch(console.error);
+  private readonly handleScheduleChanged = (): void => {
+    const schedule = this.scheduleStore.getSchedule();
+    if (!schedule) {
+      return;
+    }
+    this.setState({schedule});
+    const currentDay = this.getCurrentDay();
+    if (currentDay) {
+      const dayTs = currentDay.getTime();
+      if (!this.prodInfoStore) {
+        this.prodInfoStore = new ProdInfoStore(dayTs);
+        this.prodInfoStore.addListener(this.handleProdInfoChanged);
       }
-    });
-    this.setState({prodInfo});
+      const stops = getStopsForDay(schedule, dayTs);
+      stops.forEach(s => {
+        const hash = `${dayTs}-${s.start}`;
+        if (s.stopType === undefined && !this.openedStops.has(hash)) {
+          this.openedStops.set(hash);
+          bridge.openDayStopWindow(dayTs, s.start).catch(console.error);
+        }
+      });
+    }
   };
 
-  private readonly handleScheduleChanged = (): void => {
-    this.setState({schedule: this.scheduleStore.getSchedule()});
+  private readonly handleProdInfoChanged = (): void => {
+    if (this.prodInfoStore) {
+      const prodInfo = this.prodInfoStore.getState();
+      this.setState({prodInfo});
+    }
   };
 
   private changeDay(newDay: number): void {
-    const {start, end} = getMinimumScheduleRangeForDate(new Date(newDay));
-    this.prodInfoStore.setDay(newDay);
-    this.scheduleStore.setRange(start, end);
+    const newDayDate = new Date(newDay);
+    const start = startOfDay(newDayDate).getTime();
+    const end = endOfDay(newDayDate).getTime();
+    this.scheduleStore.setRange({start, end});
+    this.setState({day: newDayDate});
     this.openedStops = new Map<string, void>();
-    this.setState({day: newDay});
     document.title = this.getWindowTitle(newDay);
   }
 
+  private getCurrentDay(): Date | undefined {
+    const {schedule, day} = this.state;
+    if (day) {
+      return day;
+    }
+    if (!schedule) {
+      const {initialDay} = this.props;
+      return initialDay !== undefined ? startOfDay(new Date(initialDay)) : undefined;
+    }
+    return schedule.lastSpeedTime === undefined
+      ? new Date()
+      : startOfDay(new Date(schedule.lastSpeedTime.time));
+  }
+
   private readonly handlePreviousClick = (): void => {
-    const {day} = this.state;
-    const prodRanges = prodHoursStore.getProdRanges();
-    if (!prodRanges) {
+    const {schedule} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || !currentDay) {
       return;
     }
-    const newDay = new Date(day);
-    newDay.setDate(newDay.getDate() - 1);
-    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
-      newDay.setDate(newDay.getDate() - 1);
+    const prodHours = schedule.prodHours;
+    currentDay.setDate(currentDay.getDate() - 1);
+    while (prodHours.get(getWeekDay(currentDay)) === undefined) {
+      currentDay.setDate(currentDay.getDate() - 1);
     }
-    this.changeDay(newDay.getTime());
+    this.changeDay(currentDay.getTime());
   };
 
   private readonly handleNextClick = (): void => {
-    const {day} = this.state;
-    const prodRanges = prodHoursStore.getProdRanges();
-    if (!prodRanges) {
+    const {schedule} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || !currentDay) {
       return;
     }
-    const newDay = new Date(day);
-    newDay.setDate(newDay.getDate() + 1);
-    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
-      newDay.setDate(newDay.getDate() + 1);
+    const prodHours = schedule.prodHours;
+    currentDay.setDate(currentDay.getDate() + 1);
+    while (prodHours.get(getWeekDay(currentDay)) === undefined) {
+      currentDay.setDate(currentDay.getDate() + 1);
     }
-    this.changeDay(newDay.getTime());
+    this.changeDay(currentDay.getTime());
   };
 
   private getWindowTitle(ts: number): string {
@@ -146,12 +178,15 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderStops(): JSX.Element {
-    const {stops} = this.state.prodInfo;
     const {schedule} = this.state;
-    const lastMinute = schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.minute;
-    if (lastMinute === undefined) {
-      return <React.Fragment />;
+    const currentDay = this.getCurrentDay();
+    const lastMinute =
+      (schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.time) || Date.now();
+    if (lastMinute === undefined || schedule === undefined || currentDay === undefined) {
+      return <LoadingIndicator size="large" />;
     }
+
+    const stops = getStopsForDay(schedule, currentDay.getTime());
     const orderedStops = stops
       .filter(s => s.stopType !== StopType.NotProdHours)
       .sort((s1, s2) => s1.start - s2.start);
@@ -159,14 +194,15 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderCurrentPlan(): JSX.Element {
-    const {schedule, cadencier, bobineQuantities, day} = this.state;
-    if (!schedule || !cadencier || !bobineQuantities) {
+    const {schedule, cadencier, bobineQuantities} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || !cadencier || !bobineQuantities || currentDay === undefined) {
       return <LoadingIndicator size="large" />;
     }
 
     const currentPlanSchedule = getCurrentPlanSchedule(schedule);
     if (currentPlanSchedule) {
-      if (isSameDay(new Date(day), new Date(currentPlanSchedule.start))) {
+      if (isSameDay(new Date(currentDay), new Date(currentPlanSchedule.start))) {
         const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
         if (planProdSchedule) {
           return (
@@ -187,26 +223,51 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderChart(): JSX.Element {
-    const {day, prodInfo, prodRanges} = this.state;
-    const prodRange = (prodRanges && prodRanges.get(getWeekDay(new Date(day)))) || {
+    const {schedule, prodInfo} = this.state;
+    const currentDay = this.getCurrentDay();
+
+    if (!schedule || !prodInfo || currentDay === undefined) {
+      return <LoadingIndicator size="large" />;
+    }
+
+    const prodRanges = schedule.prodHours;
+    const prodRange = prodRanges.get(getWeekDay(currentDay)) || {
       startHour: 0,
       startMinute: 0,
       endHour: 23,
       endMinute: 59,
     };
-    return <SpeedChart day={day} prodRange={prodRange} speeds={prodInfo.minuteSpeeds} />;
+    return (
+      <SpeedChart day={currentDay.getTime()} prodRange={prodRange} speeds={prodInfo.speedTimes} />
+    );
+  }
+
+  private renderPlanning(): JSX.Element {
+    const {schedule} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || currentDay === undefined) {
+      return <LoadingIndicator size="large" />;
+    }
+
+    return <ScheduleView day={currentDay} prodRanges={schedule.prodHours} schedule={schedule} />;
+  }
+
+  private renderTopBar(): JSX.Element {
+    const currentDay = this.getCurrentDay();
+    if (currentDay === undefined) {
+      return <LoadingIndicator size="small" />;
+    }
+    return <span>{this.formatDay(currentDay.getTime())}</span>;
   }
 
   public render(): JSX.Element {
-    const {day, prodRanges, schedule} = this.state;
-
     return (
       <AppWrapper>
         <TopBar>
           <NavigationIcon onClick={this.handlePreviousClick}>
             <SVGIcon name="caret-left" width={iconSize} height={iconSize} />
           </NavigationIcon>
-          <TopBarTitle>{this.formatDay(day)}</TopBarTitle>
+          <TopBarTitle>{this.renderTopBar()}</TopBarTitle>
           <NavigationIcon onClick={this.handleNextClick}>
             <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
           </NavigationIcon>
@@ -215,7 +276,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         <ProdStateContainer>
           <ScheduleContainer>
             <BlockTitle>PLANNING</BlockTitle>
-            <ScheduleView day={new Date(day)} prodRanges={prodRanges} schedule={schedule} />
+            {this.renderPlanning()}
           </ScheduleContainer>
           <EventsContainer>
             <BlockTitle>ARRÊTS MACHINE</BlockTitle>
@@ -233,6 +294,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
 const iconSize = 16;
 const planProdViewerWidth = 500;
+const blockMargin = 8;
 
 const AppWrapper = styled.div`
   position: fixed;
@@ -300,13 +362,14 @@ const ChartContainer = styled(Block)`
   flex-shrink: 0;
   height: 200px;
   box-sizing: border-box;
-  margin: 8px;
+  margin: ${blockMargin}px;
   padding: 16px 16px 0 0;
 `;
 
 const ProdStateContainer = styled.div`
   flex-grow: 1;
   display: flex;
+  margin-bottom: ${blockMargin}px;
 `;
 
 const ScheduleContainer = styled(Block)`
@@ -314,7 +377,7 @@ const ScheduleContainer = styled(Block)`
   flex-basis: 1px;
   display: flex;
   overflow-y: auto;
-  margin: 0 8px 8px 8px;
+  margin: 0 ${blockMargin}px;
 `;
 
 const EventsContainer = styled(Block)`
@@ -323,7 +386,7 @@ const EventsContainer = styled(Block)`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  margin: 0 8px 8px 0;
+  margin-right: ${blockMargin}px;
 `;
 
 const CurrentPlanContainer = styled(Block)`
@@ -335,5 +398,5 @@ const CurrentPlanContainer = styled(Block)`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 8px 8px 0;
+  margin-right: ${blockMargin}px;
 `;

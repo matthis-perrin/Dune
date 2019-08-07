@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {padNumber} from '@root/lib/utils';
+import {padNumber} from '@shared/lib/utils';
 
 interface DurationProps {
   durationMs?: number;

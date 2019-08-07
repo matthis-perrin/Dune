@@ -3,15 +3,7 @@ import {isEqual} from 'lodash-es';
 import {bridge} from '@root/lib/bridge';
 import {Palette, Colors} from '@root/theme';
 
-import {
-  BobineQuantities,
-  Color,
-  Operation,
-  Cleaning,
-  UnplannedStop,
-  ProdHours,
-  ProdRange,
-} from '@shared/models';
+import {BobineQuantities, Color, Operation, Cleaning, UnplannedStop} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export abstract class DataStore<T> extends BaseStore {
@@ -90,18 +82,3 @@ class ColorsStore extends DataStore<Color> {
   }
 }
 export const colorsStore = new ColorsStore();
-
-class ProdHoursStore extends DataStore<ProdHours> {
-  public async fetch(): Promise<ProdHours[]> {
-    return bridge.listProdHours();
-  }
-  public getProdRanges(): Map<string, ProdRange> {
-    const prodRanges = new Map<string, ProdRange>();
-    const prodHours = this.getData();
-    if (prodHours) {
-      prodHours.forEach(prodHour => prodRanges.set(prodHour.day, prodHour));
-    }
-    return prodRanges;
-  }
-}
-export const prodHoursStore = new ProdHoursStore();

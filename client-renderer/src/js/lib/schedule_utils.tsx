@@ -1,6 +1,5 @@
-import {startOfDay, dateIsBeforeOrSameDay, dateIsAfterOrSameDay} from '@root/lib/utils';
-
 import {dateAtHour} from '@shared/lib/time';
+import {startOfDay} from '@shared/lib/utils';
 import {
   ScheduledPlanProd,
   Schedule,
@@ -75,17 +74,6 @@ export function getPreviousSchedule(
     }
     previous = plan;
   }
-}
-
-export function getMinimumScheduleRangeForDate(date: Date): {start: number; end: number} {
-  const today = new Date();
-  const start = new Date((dateIsBeforeOrSameDay(date, today) ? date : today).getTime());
-  start.setDate(start.getDate() - 1);
-  const startTime = dateAtHour(start, 0).getTime();
-  const end = new Date((dateIsAfterOrSameDay(date, today) ? date : today).getTime());
-  end.setDate(end.getDate() + 1);
-  const endTime = dateAtHour(end, 0).getTime();
-  return {start: startTime, end: endTime};
 }
 
 export function getScheduleOperationTime(schedule: ScheduledPlanProd): number {
@@ -184,6 +172,21 @@ function getPlanStops(plan: ScheduledPlanProd): Stop[] {
 
 function getAllStops(schedule: Schedule): Stop[] {
   return schedule.plans.reduce((stops, s) => stops.concat(getPlanStops(s)), [] as Stop[]);
+}
+
+export function getStopsForDay(schedule: Schedule, day: number): Stop[] {
+  return schedule.plans.reduce(
+    (stops, plan) => {
+      let planStops: Stop[] = [];
+      plan.schedulePerDay.forEach((s, scheduleDay) => {
+        if (scheduleDay === day) {
+          planStops = planStops.concat(s.stops);
+        }
+      });
+      return stops.concat(planStops);
+    },
+    [] as Stop[]
+  );
 }
 
 export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefined {

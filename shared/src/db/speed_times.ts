@@ -97,26 +97,26 @@ export async function getSpeedTimesBetween(
 
 export async function insertOrUpdateSpeedTimes(
   db: knex,
-  minutesSpeeds: Map<number, number | undefined>
+  timeSpeeds: Map<number, number | undefined>
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
       db(SPEED_TIMES_TABLE_NAME)
         .transacting(tx)
-        .whereIn(SpeedTimesColumn.Time, Array.from(minutesSpeeds.keys()))
+        .whereIn(SpeedTimesColumn.Time, Array.from(timeSpeeds.keys()))
         .del()
         .then(res => {
           const deleteCount = asNumber(res, 0);
           if (deleteCount > 0) {
             console.warn(
               `Updating ${deleteCount} time_speeds. This should not happend.`,
-              minutesSpeeds
+              timeSpeeds
             );
           }
           db.batchInsert(
             SPEED_TIMES_TABLE_NAME,
-            Array.from(minutesSpeeds.entries()).map(([minute, speed]) => ({
-              [SpeedTimesColumn.Time]: minute,
+            Array.from(timeSpeeds.entries()).map(([time, speed]) => ({
+              [SpeedTimesColumn.Time]: time,
               // tslint:disable-next-line:no-null-keyword
               [SpeedTimesColumn.Speed]: speed === undefined ? null : speed,
             })),

@@ -9,8 +9,7 @@ export class ProdInfoStore extends BaseStore {
   private refreshTimeout: number | undefined;
 
   private prodInfo: ProdInfo = {
-    minuteSpeeds: [],
-    stops: [],
+    speedTimes: [],
   };
 
   public constructor(private day: number) {
@@ -21,8 +20,7 @@ export class ProdInfoStore extends BaseStore {
   public setDay(day: number): void {
     this.day = day;
     this.prodInfo = {
-      minuteSpeeds: [],
-      stops: [],
+      speedTimes: [],
     };
     this.refresh();
   }

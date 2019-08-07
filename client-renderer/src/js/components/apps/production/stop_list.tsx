@@ -20,7 +20,7 @@ export class StopList extends React.Component<StopListProps> {
     const {lastMinute, stops} = this.props;
     const lastStop = stops[stops.length - 1];
     if (lastStop) {
-      bridge.createStop(lastStop.start, lastMinute);
+      bridge.createStop(lastStop.start, lastMinute).catch(console.error);
     }
   };
 
@@ -47,12 +47,12 @@ export class StopList extends React.Component<StopListProps> {
       comments: [],
       unplannedStops: [],
     };
-    bridge.mergeStops(stop1.start, stop2.start, mergedInfo, stop2.end);
+    bridge.mergeStops(stop1.start, stop2.start, mergedInfo, stop2.end).catch(console.error);
   }
 
   private canCreateNewStop(): boolean {
     const {lastMinute, stops} = this.props;
-    const lastStop = stops[stops.length - 1];
+    const lastStop = stops[stops.length - 1] as Stop | undefined;
     return lastStop !== undefined && lastStop.end === undefined && lastStop.start !== lastMinute;
   }
 
@@ -60,11 +60,11 @@ export class StopList extends React.Component<StopListProps> {
     const {stops} = this.props;
     const groups: Stop[][] = [];
     stops.forEach(s => {
-      const lastGroup = groups[groups.length - 1];
+      const lastGroup = groups[groups.length - 1] as Stop[] | undefined;
       if (lastGroup === undefined) {
         groups.push([s]);
       } else {
-        const lastStopOfLastGroup = lastGroup[lastGroup.length - 1];
+        const lastStopOfLastGroup = lastGroup[lastGroup.length - 1] as Stop | undefined;
         if (lastStopOfLastGroup === undefined) {
           lastGroup.push(s);
         } else {

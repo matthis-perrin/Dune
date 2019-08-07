@@ -1,15 +1,17 @@
-import * as log from 'electron-log';
-
-import {SQLITE_DB} from '@root/db';
+import knex from 'knex';
 
 import {listProdHours} from '@shared/db/prod_hours';
-import {ProdRange, ProdHours} from '@shared/models';
+import {ProdRange, ProdHours, NonProd} from '@shared/models';
+import {listNonProds} from './db/non_prods';
 
-class ProdHoursStore {
+export class ProdHoursStore {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
   private refreshTimeout: NodeJS.Timeout | undefined;
   private prodHoursMap = new Map<string, ProdRange>();
   private prodHours: ProdHours[] = [];
+  private nonProds: NonProd[] = [];
+
+  public constructor(private readonly prodDB: knex, private readonly paramsDB: knex) {}
 
   public async start(): Promise<void> {
     await this.performRefresh();
@@ -32,6 +34,10 @@ class ProdHoursStore {
     return this.getProdRange(new Date(time).toLocaleString('fr', {weekday: 'long'}));
   }
 
+  public getNonProds(): NonProd[] {
+    return this.nonProds;
+  }
+
   private scheduleRefresh(): void {
     this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
   }
@@ -42,15 +48,13 @@ class ProdHoursStore {
     }
     this.performRefresh()
       .finally(() => this.scheduleRefresh())
-      .catch(err => log.error(err));
+      .catch(() => this.scheduleRefresh());
   }
 
   private async performRefresh(): Promise<void> {
-    const res = await listProdHours(SQLITE_DB.Params);
-    this.prodHours = res;
+    this.nonProds = await listNonProds(this.prodDB);
+    this.prodHours = await listProdHours(this.paramsDB);
     this.prodHoursMap = new Map<string, ProdRange>();
-    res.forEach(prodHour => this.prodHoursMap.set(prodHour.day, prodHour));
+    this.prodHours.forEach(prodHour => this.prodHoursMap.set(prodHour.day, prodHour));
   }
 }
-
-export const prodHoursStore = new ProdHoursStore();

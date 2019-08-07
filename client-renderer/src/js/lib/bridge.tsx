@@ -3,55 +3,7 @@ import {without} from 'lodash-es';
 import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
-import {
-  AddPlanBobine,
-  BridgeCommand,
-  BridgeEvent,
-  ClearPlan,
-  CloseApp,
-  CloseAppOfType,
-  CreateNewPlanProduction,
-  CreateOrUpdateOperation,
-  GetAppInfo,
-  GetPlanProductionEngineInfo,
-  ListBobinesFilles,
-  ListBobinesMeres,
-  ListCliches,
-  ListOperations,
-  ListPerfos,
-  ListRefentes,
-  ListStocks,
-  OpenApp,
-  RemovePlanBobine,
-  SetPlanPapier,
-  SetPlanPerfo,
-  SetPlanPolypro,
-  SetPlanRefente,
-  ListCadencier,
-  ListCadencierForBobine,
-  ListBobinesQuantities,
-  SetPlanTourCount,
-  ListColors,
-  SaveToPDF,
-  Print,
-  OpenContextMenu,
-  DeletePlanProduction,
-  SaveNewPlanProduction,
-  UpdatePlanProduction,
-  UpdatePlanProductionInfo,
-  MovePlanProduction,
-  GetPlanProduction,
-  GetProdInfo,
-  ListUnplannedStops,
-  ListCleanings,
-  UpdateStop,
-  ListProdHours,
-  GetScheduleInfo,
-  CreateStop,
-  MergeStops,
-  CreateMaintenance,
-  CreateNonProd,
-} from '@shared/bridge/commands';
+import * as BridgeCommands from '@shared/bridge/commands';
 import {
   BobineFille,
   BobineMere,
@@ -77,7 +29,6 @@ import {
   Cleaning,
   StopType,
   StopInfo,
-  ProdHours,
   ScheduleInfo,
 } from '@shared/models';
 
@@ -91,13 +42,19 @@ type EventData = any;
 
 export class Bridge {
   private readonly bridgeTransport = new BridgeTransport(this.handleEvent.bind(this));
-  private readonly eventListeners = new Map<BridgeEvent, ((data: EventData) => void)[]>();
+  private readonly eventListeners = new Map<
+    BridgeCommands.BridgeEvent,
+    ((data: EventData) => void)[]
+  >();
 
-  private handleEvent(event: BridgeEvent, data: EventData): void {
+  private handleEvent(event: BridgeCommands.BridgeEvent, data: EventData): void {
     (this.eventListeners.get(event) || []).forEach(listener => listener(data));
   }
 
-  public addEventListener(event: BridgeEvent, listener: (data: EventData) => void): void {
+  public addEventListener(
+    event: BridgeCommands.BridgeEvent,
+    listener: (data: EventData) => void
+  ): void {
     const listeners = this.eventListeners.get(event);
     if (!listeners) {
       this.eventListeners.set(event, [listener]);
@@ -106,7 +63,10 @@ export class Bridge {
     }
   }
 
-  public removeEventListener(event: BridgeEvent, listener: (data: EventData) => void): void {
+  public removeEventListener(
+    event: BridgeCommands.BridgeEvent,
+    listener: (data: EventData) => void
+  ): void {
     const listeners = this.eventListeners.get(event);
     if (listeners) {
       this.eventListeners.set(event, without(listeners, listener));
@@ -114,60 +74,68 @@ export class Bridge {
   }
 
   private async listGeneric<T>(
-    command: BridgeCommand,
+    command: BridgeCommands.BridgeCommand,
     localUpdate: number
   ): Promise<BridgeListResponse<T>> {
     return this.bridgeTransport.sendBridgeCommand<BridgeListResponse<T>>(command, {localUpdate});
   }
 
   public async listBobineFilles(localUpdate: number): Promise<BridgeListResponse<BobineFille>> {
-    return this.listGeneric<BobineFille>(ListBobinesFilles, localUpdate);
+    return this.listGeneric<BobineFille>(BridgeCommands.ListBobinesFilles, localUpdate);
   }
   public async listBobineMeres(localUpdate: number): Promise<BridgeListResponse<BobineMere>> {
-    return this.listGeneric<BobineMere>(ListBobinesMeres, localUpdate);
+    return this.listGeneric<BobineMere>(BridgeCommands.ListBobinesMeres, localUpdate);
   }
   public async listCliches(localUpdate: number): Promise<BridgeListResponse<Cliche>> {
-    return this.listGeneric<Cliche>(ListCliches, localUpdate);
+    return this.listGeneric<Cliche>(BridgeCommands.ListCliches, localUpdate);
   }
   public async listStocks(localUpdate: number): Promise<BridgeListResponse<Stock>> {
-    return this.listGeneric<Stock>(ListStocks, localUpdate);
+    return this.listGeneric<Stock>(BridgeCommands.ListStocks, localUpdate);
   }
   public async listPerfos(localUpdate: number): Promise<BridgeListResponse<Perfo>> {
-    return this.listGeneric<Perfo>(ListPerfos, localUpdate);
+    return this.listGeneric<Perfo>(BridgeCommands.ListPerfos, localUpdate);
   }
   public async listRefentes(localUpdate: number): Promise<BridgeListResponse<Refente>> {
-    return this.listGeneric<Refente>(ListRefentes, localUpdate);
+    return this.listGeneric<Refente>(BridgeCommands.ListRefentes, localUpdate);
   }
   public async listCadencier(localUpdate: number): Promise<BridgeListResponse<Cadencier>> {
-    return this.listGeneric<Cadencier>(ListCadencier, localUpdate);
+    return this.listGeneric<Cadencier>(BridgeCommands.ListCadencier, localUpdate);
   }
   public async listCadencierForBobine(bobineRef: string): Promise<Vente[]> {
-    return this.bridgeTransport.sendBridgeCommand<Vente[]>(ListCadencierForBobine, {bobineRef});
+    return this.bridgeTransport.sendBridgeCommand<Vente[]>(BridgeCommands.ListCadencierForBobine, {
+      bobineRef,
+    });
   }
   public async listBobinesQuantities(): Promise<BobineQuantities[]> {
-    return this.bridgeTransport.sendBridgeCommand<BobineQuantities[]>(ListBobinesQuantities);
+    return this.bridgeTransport.sendBridgeCommand<BobineQuantities[]>(
+      BridgeCommands.ListBobinesQuantities
+    );
   }
   public async listColors(): Promise<Color[]> {
-    return this.bridgeTransport.sendBridgeCommand<Color[]>(ListColors);
+    return this.bridgeTransport.sendBridgeCommand<Color[]>(BridgeCommands.ListColors);
   }
   public async listOperations(): Promise<Operation[]> {
-    return this.bridgeTransport.sendBridgeCommand<Operation[]>(ListOperations);
+    return this.bridgeTransport.sendBridgeCommand<Operation[]>(BridgeCommands.ListOperations);
   }
   public async listUnplannedStops(): Promise<UnplannedStop[]> {
-    return this.bridgeTransport.sendBridgeCommand<UnplannedStop[]>(ListUnplannedStops);
+    return this.bridgeTransport.sendBridgeCommand<UnplannedStop[]>(
+      BridgeCommands.ListUnplannedStops
+    );
   }
   public async listCleanings(): Promise<Cleaning[]> {
-    return this.bridgeTransport.sendBridgeCommand<Cleaning[]>(ListCleanings);
-  }
-  public async listProdHours(): Promise<ProdHours[]> {
-    return this.bridgeTransport.sendBridgeCommand<ProdHours[]>(ListProdHours);
+    return this.bridgeTransport.sendBridgeCommand<Cleaning[]>(BridgeCommands.ListCleanings);
   }
 
   public async createNewPlanProduction(index: number): Promise<{id: number}> {
-    return this.bridgeTransport.sendBridgeCommand<{id: number}>(CreateNewPlanProduction, {index});
+    return this.bridgeTransport.sendBridgeCommand<{id: number}>(
+      BridgeCommands.CreateNewPlanProduction,
+      {index}
+    );
   }
   public async deletePlanProduction(index: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(DeletePlanProduction, {index});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.DeletePlanProduction, {
+      index,
+    });
   }
   public async movePlanProduction(
     id: number,
@@ -177,7 +145,7 @@ export class Bridge {
     if (fromIndex === undefined) {
       return;
     }
-    return this.bridgeTransport.sendBridgeCommand<void>(MovePlanProduction, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.MovePlanProduction, {
       id,
       fromIndex,
       toIndex,
@@ -190,7 +158,7 @@ export class Bridge {
     productionAtStartOfDay: boolean,
     data: string
   ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SaveNewPlanProduction, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SaveNewPlanProduction, {
       id,
       index,
       operationAtStartOfDay,
@@ -199,26 +167,29 @@ export class Bridge {
     });
   }
   public async updatePlanProduction(id: number, data: PlanProductionData): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProduction, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.UpdatePlanProduction, {
       id,
       data: JSON.stringify(data),
     });
   }
   public async updatePlanProductionInfo(id: number, info: PlanProductionInfo): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(UpdatePlanProductionInfo, {id, info});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.UpdatePlanProductionInfo, {
+      id,
+      info,
+    });
   }
 
   public async getPlanProductionEngineInfo(
     id: number
   ): Promise<PlanProductionState & PlanProductionInfo> {
     return this.bridgeTransport.sendBridgeCommand<PlanProductionState & PlanProductionInfo>(
-      GetPlanProductionEngineInfo,
+      BridgeCommands.GetPlanProductionEngineInfo,
       {id}
     );
   }
   public async getPlanProduction(id: number): Promise<PlanProduction> {
     const planProdRaw = await this.bridgeTransport.sendBridgeCommand<PlanProductionRaw>(
-      GetPlanProduction,
+      BridgeCommands.GetPlanProduction,
       {id}
     );
     return {
@@ -228,28 +199,39 @@ export class Bridge {
   }
 
   public async setPlanTourCount(id: number, tourCount?: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanTourCount, {id, tourCount});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SetPlanTourCount, {
+      id,
+      tourCount,
+    });
   }
   public async setPlanPerfo(id: number, ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPerfo, {id, ref});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SetPlanPerfo, {id, ref});
   }
   public async setPlanRefente(id: number, ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanRefente, {id, ref});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SetPlanRefente, {id, ref});
   }
   public async setPlanPapier(id: number, ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPapier, {id, ref});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SetPlanPapier, {id, ref});
   }
   public async setPlanPolypro(id: number, ref?: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SetPlanPolypro, {id, ref});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SetPlanPolypro, {id, ref});
   }
   public async addPlanBobine(id: number, ref: string, pose: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(AddPlanBobine, {id, ref, pose});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.AddPlanBobine, {
+      id,
+      ref,
+      pose,
+    });
   }
   public async removePlanBobine(id: number, ref: string, pose?: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(RemovePlanBobine, {id, ref, pose});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.RemovePlanBobine, {
+      id,
+      ref,
+      pose,
+    });
   }
   public async clearPlan(id: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(ClearPlan, {id});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.ClearPlan, {id});
   }
 
   public async viewBobine(bobineRef: string): Promise<void> {
@@ -264,11 +246,16 @@ export class Bridge {
     return this.openApp(ClientAppType.StopApp, {day, stopStart});
   }
 
-  public async getScheduleInfo(start: number, end: number): Promise<ScheduleInfo> {
-    return this.bridgeTransport.sendBridgeCommand<ScheduleInfo>(GetScheduleInfo, {start, end});
+  public async getScheduleInfo(range?: {start: number; end: number}): Promise<ScheduleInfo> {
+    return this.bridgeTransport.sendBridgeCommand<ScheduleInfo>(BridgeCommands.GetScheduleInfo, {
+      range,
+    });
   }
   public async getProdInfo(start: number, end: number): Promise<ProdInfo> {
-    return this.bridgeTransport.sendBridgeCommand<ProdInfo>(GetProdInfo, {start, end});
+    return this.bridgeTransport.sendBridgeCommand<ProdInfo>(BridgeCommands.GetProdInfo, {
+      start,
+      end,
+    });
   }
   public async updateStop(
     start: number,
@@ -277,7 +264,7 @@ export class Bridge {
     planProdId: number,
     maintenanceId: number | undefined
   ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(UpdateStop, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.UpdateStop, {
       start,
       type,
       info,
@@ -286,7 +273,7 @@ export class Bridge {
     });
   }
   public async createStop(stopStart: number, stopEnd: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CreateStop, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CreateStop, {
       stopStart,
       stopEnd,
     });
@@ -297,7 +284,7 @@ export class Bridge {
     mergedInfo: StopInfo,
     newEnd: number | undefined
   ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(MergeStops, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.MergeStops, {
       start1,
       start2,
       mergedInfo,
@@ -306,44 +293,64 @@ export class Bridge {
   }
 
   public async createOrUpdateOperation(operation: Operation): Promise<Operation> {
-    return this.bridgeTransport.sendBridgeCommand<Operation>(CreateOrUpdateOperation, {operation});
+    return this.bridgeTransport.sendBridgeCommand<Operation>(
+      BridgeCommands.CreateOrUpdateOperation,
+      {operation}
+    );
   }
 
   public async createMaintenance(start: number, end: number, title: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CreateMaintenance, {start, end, title});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CreateMaintenance, {
+      start,
+      end,
+      title,
+    });
   }
   public async createNonProd(start: number, end: number, title: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CreateNonProd, {start, end, title});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CreateNonProd, {
+      start,
+      end,
+      title,
+    });
   }
 
   public async getAppInfo(windowId: string): Promise<ClientAppInfo> {
-    return this.bridgeTransport.sendBridgeCommand<ClientAppInfo>(GetAppInfo, {windowId});
+    return this.bridgeTransport.sendBridgeCommand<ClientAppInfo>(BridgeCommands.GetAppInfo, {
+      windowId,
+    });
   }
   // tslint:disable-next-line:no-any
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(OpenApp, {type, data});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.OpenApp, {type, data});
   }
   public async closeAppOfType(type: ClientAppType): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CloseAppOfType, {type});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CloseAppOfType, {type});
   }
   public async closeApp(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(CloseApp, {windowId: getWindowId()});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CloseApp, {
+      windowId: getWindowId(),
+    });
   }
   public async saveToPDF(title: string): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(SaveToPDF, {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.SaveToPDF, {
       windowId: getWindowId(),
       title,
     });
   }
   public async print(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(Print, {windowId: getWindowId()});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.Print, {
+      windowId: getWindowId(),
+    });
   }
 
   public async openContextMenu(
     menuId: string,
     menuForBridge: ContextMenuForBridge[]
   ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(OpenContextMenu, {menuId, menuForBridge});
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.OpenContextMenu, {
+      menuId,
+      menuForBridge,
+    });
   }
 }
 

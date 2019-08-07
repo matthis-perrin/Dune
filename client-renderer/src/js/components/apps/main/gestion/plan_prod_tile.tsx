@@ -223,15 +223,13 @@ export class PlanProdTile extends React.Component<Props> {
 
   private deletePlanProd(): void {
     const {planSchedule, onPlanProdRefreshNeeded} = this.props;
-    if (planSchedule.planProd.index !== undefined) {
-      bridge
-        .deletePlanProduction(planSchedule.planProd.index)
-        .then(() => {
-          this.removeViewer();
-          onPlanProdRefreshNeeded();
-        })
-        .catch(console.error);
-    }
+    bridge
+      .deletePlanProduction(planSchedule.planProd.index)
+      .then(() => {
+        this.removeViewer();
+        onPlanProdRefreshNeeded();
+      })
+      .catch(console.error);
   }
 
   private movePlanProd(toIndex: number): void {

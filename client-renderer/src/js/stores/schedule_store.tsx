@@ -1,6 +1,6 @@
 import {bridge} from '@root/lib/bridge';
 import {createSchedule} from '@root/lib/scheduler';
-import {operationsStore, prodHoursStore} from '@root/stores/data_store';
+import {operationsStore} from '@root/stores/data_store';
 
 import {
   Operation,
@@ -14,6 +14,7 @@ import {
   Maintenance,
   SpeedTime,
   NonProd,
+  ProdHours,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -23,7 +24,6 @@ export class ScheduleStore {
   private refreshTimeout: number | undefined;
 
   private operations?: Operation[];
-  private prodRanges?: Map<string, ProdRange>;
   private prodData?: {
     startedPlans: PlanProduction[];
     notStartedPlans: PlanProduction[];
@@ -31,14 +31,14 @@ export class ScheduleStore {
     stops: Stop[];
     maintenances: Maintenance[];
     nonProds: NonProd[];
+    prodRanges: Map<string, ProdRange>;
     lastSpeedTime?: SpeedTime;
   };
 
   private schedule?: Schedule;
 
-  public constructor(private startRange: number, private endRange: number) {
+  public constructor(private range?: {start: number; end: number}) {
     operationsStore.addListener(this.handleOperationsChanged);
-    prodHoursStore.addListener(this.handleProdHoursChanged);
   }
 
   public start(listener: () => void): void {
@@ -52,9 +52,8 @@ export class ScheduleStore {
     }
   }
 
-  public setRange(startRange: number, endRange: number): void {
-    this.startRange = startRange;
-    this.endRange = endRange;
+  public setRange(range?: {start: number; end: number}): void {
+    this.range = range;
     this.schedule = undefined;
     this.prodData = undefined;
     this.emit();
@@ -67,11 +66,6 @@ export class ScheduleStore {
 
   private readonly handleOperationsChanged = (): void => {
     this.operations = operationsStore.getData();
-    this.recompute();
-  };
-
-  private readonly handleProdHoursChanged = (): void => {
-    this.prodRanges = prodHoursStore.getProdRanges();
     this.recompute();
   };
 
@@ -89,7 +83,7 @@ export class ScheduleStore {
   }
 
   private recompute(): void {
-    if (!this.operations || !this.prodRanges || !this.prodData) {
+    if (!this.operations || !this.prodData) {
       return;
     }
     const {
@@ -98,12 +92,13 @@ export class ScheduleStore {
       prods,
       notStartedPlans,
       lastSpeedTime,
+      prodRanges,
       maintenances,
       nonProds,
     } = this.prodData;
     this.schedule = createSchedule(
       this.operations,
-      this.prodRanges,
+      prodRanges,
       startedPlans,
       notStartedPlans,
       prods,
@@ -112,8 +107,6 @@ export class ScheduleStore {
       nonProds,
       lastSpeedTime
     );
-
-    console.log(this.schedule);
 
     this.emit();
   }
@@ -130,6 +123,12 @@ export class ScheduleStore {
     } catch {
       return undefined;
     }
+  }
+
+  private makeProdRanges(prodHours: ProdHours[]): Map<string, ProdRange> {
+    const prodRanges = new Map<string, ProdRange>();
+    prodHours.forEach(prodHour => prodRanges.set(prodHour.day, prodHour));
+    return prodRanges;
   }
 
   private transformPlanProdRaw(plans: PlanProductionRaw[]): PlanProduction[] {
@@ -152,8 +151,9 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
+      prodHours,
       lastSpeedTime,
-    } = await bridge.getScheduleInfo(this.startRange, this.endRange);
+    } = await bridge.getScheduleInfo(this.range);
     this.prodData = {
       startedPlans: this.transformPlanProdRaw(startedPlans),
       notStartedPlans: this.transformPlanProdRaw(notStartedPlans),
@@ -161,6 +161,7 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
+      prodRanges: this.makeProdRanges(prodHours),
       lastSpeedTime,
     };
     this.recompute();

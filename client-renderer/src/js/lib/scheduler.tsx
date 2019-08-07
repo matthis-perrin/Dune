@@ -75,10 +75,10 @@ function eventsOrder(event1: AutomateEvent, event2: AutomateEvent): number {
       return -1;
     }
   } else {
-    if (event1.end === undefined) {
-      return 1;
-    } else {
+    if (event2.end === undefined) {
       return 0;
+    } else {
+      return 1;
     }
   }
 }
@@ -623,7 +623,7 @@ function finishPlanProd(
       if (lastStopEventType === undefined || lastStopEventType === StopType.Maintenance) {
         const lastProd = Array.from(newSchedules.values())
           .reduce((prods, schedule) => prods.concat(schedule.prods), [] as Prod[])
-          .sort((p1, p2) => -eventsOrder(p1, p2))[0];
+          .sort((p1, p2) => -eventsOrder(p1, p2))[0] as Prod | undefined;
         const lastProdEndTime =
           lastProd === undefined ? 0 : lastProd.end || supportData.currentTime;
         const stopBefore = Array.from(newSchedules.values())
@@ -794,7 +794,7 @@ function schedulePlanProd(
     ) {
       lastSchedule.status = PlanProductionStatus.IN_PROGRESS;
       // If the last event of the schedule is still in progress, we update the schedule end
-      // to be the last minute speed
+      // to be the last time speed
       if (lastEvent && lastEvent.end === undefined) {
         lastSchedule.end = supportData.currentTime;
       }
@@ -924,7 +924,7 @@ export function createSchedule(
   const supportData: ScheduleSupportData = {
     maintenances: notDoneMaintenances,
     prodRanges,
-    currentTime: lastSpeedTime !== undefined ? lastSpeedTime.minute : Date.now(),
+    currentTime: lastSpeedTime !== undefined ? lastSpeedTime.time : Date.now(),
   };
 
   const sortedPlans = allPlans.sort((p1, p2) => {
@@ -963,5 +963,13 @@ export function createSchedule(
     );
   });
 
-  return {lastSpeedTime, plans: scheduledPlans, unassignedProds, unassignedStops, maintenances};
+  return {
+    lastSpeedTime,
+    plans: scheduledPlans,
+    unassignedProds,
+    unassignedStops,
+    maintenances,
+    nonProds,
+    prodHours: prodRanges,
+  };
 }

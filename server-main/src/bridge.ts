@@ -52,15 +52,15 @@ export async function handleCommand(
     const startTs = last
       ? last.time + AGGREGATION_SIZE_MS
       : Date.now() % aggregator.getCurrentTime();
-    const minutesSpeeds = new Map<number, number | undefined>();
+    const timeSpeeds = new Map<number, number | undefined>();
     const parsedMinutes = asNumber(minutes, 0);
     const valueToInsert = Math.round(
       minutes === 0 ? 1 : parsedMinutes * (MS_IN_MINUTE / AGGREGATION_SIZE_MS)
     );
     const parseSpeed = asNumber(speed, undefined);
     for (let i = 0; i < valueToInsert; i++) {
-      minutesSpeeds.set(startTs + i * AGGREGATION_SIZE_MS, parseSpeed);
+      timeSpeeds.set(startTs + i * AGGREGATION_SIZE_MS, parseSpeed);
     }
-    return insertOrUpdateSpeedTimes(SQLITE_DB.Prod, minutesSpeeds);
+    return insertOrUpdateSpeedTimes(SQLITE_DB.Prod, timeSpeeds);
   }
 }

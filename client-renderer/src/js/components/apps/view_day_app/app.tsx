@@ -3,15 +3,13 @@ import styled from 'styled-components';
 
 import {ScheduleView} from '@root/components/common/schedule';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
-import {capitalize} from '@root/lib/utils';
-import {prodHoursStore} from '@root/stores/data_store';
 import {stocksStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {Stock, ProdRange, Schedule} from '@shared/models';
+import {startOfDay, capitalize} from '@shared/lib/utils';
+import {Stock, Schedule} from '@shared/models';
 
 interface ViewDayAppProps {
   initialDay: number;
@@ -21,7 +19,6 @@ interface ViewDayAppState {
   day: number;
   schedule?: Schedule;
   stocks?: Map<string, Stock[]>;
-  prodRanges?: Map<string, ProdRange>;
 }
 
 export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState> {
@@ -31,45 +28,47 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
   public constructor(props: ViewDayAppProps) {
     super(props);
     this.state = {day: props.initialDay};
-    const {start, end} = getMinimumScheduleRangeForDate(new Date(props.initialDay));
-    this.scheduleStore = new ScheduleStore(start, end);
+    const range = this.getDayRangeForDate(new Date(props.initialDay));
+    this.scheduleStore = new ScheduleStore(range);
     document.title = this.formatDay(props.initialDay);
   }
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
-    prodHoursStore.addListener(this.handleStoresChanged);
     this.scheduleStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
-    prodHoursStore.removeListener(this.handleStoresChanged);
     this.scheduleStore.stop();
   }
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
       stocks: stocksStore.getStockIndex(),
-      prodRanges: prodHoursStore.getProdRanges(),
       schedule: this.scheduleStore.getSchedule(),
     });
   };
 
+  private getDayRangeForDate(date: Date): {start: number; end: number} {
+    const start = startOfDay(date).getTime();
+    const end = startOfDay(date).getTime();
+    return {start, end};
+  }
+
   private updateCurrentDay(newDay: Date): void {
     this.setState({day: newDay.getTime()});
-    const {start, end} = getMinimumScheduleRangeForDate(newDay);
-    this.scheduleStore.setRange(start, end);
+    this.scheduleStore.setRange(this.getDayRangeForDate(newDay));
   }
 
   private readonly handlePreviousClick = (): void => {
     const newDay = new Date(this.state.day);
-    const prodRanges = prodHoursStore.getProdRanges();
-    if (!prodRanges) {
+    const {schedule} = this.state;
+    if (!schedule) {
       return;
     }
     newDay.setDate(newDay.getDate() - 1);
-    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
+    while (schedule.prodHours.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() - 1);
     }
     this.updateCurrentDay(newDay);
@@ -77,12 +76,12 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 
   private readonly handleNextClick = (): void => {
     const newDay = new Date(this.state.day);
-    const prodRanges = prodHoursStore.getProdRanges();
-    if (!prodRanges) {
+    const {schedule} = this.state;
+    if (!schedule) {
       return;
     }
     newDay.setDate(newDay.getDate() + 1);
-    while (prodRanges.get(getWeekDay(newDay)) === undefined) {
+    while (schedule.prodHours.get(getWeekDay(newDay)) === undefined) {
       newDay.setDate(newDay.getDate() + 1);
     }
     this.updateCurrentDay(newDay);
@@ -97,9 +96,22 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     return `${dayOfWeek} ${day} ${month} ${year}`;
   }
 
-  public render(): JSX.Element {
-    const {day, schedule, stocks, prodRanges} = this.state;
+  private renderScheduleView(): JSX.Element {
+    const {schedule, day, stocks} = this.state;
+    if (!schedule) {
+      return <React.Fragment />;
+    }
+    return (
+      <ScheduleView
+        day={new Date(day)}
+        schedule={schedule}
+        stocks={stocks}
+        prodRanges={schedule.prodHours}
+      />
+    );
+  }
 
+  public render(): JSX.Element {
     return (
       <AppWrapper>
         <LeftColumn>
@@ -112,14 +124,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
               <SVGIcon name="caret-right" width={12} height={12} />
             </div>
           </TopBar>
-          <ScheduleWrapper>
-            <ScheduleView
-              day={new Date(day)}
-              schedule={schedule}
-              stocks={stocks}
-              prodRanges={prodRanges}
-            />
-          </ScheduleWrapper>
+          <ScheduleWrapper>{this.renderScheduleView()}</ScheduleWrapper>
         </LeftColumn>
         <RightColumn>
           <div>Stats</div>

@@ -63,6 +63,7 @@ export function asDate(value: any, defaultValue: Date = new Date(0)): Date {
   return value instanceof Date ? value : defaultValue;
 }
 
+// tslint:disable-next-line:no-any
 export function errorAsString(err: any): string {
   let errorString = asString(err, undefined);
   if (errorString === undefined) {

@@ -10,7 +10,7 @@ export function getProdMetrage(prod: Prod, allSpeeds: SpeedTime[]): number {
   const duration = end - prod.start;
   if (prod.avgSpeed === undefined) {
     const speeds = removeUndefined(
-      allSpeeds.filter(s => s.minute >= prod.start && s.minute < end).map(s => s.speed)
+      allSpeeds.filter(s => s.time >= prod.start && s.time < end).map(s => s.speed)
     );
     const average = speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length;
     return computeMetrage(duration, average);

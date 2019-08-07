@@ -6,13 +6,12 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
-import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
-import {dateIsAfterOrSameDay, startOfDay, endOfDay} from '@root/lib/utils';
+import {dateIsAfterOrSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
-import {dateAtHour} from '@shared/lib/time';
+import {endOfDay, startOfDay} from '@shared/lib/utils';
 import {Stock, BobineQuantities, ClientAppType, Schedule} from '@shared/models';
 
 const LAST_MONTH = 11;
@@ -39,7 +38,7 @@ export class GestionPage extends React.Component<Props, State> {
     const month = new Date().getMonth();
     this.state = {month, year};
     const {start, end} = this.getProdStoreRange(year, month);
-    this.scheduleStore = new ScheduleStore(start, end);
+    this.scheduleStore = new ScheduleStore({start, end});
   }
 
   public componentDidMount(): void {
@@ -77,7 +76,7 @@ export class GestionPage extends React.Component<Props, State> {
     const newMonth = month === LAST_MONTH ? 0 : month + 1;
     this.setState({year: newYear, month: newMonth});
     const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    this.scheduleStore.setRange(start, end);
+    this.scheduleStore.setRange({start, end});
   };
 
   private readonly goToPreviousMonth = (): void => {
@@ -86,7 +85,7 @@ export class GestionPage extends React.Component<Props, State> {
     const newMonth = month === 0 ? LAST_MONTH : month - 1;
     this.setState({year: newYear, month: newMonth});
     const {start, end} = this.getProdStoreRange(newYear, newMonth);
-    this.scheduleStore.setRange(start, end);
+    this.scheduleStore.setRange({start, end});
   };
 
   private isValidDateToCreatePlanProd(date: Date): boolean {
@@ -116,7 +115,8 @@ export class GestionPage extends React.Component<Props, State> {
             label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
             callback: () => {
               const planProdIndex = this.getNewPlanProdIndexForDate(date);
-              const {start, end} = getMinimumScheduleRangeForDate(date);
+              const start = startOfDay(date).getTime();
+              const end = endOfDay(date).getTime();
               bridge
                 .createNewPlanProduction(planProdIndex)
                 .then(({id}) => {
@@ -156,11 +156,11 @@ export class GestionPage extends React.Component<Props, State> {
     if (!stocks || !cadencier || !bobineQuantities || !schedule) {
       return <div />;
     }
-    const startOfDay = dateAtHour(date, 0).getTime();
+    const start = startOfDay(date).getTime();
     return (
       <React.Fragment>
         {schedule.plans
-          .filter(planSchedule => planSchedule.schedulePerDay.has(startOfDay))
+          .filter(planSchedule => planSchedule.schedulePerDay.has(start))
           .map(plan => (
             <PlanProdTile
               key={plan.planProd.id}

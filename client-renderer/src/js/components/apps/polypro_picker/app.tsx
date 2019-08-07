@@ -40,7 +40,7 @@ export class PolyproPickerApp extends React.Component<Props, State> {
     super(props);
     this.state = {};
     const {start, end} = props;
-    this.scheduleStore = new ScheduleStore(start, end);
+    this.scheduleStore = new ScheduleStore({start, end});
   }
 
   private readonly handlePolyproSelected = (bobineMere: BobineMere) => {

@@ -273,6 +273,8 @@ export interface Schedule {
   unassignedStops: Stop[];
   unassignedProds: Prod[];
   maintenances: Maintenance[];
+  nonProds: NonProd[];
+  prodHours: Map<string, ProdRange>;
 }
 
 export interface Maintenance {
@@ -458,12 +460,12 @@ export interface ScheduleInfo {
   startedPlans: PlanProductionRaw[];
   maintenances: Maintenance[];
   nonProds: NonProd[];
+  prodHours: ProdHours[];
   lastSpeedTime?: SpeedTime;
 }
 
 export interface ProdInfo {
-  stops: Stop[];
-  minuteSpeeds: SpeedTime[];
+  speedTimes: SpeedTime[];
 }
 
 export interface UnplannedStop {
@@ -481,6 +483,11 @@ export interface Cleaning {
 
 export interface ProdHours extends ProdRange {
   day: string;
+}
+
+export interface ProdHourInfo {
+  prodHours: ProdHours[];
+  nonProds: NonProd[];
 }
 
 export interface ProdRange {

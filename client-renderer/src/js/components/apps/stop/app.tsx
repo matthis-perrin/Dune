@@ -2,12 +2,12 @@ import * as React from 'react';
 
 import {StopForm} from '@root/components/apps/stop/stop_form';
 import {LoadingScreen} from '@root/components/core/loading_screen';
-import {getMinimumScheduleRangeForDate} from '@root/lib/schedule_utils';
+import {getStopsForDay} from '@root/lib/schedule_utils';
 import {formatDuration} from '@root/lib/utils';
-import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
-import {ProdInfo, Stop, Schedule} from '@shared/models';
+import {startOfDay, endOfDay} from '@shared/lib/utils';
+import {Stop, Schedule} from '@shared/models';
 
 interface StopAppProps {
   day: number;
@@ -15,7 +15,6 @@ interface StopAppProps {
 }
 
 interface StopAppState {
-  prodInfo: ProdInfo;
   stop?: Stop;
   schedule?: Schedule;
 }
@@ -23,37 +22,34 @@ interface StopAppState {
 export class StopApp extends React.Component<StopAppProps, StopAppState> {
   public static displayName = 'StopApp';
 
-  private readonly prodInfoStore: ProdInfoStore;
   private readonly scheduleStore: ScheduleStore;
 
   public constructor(props: StopAppProps) {
     super(props);
-    this.prodInfoStore = new ProdInfoStore(props.day);
-    const {start, end} = getMinimumScheduleRangeForDate(new Date(props.day));
-    this.scheduleStore = new ScheduleStore(start, end);
-    this.state = {prodInfo: this.prodInfoStore.getState()};
+    const date = new Date(props.day);
+    const start = startOfDay(date).getTime();
+    const end = endOfDay(date).getTime();
+    this.scheduleStore = new ScheduleStore({start, end});
     this.updateWindowTitle();
   }
 
   public componentDidMount(): void {
-    this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.start(this.handleScheduleChanged);
   }
 
   public componentWillUnmount(): void {
-    this.prodInfoStore.addListener(this.handleProdInfoChanged);
     this.scheduleStore.stop();
   }
 
-  private readonly handleProdInfoChanged = (): void => {
-    const {stopStart} = this.props;
-    const prodInfo = this.prodInfoStore.getState();
-    const stop = prodInfo.stops.filter(s => s.start === stopStart)[0];
-    this.setState({prodInfo, stop}, () => this.updateWindowTitle());
-  };
-
   private readonly handleScheduleChanged = (): void => {
-    this.setState({schedule: this.scheduleStore.getSchedule()});
+    const {stopStart, day} = this.props;
+    const schedule = this.scheduleStore.getSchedule();
+    if (!schedule) {
+      return;
+    }
+    const stops = getStopsForDay(schedule, day);
+    const stop = stops.filter(s => s.start === stopStart)[0];
+    this.setState({schedule, stop}, () => this.updateWindowTitle());
   };
 
   private updateWindowTitle(): void {

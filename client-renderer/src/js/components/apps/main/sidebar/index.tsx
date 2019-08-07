@@ -5,18 +5,15 @@ import {Herisson} from '@root/components/apps/main/sidebar/herisson';
 import {SidebarItem} from '@root/components/apps/main/sidebar/sidebar_item';
 import {FlexParent} from '@root/components/core/flex';
 import {bridge} from '@root/lib/bridge';
-import {getProductionDay} from '@root/lib/plan_prod';
 import {AppPage, appStore} from '@root/stores/app_store';
-import {prodHoursStore} from '@root/stores/data_store';
 import {theme} from '@root/theme';
 
-import {ClientAppType, ProdRange} from '@shared/models';
+import {ClientAppType} from '@shared/models';
 
 interface Props {}
 
 interface State {
   currentPage: AppPage;
-  prodRanges?: Map<string, ProdRange>;
 }
 
 const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
@@ -36,18 +33,15 @@ export class Sidebar extends React.Component<Props, State> {
 
   public componentDidMount(): void {
     appStore.addListener(this.handleStoreChanged);
-    prodHoursStore.addListener(this.handleStoreChanged);
   }
 
   public componentWillUnmount(): void {
     appStore.removeListener(this.handleStoreChanged);
-    prodHoursStore.removeListener(this.handleStoreChanged);
   }
 
   private readonly handleStoreChanged = (): void => {
     this.setState({
       currentPage: appStore.getState().currentPage,
-      prodRanges: prodHoursStore.getProdRanges(),
     });
   };
 
@@ -79,14 +73,7 @@ export class Sidebar extends React.Component<Props, State> {
               title={'Production'}
               isSelected={false}
               onClick={() => {
-                const {prodRanges} = this.state;
-                if (prodRanges) {
-                  bridge
-                    .openApp(ClientAppType.ProductionApp, {
-                      initialDay: getProductionDay(prodRanges),
-                    })
-                    .catch(console.error);
-                }
+                bridge.openApp(ClientAppType.ProductionApp).catch(console.error);
               }}
             />
           </SidebarItemContainer>

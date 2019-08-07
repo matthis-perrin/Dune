@@ -1,18 +1,12 @@
 import {memoize} from 'lodash-es';
+
 import {getWeekDay, dateAtHour} from '@shared/lib/time';
+import {capitalize, padNumber} from '@shared/lib/utils';
 
 const MONTHS_IN_YEAR = 12;
 const MS_IN_HOUR = 1000 * 60 * 60;
 const MS_IN_MINUTE = 1000 * 60;
 const MS_IN_SECONDS = 1000;
-
-export function padNumber(value: number, padding: number): string {
-  let valueStr = String(value);
-  while (valueStr.length < padding) {
-    valueStr = `0${valueStr}`;
-  }
-  return valueStr;
-}
 
 export function formatMonthCount(monthCount: number): string {
   if (monthCount < MONTHS_IN_YEAR) {
@@ -59,13 +53,6 @@ export function formatDuration(duration: number): string {
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
-export function capitalize(value: string): string {
-  if (value.length === 0) {
-    return '';
-  }
-  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-}
-
 const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 // Monday = 0
 export function getDayOfWeek(date: Date): number {
@@ -75,24 +62,6 @@ export function getDayOfWeek(date: Date): number {
 export function isWeekDay(date: Date): boolean {
   const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
   return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
-}
-
-export function startOfDay(date?: Date): Date {
-  const d = date ? new Date(date.getTime()) : new Date();
-  d.setHours(0);
-  d.setMinutes(0);
-  d.setSeconds(0);
-  d.setMilliseconds(0);
-  return d;
-}
-
-export function endOfDay(date?: Date): Date {
-  const d = date ? new Date(date.getTime()) : new Date();
-  d.setHours(24);
-  d.setMinutes(0);
-  d.setSeconds(0);
-  d.setMilliseconds(-1);
-  return d;
 }
 
 export function isSameDay(date1: Date, date2: Date): boolean {

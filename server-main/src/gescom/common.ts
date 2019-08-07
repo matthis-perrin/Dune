@@ -17,7 +17,7 @@ import {
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
 import {createMaintenancesTable} from '@shared/db/maintenances';
-import {createNonProdsTable} from '@shared/db/non_prod';
+import {createNonProdsTable} from '@shared/db/non_prods';
 import {createOperationsTable} from '@shared/db/operations';
 import {createPerfosTable} from '@shared/db/perfos';
 import {createPlansProductionTable} from '@shared/db/plan_production';

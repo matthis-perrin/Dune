@@ -6,10 +6,11 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
 import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
-import {isRoundHour, isHalfHour, padNumber, isSameDay, numberWithSeparator} from '@root/lib/utils';
+import {isRoundHour, isHalfHour, isSameDay, numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
+import {padNumber} from '@shared/lib/utils';
 import {
   Stock,
   ProdRange,
@@ -222,11 +223,20 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderMinuteDuration(duration: number): JSX.Element {
+    if (duration < 60 * 1000) {
+      const seconds = Math.round(duration / 1000);
+      return (
+        <React.Fragment>
+          <TimeValue>{seconds}</TimeValue>
+          <TimeLabel> s</TimeLabel>
+        </React.Fragment>
+      );
+    }
     const minutes = Math.round(duration / (60 * 1000));
     return (
       <React.Fragment>
-        <MinuteValue>{minutes}</MinuteValue>
-        <MinuteLabel> min</MinuteLabel>
+        <TimeValue>{minutes}</TimeValue>
+        <TimeLabel> min</TimeLabel>
       </React.Fragment>
     );
   }
@@ -388,11 +398,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const {schedule, day} = this.props;
     if (schedule) {
       const {lastSpeedTime} = schedule;
-      if (lastSpeedTime && isSameDay(new Date(day), new Date(lastSpeedTime.minute))) {
+      if (lastSpeedTime && isSameDay(new Date(day), new Date(lastSpeedTime.time))) {
         const left = paddingLeft;
         const right = paddingRight;
         const width = `calc(100% - ${left + right}px)`;
-        const top = this.getYPosForTime(lastSpeedTime.minute);
+        const top = this.getYPosForTime(lastSpeedTime.time);
         const height = 1;
         return (
           <CurrentTimeLine
@@ -454,8 +464,8 @@ const StopLabel = styled.span`
   border-radius: 4px;
 `;
 
-const MinuteValue = styled.div``;
-const MinuteLabel = styled.div`
+const TimeValue = styled.div``;
+const TimeLabel = styled.div`
   font-size: 11px;
   margin-inline-start: 2px;
 `;

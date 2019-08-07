@@ -4,10 +4,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {PlottableSpeedCSS} from '@root/components/charts/plottable_css';
-import {padNumber} from '@root/lib/utils';
 import {Palette} from '@root/theme';
 
-import {dateAtHour, roundToMiddleOfMinute} from '@shared/lib/time';
+import {dateAtHour} from '@shared/lib/time';
+import {padNumber} from '@shared/lib/utils';
 import {SpeedTime, ProdRange} from '@shared/models';
 
 interface SpeedChartProps {
@@ -24,6 +24,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
   private readonly chartRef = React.createRef<HTMLDivElement>();
   private plot: Plottable.Components.Table | undefined = undefined;
+  private lastData: Datum[] = [];
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
@@ -52,7 +53,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const {day, speeds, prodRange} = this.props;
 
     const speedMap = new Map<number, number | undefined>();
-    speeds.forEach(({minute, speed}) => speedMap.set(roundToMiddleOfMinute(minute), speed));
+    speeds.forEach(({time, speed}) => speedMap.set(time, speed));
 
     let rangeStart = dateAtHour(
       new Date(day),
@@ -65,18 +66,17 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     const firstSpeed = positiveSpeeds[0];
     const lastSpeed = positiveSpeeds[positiveSpeeds.length - 1];
-    if (firstSpeed && firstSpeed.minute < rangeStart) {
-      rangeStart = firstSpeed.minute;
+    if (firstSpeed && firstSpeed.time < rangeStart) {
+      rangeStart = firstSpeed.time;
     }
-    if (lastSpeed && lastSpeed.minute > rangeEnd) {
-      rangeEnd = lastSpeed.minute;
+    if (lastSpeed && lastSpeed.time > rangeEnd) {
+      rangeEnd = lastSpeed.time;
     }
-
-    rangeStart = roundToMiddleOfMinute(rangeStart) - 30 * 60 * 1000;
-    rangeEnd = roundToMiddleOfMinute(rangeEnd) + 30 * 60 * 1000;
 
     const data: Datum[] = [];
-    for (let time = rangeStart; time <= rangeEnd; time += 60 * 1000) {
+    // TODO - 5 * 1000 is coming from the Aggregator in the server-main.
+    // It should be extracted it in the shared constant file.
+    for (let time = rangeStart; time <= rangeEnd; time += 5 * 1000) {
       data.push([new Date(time), speedMap.get(time)]);
     }
     return data;
@@ -90,8 +90,14 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       return;
     }
 
-    // Scales
+    // Data
     const data = this.normalizeSpeeds();
+    if (isEqual(this.lastData, data)) {
+      return;
+    }
+    this.lastData = data;
+
+    // Scales
     const firstDate = data[0][0];
     const lastDate = data[data.length - 1][0];
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
@@ -138,6 +144,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       ],
     ]);
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
+    // tslint:disable-next-line:no-any
     (yAxis as any)._hasOverlapWithInterval = () => true;
 
     // Grid lines

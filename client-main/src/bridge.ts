@@ -9,54 +9,7 @@ import {prodHoursStore} from '@root/prod_hours_store';
 import {windowManager} from '@root/window_manager';
 
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
-import {
-  AddPlanBobine,
-  BridgeCommand,
-  ClearPlan,
-  CloseApp,
-  CloseAppOfType,
-  CreateNewPlanProduction,
-  GetAppInfo,
-  ListBobinesFilles,
-  ListBobinesMeres,
-  ListCadencier,
-  ListCliches,
-  ListOperations,
-  ListPerfos,
-  ListRefentes,
-  ListStocks,
-  OpenApp,
-  RemovePlanBobine,
-  SetPlanPapier,
-  SetPlanPerfo,
-  SetPlanPolypro,
-  SetPlanRefente,
-  ListCadencierForBobine,
-  ListBobinesQuantities,
-  SetPlanTourCount,
-  ListColors,
-  SaveToPDF,
-  OpenContextMenu,
-  ContextMenuClosed,
-  ContextMenuClicked,
-  DeletePlanProduction,
-  GetPlanProductionEngineInfo,
-  SaveNewPlanProduction,
-  UpdatePlanProduction,
-  UpdatePlanProductionInfo,
-  MovePlanProduction,
-  GetPlanProduction,
-  GetProdInfo,
-  ListUnplannedStops,
-  ListCleanings,
-  UpdateStop,
-  ListProdHours,
-  GetScheduleInfo,
-  CreateStop,
-  MergeStops,
-  CreateMaintenance,
-  CreateNonProd,
-} from '@shared/bridge/commands';
+import * as BridgeCommands from '@shared/bridge/commands';
 import {listBobinesFilles} from '@shared/db/bobines_filles';
 import {listBobinesMeres} from '@shared/db/bobines_meres';
 import {listBobinesQuantities} from '@shared/db/bobines_quantities';
@@ -64,7 +17,7 @@ import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
 import {createMaintenance, getMaintenancesBetween} from '@shared/db/maintenances';
-import {createNonProd, getNonProdsBetween} from '@shared/db/non_prod';
+import {getNonProdsBetween} from '@shared/db/non_prods';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
@@ -78,9 +31,15 @@ import {
   getStartedPlanProdsInRange,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
-import {getLastUsableSpeedTime, getSpeedTimesBetween} from '@shared/db/speed_times';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
-import {getSpeedStopBetween, updateStopInfo, createStop, mergeStops} from '@shared/db/speed_stops';
+import {
+  getSpeedStopBetween,
+  updateStopInfo,
+  createStop,
+  mergeStops,
+  getLastPlanProdChangeBefore,
+} from '@shared/db/speed_stops';
+import {getSpeedTimesBetween, getLastSpeedTime} from '@shared/db/speed_times';
 import {listStocks} from '@shared/db/stocks';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
 import {
@@ -90,12 +49,13 @@ import {
   StopInfo,
   StopType,
   ScheduleInfo,
+  ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
-  command: BridgeCommand,
+  command: BridgeCommands.BridgeCommand,
   // tslint:disable-next-line:no-any
   params: any
   // tslint:disable-next-line:no-any
@@ -105,59 +65,56 @@ export async function handleCommand(
   }
 
   // Listing commands
-  if (command === ListBobinesFilles) {
+  if (command === BridgeCommands.ListBobinesFilles) {
     const {localUpdate} = asMap(params);
     return {data: await listBobinesFilles(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
-  if (command === ListBobinesMeres) {
+  if (command === BridgeCommands.ListBobinesMeres) {
     const {localUpdate} = asMap(params);
     return {data: await listBobinesMeres(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
-  if (command === ListCliches) {
+  if (command === BridgeCommands.ListCliches) {
     const {localUpdate} = asMap(params);
     return {data: await listCliches(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
-  if (command === ListStocks) {
+  if (command === BridgeCommands.ListStocks) {
     const {localUpdate} = asMap(params);
     return {data: await listStocks(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
   }
-  if (command === ListPerfos) {
+  if (command === BridgeCommands.ListPerfos) {
     const {localUpdate} = asMap(params);
     return {data: await listPerfos(SQLITE_DB.Params, asNumber(localUpdate, 0))};
   }
-  if (command === ListRefentes) {
+  if (command === BridgeCommands.ListRefentes) {
     const {localUpdate} = asMap(params);
     return {data: await listRefentes(SQLITE_DB.Params, asNumber(localUpdate, 0))};
   }
-  if (command === ListCadencier) {
+  if (command === BridgeCommands.ListCadencier) {
     const {localUpdate} = asMap(params);
     return {data: cadencier.list(asNumber(localUpdate, 0))};
   }
-  if (command === ListCadencierForBobine) {
+  if (command === BridgeCommands.ListCadencierForBobine) {
     const {bobineRef} = asMap(params);
     return cadencier.listAllForBobine(asString(bobineRef, ''));
   }
-  if (command === ListBobinesQuantities) {
+  if (command === BridgeCommands.ListBobinesQuantities) {
     return listBobinesQuantities(SQLITE_DB.Params);
   }
-  if (command === ListColors) {
+  if (command === BridgeCommands.ListColors) {
     return listColors(SQLITE_DB.Params);
   }
-  if (command === ListOperations) {
+  if (command === BridgeCommands.ListOperations) {
     return listOperations(SQLITE_DB.Params);
   }
-  if (command === ListUnplannedStops) {
+  if (command === BridgeCommands.ListUnplannedStops) {
     return listUnplannedStop(SQLITE_DB.Params);
   }
-  if (command === ListCleanings) {
+  if (command === BridgeCommands.ListCleanings) {
     return listCleanings(SQLITE_DB.Params);
-  }
-  if (command === ListProdHours) {
-    return prodHoursStore.getProdHours();
   }
 
   // Window Management
-  if (command === GetAppInfo) {
+  if (command === BridgeCommands.GetAppInfo) {
     debugLog();
     const {windowId} = asMap(params);
     const appInfo = windowManager.getAppInfo(asString(windowId, ''));
@@ -166,43 +123,43 @@ export async function handleCommand(
     }
     return Promise.resolve(appInfo);
   }
-  if (command === OpenApp) {
+  if (command === BridgeCommands.OpenApp) {
     debugLog();
     const {type, data} = asMap(params);
     const appType = asString(type, '') as ClientAppType;
     return windowManager.openWindow({type: appType, data});
   }
-  if (command === CloseApp) {
+  if (command === BridgeCommands.CloseApp) {
     debugLog();
     const {windowId} = asMap(params);
     windowManager.closeWindow(asString(windowId, ''));
     return Promise.resolve();
   }
-  if (command === CloseAppOfType) {
+  if (command === BridgeCommands.CloseAppOfType) {
     debugLog();
     const {type} = asMap(params);
     windowManager.closeWindowOfType(asString(type, '') as ClientAppType);
     return Promise.resolve();
   }
-  if (command === SaveToPDF) {
+  if (command === BridgeCommands.SaveToPDF) {
     debugLog();
     const {windowId, title} = asMap(params);
     return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
   }
 
   // Plan Production
-  if (command === CreateNewPlanProduction) {
+  if (command === BridgeCommands.CreateNewPlanProduction) {
     debugLog();
     const {index} = asMap(params);
     const id = await planProductionStore.createNewPlan(asNumber(index, 0));
     return {id};
   }
-  if (command === DeletePlanProduction) {
+  if (command === BridgeCommands.DeletePlanProduction) {
     debugLog();
     const {index} = asMap(params);
     await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
   }
-  if (command === MovePlanProduction) {
+  if (command === BridgeCommands.MovePlanProduction) {
     debugLog();
     const {id, fromIndex, toIndex} = asMap(params);
     await movePlanProduction(
@@ -212,7 +169,7 @@ export async function handleCommand(
       asNumber(toIndex, 0)
     );
   }
-  if (command === SaveNewPlanProduction) {
+  if (command === BridgeCommands.SaveNewPlanProduction) {
     debugLog();
     const {id, index, operationAtStartOfDay, productionAtStartOfDay, data} = asMap(params);
     return createPlanProduction(
@@ -224,18 +181,18 @@ export async function handleCommand(
       asString(data, '{}')
     );
   }
-  if (command === UpdatePlanProduction) {
+  if (command === BridgeCommands.UpdatePlanProduction) {
     debugLog();
     const {id, data} = asMap(params);
     return updatePlanProductionData(SQLITE_DB.Prod, asNumber(id, 0), asString(data, '{}'));
   }
-  if (command === UpdatePlanProductionInfo) {
+  if (command === BridgeCommands.UpdatePlanProductionInfo) {
     debugLog();
     const {id, info} = asMap(params);
     return updatePlanProductionInfo(SQLITE_DB.Prod, asNumber(id, 0), info as PlanProductionInfo);
   }
 
-  if (command === GetPlanProductionEngineInfo) {
+  if (command === BridgeCommands.GetPlanProductionEngineInfo) {
     debugLog();
     const {id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -244,7 +201,7 @@ export async function handleCommand(
     }
     return Promise.resolve({...engine.getPlanProductionState(), ...engine.getPlanProductionInfo()});
   }
-  if (command === GetPlanProduction) {
+  if (command === BridgeCommands.GetPlanProduction) {
     debugLog();
     const {id} = asMap(params);
     const planProd = await getPlanProd(SQLITE_DB.Prod, asNumber(id, 0));
@@ -254,7 +211,7 @@ export async function handleCommand(
     return planProd;
   }
 
-  if (command === SetPlanPerfo) {
+  if (command === BridgeCommands.SetPlanPerfo) {
     debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -264,7 +221,7 @@ export async function handleCommand(
     engine.setPerfo(asString(ref, ''));
     return Promise.resolve();
   }
-  if (command === SetPlanTourCount) {
+  if (command === BridgeCommands.SetPlanTourCount) {
     debugLog();
     const {tourCount, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -274,7 +231,7 @@ export async function handleCommand(
     engine.setTourCount(asNumber(tourCount, undefined));
     return Promise.resolve();
   }
-  if (command === SetPlanRefente) {
+  if (command === BridgeCommands.SetPlanRefente) {
     debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -284,7 +241,7 @@ export async function handleCommand(
     engine.setRefente(asString(ref, ''));
     return Promise.resolve();
   }
-  if (command === SetPlanPapier) {
+  if (command === BridgeCommands.SetPlanPapier) {
     debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -294,7 +251,7 @@ export async function handleCommand(
     engine.setPapier(asString(ref, ''));
     return Promise.resolve();
   }
-  if (command === SetPlanPolypro) {
+  if (command === BridgeCommands.SetPlanPolypro) {
     debugLog();
     const {ref, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -304,7 +261,7 @@ export async function handleCommand(
     engine.setPolypro(asString(ref, ''));
     return Promise.resolve();
   }
-  if (command === AddPlanBobine) {
+  if (command === BridgeCommands.AddPlanBobine) {
     debugLog();
     const {ref, pose, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -314,7 +271,7 @@ export async function handleCommand(
     engine.addBobine(asString(ref, ''), asNumber(pose, 0));
     return Promise.resolve();
   }
-  if (command === RemovePlanBobine) {
+  if (command === BridgeCommands.RemovePlanBobine) {
     debugLog();
     const {ref, pose, id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -324,7 +281,7 @@ export async function handleCommand(
     engine.removeBobine(asString(ref, ''), asNumber(pose, undefined));
     return Promise.resolve();
   }
-  if (command === ClearPlan) {
+  if (command === BridgeCommands.ClearPlan) {
     debugLog();
     const {id} = asMap(params);
     const engine = planProductionStore.getEngine(asNumber(id, 0));
@@ -335,37 +292,51 @@ export async function handleCommand(
     return Promise.resolve();
   }
 
-  if (command === OpenContextMenu) {
+  if (command === BridgeCommands.OpenContextMenu) {
     const {menuId, menuForBridge} = asMap(params);
     openContextMenu(
       browserWindow,
       (menuForBridge as unknown) as ContextMenuForBridge[],
-      () => sendBridgeEvent(browserWindow, ContextMenuClosed, {menuId}),
-      id => sendBridgeEvent(browserWindow, ContextMenuClicked, {menuId, menuItemId: id})
+      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),
+      id =>
+        sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClicked, {menuId, menuItemId: id})
     );
   }
 
-  if (command === GetScheduleInfo) {
-    const {start, end} = asMap(params);
-    const rangeStart = asNumber(start, 0);
-    const rangeEnd = asNumber(end, 0);
-    const [
-      stops,
-      prods,
-      notStartedPlans,
-      startedPlans,
-      maintenances,
-      nonProds,
-      lastSpeedTime,
-    ] = await Promise.all([
-      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getNotStartedPlanProds(SQLITE_DB.Prod),
-      getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getLastUsableSpeedTime(SQLITE_DB.Prod),
+  if (command === BridgeCommands.GetScheduleInfo) {
+    const range = asMap(params);
+    let rangeStart = asNumber(range.start, undefined);
+    let rangeEnd = asNumber(range.end, undefined);
+
+    const [lastPlanProdChange, lastSpeedTime] = await Promise.all([
+      getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart),
+      getLastSpeedTime(SQLITE_DB.Prod, true),
     ]);
+
+    rangeStart =
+      rangeStart && lastPlanProdChange
+        ? Math.min(lastPlanProdChange.start, rangeStart)
+        : rangeStart
+        ? rangeStart
+        : lastPlanProdChange
+        ? lastPlanProdChange.start
+        : 0;
+    if (lastPlanProdChange) {
+      rangeStart = Math.min(lastPlanProdChange.start, rangeStart);
+    }
+    rangeEnd = rangeEnd || (lastSpeedTime ? lastSpeedTime.time : Date.now() * 2);
+
+    const needNotStartedPlanProd = !lastSpeedTime || rangeEnd > lastSpeedTime.time;
+    const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await Promise.all(
+      [
+        getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+        getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+        needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
+        getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
+        getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+        getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      ]
+    );
     const res: ScheduleInfo = {
       stops,
       prods,
@@ -373,29 +344,28 @@ export async function handleCommand(
       startedPlans,
       maintenances,
       nonProds,
+      prodHours: prodHoursStore.getProdHours(),
       lastSpeedTime,
     };
     return res;
   }
 
-  if (command === GetProdInfo) {
+  if (command === BridgeCommands.GetProdInfo) {
     const {start, end} = asMap(params);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
-    const [stops, minuteSpeeds] = await Promise.all([
-      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+    const [speedTimes] = await Promise.all([
       getSpeedTimesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
     ]);
-    return {stops, minuteSpeeds};
+    const res: ProdInfo = {speedTimes};
+    return res;
   }
 
-  if (command === UpdateStop) {
+  if (command === BridgeCommands.UpdateStop) {
     debugLog();
     const {start, type, info, planProdId, maintenanceId} = asMap(params);
-    const prodRanges = prodHoursStore.getProdRanges();
     return updateStopInfo(
       SQLITE_DB.Prod,
-      prodRanges,
       asNumber(start, 0),
       asString(type, '') as StopType,
       asMap(info) as StopInfo,
@@ -403,12 +373,12 @@ export async function handleCommand(
       asNumber(maintenanceId, undefined)
     );
   }
-  if (command === CreateStop) {
+  if (command === BridgeCommands.CreateStop) {
     debugLog();
     const {stopStart, stopEnd} = asMap(params);
     return createStop(SQLITE_DB.Prod, asNumber(stopStart, 0), asNumber(stopEnd, 0));
   }
-  if (command === MergeStops) {
+  if (command === BridgeCommands.MergeStops) {
     debugLog();
     const {start1, start2, mergedInfo, newEnd} = asMap(params);
     return mergeStops(
@@ -420,7 +390,7 @@ export async function handleCommand(
     );
   }
 
-  if (command === CreateMaintenance) {
+  if (command === BridgeCommands.CreateMaintenance) {
     debugLog();
     const {start, end, title} = asMap(params);
     return createMaintenance(
@@ -430,7 +400,7 @@ export async function handleCommand(
       asString(title, '')
     );
   }
-  if (command === CreateNonProd) {
+  if (command === BridgeCommands.CreateNonProd) {
     debugLog();
     const {start, end, title} = asMap(params);
     return createMaintenance(

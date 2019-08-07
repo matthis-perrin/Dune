@@ -27,7 +27,6 @@ import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle, PLAN_PROD_NUMBER_DIGIT_COUNT} from '@root/lib/plan_prod';
 import {getPreviousSchedule} from '@root/lib/schedule_utils';
-import {padNumber} from '@root/lib/utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
@@ -36,6 +35,7 @@ import {theme} from '@root/theme';
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {getPoseSize} from '@shared/lib/cliches';
 import {EncrierColor} from '@shared/lib/encrier';
+import {padNumber} from '@shared/lib/utils';
 import {
   PlanProductionState,
   ClientAppType,
@@ -93,7 +93,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment: '',
     };
     const {start, end} = props;
-    this.scheduleStore = new ScheduleStore(start, end);
+    this.scheduleStore = new ScheduleStore({start, end});
   }
 
   public componentDidMount(): void {

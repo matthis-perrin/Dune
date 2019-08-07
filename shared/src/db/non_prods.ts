@@ -54,3 +54,9 @@ export async function deleteNonProd(db: knex, id: number): Promise<void> {
     .where(NonProdColumns.ID, id)
     .del();
 }
+
+export async function listNonProds(db: knex): Promise<NonProd[]> {
+  return db(NON_PROD_TABLE_NAME)
+    .select()
+    .map(mapLineToNonProd);
+}

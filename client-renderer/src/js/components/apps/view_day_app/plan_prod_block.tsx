@@ -8,9 +8,10 @@ import {
   getMetrageLineaire,
   getBobineMereConsumption,
 } from '@root/lib/plan_prod';
-import {padNumber, numberWithSeparator, roundedToDigit, formatProdTime} from '@root/lib/utils';
+import {numberWithSeparator, roundedToDigit, formatProdTime} from '@root/lib/utils';
 import {FontWeight} from '@root/theme';
 
+import {padNumber} from '@shared/lib/utils';
 import {PlanProdSchedule} from '@shared/models';
 
 interface PlanProdBlockProps {
