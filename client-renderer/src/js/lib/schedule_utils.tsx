@@ -174,21 +174,6 @@ function getAllStops(schedule: Schedule): Stop[] {
   return schedule.plans.reduce((stops, s) => stops.concat(getPlanStops(s)), [] as Stop[]);
 }
 
-export function getStopsForDay(schedule: Schedule, day: number): Stop[] {
-  return schedule.plans.reduce(
-    (stops, plan) => {
-      let planStops: Stop[] = [];
-      plan.schedulePerDay.forEach((s, scheduleDay) => {
-        if (scheduleDay === day) {
-          planStops = planStops.concat(s.stops);
-        }
-      });
-      return stops.concat(planStops);
-    },
-    [] as Stop[]
-  );
-}
-
 export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefined {
   const allStops = getAllStops(schedule);
   return allStops.filter(s => s.start < stop.start).sort((s1, s2) => s2.start - s1.start)[0];

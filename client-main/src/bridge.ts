@@ -52,6 +52,7 @@ import {
   ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
+import {startOfDay, endOfDay} from '@shared/lib/utils';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -308,31 +309,31 @@ export async function handleCommand(
     let rangeStart = asNumber(asMap(range).start, undefined);
     let rangeEnd = asNumber(asMap(range).end, undefined);
 
-    const [lastPlanProdChange, lastSpeedTime] = await Promise.all([
-      getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart),
-      getLastSpeedTime(SQLITE_DB.Prod, true),
-    ]);
-
-    console.log(rangeStart, '-', rangeEnd);
-
-    rangeStart =
-      rangeStart && lastPlanProdChange
-        ? Math.min(lastPlanProdChange.start, rangeStart)
-        : rangeStart
-        ? rangeStart
-        : lastPlanProdChange
-        ? lastPlanProdChange.start
-        : 0;
-    if (lastPlanProdChange) {
-      rangeStart = Math.min(lastPlanProdChange.start, rangeStart);
+    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod, true);
+    if (rangeStart === undefined) {
+      if (!lastSpeedTime) {
+        rangeStart = 0;
+      } else {
+        rangeStart = startOfDay(new Date(lastSpeedTime.time)).getTime();
+      }
     }
-    rangeEnd = rangeEnd || (lastSpeedTime ? lastSpeedTime.time + 1 : Date.now() * 2);
 
-    const needNotStartedPlanProd = !lastSpeedTime || rangeEnd > lastSpeedTime.time;
-    if (needNotStartedPlanProd) {
-      rangeStart = Math.min(rangeStart, lastPlanProdChange ? lastPlanProdChange.start : 0);
-      rangeEnd = Date.now() * 2;
+    const lastPlanProdChange = await getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart);
+    if (!lastPlanProdChange) {
+      rangeStart = 0;
+    } else {
+      rangeStart = lastPlanProdChange.start;
     }
+
+    if (rangeEnd === undefined) {
+      if (lastSpeedTime === undefined) {
+        rangeEnd = Date.now() * 2;
+      } else {
+        rangeEnd = endOfDay(new Date(lastSpeedTime.time)).getTime();
+      }
+    }
+
+    const needNotStartedPlanProd = lastSpeedTime === undefined || rangeEnd > lastSpeedTime.time;
 
     console.log(rangeStart, '-', rangeEnd);
     console.log(new Date(rangeStart), '-', new Date(rangeEnd));

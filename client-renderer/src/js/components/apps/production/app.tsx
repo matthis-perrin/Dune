@@ -9,7 +9,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {getPlanProd, getCurrentPlanSchedule, getStopsForDay} from '@root/lib/schedule_utils';
+import {getPlanProd, getCurrentPlanSchedule} from '@root/lib/schedule_utils';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
@@ -94,7 +94,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         this.prodInfoStore = new ProdInfoStore(dayTs);
         this.prodInfoStore.addListener(this.handleProdInfoChanged);
       }
-      const stops = getStopsForDay(schedule, dayTs);
+      const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), currentDay));
       stops.forEach(s => {
         const hash = `${dayTs}-${s.start}`;
         if (s.stopType === undefined && !this.openedStops.has(hash)) {
@@ -186,11 +186,12 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       return <LoadingIndicator size="large" />;
     }
 
-    const stops = getStopsForDay(schedule, currentDay.getTime());
-    const orderedStops = stops
+    const stops = schedule.stops
       .filter(s => s.stopType !== StopType.NotProdHours)
+      .filter(s => isSameDay(new Date(s.start), currentDay))
       .sort((s1, s2) => s1.start - s2.start);
-    return <StopList lastMinute={lastMinute} stops={orderedStops} />;
+
+    return <StopList lastMinute={lastMinute} stops={stops} />;
   }
 
   private renderCurrentPlan(): JSX.Element {

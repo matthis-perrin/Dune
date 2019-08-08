@@ -142,16 +142,14 @@ export async function getSpeedStopBetween(db: knex, start: number, end: number):
 
 export async function getLastPlanProdChangeBefore(
   db: knex,
-  start?: number
+  start: number
 ): Promise<Stop | undefined> {
   let query = db(SPEED_STOPS_TABLE_NAME)
     .select()
     .where(SpeedStopsColumn.StopType, '=', StopType.ChangePlanProd)
+    .andWhere(SpeedStopsColumn.Start, '<=', start)
     .orderBy(SpeedStopsColumn.Start, 'desc')
     .limit(1);
-  if (start !== undefined) {
-    query = query.where(SpeedStopsColumn.Start, '<=', start);
-  }
   const res = asArray(await query);
   if (res.length === 0) {
     return undefined;

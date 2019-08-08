@@ -275,6 +275,7 @@ export interface Schedule {
   maintenances: Maintenance[];
   nonProds: NonProd[];
   prodHours: Map<string, ProdRange>;
+  stops: Stop[];
 }
 
 export interface Maintenance {

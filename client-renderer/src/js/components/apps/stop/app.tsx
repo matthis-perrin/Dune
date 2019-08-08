@@ -2,8 +2,7 @@ import * as React from 'react';
 
 import {StopForm} from '@root/components/apps/stop/stop_form';
 import {LoadingScreen} from '@root/components/core/loading_screen';
-import {getStopsForDay} from '@root/lib/schedule_utils';
-import {formatDuration} from '@root/lib/utils';
+import {formatDuration, isSameDay} from '@root/lib/utils';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
 import {startOfDay, endOfDay} from '@shared/lib/utils';
@@ -30,6 +29,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
     const start = startOfDay(date).getTime();
     const end = endOfDay(date).getTime();
     this.scheduleStore = new ScheduleStore({start, end});
+    this.state = {};
     this.updateWindowTitle();
   }
 
@@ -47,7 +47,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
     if (!schedule) {
       return;
     }
-    const stops = getStopsForDay(schedule, day);
+    const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), new Date(day)));
     const stop = stops.filter(s => s.start === stopStart)[0];
     this.setState({schedule, stop}, () => this.updateWindowTitle());
   };

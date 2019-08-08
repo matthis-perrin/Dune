@@ -8,7 +8,7 @@ import {isSameDay} from '@root/lib/utils';
 
 import {getCurrentNonProd, getNextNonProd} from '@shared/lib/prod_hours';
 import {dateAtHour, getWeekDay} from '@shared/lib/time';
-import {endOfDay, startOfDay} from '@shared/lib/utils';
+import {endOfDay} from '@shared/lib/utils';
 import {
   Operation,
   OperationConstraint,
@@ -145,14 +145,6 @@ function getEventDuration(event: AutomateEvent, currentTime: number): number {
     return event.end - event.start;
   }
   return currentTime - event.start;
-}
-
-function isOperationStop(stop: Stop): boolean {
-  return (
-    stop.stopType === StopType.ChangePlanProd ||
-    stop.stopType === StopType.ReprisePlanProd ||
-    stop.stopType === StopType.ReglagesAdditionel
-  );
 }
 
 function isEndOfDayStop(stop: Stop): boolean {
@@ -300,30 +292,6 @@ function getCurrentMaintenance(time: number, maintenances: Maintenance[]): Maint
   )[0];
 }
 
-function shouldCreateRestartProdStop(
-  currentSchedules: Map<number, PlanProdSchedule>,
-  currentTime: number
-): boolean {
-  const day = startOfDay(new Date(currentTime)).getTime();
-  const schedule = currentSchedules.get(day);
-  if (schedule === undefined) {
-    return true;
-  }
-  if (schedule.prods.length > 0) {
-    return false;
-  }
-  if (
-    schedule.stops
-      .concat(schedule.plannedStops)
-      .filter(
-        s => s.stopType === StopType.ChangePlanProd || s.stopType === StopType.ReprisePlanProd
-      ).length > 0
-  ) {
-    return false;
-  }
-  return true;
-}
-
 function getOrCreateScheduleForTime(
   time: number,
   planProd: PlanProduction,
@@ -439,10 +407,15 @@ function generatePlannedEventsForStopLeft(
 
   // Special case, if we are trying to do a ChangePlanProd and that there is already
   // one for that plan, the stop becomes a ReglagesAdditionel.
+  // Unless that event is the one just before, in that case we just leave it as is.
   if (stop.stopType === StopType.ChangePlanProd) {
     const allStops = getAllStopsOrdered(currentSchedules);
     const changePlanProdStops = allStops.filter(s => s.stopType === StopType.ChangePlanProd);
-    if (changePlanProdStops.length > 0) {
+    if (
+      changePlanProdStops.length > 0 &&
+      changePlanProdStops[0].end !== undefined &&
+      changePlanProdStops[0].end < current
+    ) {
       stop = {...stop, stopType: StopType.ReglagesAdditionel};
     }
   }
@@ -621,10 +594,7 @@ function finishPlanProd(
         lastStopEventType === StopType.ChangePlanProd ||
         lastStopEventType === StopType.ReglagesAdditionel
       ) {
-        stopLeft =
-          operationsTime -
-          getTotalOperationTimeDone(currentSchedules) -
-          (endTime - lastStopEvent.start);
+        stopLeft = operationsTime - getTotalOperationTimeDone(currentSchedules);
       } else if (lastStopEventType === StopType.ReprisePlanProd) {
         stopLeft = ADDITIONAL_TIME_TO_RESTART_PROD - (endTime - lastStopEvent.start);
       } else if (isEndOfDayStop(lastStopEvent)) {
@@ -656,6 +626,7 @@ function finishPlanProd(
           );
         }
       }
+      lastStopEvent.end = endTime;
 
       if (lastStopEventType !== undefined && stopLeft > 0) {
         generatePlannedEventsForStopLeft(
@@ -672,13 +643,12 @@ function finishPlanProd(
         );
       }
 
-      lastStopEvent.end = endTime;
       if (lastStopEventType === StopType.EndOfDayEndProd) {
         return currentSchedules;
       }
       // If we haven't finished the operation time and haven't started the prod, we generate
       // ReglagesAdditionel stop to finish it.
-      const operationsLeft = getTotalOperationTimeDoneAndPlanned(currentSchedules) - operationsTime;
+      const operationsLeft = operationsTime - getTotalOperationTimeDoneAndPlanned(currentSchedules);
       const totalProdTimeDoneAndPlanned = getTotalProdTimeDoneAndPlanned(currentSchedules);
       if (operationsLeft > 0 && totalProdTimeDoneAndPlanned <= 0) {
         generatePlannedEventsForStopLeft(
@@ -689,11 +659,25 @@ function finishPlanProd(
             planProdId: planProd.id,
             stopType: StopType.ReglagesAdditionel,
           },
-          endTime,
+          getStartTime(currentSchedules, previousPlan, supportData),
           planProd,
           supportData
         );
       }
+    }
+
+    // Finish the last prod if still in progress
+    const lastProdEvent = getLastEvent(lastSchedule.prods);
+    if (lastProdEvent !== undefined && lastProdEvent.end === undefined) {
+      const endTime = getStartTime(currentSchedules, previousPlan, supportData);
+      const prodDuration = endTime - lastProdEvent.start;
+      lastProdEvent.end = endTime;
+      lastSchedule.doneProdMs += prodDuration;
+      lastSchedule.doneProdMeters += productionTimeToMeters(
+        prodDuration,
+        lastProdEvent.avgSpeed || 0,
+        false
+      );
     }
   }
 
@@ -737,7 +721,7 @@ function schedulePlanProd(
       if (prodEvent.end !== undefined) {
         const prodTime = getEventDuration(prodEvent, supportData.currentTime);
         const prodMeters = computeMetrage(prodTime, prodEvent.avgSpeed || 0);
-        scheduleForEvent.doneOperationsMs += prodTime;
+        scheduleForEvent.doneProdMs += prodTime;
         scheduleForEvent.doneProdMeters += prodMeters;
       }
       scheduleForEvent.prods.push(prodEvent);
@@ -746,7 +730,7 @@ function schedulePlanProd(
       if (
         stopEvent.stopType &&
         (stopEvent.stopType === StopType.ChangePlanProd ||
-          stopEvent.stopType === StopType.ReprisePlanProd)
+          stopEvent.stopType === StopType.ReglagesAdditionel)
       ) {
         scheduleForEvent.doneOperationsMs += getEventDuration(stopEvent, supportData.currentTime);
       }
@@ -859,6 +843,7 @@ export function createSchedule(
 ): Schedule {
   // Remove startedPlans from the notStartedPlans array (happens when a plan is in progress)
   const allPlans = [...startedPlans, ...notStartedPlans];
+  const originalStops = stops.map(s => ({...s}));
 
   const prodsById = new Map<number, Prod[]>();
   const unassignedProds: Prod[] = [];
@@ -958,5 +943,6 @@ export function createSchedule(
     maintenances,
     nonProds,
     prodHours: prodRanges,
+    stops: originalStops,
   };
 }
