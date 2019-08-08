@@ -40,7 +40,7 @@ export async function getLastSpeedTime(
     .orderBy(SpeedTimesColumn.Time, 'desc')
     .limit(1);
   if (!allowNull) {
-    query.whereNotNull(SpeedTimesColumn.Speed);
+    query = query.whereNotNull(SpeedTimesColumn.Speed);
   }
   const res = asArray(await query);
   if (res.length === 0) {
@@ -50,10 +50,12 @@ export async function getLastSpeedTime(
 }
 
 export async function getFirstSpeedTime(db: knex): Promise<SpeedTime | undefined> {
-  const res = await db(SPEED_TIMES_TABLE_NAME)
-    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
-    .orderBy(SpeedTimesColumn.Time, 'asc')
-    .limit(1);
+  const res = asArray(
+    await db(SPEED_TIMES_TABLE_NAME)
+      .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
+      .orderBy(SpeedTimesColumn.Time, 'asc')
+      .limit(1)
+  );
   if (res.length === 0) {
     return undefined;
   }

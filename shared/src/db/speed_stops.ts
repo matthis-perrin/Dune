@@ -146,6 +146,7 @@ export async function getLastPlanProdChangeBefore(
 ): Promise<Stop | undefined> {
   let query = db(SPEED_STOPS_TABLE_NAME)
     .select()
+    .where(SpeedStopsColumn.StopType, '=', StopType.ChangePlanProd)
     .orderBy(SpeedStopsColumn.Start, 'desc')
     .limit(1);
   if (start !== undefined) {
@@ -173,7 +174,7 @@ async function getStop(db: knex, start: number): Promise<Stop | undefined> {
   return lineAsStop(asArray(res)[0]);
 }
 
-async function getNextEndOfProdStop(db: knex, start: number): Promise<Stop | undefined> {
+async function getNextChangePlanProdStop(db: knex, start: number): Promise<Stop | undefined> {
   const res = asArray(
     await db(SPEED_STOPS_TABLE_NAME)
       .select()
@@ -211,9 +212,8 @@ export async function updateFollowingEventsOfPlanProd(
   start: number,
   newPlanId: number
 ): Promise<void> {
-  // Update all the stop and prods that happens after this stop until the next stop
-  // that is an end of prod.
-  const nextEndOfProdStop = await getNextEndOfProdStop(db, start);
+  // Update all the stop and prods that happens after this stop until the next plan prod
+  const nextEndOfProdStop = await getNextChangePlanProdStop(db, start);
   const stopsUpdateQuery = db(SPEED_STOPS_TABLE_NAME).where(SpeedStopsColumn.Start, '>=', start);
   const prodsUpdateQuery = db(SPEED_PRODS_TABLE_NAME).where(SpeedProdsColumn.Start, '>=', start);
   if (nextEndOfProdStop) {
@@ -280,7 +280,9 @@ export async function updateStopInfo(
   const fields = {
     [SpeedStopsColumn.StopType]: type,
     [SpeedStopsColumn.StopInfo]: JSON.stringify(info),
+    // tslint:disable-next-line:no-null-keyword
     [SpeedStopsColumn.PlanProdId]: newPlanId === undefined ? null : newPlanId,
+    // tslint:disable-next-line:no-null-keyword
     [SpeedStopsColumn.MaintenanceId]: maintenanceId === undefined ? null : maintenanceId,
   };
 
@@ -340,6 +342,7 @@ export async function mergeStops(
           tx(SPEED_STOPS_TABLE_NAME)
             .where(SpeedStopsColumn.Start, start1)
             .update({
+              // tslint:disable-next-line:no-null-keyword
               [SpeedStopsColumn.End]: newEnd === undefined ? null : newEnd,
               [SpeedStopsColumn.StopInfo]: JSON.stringify(mergedInfo),
             })

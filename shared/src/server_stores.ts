@@ -1,8 +1,8 @@
 import knex from 'knex';
 
+import {listNonProds} from '@shared/db/non_prods';
 import {listProdHours} from '@shared/db/prod_hours';
 import {ProdRange, ProdHours, NonProd} from '@shared/models';
-import {listNonProds} from './db/non_prods';
 
 export class ProdHoursStore {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;

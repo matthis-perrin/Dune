@@ -444,6 +444,8 @@ export enum StopType {
   Maintenance = 'Maintenance',
   Unplanned = 'Unplanned',
   NotProdHours = 'NotProdHours',
+  OperationPinned = 'OperationPinned',
+  ProductionPinned = 'ProductionPinned',
 }
 
 export interface ContextMenuForBridge {

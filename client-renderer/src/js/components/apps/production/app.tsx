@@ -182,7 +182,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     const currentDay = this.getCurrentDay();
     const lastMinute =
       (schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.time) || Date.now();
-    if (lastMinute === undefined || schedule === undefined || currentDay === undefined) {
+    if (schedule === undefined || currentDay === undefined) {
       return <LoadingIndicator size="large" />;
     }
 

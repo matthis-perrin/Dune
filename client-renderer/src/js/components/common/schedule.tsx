@@ -31,6 +31,7 @@ interface ScheduleViewProps {
 }
 
 const PLANNED_EVENT_OPACITY = 0.75;
+const HALF_HOUR_MS = 1800000;
 
 export class ScheduleView extends React.Component<ScheduleViewProps> {
   public static displayName = 'ScheduleView';
@@ -127,7 +128,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           />
         );
       }
-      current += 30 * 60 * 1000;
+      current += HALF_HOUR_MS;
     }
 
     return (
@@ -160,7 +161,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const top = this.getYPosForTime(start.getTime());
     const bottom = this.getYPosForTime(end.getTime());
     const height = bottom - top;
-    // tslint:disable:no-magic-number
+    // tslint:disable:no-magic-numbers
     if (height >= 60) {
       return {
         fontSize: 19,
@@ -181,31 +182,31 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       };
     }
     return {display: 'none'};
-    // tslint:enable:no-magic-number
+    // tslint:enable:no-magic-numbers
   }
 
   private getTitleForHeight(schedule: PlanProdSchedule, height: number): JSX.Element {
     const id = schedule.planProd.id;
     const showMetrage = schedule.status !== PlanProductionStatus.PLANNED;
-    // tslint:disable:no-magic-number
     let title = <React.Fragment />;
     const metrage = (
       <PlanTitleMetrage>{`${numberWithSeparator(
         Math.round(schedule.doneProdMeters)
       )} m`}</PlanTitleMetrage>
     );
+    // tslint:disable:no-magic-numbers
     if (height >= 180) {
       title = <PlanTitleId>{getPlanProdTitle(id)}</PlanTitleId>;
     } else if (height >= 50) {
       title = <PlanTitleId>{getShortPlanProdTitle(id)}</PlanTitleId>;
     }
+    // tslint:enable:no-magic-numbers
     return (
       <React.Fragment>
         {title}
         {showMetrage ? metrage : <React.Fragment />}
       </React.Fragment>
     );
-    // tslint:enable:no-magic-number
   }
 
   private getStripesForColor(
@@ -242,6 +243,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderDurationLabel(duration: number, height: number): JSX.Element {
+    // tslint:disable:no-magic-numbers
     if (height < 17) {
       return <React.Fragment />;
     }
@@ -253,6 +255,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         </HorizontalDuration>
       );
     }
+    // tslint:enable:no-magic-numbers
     const hours = Math.floor(duration / (60 * 60 * 1000));
     const minutes = Math.round((duration - hours * 60 * 60 * 1000) / (60 * 1000));
     const minutesStr = padNumber(minutes, 2);

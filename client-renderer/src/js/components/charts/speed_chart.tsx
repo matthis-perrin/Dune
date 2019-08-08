@@ -18,7 +18,19 @@ interface SpeedChartProps {
 
 type Datum = [Date, number | undefined];
 
-Plottable.Plots.Bar._BAR_THICKNESS_RATIO = 1.05;
+const BAR_THICKNESS_RATIO = 1.05;
+const NULL_SPEED_HEIGHT = 10;
+
+// Those should be extracted it in the constant file shared with the server
+const SPEED_AGGREGATION_TIME_MS = 5000;
+const SPEED_STOP_THRESHOLD = 50;
+
+// tslint:disable:no-magic-numbers
+const PLOT_SPEED_RANGE = [0, 200];
+const PLOT_SPEED_TICKS = [0, 50, 100, 150, 180];
+// tslint:enable:no-magic-numbers
+
+Plottable.Plots.Bar._BAR_THICKNESS_RATIO = BAR_THICKNESS_RATIO;
 
 export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
@@ -74,9 +86,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     }
 
     const data: Datum[] = [];
-    // TODO - 5 * 1000 is coming from the Aggregator in the server-main.
-    // It should be extracted it in the shared constant file.
-    for (let time = rangeStart; time <= rangeEnd; time += 5 * 1000) {
+    for (let time = rangeStart; time <= rangeEnd; time += SPEED_AGGREGATION_TIME_MS) {
       data.push([new Date(time), speedMap.get(time)]);
     }
     return data;
@@ -101,16 +111,20 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const firstDate = data[0][0];
     const lastDate = data[data.length - 1][0];
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
-    const yScale = new Plottable.Scales.Linear().domain([0, 200]);
-    yScale.defaultTicks = () => [0, 50, 100, 150, 180];
+    const yScale = new Plottable.Scales.Linear().domain(PLOT_SPEED_RANGE);
+    yScale.defaultTicks = () => PLOT_SPEED_TICKS;
 
     // Bars
     const bars = new Plottable.Plots.Bar<Date, number>()
       .addDataset(new Plottable.Dataset(data))
       .x((d: Datum) => d[0], xScale)
-      .y((d: Datum) => (d[1] !== undefined ? d[1] : 10), yScale)
+      .y((d: Datum) => (d[1] !== undefined ? d[1] : NULL_SPEED_HEIGHT), yScale)
       .attr('fill', (d: Datum) =>
-        d[1] === undefined ? Palette.Asbestos : d[1] < 50 ? Palette.Alizarin : Palette.Nephritis
+        d[1] === undefined
+          ? Palette.Asbestos
+          : d[1] < SPEED_STOP_THRESHOLD
+          ? Palette.Alizarin
+          : Palette.Nephritis
       );
 
     // Axis

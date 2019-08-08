@@ -1,6 +1,6 @@
 import {bridge} from '@root/lib/bridge';
 
-import {dateAtHour} from '@shared/lib/time';
+import {endOfDay, startOfDay} from '@shared/lib/utils';
 import {ProdInfo} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
@@ -44,8 +44,8 @@ export class ProdInfoStore extends BaseStore {
 
   private async performRefresh(): Promise<void> {
     const date = new Date(this.day);
-    const start = dateAtHour(date, 0).getTime();
-    const end = dateAtHour(date, 24).getTime();
+    const start = startOfDay(date).getTime();
+    const end = endOfDay(date).getTime();
     this.prodInfo = await bridge.getProdInfo(start, end);
     this.emit();
   }

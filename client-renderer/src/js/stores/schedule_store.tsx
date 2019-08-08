@@ -107,6 +107,8 @@ export class ScheduleStore {
       nonProds,
       lastSpeedTime
     );
+    console.log(this.prodData);
+    console.log(this.schedule);
 
     this.emit();
   }

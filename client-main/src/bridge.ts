@@ -304,14 +304,16 @@ export async function handleCommand(
   }
 
   if (command === BridgeCommands.GetScheduleInfo) {
-    const range = asMap(params);
-    let rangeStart = asNumber(range.start, undefined);
-    let rangeEnd = asNumber(range.end, undefined);
+    const {range} = asMap(params);
+    let rangeStart = asNumber(asMap(range).start, undefined);
+    let rangeEnd = asNumber(asMap(range).end, undefined);
 
     const [lastPlanProdChange, lastSpeedTime] = await Promise.all([
       getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart),
       getLastSpeedTime(SQLITE_DB.Prod, true),
     ]);
+
+    console.log(rangeStart, '-', rangeEnd);
 
     rangeStart =
       rangeStart && lastPlanProdChange
@@ -324,9 +326,18 @@ export async function handleCommand(
     if (lastPlanProdChange) {
       rangeStart = Math.min(lastPlanProdChange.start, rangeStart);
     }
-    rangeEnd = rangeEnd || (lastSpeedTime ? lastSpeedTime.time : Date.now() * 2);
+    rangeEnd = rangeEnd || (lastSpeedTime ? lastSpeedTime.time + 1 : Date.now() * 2);
 
     const needNotStartedPlanProd = !lastSpeedTime || rangeEnd > lastSpeedTime.time;
+    if (needNotStartedPlanProd) {
+      rangeStart = Math.min(rangeStart, lastPlanProdChange ? lastPlanProdChange.start : 0);
+      rangeEnd = Date.now() * 2;
+    }
+
+    console.log(rangeStart, '-', rangeEnd);
+    console.log(new Date(rangeStart), '-', new Date(rangeEnd));
+    console.log('-------------------');
+
     const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await Promise.all(
       [
         getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),

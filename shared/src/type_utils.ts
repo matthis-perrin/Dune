@@ -67,12 +67,9 @@ export function asDate(value: any, defaultValue: Date = new Date(0)): Date {
 export function errorAsString(err: any): string {
   let errorString = asString(err, undefined);
   if (errorString === undefined) {
-    const errorObject = asMap(err);
-    const errorToString = asFunction<() => string | undefined>(
-      errorObject.toString,
-      () => undefined
-    );
-    errorString = errorToString();
+    if (typeof err === 'object' && err !== null) {
+      errorString = (err as object).toString();
+    }
     errorString = errorString === undefined ? String(err) : errorString;
   }
   return errorString;

@@ -18,6 +18,9 @@ interface MaintenanceModalState {
   end: string;
 }
 
+const MAX_HOUR = 23;
+const MAX_MINUTE = 59;
+
 export class MaintenanceModal extends React.Component<
   MaintenanceModalProps,
   MaintenanceModalState
@@ -77,7 +80,7 @@ export class MaintenanceModal extends React.Component<
       }
       const hour = Math.round(parsedHour);
       const minute = Math.round(parsedMinute);
-      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      if (hour < 0 || hour > MAX_HOUR || minute < 0 || minute > MAX_MINUTE) {
         return undefined;
       }
       return {hour, minute};
