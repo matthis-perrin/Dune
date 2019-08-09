@@ -300,6 +300,33 @@ function getCurrentMaintenance(time: number, maintenances: Maintenance[]): Maint
   )[0];
 }
 
+function shouldCreateRestartProdStop(
+  currentSchedules: Map<number, PlanProdSchedule>,
+  currentTime: number
+): boolean {
+  const day = dateAtHour(new Date(currentTime), 0).getTime();
+  const schedule = currentSchedules.get(day);
+  if (schedule === undefined) {
+    return true;
+  }
+  if (schedule.prods.length > 0) {
+    return false;
+  }
+  if (
+    schedule.stops
+      .concat(schedule.plannedStops)
+      .filter(
+        s =>
+          s.stopType === StopType.ChangePlanProd ||
+          s.stopType === StopType.ReprisePlanProd ||
+          s.stopType === StopType.ReglagesAdditionel
+      ).length > 0
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function getOrCreateScheduleForTime(
   time: number,
   planProd: PlanProduction,
@@ -341,30 +368,30 @@ function generatePlannedEventsForProdLeft(
   let current = applyNonProdIfNeeded(currentSchedules, planProd, startTime, supportData);
   current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
 
-  // // If there was no other prod this day and no ChangePlanProd or RepriseProd event
-  // // we need to add a RepriseProd event
-  // if (shouldCreateRestartProdStop(currentSchedules, current)) {
-  //   current = generatePlannedEventsForStopLeft(
-  //     currentSchedules,
-  //     ADDITIONAL_TIME_TO_RESTART_PROD,
-  //     {
-  //       start: 0,
-  //       planProdId: planProd.id,
-  //       stopType: StopType.ReprisePlanProd,
-  //     },
-  //     current,
-  //     planProd,
-  //     supportData
-  //   );
-  //   // Recursive call, we haven't done any prod yet
-  //   return generatePlannedEventsForProdLeft(
-  //     currentSchedules,
-  //     metersToProduce,
-  //     current,
-  //     planProd,
-  //     supportData
-  //   );
-  // }
+  // If there was no other prod this day and no ChangePlanProd or RepriseProd event
+  // we need to add a RepriseProd event
+  if (shouldCreateRestartProdStop(currentSchedules, current)) {
+    current = generatePlannedEventsForStopLeft(
+      currentSchedules,
+      ADDITIONAL_TIME_TO_RESTART_PROD,
+      {
+        start: 0,
+        planProdId: planProd.id,
+        stopType: StopType.ReprisePlanProd,
+      },
+      current,
+      planProd,
+      supportData
+    );
+    // Recursive call, we haven't done any prod yet
+    return generatePlannedEventsForProdLeft(
+      currentSchedules,
+      metersToProduce,
+      current,
+      planProd,
+      supportData
+    );
+  }
 
   // Check how far we can go in time
   const targetProdTime = metersToProductionTime(metersToProduce, planProd.data.speed, true);

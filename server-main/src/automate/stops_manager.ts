@@ -185,7 +185,7 @@ class StopsManager {
           recordStopEnd(SQLITE_DB.Prod, lastStop.start, currentNonProd.end)
         );
         const nextSpeed = await nextDefinedSpeed(SQLITE_DB.Prod, currentNonProd.end);
-        if (nextSpeed && nextSpeed.speed) {
+        if (nextSpeed && nextSpeed.speed !== undefined) {
           if (nextSpeed.speed < SPEED_THRESHOLD_FOR_STOP) {
             // Start a new stop
             nonProdTrackingPromises.push(

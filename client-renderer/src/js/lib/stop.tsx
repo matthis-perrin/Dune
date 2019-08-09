@@ -12,6 +12,8 @@ const labelForStopType = new Map<StopType, string>([
   [StopType.EndOfDayPauseProd, 'Fin de journée (pause du plan production)'],
   [StopType.Unplanned, 'Imprévu'],
   [StopType.Maintenance, 'Maintenance'],
+  [StopType.OperationPinned, 'Réglage du prochain plan obligatoire en début de journée'],
+  [StopType.ProductionPinned, 'Production du prochain plan obligatoire en début de journée'],
 ]);
 
 const labelForUnknownStopType = '???';
