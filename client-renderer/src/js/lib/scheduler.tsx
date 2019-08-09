@@ -201,6 +201,13 @@ function addNonProdEvents(
   nonProd: NonProd
 ): void {
   const nonProdSchedule = getOrCreateScheduleForTime(start, planProd, currentSchedules);
+  if (nonProdSchedule.start === 0 || nonProdSchedule.start > start) {
+    nonProdSchedule.start = start;
+  }
+  if (nonProdSchedule.end < nonProd.end) {
+    nonProdSchedule.end = nonProd.end;
+  }
+
   nonProdSchedule.plannedStops.push({
     start,
     end: nonProd.end,

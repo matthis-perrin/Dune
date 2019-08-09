@@ -13,7 +13,6 @@ import {dateAtHour} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
 import {
   Stock,
-  ProdRange,
   Schedule,
   PlanProdSchedule,
   Stop,
@@ -27,7 +26,6 @@ interface ScheduleViewProps {
   day: Date;
   schedule?: Schedule;
   stocks?: Map<string, Stock[]>;
-  prodRanges?: Map<string, ProdRange>;
 }
 
 const PLANNED_EVENT_OPACITY = 0.75;
@@ -46,12 +44,12 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   public getProdHours(): {start: Date; end: Date} {
     const defaultStartHour = 1;
     const defaultEndHour = 23;
-    const {day, prodRanges} = this.props;
-    if (!prodRanges) {
+    const {day, schedule} = this.props;
+    if (!schedule) {
       return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
     }
     const dayOfWeek = day.toLocaleString('fr-FR', {weekday: 'long'});
-    const prodHours = prodRanges.get(dayOfWeek);
+    const prodHours = schedule.prodHours.get(dayOfWeek);
     if (!prodHours) {
       return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
     }
