@@ -41,6 +41,8 @@ const colorForStopType = new Map<StopType, string>([
   [StopType.EndOfDayPauseProd, Palette.PeterRiver],
   [StopType.Unplanned, Colors.Danger],
   [StopType.Maintenance, Palette.Asbestos],
+  [StopType.OperationPinned, Palette.Asbestos],
+  [StopType.ProductionPinned, Palette.Asbestos],
 ]);
 
 const colorForUnknownStopType = Palette.Silver;

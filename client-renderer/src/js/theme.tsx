@@ -43,6 +43,15 @@ function lighten(color: string, amount: number): string {
   const rgb = (green | (blue << 8) | (red << 16)).toString(16);
   return `#${rgb}`;
 }
+
+export function alpha(color: string, amount: number): string {
+  const colorHex = color.slice(1); // Remove #
+  const colorInt = parseInt(colorHex, 16);
+  const red = colorInt >> 16;
+  const green = colorInt & 0x0000ff;
+  const blue = (colorInt >> 8) & 0x00ff;
+  return `rgba(${red}, ${green}, ${blue}, ${amount})`;
+}
 // tslint:enable:no-magic-numbers no-bitwise
 
 const LIGHT_COLOR_RATIO = 0.2;
@@ -268,6 +277,6 @@ export const theme = {
   },
   schedule: {
     hourHeight: 180,
-    verticalPadding: 48,
+    verticalPadding: 0,
   },
 };

@@ -1,13 +1,11 @@
-import {min, max} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, isSameDay, numberWithSeparator} from '@root/lib/utils';
-import {theme, Palette, FontWeight} from '@root/theme';
+import {theme, Palette, FontWeight, alpha} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
@@ -29,7 +27,9 @@ interface ScheduleViewProps {
 }
 
 const PLANNED_EVENT_OPACITY = 0.75;
+const NON_PROD_OPACITY = 0.5;
 const HALF_HOUR_MS = 1800000;
+const TIME_PADDING = HALF_HOUR_MS;
 
 export class ScheduleView extends React.Component<ScheduleViewProps> {
   public static displayName = 'ScheduleView';
@@ -41,36 +41,36 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     this.scheduleRange = this.getScheduleRange();
   }
 
-  public getProdHours(): {start: Date; end: Date} {
+  private getProdHours(): {start: number; end: number} {
     const defaultStartHour = 1;
     const defaultEndHour = 23;
     const {day, schedule} = this.props;
     if (!schedule) {
-      return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
+      return {
+        start: dateAtHour(day, defaultStartHour).getTime(),
+        end: dateAtHour(day, defaultEndHour).getTime(),
+      };
     }
     const dayOfWeek = day.toLocaleString('fr-FR', {weekday: 'long'});
     const prodHours = schedule.prodHours.get(dayOfWeek);
     if (!prodHours) {
-      return {start: dateAtHour(day, defaultStartHour), end: dateAtHour(day, defaultEndHour)};
+      return {
+        start: dateAtHour(day, defaultStartHour).getTime(),
+        end: dateAtHour(day, defaultEndHour).getTime(),
+      };
     }
     return {
-      start: dateAtHour(day, prodHours.startHour, prodHours.startMinute),
-      end: dateAtHour(day, prodHours.endHour, prodHours.endMinute),
+      start: dateAtHour(day, prodHours.startHour, prodHours.startMinute).getTime(),
+      end: dateAtHour(day, prodHours.endHour, prodHours.endMinute).getTime(),
     };
   }
 
   private getScheduleRange(): {start: number; end: number} {
     const {start, end} = this.getProdHours();
-    const {schedule, day} = this.props;
-    if (!schedule) {
-      return {start: start.getTime(), end: end.getTime()};
-    }
-    const planSchedules = getSchedulesForDay(schedule, day);
-    const scheduleStarts = planSchedules.map(s => s.start);
-    const scheduleEnds = planSchedules.map(s => s.end);
-    const minStart = Math.min(min(scheduleStarts) || start.getTime(), start.getTime());
-    const maxEnd = Math.max(max(scheduleEnds) || end.getTime(), end.getTime());
-    return {start: minStart, end: maxEnd};
+    return {
+      start: start - TIME_PADDING,
+      end: end + TIME_PADDING,
+    };
   }
 
   private getYPosForTime(time: number): number {
@@ -99,7 +99,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const height =
       2 * theme.schedule.verticalPadding +
       (theme.schedule.hourHeight * (end - start)) / 1000 / 3600;
-
     let current = start;
     while (current <= end) {
       const distance = this.getYPosForTime(current);
@@ -136,15 +135,22 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     );
   }
 
+  private adjustDates(start: Date, end: Date): {startTime: number; endTime: number} {
+    const startTime = Math.max(this.scheduleRange.start, start.getTime());
+    const endTime = Math.min(this.scheduleRange.end, end.getTime());
+    return {startTime, endTime};
+  }
+
   private getPositionStyleForDates(
     start: Date,
     end: Date,
     borderSize: number = 0
   ): React.CSSProperties {
+    const {startTime, endTime} = this.adjustDates(start, end);
     const left = paddingLeft + sideBlockWidth;
     const width = `calc(100% - ${left + paddingRight}px)`;
-    const top = this.getYPosForTime(start.getTime());
-    const bottom = this.getYPosForTime(end.getTime());
+    const top = this.getYPosForTime(startTime);
+    const bottom = this.getYPosForTime(endTime);
     const height = bottom - top + borderSize;
     return {
       position: 'absolute',
@@ -156,8 +162,9 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private getTextStyleForDates(start: Date, end: Date): React.CSSProperties | undefined {
-    const top = this.getYPosForTime(start.getTime());
-    const bottom = this.getYPosForTime(end.getTime());
+    const {startTime, endTime} = this.adjustDates(start, end);
+    const top = this.getYPosForTime(startTime);
+    const bottom = this.getYPosForTime(endTime);
     const height = bottom - top;
     // tslint:disable:no-magic-numbers
     if (height >= 60) {
@@ -266,6 +273,9 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderStop(stop: Stop, color: Color, isPlanned: boolean): JSX.Element {
+    if (stop.stopType === StopType.NotProdHours) {
+      return <React.Fragment />;
+    }
     if (!stop.end) {
       console.log(stop);
       throw new Error('invalid stop');
@@ -305,6 +315,54 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         </DurationWrapper>
       </React.Fragment>
     );
+  }
+
+  private renderNonProd(stop: Stop): JSX.Element {
+    if (!stop.end) {
+      console.log(stop);
+      throw new Error('invalid stop');
+    }
+    const stopLabel = getLabelForStopType(stop.stopType, stop.title);
+    const positionStyles = this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end));
+
+    const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
+    return (
+      <StopWrapper
+        style={{
+          ...positionStyles,
+          left: 0,
+          width: '100%',
+          background: alpha(Palette.Asbestos, NON_PROD_OPACITY),
+        }}
+      >
+        <StopLabel style={labelTextStyles}>{stopLabel}</StopLabel>
+      </StopWrapper>
+    );
+  }
+
+  private renderNonProds(stops: Stop[]): JSX.Element[] {
+    // We merge adjacent non prods so it looks better in the UI
+    let current: Stop | undefined;
+    const mergedStops: Stop[] = [];
+    stops
+      .sort((s1, s2) => s1.start - s2.start)
+      .forEach(s => {
+        if (current === undefined) {
+          current = s;
+          return;
+        }
+        if (current.end === s.start) {
+          current = {...current, end: s.end};
+          return;
+        }
+        mergedStops.push(current);
+        current = s;
+      });
+    if (current !== undefined) {
+      mergedStops.push(current);
+    }
+
+    return mergedStops.map(s => this.renderNonProd(s));
   }
 
   private renderProd(prod: Prod, color: Color, isPlanned: boolean): JSX.Element {
@@ -348,9 +406,10 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   private renderPlanProdSchedule(planSchedule: PlanProdSchedule): JSX.Element {
+    const {start, end} = this.getProdHours();
     const planBorderPosition = this.getPositionStyleForDates(
-      new Date(planSchedule.start),
-      new Date(planSchedule.end),
+      new Date(Math.max(start, planSchedule.start)),
+      new Date(Math.min(end, planSchedule.end)),
       planBorderThickness
     );
     return (
@@ -378,6 +437,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
             >
               {this.getTitleForHeight(planSchedule, planBorderPosition.height as number)}
             </PlanTitle>
+            {this.renderNonProds(
+              planSchedule.stops
+                .filter(s => s.stopType === StopType.NotProdHours)
+                .concat(planSchedule.plannedStops.filter(s => s.stopType === StopType.NotProdHours))
+            )}
           </React.Fragment>
         )}
       </WithColor>
@@ -397,12 +461,18 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private renderCurrentTimeIndicator(): JSX.Element {
     const {schedule, day} = this.props;
+    const {start, end} = this.getProdHours();
     if (schedule) {
       const {lastSpeedTime} = schedule;
-      if (lastSpeedTime && isSameDay(new Date(day), new Date(lastSpeedTime.time))) {
+      if (
+        lastSpeedTime &&
+        isSameDay(new Date(day), new Date(lastSpeedTime.time)) &&
+        lastSpeedTime.time >= start &&
+        lastSpeedTime.time <= end
+      ) {
         const left = paddingLeft;
         const right = paddingRight;
-        const width = `calc(100% - ${left + right}px)`;
+        const width = `calc(100% - ${left + right - sideBlockWidth}px)`;
         const top = this.getYPosForTime(lastSpeedTime.time);
         const height = 1;
         return (
