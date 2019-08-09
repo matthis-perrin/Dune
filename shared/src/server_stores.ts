@@ -3,15 +3,18 @@ import knex from 'knex';
 import {listNonProds} from '@shared/db/non_prods';
 import {listProdHours} from '@shared/db/prod_hours';
 import {ProdRange, ProdHours, NonProd} from '@shared/models';
+import {BaseStore} from '@shared/store';
 
-export class ProdHoursStore {
+export class ProdHoursStore extends BaseStore {
   private readonly WAIT_BETWEEN_REFRESHES = 1000;
   private refreshTimeout: NodeJS.Timeout | undefined;
   private prodHoursMap = new Map<string, ProdRange>();
   private prodHours: ProdHours[] = [];
   private nonProds: NonProd[] = [];
 
-  public constructor(private readonly prodDB: knex, private readonly paramsDB: knex) {}
+  public constructor(private readonly prodDB: knex, private readonly paramsDB: knex) {
+    super();
+  }
 
   public async start(): Promise<void> {
     await this.performRefresh();
@@ -56,5 +59,6 @@ export class ProdHoursStore {
     this.prodHours = await listProdHours(this.paramsDB);
     this.prodHoursMap = new Map<string, ProdRange>();
     this.prodHours.forEach(prodHour => this.prodHoursMap.set(prodHour.day, prodHour));
+    this.emit();
   }
 }

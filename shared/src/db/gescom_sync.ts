@@ -50,18 +50,27 @@ export async function getTableRowCount(
   const tablesWithSommeil = ['bobines_filles', 'bobines_meres', 'cliches'];
   let rowCountSommeil: number | undefined;
   if (tablesWithSommeil.indexOf(tableName) !== -1) {
-    rowCountSommeil = (await db(tableName)
-      .where('sommeil', '=', '1')
-      .count())[0]['count(*)'];
+    rowCountSommeil = asNumber(
+      asMap(
+        asArray(
+          await db(tableName)
+            .where('sommeil', '=', '1')
+            .count()
+        )[0]
+      )['count(*)'],
+      undefined
+    );
   }
-  const rowCount = (await db(tableName).count())[0]['count(*)'];
+  const rowCount = asNumber(asMap(asArray(await db(tableName).count())[0])['count(*)'], 0);
   return {rowCount, rowCountSommeil};
 }
 
 export async function getGescomSyncData(db: knex, tableName: string): Promise<GescomSyncData> {
-  const syncInfo = await db(GESCOM_SYNC_TABLE_NAME)
-    .select([LAST_UPDATED_COLUMN, LAST_CHECKED_COLUMN])
-    .where(TABLE_NAME_COLUMN, '=', tableName);
+  const syncInfo = asArray(
+    await db(GESCOM_SYNC_TABLE_NAME)
+      .select([LAST_UPDATED_COLUMN, LAST_CHECKED_COLUMN])
+      .where(TABLE_NAME_COLUMN, '=', tableName)
+  );
   if (syncInfo.length === 0) {
     return {
       lastUpdated: new Date(0),
@@ -69,8 +78,8 @@ export async function getGescomSyncData(db: knex, tableName: string): Promise<Ge
     };
   }
   return {
-    lastUpdated: asDate(syncInfo[0][LAST_UPDATED_COLUMN]),
-    lastChecked: asDate(syncInfo[0][LAST_CHECKED_COLUMN]),
+    lastUpdated: asDate(asMap(syncInfo[0])[LAST_UPDATED_COLUMN]),
+    lastChecked: asDate(asMap(syncInfo[0])[LAST_CHECKED_COLUMN]),
   };
 }
 
@@ -80,9 +89,11 @@ export async function updateGescomSyncData(
   lastUpdated: Date,
   lastChecked: Date
 ): Promise<void> {
-  const lines = await db(GESCOM_SYNC_TABLE_NAME)
-    .select(TABLE_NAME_COLUMN)
-    .where(TABLE_NAME_COLUMN, '=', tableName);
+  const lines = asArray(
+    await db(GESCOM_SYNC_TABLE_NAME)
+      .select(TABLE_NAME_COLUMN)
+      .where(TABLE_NAME_COLUMN, '=', tableName)
+  );
   if (lines.length > 0) {
     await db(GESCOM_SYNC_TABLE_NAME)
       .update({

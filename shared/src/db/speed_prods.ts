@@ -1,5 +1,6 @@
 import knex from 'knex';
 
+import {getAverageSpeedBetween} from '@shared/db/speed_times';
 import {SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {Prod} from '@shared/models';
 import {asNumber, asMap, asArray} from '@shared/type_utils';
@@ -91,12 +92,8 @@ export async function recordProdStart(db: knex, start: number, planProd?: number
   });
 }
 
-export async function recordProdEnd(
-  db: knex,
-  start: number,
-  end: number,
-  avgSpeed: number
-): Promise<void> {
+export async function recordProdEnd(db: knex, start: number, end: number): Promise<void> {
+  const avgSpeed = await getAverageSpeedBetween(db, start, end);
   return db(SPEED_PRODS_TABLE_NAME)
     .where(SpeedProdsColumn.Start, '=', start)
     .update({

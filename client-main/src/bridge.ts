@@ -42,6 +42,7 @@ import {
 import {getSpeedTimesBetween, getLastSpeedTime} from '@shared/db/speed_times';
 import {listStocks} from '@shared/db/stocks';
 import {listUnplannedStop} from '@shared/db/unplanned_stops';
+import {startOfDay, endOfDay} from '@shared/lib/utils';
 import {
   ClientAppType,
   ContextMenuForBridge,
@@ -52,7 +53,6 @@ import {
   ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
-import {startOfDay, endOfDay} from '@shared/lib/utils';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -311,33 +311,17 @@ export async function handleCommand(
 
     const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod, true);
     if (rangeStart === undefined) {
-      if (!lastSpeedTime) {
-        rangeStart = 0;
-      } else {
-        rangeStart = startOfDay(new Date(lastSpeedTime.time)).getTime();
-      }
+      rangeStart = lastSpeedTime ? startOfDay(new Date(lastSpeedTime.time)).getTime() : 0;
     }
 
     const lastPlanProdChange = await getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart);
-    if (!lastPlanProdChange) {
-      rangeStart = 0;
-    } else {
-      rangeStart = lastPlanProdChange.start;
-    }
+    rangeStart = lastPlanProdChange ? lastPlanProdChange.start : 0;
 
     if (rangeEnd === undefined) {
-      if (lastSpeedTime === undefined) {
-        rangeEnd = Date.now() * 2;
-      } else {
-        rangeEnd = endOfDay(new Date(lastSpeedTime.time)).getTime();
-      }
+      rangeEnd = lastSpeedTime ? endOfDay(new Date(lastSpeedTime.time)).getTime() : Date.now() * 2;
     }
 
     const needNotStartedPlanProd = lastSpeedTime === undefined || rangeEnd > lastSpeedTime.time;
-
-    console.log(rangeStart, '-', rangeEnd);
-    console.log(new Date(rangeStart), '-', new Date(rangeEnd));
-    console.log('-------------------');
 
     const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await Promise.all(
       [

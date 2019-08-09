@@ -113,10 +113,16 @@ export async function insertOrUpdateStop(db: knex, start: number, end?: number):
   }
 }
 
-export async function recordStopStart(db: knex, start: number, planProd?: number): Promise<void> {
+export async function recordStopStart(
+  db: knex,
+  start: number,
+  planProdId: number | undefined,
+  stopType?: StopType
+): Promise<void> {
   return db(SPEED_STOPS_TABLE_NAME).insert({
     [SpeedStopsColumn.Start]: start,
-    [SpeedStopsColumn.PlanProdId]: planProd,
+    [SpeedStopsColumn.PlanProdId]: planProdId,
+    [SpeedStopsColumn.StopType]: stopType,
   });
 }
 
@@ -144,7 +150,7 @@ export async function getLastPlanProdChangeBefore(
   db: knex,
   start: number
 ): Promise<Stop | undefined> {
-  let query = db(SPEED_STOPS_TABLE_NAME)
+  const query = db(SPEED_STOPS_TABLE_NAME)
     .select()
     .where(SpeedStopsColumn.StopType, '=', StopType.ChangePlanProd)
     .andWhere(SpeedStopsColumn.Start, '<=', start)

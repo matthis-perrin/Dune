@@ -557,8 +557,8 @@ function getStartTime(
   const lastSchedule = getLastSchedule(currentSchedules);
   if (lastSchedule) {
     const lastPlanEvent = getLastPlanEvent(lastSchedule);
-    if (lastPlanEvent && lastPlanEvent.end) {
-      return lastPlanEvent.end;
+    if (lastPlanEvent) {
+      return lastPlanEvent.end || supportData.currentTime;
     }
   }
   if (previousPlan) {

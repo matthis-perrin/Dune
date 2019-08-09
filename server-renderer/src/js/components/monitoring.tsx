@@ -8,6 +8,9 @@ interface Props {
   gescom: {[key: string]: ServiceStatus};
 }
 
+const AGE_MIN_SECONDS = 3;
+const AGE_MAX_SECONDS = 2592000; // 30 * 24 * 3600
+
 export class Monitoring extends React.Component<Props> {
   public static displayName = 'Monitoring';
 
@@ -16,22 +19,27 @@ export class Monitoring extends React.Component<Props> {
   }
 
   private agoToString(ago: number): string {
-    if (ago < 3) {
-      return 'il y a < 3s';
+    if (ago < AGE_MIN_SECONDS) {
+      return `il y a < ${AGE_MIN_SECONDS}s`;
+    }
+    if (ago > AGE_MAX_SECONDS) {
+      return 'jamais mise a jour';
     }
     if (ago > 3600) {
-      return 'Jamais mise a jour';
+      return "plus d'une heure";
     }
     return `il y a ${Math.round(ago)}s`;
   }
 
   private formatPreciseTime(time: number): string {
+    // tslint:disable:no-magic-numbers
     const date = new Date(time);
     const hours = `0${date.getHours()}`.slice(-2);
     const minutes = `0${date.getMinutes()}`.slice(-2);
     const seconds = `0${date.getSeconds()}`.slice(-2);
     const milliseconds = `00${date.getMilliseconds()}`.slice(-3);
     return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+    // tslint:enable:no-magic-numbers
   }
 
   private renderService(

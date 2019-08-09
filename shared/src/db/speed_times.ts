@@ -160,6 +160,19 @@ export async function firstSpeedTimeMatchingBetween(
     .map(lineAsSpeedTime))[0];
 }
 
+export async function nextDefinedSpeed(
+  db: knex,
+  start: number // not included
+): Promise<SpeedTime | undefined> {
+  return (await db(SPEED_TIMES_TABLE_NAME)
+    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
+    .where(SpeedTimesColumn.Time, '>', start)
+    .whereNotNull(SpeedTimesColumn.Speed)
+    .orderBy(SpeedTimesColumn.Time, 'asc')
+    .limit(1)
+    .map(lineAsSpeedTime))[0];
+}
+
 export async function getAverageSpeedBetween(
   db: knex,
   start: number, // included
