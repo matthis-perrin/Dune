@@ -213,6 +213,7 @@ function addNonProdEvents(
     end: nonProd.end,
     planProdId: planProd.id,
     stopType: StopType.NotProdHours,
+    title: nonProd.title,
   });
 }
 

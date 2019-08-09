@@ -23,7 +23,7 @@ export class StopView extends React.Component<StopViewProps> {
         color={getColorForStopType(stop.stopType)}
         start={stop.start}
         end={stop.end}
-        right={<span>{getLabelForStopType(stop.stopType)}</span>}
+        right={<span>{getLabelForStopType(stop.stopType, stop.title)}</span>}
         indicators={[
           {
             label: 'DURÉE',

@@ -270,7 +270,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       console.log(stop);
       throw new Error('invalid stop');
     }
-    const stopLabel = getLabelForStopType(stop.stopType);
+    const stopLabel = getLabelForStopType(stop.stopType, stop.title);
     const positionStyles = this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end));
     const durationLabel = this.renderDurationLabel(
       stop.end - stop.start,

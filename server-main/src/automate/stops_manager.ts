@@ -160,7 +160,13 @@ class StopsManager {
       }
       if (shouldRecordNonProdStart) {
         nonProdTrackingPromises.push(
-          recordStopStart(SQLITE_DB.Prod, nonProdStart, planProdId, StopType.NotProdHours)
+          recordStopStart(
+            SQLITE_DB.Prod,
+            nonProdStart,
+            planProdId,
+            StopType.NotProdHours,
+            nonProd.title
+          )
         );
       }
     } else if (

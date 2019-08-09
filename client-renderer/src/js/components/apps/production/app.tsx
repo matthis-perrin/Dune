@@ -250,7 +250,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       return <LoadingIndicator size="large" />;
     }
 
-    return <ScheduleView day={currentDay} prodRanges={schedule.prodHours} schedule={schedule} />;
+    return <ScheduleView day={currentDay} schedule={schedule} />;
   }
 
   private renderTopBar(): JSX.Element {

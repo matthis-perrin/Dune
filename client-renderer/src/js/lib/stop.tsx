@@ -15,9 +15,16 @@ const labelForStopType = new Map<StopType, string>([
 ]);
 
 const labelForUnknownStopType = '???';
+const labelForUndefinedStopType = 'Arrêt non renseigné';
 
-export function getLabelForStopType(stopType: StopType | undefined): string {
-  const label = stopType ? labelForStopType.get(stopType) : undefined;
+export function getLabelForStopType(stopType: StopType | undefined, defaultLabel?: string): string {
+  if (stopType === undefined) {
+    return labelForUndefinedStopType;
+  }
+  if (stopType === StopType.NotProdHours) {
+    return defaultLabel || '';
+  }
+  const label = labelForStopType.get(stopType);
   return label || labelForUnknownStopType;
 }
 

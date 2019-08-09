@@ -12,6 +12,7 @@ export const SpeedStopsColumn = {
   StopInfo: 'stop_info',
   PlanProdId: 'plan_prod_id',
   MaintenanceId: 'maintenance_id',
+  Title: 'title',
 };
 
 export async function createSpeedStopsTable(db: knex): Promise<void> {
@@ -27,6 +28,7 @@ export async function createSpeedStopsTable(db: knex): Promise<void> {
       table.text(SpeedStopsColumn.StopInfo);
       table.integer(SpeedStopsColumn.PlanProdId);
       table.integer(SpeedStopsColumn.MaintenanceId);
+      table.text(SpeedStopsColumn.Title);
     });
   }
 }
@@ -42,6 +44,7 @@ function lineAsStop(lineData: any): Stop {
     stopInfo: stopInfoJSON === undefined ? undefined : asParsedJSON<StopInfo>(stopInfoJSON),
     planProdId: asNumber(line[SpeedStopsColumn.PlanProdId], undefined),
     maintenanceId: asNumber(line[SpeedStopsColumn.MaintenanceId], undefined),
+    title: asString(line[SpeedStopsColumn.Title], undefined),
   };
 }
 
@@ -117,12 +120,14 @@ export async function recordStopStart(
   db: knex,
   start: number,
   planProdId: number | undefined,
-  stopType?: StopType
+  stopType?: StopType,
+  stopTitle?: string
 ): Promise<void> {
   return db(SPEED_STOPS_TABLE_NAME).insert({
     [SpeedStopsColumn.Start]: start,
     [SpeedStopsColumn.PlanProdId]: planProdId,
     [SpeedStopsColumn.StopType]: stopType,
+    [SpeedStopsColumn.Title]: stopTitle,
   });
 }
 

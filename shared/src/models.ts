@@ -425,6 +425,7 @@ export interface Stop extends AutomateEvent {
   stopType?: StopType;
   stopInfo?: StopInfo;
   maintenanceId?: number;
+  title?: string;
 }
 
 export interface StopInfo {
