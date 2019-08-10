@@ -60,3 +60,16 @@ export async function listNonProds(db: knex): Promise<NonProd[]> {
     .select()
     .map(mapLineToNonProd);
 }
+
+export async function createNonProd(
+  db: knex,
+  start: number,
+  end: number,
+  title: string
+): Promise<void> {
+  return db(NON_PROD_TABLE_NAME).insert({
+    [NonProdColumns.TITLE]: title,
+    [NonProdColumns.START_TIME]: start,
+    [NonProdColumns.END_TIME]: end,
+  });
+}

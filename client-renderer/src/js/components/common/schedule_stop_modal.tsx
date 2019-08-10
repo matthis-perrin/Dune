@@ -4,15 +4,15 @@ import styled from 'styled-components';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {bridge} from '@root/lib/bridge';
 import {Colors, Palette} from '@root/theme';
 
-interface MaintenanceModalProps {
+interface ScheduleStopModalProps {
   date: Date;
+  onSave(start: number, end: number, title: string): Promise<void>;
   onDone(): void;
 }
 
-interface MaintenanceModalState {
+interface ScheduleStopModalState {
   title: string;
   start: string;
   end: string;
@@ -21,13 +21,13 @@ interface MaintenanceModalState {
 const MAX_HOUR = 23;
 const MAX_MINUTE = 59;
 
-export class MaintenanceModal extends React.Component<
-  MaintenanceModalProps,
-  MaintenanceModalState
+export class ScheduleStopModal extends React.Component<
+  ScheduleStopModalProps,
+  ScheduleStopModalState
 > {
-  public static displayName = 'MaintenanceModal';
+  public static displayName = 'ScheduleStopModal';
 
-  public constructor(props: MaintenanceModalProps) {
+  public constructor(props: ScheduleStopModalProps) {
     super(props);
     this.state = {
       title: '',
@@ -46,9 +46,9 @@ export class MaintenanceModal extends React.Component<
       return;
     }
     const {start, end, title} = formData;
-    bridge
-      .createMaintenance(start, end, title)
-      .then(this.props.onDone)
+    const {onSave, onDone} = this.props;
+    onSave(start, end, title)
+      .then(onDone)
       .catch(console.error);
   };
 

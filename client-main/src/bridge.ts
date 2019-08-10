@@ -21,7 +21,7 @@ import {
   getMaintenancesBetween,
   deleteMaintenance,
 } from '@shared/db/maintenances';
-import {getNonProdsBetween, deleteNonProd} from '@shared/db/non_prods';
+import {getNonProdsBetween, deleteNonProd, createNonProd} from '@shared/db/non_prods';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
@@ -408,12 +408,7 @@ export async function handleCommand(
   if (command === BridgeCommands.CreateNonProd) {
     debugLog();
     const {start, end, title} = asMap(params);
-    return createMaintenance(
-      SQLITE_DB.Prod,
-      asNumber(start, 0),
-      asNumber(end, 0),
-      asString(title, '')
-    );
+    return createNonProd(SQLITE_DB.Prod, asNumber(start, 0), asNumber(end, 0), asString(title, ''));
   }
   if (command === BridgeCommands.DeleteNonProd) {
     debugLog();

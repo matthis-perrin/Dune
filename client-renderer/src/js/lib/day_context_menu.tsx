@@ -2,7 +2,8 @@ import {uniqueId} from 'lodash-es';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {MaintenanceModal} from '@root/components/apps/main/gestion/maintenance_modal';
+import {MaintenanceModal} from '@root/components/common/maintenance_modal';
+import {NonProdModal} from '@root/components/common/non_prod_modal';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
 import {getPlanStart} from '@root/lib/schedule_utils';
@@ -98,4 +99,14 @@ function showMaintenanceModal(date: Date, onRefreshNeeded: () => void): void {
   ));
 }
 
-function showNonProdModal(date: Date, onRefreshNeeded: () => void): void {}
+function showNonProdModal(date: Date, onRefreshNeeded: () => void): void {
+  showModal(onDone => (
+    <NonProdModal
+      date={date}
+      onDone={() => {
+        onRefreshNeeded();
+        onDone();
+      }}
+    />
+  ));
+}
