@@ -16,11 +16,12 @@ import {
   getPlanStatus,
   getScheduleStart,
   getScheduleEnd,
+  getScheduleStarts,
 } from '@root/lib/schedule_utils';
-import {Palette, theme} from '@root/theme';
+import {Palette, theme, FontWeight} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
-import {dateAtHour} from '@shared/lib/time';
+import {startOfDay} from '@shared/lib/utils';
 import {
   Stock,
   BobineQuantities,
@@ -250,18 +251,20 @@ export class PlanProdTile extends React.Component<Props> {
 
   private getHalves(planProd: ScheduledPlanProd): {top: boolean; bottom: boolean} {
     const {date} = this.props;
-    const days = Array.from(planProd.schedulePerDay.keys());
-    const startOfDay = dateAtHour(date, 0).getTime();
-
+    const currentDayStart = startOfDay(date).getTime();
     let top = true;
     let bottom = true;
-    days.forEach(d => {
-      if (d < startOfDay) {
-        top = false;
-      } else if (d > startOfDay) {
-        bottom = false;
-      }
-    });
+
+    Array.from(planProd.schedulePerDay.values())
+      .reduce((starts, schedule) => starts.concat(getScheduleStarts(schedule)), [] as number[])
+      .forEach(start => {
+        if (start < currentDayStart) {
+          top = false;
+        } else if (startOfDay(new Date(start)).getTime() > currentDayStart) {
+          bottom = false;
+        }
+      });
+
     return {top, bottom};
   }
 
@@ -369,8 +372,8 @@ export class PlanProdTile extends React.Component<Props> {
   public render(): JSX.Element {
     const {planSchedule} = this.props;
     const {date} = this.props;
-    const startOfDay = dateAtHour(date, 0).getTime();
-    const schedule = planSchedule.schedulePerDay.get(startOfDay);
+    const currentDayStart = startOfDay(date).getTime();
+    const schedule = planSchedule.schedulePerDay.get(currentDayStart);
     if (!schedule) {
       return <React.Fragment />;
     }
@@ -409,6 +412,26 @@ export class PlanProdTile extends React.Component<Props> {
           const indicator = this.renderIndicator(schedule);
           const pinIcon = this.renderPinIcon(planSchedule, color.textHex);
           const halves = this.getHalves(planSchedule);
+
+          const top = halves.top ? (
+            <TileTop style={{background: color.backgroundHex}}>{tourCountStr}</TileTop>
+          ) : (
+            <React.Fragment />
+          );
+
+          const content = halves.top ? (
+            <TileBobineGrid>
+              {bobines.map(({ref, count}) => (
+                <React.Fragment>
+                  <TileBobineRef>{ref}</TileBobineRef>
+                  <TileBobineProd>{`(+${count})`}</TileBobineProd>
+                </React.Fragment>
+              ))}
+            </TileBobineGrid>
+          ) : (
+            <TileBobineReprise>Reprise du plan de production</TileBobineReprise>
+          );
+
           return (
             <TileWrapper
               // tslint:disable-next-line:no-any no-unsafe-any
@@ -428,16 +451,9 @@ export class PlanProdTile extends React.Component<Props> {
                 <TilePlanProdTitle>{title}</TilePlanProdTitle>
               </TileLeft>
               <TileRight>
-                <TileTop style={{background: color.backgroundHex}}>{tourCountStr}</TileTop>
+                {top}
                 <TileContent>
-                  <TileBobineGrid>
-                    {bobines.map(({ref, count}) => (
-                      <React.Fragment>
-                        <TileBobineRef>{ref}</TileBobineRef>
-                        <TileBobineProd>{`(+${count})`}</TileBobineProd>
-                      </React.Fragment>
-                    ))}
-                  </TileBobineGrid>
+                  {content}
                   <TileInfo>
                     <TileInfoTime>{startStr}</TileInfoTime>
                     <TileInfoTime>{endStr}</TileInfoTime>
@@ -461,10 +477,11 @@ const TileWrapper = styled.div`
   width: calc(100% - ${2 * margin}px);
   box-sizing: border-box;
   margin: 0 ${margin}px ${margin}px ${margin}px;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   border: solid 1px black;
+  font-weight: ${FontWeight.SemiBold};
 `;
 
 const TileLeft = styled.div`
@@ -474,6 +491,8 @@ const TileLeft = styled.div`
   align-items: center;
   justify-content: center;
   border-right: solid 1px black;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 `;
 const TilePlanProdTitle = styled.div`
   writing-mode: vertical-rl;
@@ -490,12 +509,15 @@ const TileTop = styled.div`
   align-items: center;
   justify-content: center;
   border-bottom: solid 1px black;
+  border-top-right-radius: 8px;
 `;
 const TileContent = styled.div`
   display: flex;
   background-color: ${Palette.White};
   color: ${Palette.Black};
   padding: 6px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 `;
 const TileBobineGrid = styled.div`
   display: grid;
@@ -503,6 +525,7 @@ const TileBobineGrid = styled.div`
   grid-template-rows: repeat(20, auto);
   flex-grow: 1;
   font-size: 14px;
+  font-weight: ${FontWeight.Regular};
 `;
 const TileBobineRef = styled.div`
   overflow-x: hidden;
@@ -511,6 +534,13 @@ const TileBobineRef = styled.div`
 const TileBobineProd = styled.div`
   flex-grow: 1;
   text-align: right;
+`;
+const TileBobineReprise = styled.div`
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 `;
 const TileInfo = styled.div`
   flex-shrink: 0;

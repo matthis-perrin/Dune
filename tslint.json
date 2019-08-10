@@ -185,7 +185,6 @@
     ],
     "space-within-parens": [true, 0],
     "static-this": true,
-    "strict-boolean-expressions": false,
     "strict-type-predicates": true,
     "switch-default": false,
     "switch-final-break": false,
