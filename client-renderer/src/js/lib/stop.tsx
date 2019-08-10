@@ -11,21 +11,20 @@ const labelForStopType = new Map<StopType, string>([
   [StopType.EndOfDayEndProd, 'Fin de journée (fin du plan production)'],
   [StopType.EndOfDayPauseProd, 'Fin de journée (pause du plan production)'],
   [StopType.Unplanned, 'Imprévu'],
-  [StopType.Maintenance, 'Maintenance'],
 ]);
 
 const labelForUnknownStopType = '???';
 const labelForUndefinedStopType = 'Arrêt non renseigné';
 
-export function getLabelForStopType(stopType: StopType | undefined, defaultLabel?: string): string {
+export function getLabelForStopType(
+  stopType: StopType | undefined,
+  defaultLabel: string = labelForUnknownStopType
+): string {
   if (stopType === undefined) {
     return labelForUndefinedStopType;
   }
-  if (stopType === StopType.NotProdHours) {
-    return defaultLabel || '';
-  }
   const label = labelForStopType.get(stopType);
-  return label || labelForUnknownStopType;
+  return label || defaultLabel;
 }
 
 const colorForStopType = new Map<StopType, string>([

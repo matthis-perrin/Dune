@@ -316,7 +316,19 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       console.log(stop);
       throw new Error('invalid stop');
     }
-    const stopLabel = getLabelForStopType(stop.stopType, stop.title);
+
+    let defaultLabel = stop.title;
+    if (stop.maintenanceId !== undefined) {
+      const {schedule} = this.props;
+      if (schedule) {
+        const maintenance = schedule.maintenances.find(m => m.id === stop.maintenanceId);
+        if (maintenance) {
+          defaultLabel = maintenance.title;
+        }
+      }
+    }
+
+    const stopLabel = getLabelForStopType(stop.stopType, defaultLabel);
     const positionStyles = this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end));
     const durationLabel = this.renderDurationLabel(
       stop.end - stop.start,
