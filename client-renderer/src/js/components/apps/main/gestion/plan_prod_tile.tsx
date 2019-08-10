@@ -292,9 +292,14 @@ export class PlanProdTile extends React.Component<Props> {
         callback: () => this.newPlanProd(false),
       });
       menus.push({
-        label: 'Déplacer à la position',
+        label: `Déplacer le plan ${getShortPlanProdTitle(planSchedule.planProd.id)}`,
         submenus: allPlanned.map((plan, index) => ({
-          label: `${index < planIndex ? '▲' : index === planIndex ? '   ' : '▼'} n°${index + 1}`,
+          label:
+            index < planIndex
+              ? `avant le plan ${getShortPlanProdTitle(plan.planProd.id)}`
+              : index > planIndex
+              ? `après le plan ${getShortPlanProdTitle(plan.planProd.id)}`
+              : '—',
           disabled: index !== planIndex,
           callback: () => this.movePlanProd(plan.planProd.index),
         })),
