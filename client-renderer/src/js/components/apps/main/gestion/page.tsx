@@ -1,19 +1,16 @@
 import * as React from 'react';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
-import {MaintenanceModal} from '@root/components/apps/main/gestion/maintenance_modal';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
-import {contextMenuManager} from '@root/lib/context_menu';
-import {getPlanStart} from '@root/lib/schedule_utils';
-import {dateIsAfterOrSameDay} from '@root/lib/utils';
+import {showDayContextMenu} from '@root/lib/day_context_menu';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
-import {endOfDay, startOfDay} from '@shared/lib/utils';
-import {Stock, BobineQuantities, ClientAppType, Schedule} from '@shared/models';
+import {startOfDay} from '@shared/lib/utils';
+import {Stock, BobineQuantities, Schedule} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -26,7 +23,6 @@ interface State {
   schedule?: Schedule;
   month: number;
   year: number;
-  showMaintenanceModal?: Date;
 }
 
 export class GestionPage extends React.Component<Props, State> {
@@ -89,64 +85,10 @@ export class GestionPage extends React.Component<Props, State> {
     this.scheduleStore.setRange({start, end});
   };
 
-  private isValidDateToCreatePlanProd(date: Date): boolean {
-    return dateIsAfterOrSameDay(date, new Date());
-  }
-
-  private getNewPlanProdIndexForDate(date: Date): number {
-    const {schedule} = this.state;
-    if (!schedule) {
-      return 0;
-    }
-    const dayEnd = endOfDay(date).getTime();
-    const lastPlanBeforeOrAtDate = schedule.plans
-      .filter(p => {
-        const start = getPlanStart(p);
-        if (start === undefined) {
-          return false;
-        }
-        return startOfDay(new Date(start)).getTime() <= dayEnd;
-      })
-      .sort((p1, p2) => p2.planProd.index - p1.planProd.index)[0];
-    if (!lastPlanBeforeOrAtDate) {
-      return 0;
-    }
-    return lastPlanBeforeOrAtDate.planProd.index + 1;
-  }
-
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
-    if (event.type === 'contextmenu' && this.isValidDateToCreatePlanProd(date)) {
-      contextMenuManager
-        .open([
-          {
-            label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
-            callback: () => {
-              const planProdIndex = this.getNewPlanProdIndexForDate(date);
-              const start = startOfDay(date).getTime();
-              const end = endOfDay(date).getTime();
-              bridge
-                .createNewPlanProduction(planProdIndex)
-                .then(({id}) => {
-                  bridge
-                    .openApp(ClientAppType.PlanProductionEditorApp, {
-                      id,
-                      isCreating: true,
-                      start,
-                      end,
-                    })
-                    .catch(console.error);
-                })
-                .catch(err => console.error(err));
-            },
-          },
-          {
-            label: `Ajouter une opération de maintenance le ${date.toLocaleDateString('fr')}`,
-            callback: () => {
-              this.setState({showMaintenanceModal: date});
-            },
-          },
-        ])
-        .catch(console.error);
+    const schedule = this.scheduleStore.getSchedule();
+    if (event.type === 'contextmenu' && schedule !== undefined) {
+      showDayContextMenu(schedule, date, () => this.scheduleStore.refresh());
     }
   };
 
@@ -185,17 +127,9 @@ export class GestionPage extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const {month, year, showMaintenanceModal} = this.state;
+    const {month, year} = this.state;
     return (
       <Page>
-        {showMaintenanceModal ? (
-          <MaintenanceModal
-            date={showMaintenanceModal}
-            onDone={() => this.setState({showMaintenanceModal: undefined})}
-          />
-        ) : (
-          <React.Fragment />
-        )}
         <Calendar
           month={month}
           year={year}

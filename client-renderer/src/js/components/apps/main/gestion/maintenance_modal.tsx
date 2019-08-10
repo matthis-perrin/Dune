@@ -103,49 +103,60 @@ export class MaintenanceModal extends React.Component<
 
   public render(): JSX.Element {
     return (
-      <ModalWrapper>
-        <ModalCloseButton onClick={this.props.onDone}>
-          <SVGIcon name="cross" width={18} height={18} />
-        </ModalCloseButton>
-        <Form>
-          <FormLine>
-            <FormLabel>Libellé</FormLabel>
-            <FormValue>
-              <Input
-                focusOnMount
-                value={this.state.title}
-                onChange={event => this.setState({title: event.target.value})}
-              />
-            </FormValue>
-          </FormLine>
-          <FormLine>
-            <FormLabel>Début</FormLabel>
-            <FormValue>
-              <Input
-                value={this.state.start}
-                onChange={event => this.setState({start: event.target.value})}
-              />
-            </FormValue>
-          </FormLine>
-          <FormLine>
-            <FormLabel>Fin</FormLabel>
-            <FormValue>
-              <Input
-                value={this.state.end}
-                onChange={event => this.setState({end: event.target.value})}
-              />
-            </FormValue>
-          </FormLine>
-        </Form>
-        <FormButton>
-          <Button disabled={!this.isComplete()} onClick={this.handleCreate}>
-            Enregistrer
-          </Button>
-        </FormButton>
-      </ModalWrapper>
+      <ModalBackdrop>
+        <ModalWrapper>
+          <ModalCloseButton onClick={this.props.onDone}>
+            <SVGIcon name="cross" width={18} height={18} />
+          </ModalCloseButton>
+          <Form>
+            <FormLine>
+              <FormLabel>Libellé</FormLabel>
+              <FormValue>
+                <Input
+                  focusOnMount
+                  value={this.state.title}
+                  onChange={event => this.setState({title: event.target.value})}
+                />
+              </FormValue>
+            </FormLine>
+            <FormLine>
+              <FormLabel>Début</FormLabel>
+              <FormValue>
+                <Input
+                  value={this.state.start}
+                  onChange={event => this.setState({start: event.target.value})}
+                />
+              </FormValue>
+            </FormLine>
+            <FormLine>
+              <FormLabel>Fin</FormLabel>
+              <FormValue>
+                <Input
+                  value={this.state.end}
+                  onChange={event => this.setState({end: event.target.value})}
+                />
+              </FormValue>
+            </FormLine>
+          </Form>
+          <FormButton>
+            <Button disabled={!this.isComplete()} onClick={this.handleCreate}>
+              Enregistrer
+            </Button>
+          </FormButton>
+        </ModalWrapper>
+      </ModalBackdrop>
     );
   }
 }
+
+const ModalBackdrop = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
 
 const Form = styled.div`
   display: flex;

@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
+import {showDayContextMenu} from '@root/lib/day_context_menu';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
 import {showPlanContextMenu} from '@root/lib/plan_prod_context_menu';
 import {
@@ -286,7 +287,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   ): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {schedule, withContextMenu} = this.props;
+    const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
     if (!schedule || !withContextMenu) {
       return;
     }
@@ -296,9 +297,14 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
     const planType = getPlanStatus(planSchedule);
     if (planType === PlanProductionStatus.PLANNED) {
-      showPlanContextMenu(schedule, planSchedule.planProd.id, () =>
-        this.props.onPlanProdRefreshNeeded()
-      );
+      showPlanContextMenu(schedule, planSchedule.planProd.id, onPlanProdRefreshNeeded);
+    }
+  };
+
+  private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
+    const {schedule, day, onPlanProdRefreshNeeded} = this.props;
+    if (event.type === 'contextmenu' && schedule !== undefined) {
+      showDayContextMenu(schedule, day, onPlanProdRefreshNeeded);
     }
   };
 
@@ -548,7 +554,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // it is available to the other render methods. This avoids computing it too many times.
     this.scheduleRange = this.getScheduleRange();
     return (
-      <ScheduleWrapper>
+      <ScheduleWrapper onContextMenu={this.handleContextMenuForDay}>
         {this.renderHours()}
         {this.renderPlanProds()}
         {this.renderCurrentTimeIndicator()}

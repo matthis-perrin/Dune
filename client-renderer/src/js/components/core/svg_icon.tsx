@@ -3,7 +3,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReactProps, uiComponentMixin, UIComponentProps} from '@root/components/core/common';
-import {Palette} from '@root/theme';
 
 const DEFAULT_ICON_WIDTH = 24;
 const DEFAULT_ICON_HEIGHT = 24;
@@ -149,12 +148,7 @@ export class SVGIcon extends React.Component<SVGIconProps> {
   public static displayName = 'SVGIcon';
 
   public render(): JSX.Element {
-    const {
-      name,
-      width = DEFAULT_ICON_WIDTH,
-      height = DEFAULT_ICON_HEIGHT,
-      color = Palette.Black,
-    } = this.props;
+    const {name, width = DEFAULT_ICON_WIDTH, height = DEFAULT_ICON_HEIGHT, color} = this.props;
     const {viewBox, element} = ICONS[name];
     const extendedProps = omit(this.props, ['name', 'width', 'height', 'children']);
     return (
