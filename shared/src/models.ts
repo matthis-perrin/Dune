@@ -242,8 +242,6 @@ export interface PlanProduction extends PlanProductionBase {
 
 export interface PlanProdSchedule {
   status: PlanProductionStatus;
-  start: number;
-  end: number;
   planProd: PlanProduction;
   // Done
   prods: Prod[];
@@ -260,8 +258,6 @@ export interface PlanProdSchedule {
 }
 
 export interface ScheduledPlanProd {
-  start: Date;
-  end: Date;
   planProd: PlanProduction;
   operations: OperationSplits;
   schedulePerDay: Map<number, PlanProdSchedule>;
@@ -446,8 +442,6 @@ export enum StopType {
   Maintenance = 'Maintenance',
   Unplanned = 'Unplanned',
   NotProdHours = 'NotProdHours',
-  OperationPinned = 'OperationPinned',
-  ProductionPinned = 'ProductionPinned',
 }
 
 export interface ContextMenuForBridge {

@@ -199,15 +199,8 @@ function addNonProdEvents(
   start: number,
   planProd: PlanProduction,
   nonProd: NonProd
-): void {
+): number {
   const nonProdSchedule = getOrCreateScheduleForTime(start, planProd, currentSchedules);
-  if (nonProdSchedule.start === 0 || nonProdSchedule.start > start) {
-    nonProdSchedule.start = start;
-  }
-  if (nonProdSchedule.end < nonProd.end) {
-    nonProdSchedule.end = nonProd.end;
-  }
-
   nonProdSchedule.plannedStops.push({
     start,
     end: nonProd.end,
@@ -215,23 +208,25 @@ function addNonProdEvents(
     stopType: StopType.NotProdHours,
     title: nonProd.title,
   });
+  return nonProd.end;
 }
 
 function applyNonProdIfNeeded(
   currentSchedules: Map<number, PlanProdSchedule>,
   planProd: PlanProduction,
-  currentTime: number,
+  startTime: number,
   supportData: ScheduleSupportData
 ): number {
-  const date = new Date(currentTime);
+  let current = startTime;
+  const date = new Date(current);
   const currentNonProd = getCurrentNonProd(date, supportData.prodRanges, supportData.nonProds);
   if (currentNonProd !== undefined) {
     // We are in a non prod zone, we create a NonProd stop associated with the plan.
-    addNonProdEvents(currentSchedules, currentTime, planProd, currentNonProd);
+    current = addNonProdEvents(currentSchedules, current, planProd, currentNonProd);
     // Call the function again, there might be more non prods coming
-    return applyNonProdIfNeeded(currentSchedules, planProd, currentNonProd.end, supportData);
+    return applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
   }
-  return currentTime;
+  return current;
 }
 
 function applyMaintenanceIfNeeded(
@@ -339,8 +334,6 @@ function getOrCreateScheduleForTime(
   }
   const emptySchedule: PlanProdSchedule = {
     status: PlanProductionStatus.PLANNED,
-    start: 0,
-    end: 0,
     planProd,
     prods: [],
     stops: [],
@@ -400,12 +393,6 @@ function generatePlannedEventsForProdLeft(
   const lastPossibleEndTime = lastValidConsecutiveFreeTime(current, supportData);
   const endTime = Math.min(targetEndTime, lastPossibleEndTime);
   // Add a planned prod up to the max we can go
-  if (schedule.start === 0 || schedule.start > current) {
-    schedule.start = current;
-  }
-  if (schedule.end < endTime) {
-    schedule.end = endTime;
-  }
   const actualProd = productionTimeToMeters(endTime - current, planProd.data.speed, true);
   schedule.plannedProdMeters += actualProd;
   schedule.plannedProdMs += endTime - current;
@@ -461,12 +448,6 @@ function generatePlannedEventsForStopLeft(
   const lastPossibleEndTime = lastValidConsecutiveFreeTime(current, supportData);
   const endTime = Math.min(targetEndTime, lastPossibleEndTime);
   // Add a planned stop up to the max we can go
-  if (schedule.start === 0 || schedule.start > current) {
-    schedule.start = current;
-  }
-  if (schedule.end < endTime) {
-    schedule.end = endTime;
-  }
   if (stop.stopType === StopType.ChangePlanProd || stop.stopType === StopType.ReglagesAdditionel) {
     schedule.plannedOperationsMs += endTime - current;
   }
@@ -498,24 +479,17 @@ function generateChangePlanProd(
 ): number {
   let current = startTime;
 
-  // If we need to pin to the start of the day, we create a OperationPinned event up to the next
+  // If we need to pin to the start of the day, we create a NotProd event up to the next
   // free time, apply the non prod and maintenance, and try again.
   if (planProd.operationAtStartOfDay && !isStartOfDay(currentSchedules, startTime)) {
     const endTime = lastValidConsecutiveFreeTime(startTime, supportData);
-    const schedule = getOrCreateScheduleForTime(startTime, planProd, currentSchedules);
-    if (schedule.start === 0 || schedule.start > startTime) {
-      schedule.start = startTime;
-    }
-    if (schedule.end < endTime) {
-      schedule.end = endTime;
-    }
-    schedule.plannedStops.push({
+    current = addNonProdEvents(currentSchedules, current, planProd, {
+      id: -startTime,
       start: startTime,
       end: endTime,
-      planProdId: planProd.id,
-      stopType: StopType.ProductionPinned,
+      title: 'Réglage du prochain plan obligatoire en début de journée',
     });
-    current = applyNonProdIfNeeded(currentSchedules, planProd, endTime, supportData);
+    current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
     current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
     return generateChangePlanProd(currentSchedules, planProd, operationTime, current, supportData);
   }
@@ -554,24 +528,17 @@ function generateProdLeft(
     return startTime;
   }
 
-  // If we need to pin to the start of the day, we create a ProductionPinned event up to the next
+  // If we need to pin to the start of the day, we create a NotProd event up to the next
   // free time, apply the non prod and maintenance, and try again.
   if (planProd.productionAtStartOfDay && !isStartOfDay(currentSchedules, startTime)) {
     const endTime = lastValidConsecutiveFreeTime(startTime, supportData);
-    const schedule = getOrCreateScheduleForTime(startTime, planProd, currentSchedules);
-    if (schedule.start === 0 || schedule.start > startTime) {
-      schedule.start = startTime;
-    }
-    if (schedule.end < endTime) {
-      schedule.end = endTime;
-    }
-    schedule.plannedStops.push({
+    current = addNonProdEvents(currentSchedules, current, planProd, {
+      id: -startTime,
       start: startTime,
       end: endTime,
-      planProdId: planProd.id,
-      stopType: StopType.ProductionPinned,
+      title: 'Production du prochain plan obligatoire en début de journée',
     });
-    current = applyNonProdIfNeeded(currentSchedules, planProd, endTime, supportData);
+    current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
     current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
     return generateProdLeft(currentSchedules, planProd, current, supportData);
   }
@@ -597,7 +564,13 @@ function getStartTime(
     }
   }
   if (previousPlan) {
-    return previousPlan.end.getTime();
+    const lastScheduleOfPreviousPlan = getLastSchedule(previousPlan.schedulePerDay);
+    if (lastScheduleOfPreviousPlan) {
+      const lastEventOfPreviousPlan = getLastPlanEvent(lastScheduleOfPreviousPlan);
+      if (lastEventOfPreviousPlan) {
+        return lastEventOfPreviousPlan.end || supportData.currentTime;
+      }
+    }
   }
   return supportData.currentTime;
 }
@@ -746,7 +719,6 @@ function schedulePlanProd(
   previousPlan?: ScheduledPlanProd
 ): ScheduledPlanProd {
   let schedulePerDay = new Map<number, PlanProdSchedule>();
-
   // Process each events and put them in their respective schedule
   let {event, isProd} = popNextEvent(planEvents);
   while (event !== undefined) {
@@ -770,12 +742,6 @@ function schedulePlanProd(
         scheduleForEvent.doneOperationsMs += getEventDuration(stopEvent, supportData.currentTime);
       }
       scheduleForEvent.stops.push(stopEvent);
-    }
-    if (scheduleForEvent.start === 0 || scheduleForEvent.start > event.start) {
-      scheduleForEvent.start = event.start;
-    }
-    if (event.end && scheduleForEvent.end < event.end) {
-      scheduleForEvent.end = event.end;
     }
     ({event, isProd} = popNextEvent(planEvents));
   }
@@ -801,25 +767,19 @@ function schedulePlanProd(
       (lastEvent && lastEvent.end === undefined)
     ) {
       lastSchedule.status = PlanProductionStatus.IN_PROGRESS;
-      // If the last event of the schedule is still in progress, we update the schedule end
-      // to be the last time speed
-      if (lastEvent && lastEvent.end === undefined) {
-        lastSchedule.end = supportData.currentTime;
-      }
     } else {
-      // However if there is still some prod left (without a EndOfDayEndProd event), we need
+      // If there is still some prod left (without a EndOfDayEndProd event), we need
       // to create an empty IN_PROGRESS schedule for the next day that we'll complete later.
       const prodLeft = getProductionLengthMeters(planProd) - getProdDoneMeters(schedulePerDay);
       if (endOfDayEndProdStops.length === 0 && prodLeft > 0) {
-        const nextScheduleStart = endOfDay(new Date(lastSchedule.start)).getTime();
-        const nextSchedule = getOrCreateScheduleForTime(
-          nextScheduleStart,
-          planProd,
-          schedulePerDay
-        );
+        const nextSchedule = lastEvent
+          ? getOrCreateScheduleForTime(
+              endOfDay(new Date(lastEvent.start)).getTime(),
+              planProd,
+              schedulePerDay
+            )
+          : lastSchedule;
         nextSchedule.status = PlanProductionStatus.IN_PROGRESS;
-        nextSchedule.start = nextScheduleStart;
-        nextSchedule.end = nextScheduleStart;
       }
     }
   }
@@ -844,21 +804,7 @@ function schedulePlanProd(
     supportData
   );
 
-  const startTimes = Array.from(schedulePerDay.values()).reduce(
-    (times, schedule) => times.concat([schedule.start]),
-    [] as number[]
-  );
-  const endTimes = Array.from(schedulePerDay.values()).reduce(
-    (times, schedule) => times.concat([schedule.end]),
-    [] as number[]
-  );
-
-  const minStart = startTimes.reduce((minTime, start) => Math.min(minTime, start), Date.now() * 2);
-  const maxEnd = endTimes.reduce((maxTime, end) => Math.max(maxTime, end), 0);
-
   return {
-    start: new Date(minStart),
-    end: new Date(maxEnd),
     operations: planOperations,
     planProd,
     schedulePerDay,

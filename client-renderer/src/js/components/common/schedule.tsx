@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
+import {getScheduleStart, getScheduleEnd} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, isSameDay, numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, alpha} from '@root/theme';
@@ -351,7 +352,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           current = s;
           return;
         }
-        if (current.end === s.start) {
+        if (current.end === s.start && current.title === s.title) {
           current = {...current, end: s.end};
           return;
         }
@@ -407,9 +408,16 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private renderPlanProdSchedule(planSchedule: PlanProdSchedule): JSX.Element {
     const {start, end} = this.getProdHours();
+    const scheduleStart = getScheduleStart(planSchedule);
+    const scheduleEnd = getScheduleEnd(planSchedule);
+
+    if (scheduleStart === undefined || scheduleEnd === undefined) {
+      return <React.Fragment />;
+    }
+
     const planBorderPosition = this.getPositionStyleForDates(
-      new Date(Math.max(start, planSchedule.start)),
-      new Date(Math.min(end, planSchedule.end)),
+      new Date(Math.max(start, scheduleStart)),
+      new Date(Math.min(end, scheduleEnd)),
       planBorderThickness
     );
     return (

@@ -9,7 +9,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {getPlanProd, getCurrentPlanSchedule} from '@root/lib/schedule_utils';
+import {getPlanProd, getCurrentPlanSchedule, getScheduleStart} from '@root/lib/schedule_utils';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
@@ -24,12 +24,6 @@ import {ProdInfo, Schedule, StopType, BobineQuantities} from '@shared/models';
 interface ProductionAppProps {
   initialDay?: number;
 }
-
-// Left here
-// ---------
-// Keep day in state as an option
-// Initialize it with initialDay if available
-// Update get current day to read this value and use the schedule if not available
 
 interface ProductionAppState {
   day?: Date;
@@ -203,7 +197,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
     const currentPlanSchedule = getCurrentPlanSchedule(schedule);
     if (currentPlanSchedule) {
-      if (isSameDay(new Date(currentDay), new Date(currentPlanSchedule.start))) {
+      const planStart = getScheduleStart(currentPlanSchedule);
+      if (planStart !== undefined && isSameDay(new Date(currentDay), new Date())) {
         const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
         if (planProdSchedule) {
           return (
@@ -273,7 +268,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
           </NavigationIcon>
         </TopBar>
-        <ChartContainer>{this.renderChart()}</ChartContainer>
+        <ChartContainer>{/*this.renderChart()*/}</ChartContainer>
         <ProdStateContainer>
           <ScheduleContainer>
             <BlockTitle>PLANNING</BlockTitle>

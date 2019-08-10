@@ -1,3 +1,5 @@
+import {min} from 'lodash-es';
+
 import {dateAtHour} from '@shared/lib/time';
 import {startOfDay} from '@shared/lib/utils';
 import {
@@ -7,25 +9,8 @@ import {
   PlanProductionStatus,
   Maintenance,
   Stop,
+  StopType,
 } from '@shared/models';
-
-// function getPlanByIndex(schedule: Schedule, index: number): ScheduledPlanProd | undefined {
-//   for (const plan of schedule.plans) {
-//     if (plan.planProd.index === index) {
-//       return plan;
-//     }
-//   }
-//   return undefined;
-// }
-
-// function getPlanById(schedule: Schedule, id: number): ScheduledPlanProd | undefined {
-//   for (const plan of schedule.plans) {
-//     if (plan.planProd.id === id) {
-//       return plan;
-//     }
-//   }
-//   return undefined;
-// }
 
 export function getMaintenance(schedule: Schedule, maintenanceId: number): Maintenance | undefined {
   return schedule.maintenances.filter(m => m.id === maintenanceId)[0];
@@ -139,6 +124,28 @@ export function getAllPlannedMaintenances(schedule: Schedule): Maintenance[] {
     .sort((m1, m2) => m1.start - m2.start);
 }
 
+export function getScheduleStart(schedule: PlanProdSchedule): number | undefined {
+  const stops = schedule.stops
+    .concat(schedule.plannedStops)
+    .filter(s => s.stopType !== StopType.NotProdHours);
+  const prods = schedule.prods.concat(schedule.plannedProds);
+  const events: {start: number}[] = stops.concat(prods);
+  return min(events.map(e => e.start));
+}
+
+export function getScheduleEnd(schedule: PlanProdSchedule): number | undefined {
+  const stops = schedule.stops
+    .concat(schedule.plannedStops)
+    .filter(s => s.stopType !== StopType.NotProdHours);
+  const prods = schedule.prods.concat(schedule.plannedProds);
+  const events: {end?: number}[] = stops.concat(prods);
+  return min(events.map(e => e.end));
+}
+
+export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
+  return min(Array.from(plan.schedulePerDay.values()).map(getScheduleStart));
+}
+
 export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | undefined {
   const allSchedulesDoneOrInProgress = schedule.plans.reduce(
     (schedules, plan) => {
@@ -151,8 +158,12 @@ export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | u
     },
     [] as PlanProdSchedule[]
   );
-  const lastSchedule = allSchedulesDoneOrInProgress.sort((s1, s2) => s2.start - s1.start)[0];
-  return lastSchedule;
+  const scheduleWithStart = allSchedulesDoneOrInProgress.map(s => ({
+    schedule: s,
+    start: getScheduleStart(s) || 0,
+  }));
+  const lastScheduleWithStart = scheduleWithStart.sort((s1, s2) => s2.start - s1.start)[0];
+  return lastScheduleWithStart.schedule;
 }
 
 export function getCurrentPlanId(schedule: Schedule): number | undefined {

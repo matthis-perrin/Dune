@@ -10,10 +10,16 @@ import {SVGIcon} from '@root/components/core/svg_icon';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager, ContextMenu} from '@root/lib/context_menu';
-import {getAllPlannedSchedules, getPlanStatus} from '@root/lib/schedule_utils';
+import {getShortPlanProdTitle} from '@root/lib/plan_prod';
+import {
+  getAllPlannedSchedules,
+  getPlanStatus,
+  getScheduleStart,
+  getScheduleEnd,
+} from '@root/lib/schedule_utils';
 import {Palette, theme} from '@root/theme';
 
-import {getRefenteLabel} from '@shared/lib/refentes';
+import {getPoseSize} from '@shared/lib/cliches';
 import {dateAtHour} from '@shared/lib/time';
 import {
   Stock,
@@ -338,21 +344,24 @@ export class PlanProdTile extends React.Component<Props> {
 
   private renderIndicator(planProdSchedule: PlanProdSchedule): JSX.Element | undefined {
     if (planProdSchedule.status === PlanProductionStatus.DONE) {
-      return <SVGIcon name="check" width={16} height={16} />;
+      return <SVGIcon name="check" width={20} height={20} />;
     }
     if (planProdSchedule.status === PlanProductionStatus.IN_PROGRESS) {
-      return <RotatingSVG name="progress" width={16} height={16} />;
+      return <RotatingSVG name="progress" width={20} height={20} />;
     }
-    const planIndex = this.getPlanIndex();
-    if (planIndex === -1) {
-      return <React.Fragment />;
+    if (planProdSchedule.status === PlanProductionStatus.PLANNED) {
+      return <SVGIcon name="calendar" width={20} height={20} />;
     }
-    return <div>{`n°${this.getPlanIndex() + 1}`}</div>;
+    return <React.Fragment />;
   }
 
-  private renderPinIcon(planProd: ScheduledPlanProd): JSX.Element | undefined {
+  private renderPinIcon(planProd: ScheduledPlanProd, color: string): JSX.Element | undefined {
     if (planProd.planProd.operationAtStartOfDay || planProd.planProd.productionAtStartOfDay) {
-      return <SVGIcon name="pin" width={16} height={16} />;
+      return (
+        <PinIcon>
+          <SVGIcon color={color} name="pin" width={16} height={16} />
+        </PinIcon>
+      );
     }
     return undefined;
   }
@@ -366,16 +375,40 @@ export class PlanProdTile extends React.Component<Props> {
       return <React.Fragment />;
     }
 
+    const start = getScheduleStart(schedule);
+    const end = getScheduleEnd(schedule);
+
+    if (start === undefined || end === undefined) {
+      return <React.Fragment />;
+    }
+
+    const planProd = planSchedule.planProd;
+
+    const title = getShortPlanProdTitle(planProd.id);
+    const tourCount = planProd.data.tourCount;
+    const tourCountStr = `${tourCount} tours`;
+    const startStr = new Date(start).toLocaleTimeString('fr');
+    const endStr = new Date(end).toLocaleTimeString('fr');
+
+    const bobines: {ref: string; count: number}[] = [];
+    planProd.data.bobines.forEach(b => {
+      const index = bobines.map(bb => bb.ref).indexOf(b.ref);
+      const prod = getPoseSize(b.pose) * tourCount;
+      if (index === -1) {
+        bobines.push({ref: b.ref, count: prod});
+      } else {
+        bobines[index].count += prod;
+      }
+    });
+
     const rest = omit(this.props, ['data', 'ref', 'onPlanProdRefreshNeeded']);
 
     return (
       <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>
         {color => {
           const indicator = this.renderIndicator(schedule);
-          const content = getRefenteLabel(planSchedule.planProd.data.refente);
-          const pinIcon = this.renderPinIcon(planSchedule);
+          const pinIcon = this.renderPinIcon(planSchedule, color.textHex);
           const halves = this.getHalves(planSchedule);
-          const style = {borderColor: color.textHex};
           return (
             <TileWrapper
               // tslint:disable-next-line:no-any no-unsafe-any
@@ -386,62 +419,142 @@ export class PlanProdTile extends React.Component<Props> {
               onClick={this.handleClick}
               {...rest}
               style={{
-                background: color.backgroundHex,
                 color: color.textHex,
-                border: `solid 1px ${color.textHex}`,
                 borderBottomStyle: !halves.bottom ? 'dashed' : 'solid',
                 borderTopStyle: !halves.top ? 'dashed' : 'solid',
               }}
             >
-              {indicator ? (
-                <TileIndicator style={style}>{indicator}</TileIndicator>
-              ) : (
-                <React.Fragment />
-              )}
-              <TileContent>{content}</TileContent>
-              {pinIcon ? <TilePin style={style}>{pinIcon}</TilePin> : <React.Fragment />}
+              <TileLeft style={{background: color.backgroundHex}}>
+                <TilePlanProdTitle>{title}</TilePlanProdTitle>
+              </TileLeft>
+              <TileRight>
+                <TileTop style={{background: color.backgroundHex}}>{tourCountStr}</TileTop>
+                <TileContent>
+                  <TileBobineGrid>
+                    {bobines.map(({ref, count}) => (
+                      <React.Fragment>
+                        <TileBobineRef>{ref}</TileBobineRef>
+                        <TileBobineProd>{`(+${count})`}</TileBobineProd>
+                      </React.Fragment>
+                    ))}
+                  </TileBobineGrid>
+                  <TileInfo>
+                    <TileInfoTime>{startStr}</TileInfoTime>
+                    <TileInfoTime>{endStr}</TileInfoTime>
+                    <TileInfoStatus>{indicator}</TileInfoStatus>
+                  </TileInfo>
+                </TileContent>
+              </TileRight>
+              {pinIcon}
             </TileWrapper>
           );
         }}
       </WithColor>
     );
-    return <div>TODO</div>;
   }
 }
 
 const margin = 4;
 
 const TileWrapper = styled.div`
+  position: relative;
   width: calc(100% - ${2 * margin}px);
-  height: 32px;
   box-sizing: border-box;
   margin: 0 ${margin}px ${margin}px ${margin}px;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  border: solid 1px black;
 `;
 
-const TileElement = styled.div`
-  height: 32px;
-  line-height: 32px;
-  text-align: center;
+const TileLeft = styled.div`
   flex-shrink: 0;
-  width: 32px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: solid 1px black;
 `;
-
-const TileIndicator = styled(TileElement)`
-  border-right: solid 1px;
+const TilePlanProdTitle = styled.div`
+  writing-mode: vertical-rl;
+  transform: rotate(-180deg);
+`;
+const TileRight = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+`;
+const TileTop = styled.div`
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: solid 1px black;
 `;
 const TileContent = styled.div`
+  display: flex;
+  background-color: ${Palette.White};
+  color: ${Palette.Black};
+  padding: 6px;
+`;
+const TileBobineGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: repeat(20, auto);
   flex-grow: 1;
-  white-space: nowrap;
-  overflow: hidden;
+  font-size: 14px;
+`;
+const TileBobineRef = styled.div`
+  overflow-x: hidden;
   text-overflow: ellipsis;
 `;
-const TilePin = styled(TileElement)`
-  border-left: solid 1px;
+const TileBobineProd = styled.div`
+  flex-grow: 1;
+  text-align: right;
 `;
+const TileInfo = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  margin-left: 6px;
+`;
+const TileInfoTime = styled.div`
+  flex-shrink: 0;
+  height: 24px;
+  text-align: right;
+`;
+const TileInfoStatus = styled.div`
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+`;
+const PinIcon = styled.div`
+  position: absolute;
+  top: 3px;
+  right: 2px;
+`;
+
+// const TileElement = styled.div`
+//   height: 32px;
+//   line-height: 32px;
+//   text-align: center;
+//   flex-shrink: 0;
+//   width: 32px;
+// `;
+
+// const TileIndicator = styled(TileElement)`
+//   border-right: solid 1px;
+// `;
+// const TileContent = styled.div`
+//   flex-grow: 1;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+// `;
+// const TilePin = styled(TileElement)`
+//   border-left: solid 1px;
+// `;
 
 const rotate = keyframes`
   from {

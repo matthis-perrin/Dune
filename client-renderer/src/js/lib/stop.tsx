@@ -12,8 +12,6 @@ const labelForStopType = new Map<StopType, string>([
   [StopType.EndOfDayPauseProd, 'Fin de journée (pause du plan production)'],
   [StopType.Unplanned, 'Imprévu'],
   [StopType.Maintenance, 'Maintenance'],
-  [StopType.OperationPinned, 'Réglage du prochain plan obligatoire en début de journée'],
-  [StopType.ProductionPinned, 'Production du prochain plan obligatoire en début de journée'],
 ]);
 
 const labelForUnknownStopType = '???';
@@ -41,8 +39,6 @@ const colorForStopType = new Map<StopType, string>([
   [StopType.EndOfDayPauseProd, Palette.PeterRiver],
   [StopType.Unplanned, Colors.Danger],
   [StopType.Maintenance, Palette.Asbestos],
-  [StopType.OperationPinned, Palette.Asbestos],
-  [StopType.ProductionPinned, Palette.Asbestos],
 ]);
 
 const colorForUnknownStopType = Palette.Silver;

@@ -6,6 +6,7 @@ import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
 import {Page} from '@root/components/apps/main/page';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
+import {getPlanStart} from '@root/lib/schedule_utils';
 import {dateIsAfterOrSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
@@ -99,7 +100,13 @@ export class GestionPage extends React.Component<Props, State> {
     }
     const dayEnd = endOfDay(date).getTime();
     const lastPlanBeforeOrAtDate = schedule.plans
-      .filter(p => startOfDay(p.start).getTime() <= dayEnd)
+      .filter(p => {
+        const start = getPlanStart(p);
+        if (start === undefined) {
+          return false;
+        }
+        return startOfDay(new Date(start)).getTime() <= dayEnd;
+      })
       .sort((p1, p2) => p2.planProd.index - p1.planProd.index)[0];
     if (!lastPlanBeforeOrAtDate) {
       return 0;
