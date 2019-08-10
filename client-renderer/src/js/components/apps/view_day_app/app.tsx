@@ -8,7 +8,7 @@ import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {startOfDay, capitalize} from '@shared/lib/utils';
+import {startOfDay, capitalize, endOfDay} from '@shared/lib/utils';
 import {Stock, Schedule} from '@shared/models';
 
 interface ViewDayAppProps {
@@ -52,7 +52,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 
   private getDayRangeForDate(date: Date): {start: number; end: number} {
     const start = startOfDay(date).getTime();
-    const end = startOfDay(date).getTime();
+    const end = endOfDay(date).getTime();
     return {start, end};
   }
 
