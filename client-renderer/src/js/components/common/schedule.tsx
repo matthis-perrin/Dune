@@ -412,7 +412,15 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const scheduleEnd = getScheduleEnd(planSchedule);
 
     if (scheduleStart === undefined || scheduleEnd === undefined) {
-      return <React.Fragment />;
+      return (
+        <React.Fragment>
+          {this.renderNonProds(
+            planSchedule.stops
+              .concat(planSchedule.plannedStops)
+              .filter(s => s.stopType === StopType.NotProdHours)
+          )}
+        </React.Fragment>
+      );
     }
 
     const planBorderPosition = this.getPositionStyleForDates(
@@ -447,8 +455,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
             </PlanTitle>
             {this.renderNonProds(
               planSchedule.stops
+                .concat(planSchedule.plannedStops)
                 .filter(s => s.stopType === StopType.NotProdHours)
-                .concat(planSchedule.plannedStops.filter(s => s.stopType === StopType.NotProdHours))
             )}
           </React.Fragment>
         )}

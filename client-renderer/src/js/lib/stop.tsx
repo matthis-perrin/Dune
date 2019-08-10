@@ -4,7 +4,7 @@ import {StopType} from '@shared/models';
 const labelForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, 'Changement de plan de production'],
   [StopType.ReglagesAdditionel, 'Reprise de réglages'],
-  [StopType.ReprisePlanProd, 'Reprise de prodution'],
+  [StopType.ReprisePlanProd, 'Reprise de production'],
   [StopType.ChangeBobinePapier, 'Changement de bobine papier'],
   [StopType.ChangeBobinePolypro, 'Changement de bobine polypro'],
   [StopType.ChangeBobinePapierAndPolypro, 'Changement de bobine papier et polypro'],

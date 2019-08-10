@@ -1,4 +1,4 @@
-import {min} from 'lodash-es';
+import {min, max} from 'lodash-es';
 
 import {dateAtHour} from '@shared/lib/time';
 import {startOfDay} from '@shared/lib/utils';
@@ -148,7 +148,7 @@ export function getScheduleStart(schedule: PlanProdSchedule): number | undefined
 }
 
 export function getScheduleEnd(schedule: PlanProdSchedule): number | undefined {
-  return min(getScheduleEnds(schedule));
+  return max(getScheduleEnds(schedule));
 }
 
 export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
