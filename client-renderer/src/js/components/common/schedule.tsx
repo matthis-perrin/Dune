@@ -47,10 +47,20 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   public static displayName = 'ScheduleView';
 
   private scheduleRange: {start: number; end: number};
+  private readonly scheduleWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: ScheduleViewProps) {
     super(props);
     this.scheduleRange = this.getScheduleRange();
+  }
+
+  public componentDidUpdate(prevProps: ScheduleViewProps): void {
+    if (this.props.day !== prevProps.day) {
+      const scheduleWrapper = this.scheduleWrapperRef.current;
+      if (scheduleWrapper) {
+        scheduleWrapper.scrollTo(0, 0);
+      }
+    }
   }
 
   private getProdHours(): {start: number; end: number} {
@@ -627,7 +637,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // it is available to the other render methods. This avoids computing it too many times.
     this.scheduleRange = this.getScheduleRange();
     return (
-      <ScheduleWrapper>
+      <ScheduleWrapper ref={this.scheduleWrapperRef}>
         {this.renderHours()}
         {this.renderPlanProds()}
         {this.renderCurrentTimeIndicator()}
