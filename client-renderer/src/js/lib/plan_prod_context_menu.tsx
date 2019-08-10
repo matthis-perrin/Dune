@@ -21,6 +21,7 @@ function newPlanProd(
   bridge
     .createNewPlanProduction((planSchedule.planProd.index || -1) + (before ? 0 : 1))
     .then(data => {
+      onRefreshNeeded();
       const id = asNumber(asMap(data).id, 0);
       bridge
         .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true})

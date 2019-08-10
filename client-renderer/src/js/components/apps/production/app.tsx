@@ -245,7 +245,13 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       return <LoadingIndicator size="large" />;
     }
 
-    return <ScheduleView day={currentDay} schedule={schedule} />;
+    return (
+      <ScheduleView
+        day={currentDay}
+        schedule={schedule}
+        onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
+      />
+    );
   }
 
   private renderTopBar(): JSX.Element {

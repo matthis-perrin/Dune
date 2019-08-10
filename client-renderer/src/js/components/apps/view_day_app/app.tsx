@@ -101,7 +101,15 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     if (!schedule) {
       return <React.Fragment />;
     }
-    return <ScheduleView day={new Date(day)} schedule={schedule} stocks={stocks} />;
+    return (
+      <ScheduleView
+        day={new Date(day)}
+        schedule={schedule}
+        stocks={stocks}
+        withContextMenu
+        onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
+      />
+    );
   }
 
   public render(): JSX.Element {

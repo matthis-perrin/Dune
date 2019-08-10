@@ -375,15 +375,15 @@ export class PlanProdTile extends React.Component<Props> {
   }
 }
 
-const margin = 4;
+const hMargin = 4;
+const vMargin = 8;
 
 const TileWrapper = styled.div`
   position: relative;
-  width: calc(100% - ${2 * margin}px);
+  width: calc(100% - ${2 * hMargin}px);
   box-sizing: border-box;
-  margin: 0 ${margin}px ${margin}px ${margin}px;
+  margin: 0 ${hMargin}px ${vMargin}px ${hMargin}px;
   border-radius: 8px;
-  cursor: pointer;
   display: flex;
   border: solid 1px black;
   font-weight: ${FontWeight.SemiBold};

@@ -3,7 +3,13 @@ import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {getScheduleStart, getScheduleEnd} from '@root/lib/schedule_utils';
+import {showPlanContextMenu} from '@root/lib/plan_prod_context_menu';
+import {
+  getScheduleStart,
+  getScheduleEnd,
+  getPlanStatus,
+  getPlanProd,
+} from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, isSameDay, numberWithSeparator} from '@root/lib/utils';
 import {theme, Palette, FontWeight, alpha} from '@root/theme';
@@ -25,6 +31,8 @@ interface ScheduleViewProps {
   day: Date;
   schedule?: Schedule;
   stocks?: Map<string, Stock[]>;
+  withContextMenu?: boolean;
+  onPlanProdRefreshNeeded(): void;
 }
 
 const PLANNED_EVENT_OPACITY = 0.75;
@@ -273,7 +281,28 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return <VerticalDuration>{`${hours}h${minutesStr}`}</VerticalDuration>;
   }
 
-  private renderStop(stop: Stop, color: Color, isPlanned: boolean): JSX.Element {
+  private readonly handleContextMenuForPlan = (planId: number) => (
+    event: React.MouseEvent
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    const {schedule, withContextMenu} = this.props;
+    if (!schedule || !withContextMenu) {
+      return;
+    }
+    const planSchedule = getPlanProd(schedule, planId);
+    if (!planSchedule) {
+      return;
+    }
+    const planType = getPlanStatus(planSchedule);
+    if (planType === PlanProductionStatus.PLANNED) {
+      showPlanContextMenu(schedule, planSchedule.planProd.id, () =>
+        this.props.onPlanProdRefreshNeeded()
+      );
+    }
+  };
+
+  private renderStop(stop: Stop, planId: number, color: Color, isPlanned: boolean): JSX.Element {
     if (stop.stopType === StopType.NotProdHours) {
       return <React.Fragment />;
     }
@@ -291,6 +320,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return (
       <React.Fragment>
         <StopWrapper
+          onContextMenu={this.handleContextMenuForPlan(planId)}
           style={{
             ...positionStyles,
             background: this.getStripesForColor(
@@ -303,6 +333,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           <StopLabel style={labelTextStyles}>{stopLabel}</StopLabel>
         </StopWrapper>
         <DurationWrapper
+          onContextMenu={this.handleContextMenuForPlan(planId)}
           style={{
             ...positionStyles,
             backgroundColor: getColorForStopType(stop.stopType),
@@ -366,7 +397,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return mergedStops.map(s => this.renderNonProd(s));
   }
 
-  private renderProd(prod: Prod, color: Color, isPlanned: boolean): JSX.Element {
+  private renderProd(prod: Prod, planId: number, color: Color, isPlanned: boolean): JSX.Element {
     if (!prod.end) {
       console.log(prod);
       throw new Error('invalid prod');
@@ -383,6 +414,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return (
       <React.Fragment>
         <ProdWrapper
+          onContextMenu={this.handleContextMenuForPlan(planId)}
           style={{
             ...positionStyles,
             backgroundColor: color.backgroundHex,
@@ -391,6 +423,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           }}
         />
         <DurationWrapper
+          onContextMenu={this.handleContextMenuForPlan(planId)}
           style={{
             ...labelPositionStyles,
             backgroundColor: color.backgroundHex,
@@ -423,6 +456,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       );
     }
 
+    const planId = planSchedule.planProd.id;
     const planBorderPosition = this.getPositionStyleForDates(
       new Date(Math.max(start, scheduleStart)),
       new Date(Math.min(end, scheduleEnd)),
@@ -433,17 +467,19 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         {color => (
           <React.Fragment>
             {([] as JSX.Element[])
-              .concat(planSchedule.stops.map(s => this.renderStop(s, color, false)))
-              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, color, true)))
-              .concat(planSchedule.prods.map(p => this.renderProd(p, color, false)))
-              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, color, true)))}
+              .concat(planSchedule.stops.map(s => this.renderStop(s, planId, color, false)))
+              .concat(planSchedule.plannedStops.map(s => this.renderStop(s, planId, color, true)))
+              .concat(planSchedule.prods.map(p => this.renderProd(p, planId, color, false)))
+              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, planId, color, true)))}
             <PlanProdBorder
+              onContextMenu={this.handleContextMenuForPlan(planId)}
               style={{
                 ...planBorderPosition,
                 width: `calc(100% - ${paddingLeft + paddingRight}px - ${planBorderThickness}px)`,
               }}
             />
             <PlanTitle
+              onContextMenu={this.handleContextMenuForPlan(planId)}
               style={{
                 ...planBorderPosition,
                 width: sideBlockWidth,
