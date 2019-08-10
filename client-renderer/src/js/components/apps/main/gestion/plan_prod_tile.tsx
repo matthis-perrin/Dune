@@ -1,4 +1,4 @@
-import {omit, maxBy, findIndex} from 'lodash-es';
+import {omit, maxBy} from 'lodash-es';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import styled, {keyframes} from 'styled-components';
@@ -10,10 +10,9 @@ import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
-import {contextMenuManager, ContextMenu} from '@root/lib/context_menu';
 import {getShortPlanProdTitle} from '@root/lib/plan_prod';
+import {showPlanContextMenu} from '@root/lib/plan_prod_context_menu';
 import {
-  getAllPlannedSchedules,
   getPlanStatus,
   getScheduleStart,
   getScheduleEnd,
@@ -27,13 +26,11 @@ import {
   Stock,
   BobineQuantities,
   ClientAppType,
-  PlanProductionInfo,
   ScheduledPlanProd,
   Schedule,
   PlanProductionStatus,
   PlanProdSchedule,
 } from '@shared/models';
-import {asMap, asNumber} from '@shared/type_utils';
 
 const SHOW_VIEWER_TIMEOUT_MS = 400;
 
@@ -197,59 +194,6 @@ export class PlanProdTile extends React.Component<Props> {
     });
   }
 
-  private newPlanProd(before: boolean): void {
-    const {planSchedule} = this.props;
-    bridge
-      .createNewPlanProduction((planSchedule.planProd.index || -1) + (before ? 0 : 1))
-      .then(data => {
-        const id = asNumber(asMap(data).id, 0);
-        bridge
-          .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true})
-          .catch(console.error);
-      })
-      .catch(console.error);
-  }
-
-  private readonly setOperationAtStartOfDay = (newValue: boolean): void => {
-    const {planSchedule, onPlanProdRefreshNeeded} = this.props;
-    const newPlanInfo: PlanProductionInfo = {...planSchedule.planProd};
-    newPlanInfo.operationAtStartOfDay = newValue;
-    bridge
-      .updatePlanProductionInfo(planSchedule.planProd.id, newPlanInfo)
-      .then(onPlanProdRefreshNeeded)
-      .catch(console.error);
-  };
-  private readonly setProductionAtStartOfDay = (newValue: boolean): void => {
-    const {planSchedule, onPlanProdRefreshNeeded} = this.props;
-    const newPlanInfo: PlanProductionInfo = {...planSchedule.planProd};
-    newPlanInfo.productionAtStartOfDay = newValue;
-    bridge
-      .updatePlanProductionInfo(planSchedule.planProd.id, newPlanInfo)
-      .then(onPlanProdRefreshNeeded)
-      .catch(console.error);
-  };
-
-  private deletePlanProd(): void {
-    const {planSchedule, onPlanProdRefreshNeeded} = this.props;
-    bridge
-      .deletePlanProduction(planSchedule.planProd.index)
-      .then(() => {
-        this.removeViewer();
-        onPlanProdRefreshNeeded();
-      })
-      .catch(console.error);
-  }
-
-  private movePlanProd(toIndex: number): void {
-    const {planSchedule, onPlanProdRefreshNeeded} = this.props;
-    if (planSchedule.planProd.index) {
-      bridge
-        .movePlanProduction(planSchedule.planProd.id, planSchedule.planProd.index, toIndex)
-        .then(onPlanProdRefreshNeeded)
-        .catch(console.error);
-    }
-  }
-
   private getHalves(planProd: ScheduledPlanProd): {top: boolean; bottom: boolean} {
     const {date} = this.props;
     const currentDayStart = startOfDay(date).getTime();
@@ -269,69 +213,16 @@ export class PlanProdTile extends React.Component<Props> {
     return {top, bottom};
   }
 
-  private getPlanIndex(): number {
-    const {planSchedule, schedule} = this.props;
-    const allPlanned = getAllPlannedSchedules(schedule);
-    return findIndex(allPlanned, p => p.planProd.id === planSchedule.planProd.id);
-  }
-
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {planSchedule, schedule} = this.props;
+    const {planSchedule, schedule, onPlanProdRefreshNeeded} = this.props;
     const planType = getPlanStatus(planSchedule);
-    const allPlanned = getAllPlannedSchedules(schedule);
-    const planIndex = this.getPlanIndex();
     if (planType === PlanProductionStatus.PLANNED) {
-      const menus: ContextMenu[] = [];
-      menus.push({
-        label: 'Nouveau plan de production avant',
-        callback: () => this.newPlanProd(true),
+      showPlanContextMenu(schedule, planSchedule.planProd.id, () => {
+        this.removeViewer();
+        onPlanProdRefreshNeeded();
       });
-      menus.push({
-        label: 'Nouveau plan de production après',
-        callback: () => this.newPlanProd(false),
-      });
-      menus.push({
-        label: `Déplacer le plan ${getShortPlanProdTitle(planSchedule.planProd.id)}`,
-        submenus: allPlanned.map((plan, index) => ({
-          label:
-            index < planIndex
-              ? `avant le plan ${getShortPlanProdTitle(plan.planProd.id)}`
-              : index > planIndex
-              ? `après le plan ${getShortPlanProdTitle(plan.planProd.id)}`
-              : '—',
-          disabled: index !== planIndex,
-          callback: () => this.movePlanProd(plan.planProd.index),
-        })),
-      });
-      if (planSchedule.planProd.operationAtStartOfDay) {
-        menus.push({
-          label: 'Ne pas forcer les réglages en début de journée',
-          callback: () => this.setOperationAtStartOfDay(false),
-        });
-      } else {
-        menus.push({
-          label: 'Forcer les réglages en début de journée',
-          callback: () => this.setOperationAtStartOfDay(true),
-        });
-      }
-      if (planSchedule.planProd.productionAtStartOfDay) {
-        menus.push({
-          label: 'Ne pas forcer la production en début de journée',
-          callback: () => this.setProductionAtStartOfDay(false),
-        });
-      } else {
-        menus.push({
-          label: 'Forcer la production en début de journée',
-          callback: () => this.setProductionAtStartOfDay(true),
-        });
-      }
-      menus.push({
-        label: 'Supprimer ce plan de production',
-        callback: () => this.deletePlanProd(),
-      });
-      contextMenuManager.open(menus).catch(console.error);
       this.removeViewer();
     }
   };
