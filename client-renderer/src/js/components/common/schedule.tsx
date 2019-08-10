@@ -141,7 +141,12 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
 
     return (
-      <HoursSVG style={{position: 'absolute'}} height={height} width="100%">
+      <HoursSVG
+        onContextMenu={this.handleContextMenuForDay}
+        style={{position: 'absolute'}}
+        height={height}
+        width="100%"
+      >
         {svgComponents}
       </HoursSVG>
     );
@@ -287,6 +292,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForPlan = (planId: number) => (
     event: React.MouseEvent
   ): void => {
+    console.log('handleContextMenuForPlan');
     event.preventDefault();
     event.stopPropagation();
     const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
@@ -306,6 +312,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForNonProd = (end: number | undefined) => (
     event: React.MouseEvent
   ): void => {
+    console.log('handleContextMenuForNonProd');
     const {schedule, onPlanProdRefreshNeeded} = this.props;
     if (!schedule || end === undefined) {
       return;
@@ -329,8 +336,28 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
   };
 
+  private readonly handleContextMenuForMaintenance = (maintenanceId: number) => (
+    event: React.MouseEvent
+  ): void => {
+    console.log('handleContextMenuForMaintenance');
+    const {onPlanProdRefreshNeeded} = this.props;
+    event.preventDefault();
+    event.stopPropagation();
+    contextMenuManager.open([
+      {
+        label: 'Supprimer cette maintenance',
+        callback: () =>
+          bridge
+            .deleteMaintenance(maintenanceId)
+            .then(onPlanProdRefreshNeeded)
+            .catch(console.error),
+      },
+    ]);
+  };
+
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
     const {schedule, day, onPlanProdRefreshNeeded} = this.props;
+    console.log('handleContextMenuForDay');
     if (event.type === 'contextmenu' && schedule !== undefined) {
       showDayContextMenu(schedule, day, onPlanProdRefreshNeeded);
     }
@@ -346,12 +373,18 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
 
     let defaultLabel = stop.title;
+    let contextMenuHandler = this.handleContextMenuForPlan(planId);
     if (stop.maintenanceId !== undefined) {
       const {schedule} = this.props;
       if (schedule) {
         const maintenance = schedule.maintenances.find(m => m.id === stop.maintenanceId);
         if (maintenance) {
           defaultLabel = maintenance.title;
+        }
+        const currentTime =
+          schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
+        if (stop.start > currentTime) {
+          contextMenuHandler = this.handleContextMenuForMaintenance(stop.maintenanceId);
         }
       }
     }
@@ -366,7 +399,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return (
       <React.Fragment>
         <StopWrapper
-          onContextMenu={this.handleContextMenuForPlan(planId)}
+          onContextMenu={contextMenuHandler}
           style={{
             ...positionStyles,
             background: this.getStripesForColor(
@@ -379,7 +412,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           <StopLabel style={labelTextStyles}>{stopLabel}</StopLabel>
         </StopWrapper>
         <DurationWrapper
-          onContextMenu={this.handleContextMenuForPlan(planId)}
+          onContextMenu={contextMenuHandler}
           style={{
             ...positionStyles,
             backgroundColor: getColorForStopType(stop.stopType),
@@ -519,7 +552,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               .concat(planSchedule.prods.map(p => this.renderProd(p, planId, color, false)))
               .concat(planSchedule.plannedProds.map(p => this.renderProd(p, planId, color, true)))}
             <PlanProdBorder
-              onContextMenu={this.handleContextMenuForPlan(planId)}
               style={{
                 ...planBorderPosition,
                 width: `calc(100% - ${paddingLeft + paddingRight}px - ${planBorderThickness}px)`,
@@ -595,7 +627,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // it is available to the other render methods. This avoids computing it too many times.
     this.scheduleRange = this.getScheduleRange();
     return (
-      <ScheduleWrapper onContextMenu={this.handleContextMenuForDay}>
+      <ScheduleWrapper>
         {this.renderHours()}
         {this.renderPlanProds()}
         {this.renderCurrentTimeIndicator()}
@@ -673,6 +705,7 @@ const PlanProdBorder = styled.div`
   border: solid ${planBorderThickness}px black;
   border-left: none;
   box-sizing: border-box;
+  pointer-events: none;
 `;
 
 const PlanTitle = styled.div`
