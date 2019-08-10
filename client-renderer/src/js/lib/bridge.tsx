@@ -306,11 +306,21 @@ export class Bridge {
       title,
     });
   }
+  public async deleteMaintenance(id: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.DeleteMaintenance, {
+      id,
+    });
+  }
   public async createNonProd(start: number, end: number, title: string): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CreateNonProd, {
       start,
       end,
       title,
+    });
+  }
+  public async deleteNonProd(id: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.DeleteNonProd, {
+      id,
     });
   }
 

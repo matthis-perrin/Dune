@@ -16,8 +16,12 @@ import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
-import {createMaintenance, getMaintenancesBetween} from '@shared/db/maintenances';
-import {getNonProdsBetween} from '@shared/db/non_prods';
+import {
+  createMaintenance,
+  getMaintenancesBetween,
+  deleteMaintenance,
+} from '@shared/db/maintenances';
+import {getNonProdsBetween, deleteNonProd} from '@shared/db/non_prods';
 import {listOperations} from '@shared/db/operations';
 import {listPerfos} from '@shared/db/perfos';
 import {
@@ -396,6 +400,11 @@ export async function handleCommand(
       asString(title, '')
     );
   }
+  if (command === BridgeCommands.DeleteMaintenance) {
+    debugLog();
+    const {id} = asMap(params);
+    return deleteMaintenance(SQLITE_DB.Prod, asNumber(id, 0));
+  }
   if (command === BridgeCommands.CreateNonProd) {
     debugLog();
     const {start, end, title} = asMap(params);
@@ -405,5 +414,10 @@ export async function handleCommand(
       asNumber(end, 0),
       asString(title, '')
     );
+  }
+  if (command === BridgeCommands.DeleteNonProd) {
+    debugLog();
+    const {id} = asMap(params);
+    return deleteNonProd(SQLITE_DB.Prod, asNumber(id, 0));
   }
 }

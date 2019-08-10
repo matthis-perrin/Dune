@@ -69,3 +69,9 @@ export async function createMaintenance(
     [MaintenanceColumns.END_TIME]: end,
   });
 }
+
+export async function deleteMaintenance(db: knex, id: number): Promise<void> {
+  return db(MAINTENANCE_TABLE_NAME)
+    .where(MaintenanceColumns.ID, '=', id)
+    .del();
+}

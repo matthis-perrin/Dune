@@ -2,6 +2,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {WithColor} from '@root/components/core/with_colors';
+import {bridge} from '@root/lib/bridge';
+import {contextMenuManager} from '@root/lib/context_menu';
 import {showDayContextMenu} from '@root/lib/day_context_menu';
 import {getPlanProdTitle, getShortPlanProdTitle} from '@root/lib/plan_prod';
 import {showPlanContextMenu} from '@root/lib/plan_prod_context_menu';
@@ -301,6 +303,32 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
   };
 
+  private readonly handleContextMenuForNonProd = (end: number | undefined) => (
+    event: React.MouseEvent
+  ): void => {
+    const {schedule, onPlanProdRefreshNeeded} = this.props;
+    if (!schedule || end === undefined) {
+      return;
+    }
+    const nonProd = schedule.nonProds.find(np => np.end === end);
+    const currentTime =
+      schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
+    if (nonProd && nonProd.start > currentTime) {
+      event.preventDefault();
+      event.stopPropagation();
+      contextMenuManager.open([
+        {
+          label: 'Supprimer cette zone de non production',
+          callback: () =>
+            bridge
+              .deleteNonProd(nonProd.id)
+              .then(onPlanProdRefreshNeeded)
+              .catch(console.error),
+        },
+      ]);
+    }
+  };
+
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
     const {schedule, day, onPlanProdRefreshNeeded} = this.props;
     if (event.type === 'contextmenu' && schedule !== undefined) {
@@ -378,6 +406,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
     return (
       <StopWrapper
+        onContextMenu={this.handleContextMenuForNonProd(stop.end)}
         style={{
           ...positionStyles,
           left: 0,
