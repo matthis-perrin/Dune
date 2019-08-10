@@ -150,7 +150,7 @@ export class GestionPage extends React.Component<Props, State> {
     }
   };
 
-  private readonly handleDayClick = (event: React.MouseEvent, date: Date): void => {
+  private readonly handleDayDoubleClick = (event: React.MouseEvent, date: Date): void => {
     bridge.viewDay(date.getTime()).catch(console.error);
   };
 
@@ -202,7 +202,7 @@ export class GestionPage extends React.Component<Props, State> {
           onNextClick={this.goToNextMonth}
           onPreviousClick={this.goToPreviousMonth}
           onDayContextMenu={this.handleDayContextMenu}
-          onDayClick={this.handleDayClick}
+          onDayDoubleClick={this.handleDayDoubleClick}
         >
           {(date: Date) => this.renderDay(date)}
         </Calendar>

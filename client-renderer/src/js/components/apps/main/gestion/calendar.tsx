@@ -17,7 +17,7 @@ interface CalendarProps {
   onPreviousClick(): void;
   onNextClick(): void;
   onDayContextMenu(event: React.MouseEvent, date: Date): void;
-  onDayClick(event: React.MouseEvent, date: Date): void;
+  onDayDoubleClick(event: React.MouseEvent, date: Date): void;
 }
 
 export class Calendar extends React.Component<CalendarProps, {}> {
@@ -89,7 +89,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
       onPreviousClick,
       onNextClick,
       onDayContextMenu,
-      onDayClick,
+      onDayDoubleClick,
     } = this.props;
     const weeks = this.getWeeks();
     const firstWeek = weeks[0] || [];
@@ -129,7 +129,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
                   key={date.getTime()}
                   style={{opacity: this.isOtherMonth(date) ? OTHER_MONTH_OPACITY : 1}}
                   onContextMenu={event => onDayContextMenu(event, date)}
-                  onClick={event => onDayClick(event, date)}
+                  onDoubleClick={event => onDayDoubleClick(event, date)}
                 >
                   <CalendarCellHeader>{this.renderDayCircle(date)}</CalendarCellHeader>
                   {children(date)}

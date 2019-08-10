@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import styled, {keyframes} from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
+import {RefLink} from '@root/components/common/ref_link';
 import {HTMLDivProps} from '@root/components/core/common';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
@@ -335,7 +336,7 @@ export class PlanProdTile extends React.Component<Props> {
     }
   };
 
-  private readonly handleClick = (event: React.MouseEvent): void => {
+  private readonly handleDoubleClick = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
     const {planSchedule} = this.props;
@@ -428,7 +429,15 @@ export class PlanProdTile extends React.Component<Props> {
             <TileBobineGrid>
               {bobines.map(({ref, count}) => (
                 <React.Fragment>
-                  <TileBobineRef>{ref}</TileBobineRef>
+                  <TileBobineRef>
+                    <RefLink
+                      style={{justifyContent: 'flex-start'}}
+                      noIcon
+                      onClick={() => bridge.viewBobine(ref).catch(console.error)}
+                    >
+                      {ref}
+                    </RefLink>
+                  </TileBobineRef>
                   <TileBobineProd>{`(+${count})`}</TileBobineProd>
                 </React.Fragment>
               ))}
@@ -444,7 +453,7 @@ export class PlanProdTile extends React.Component<Props> {
               onMouseEnter={() => this.showViewer()}
               onMouseLeave={() => this.removeViewer()}
               onContextMenu={this.handleContextMenu}
-              onClick={this.handleClick}
+              onDoubleClick={this.handleDoubleClick}
               {...rest}
               style={{
                 color: color.textHex,
