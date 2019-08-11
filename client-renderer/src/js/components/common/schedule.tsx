@@ -391,7 +391,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       if (schedule) {
         const maintenance = schedule.maintenances.find(m => m.id === stop.maintenanceId);
         if (maintenance) {
-          defaultLabel = maintenance.title;
+          defaultLabel = `Maintenance : ${maintenance.title}`;
         }
         const currentTime =
           schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {StopView} from '@root/components/apps/production/stop_view';
+import {StopTile} from '@root/components/apps/production/stop_tile';
 import {Button} from '@root/components/core/button';
 import {Closable} from '@root/components/core/closable';
 import {bridge} from '@root/lib/bridge';
@@ -95,7 +95,7 @@ export class StopList extends React.Component<StopListProps> {
   };
 
   public render(): JSX.Element {
-    const {stops, lastMinute} = this.props;
+    const {stops, lastMinute, schedule} = this.props;
     const sortedStops = stops.sort((s1, s2) => s1.start - s2.start);
     const startMaintenanceId = this.canStartMaintenance();
     const endMaintenanceId = this.canEndMaintenance();
@@ -104,9 +104,9 @@ export class StopList extends React.Component<StopListProps> {
       <StopsWrapper>
         {sortedStops.map((s, i) => {
           const stopView = (
-            <StopViewWrapper key={`stop-${s.start}-${i}`}>
-              <StopView lastMinute={lastMinute} stop={s} />
-            </StopViewWrapper>
+            <StopTileWrapper key={`stop-${s.start}-${i}`}>
+              <StopTile lastMinute={lastMinute} stop={s} maintenances={schedule.maintenances} />
+            </StopTileWrapper>
           );
           const previousStop = sortedStops[i - 1];
           if (
@@ -143,6 +143,6 @@ const StopsWrapper = styled.div`
   flex-direction: column;
   overflow-y: auto;
 `;
-const StopViewWrapper = styled.div`
+const StopTileWrapper = styled.div`
   margin-bottom: 6px;
 `;

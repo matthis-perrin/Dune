@@ -108,7 +108,7 @@ export class StopDetails extends React.Component<StopDetailsProps> {
       rightForm = this.renderMaintenanceForm(maintenanceId);
     }
     return this.renderLine(
-      getLabelForStopType(type),
+      getLabelForStopType(type, type === StopType.Maintenance ? 'Maintenance' : undefined),
       getColorForStopType(type),
       this.props.onRemoveType,
       rightForm

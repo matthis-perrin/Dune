@@ -2,16 +2,18 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {bridge} from '@root/lib/bridge';
-import {Palette} from '@root/theme';
+import {getShortPlanProdTitle} from '@root/lib/plan_prod';
+import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
+import {formatDuration} from '@root/lib/utils';
+import {Palette, Colors} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
+import {Stop, UnplannedStop, Cleaning, Maintenance, StopType} from '@shared/models';
 
 interface StopTileProps {
-  start: number;
-  end?: number;
-  indicators: {label: string; value: string | JSX.Element}[];
-  right: JSX.Element;
-  color: string;
+  stop: Stop;
+  lastMinute: number;
+  maintenances: Maintenance[];
 }
 
 export class StopTile extends React.Component<StopTileProps> {
@@ -22,33 +24,88 @@ export class StopTile extends React.Component<StopTileProps> {
   }
 
   private readonly handleClick = (): void => {
-    const {start} = this.props;
-    const day = dateAtHour(new Date(start), 0).getTime();
-    bridge.openDayStopWindow(day, start).catch(console.error);
+    const {stop} = this.props;
+    const day = dateAtHour(new Date(stop.start), 0).getTime();
+    bridge.openDayStopWindow(day, stop.start).catch(console.error);
   };
 
+  private renderStopLine(title: string, color: string): JSX.Element {
+    return (
+      <StopLineWrapper style={{backgroundColor: color}}>
+        <StopLineTitle>{title}</StopLineTitle>
+      </StopLineWrapper>
+    );
+  }
+  private renderType(stop: Stop): JSX.Element {
+    let defaultLabel = stop.title;
+    if (stop.maintenanceId !== undefined) {
+      const maintenance = this.props.maintenances.find(m => m.id === stop.maintenanceId);
+      if (maintenance) {
+        defaultLabel = `Maintenance : ${maintenance.title}`;
+      }
+    }
+    let label = getLabelForStopType(stop.stopType, defaultLabel);
+    if (stop.stopType === StopType.ChangePlanProd || stop.stopType === StopType.ReprisePlanProd) {
+      label = `${label} (plan n°${getShortPlanProdTitle(stop.planProdId || 0)})`;
+    }
+    return this.renderStopLine(label, getColorForStopType(stop.stopType));
+  }
+
+  private renderUnplannedStop(unplannedStop: UnplannedStop): JSX.Element {
+    return this.renderStopLine(`${unplannedStop.group} : ${unplannedStop.label}`, Colors.Danger);
+  }
+
+  private renderComment(comment: string, index: number): JSX.Element {
+    return this.renderStopLine(`Commentaire : ${comment}`, Palette.Asbestos);
+  }
+
+  private renderCleaning(cleaning: Cleaning): JSX.Element {
+    return this.renderStopLine(`Nettoyage : ${cleaning.label}`, Palette.Asbestos);
+  }
+  private renderStopDetails(): JSX.Element {
+    const {stop} = this.props;
+    const {stopInfo} = stop;
+    const unplannedStops = stopInfo ? stopInfo.unplannedStops : [];
+    const comments = stopInfo ? stopInfo.comments : [];
+    const cleanings = stopInfo ? stopInfo.cleanings : [];
+
+    return (
+      <React.Fragment>
+        {this.renderType(stop)}
+        {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
+        {comments.map((comment, index) => this.renderComment(comment, index))}
+        {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
+      </React.Fragment>
+    );
+  }
+
   public render(): JSX.Element {
-    const {start, end, right, color, indicators} = this.props;
+    const {stop, lastMinute} = this.props;
+
+    const start = stop.start;
+    const end = stop.end;
+    const color = stop.stopType === undefined ? 'transparent' : getColorForStopType(stop.stopType);
+    const duration = (end || lastMinute) - start;
 
     return (
       <StopTileWrapper style={{borderLeftColor: color}} onClick={this.handleClick}>
-        <StopTileTimes>
-          <StopTileStart>
-            <StopTileLabel>DÉBUT</StopTileLabel>
-            <StopTileTimeValue>{this.formatTime(start)}</StopTileTimeValue>
-          </StopTileStart>
-          <StopTileEnd>
-            <StopTileLabel>FIN</StopTileLabel>
-            <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
-          </StopTileEnd>
-        </StopTileTimes>
-        {indicators.map((indicator, i) => (
-          <StopTileIndicator key={i}>
-            <StopTileIndicatorValue>{indicator.value}</StopTileIndicatorValue>
-            <StopTileLabel style={{width: 'auto'}}>{indicator.label}</StopTileLabel>
+        <StopTileLeft>
+          <StopTileTimes>
+            <StopTileStart>
+              <StopTileLabel>DÉBUT</StopTileLabel>
+              <StopTileTimeValue>{this.formatTime(start)}</StopTileTimeValue>
+            </StopTileStart>
+            <StopTileEnd>
+              <StopTileLabel>FIN</StopTileLabel>
+              <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
+            </StopTileEnd>
+          </StopTileTimes>
+          <StopTileIndicator>
+            <StopTileIndicatorValue>{formatDuration(duration)}</StopTileIndicatorValue>
+            <StopTileLabel style={{width: 'auto'}}>DURÉE</StopTileLabel>
           </StopTileIndicator>
-        ))}
-        <StopTileRight>{right}</StopTileRight>
+        </StopTileLeft>
+        <StopTileRight>{this.renderStopDetails()}</StopTileRight>
       </StopTileWrapper>
     );
   }
@@ -108,9 +165,25 @@ const StopTileIndicatorValue = styled.div`
   font-size: 22px;
 `;
 
+const StopTileLeft = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+`;
 const StopTileRight = styled.div`
   flex-grow: 1;
   display: flex;
+  flex-direction: column;
+`;
+
+const StopLineWrapper = styled.div`
+  display: flex;
   align-items: center;
-  justify-content: flex-end;
+  margin: 4px 0;
+  padding: 2px 8px;
+  font-size: 14px;
+`;
+
+const StopLineTitle = styled.div`
+  flex-grow: 1;
 `;
