@@ -9,7 +9,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
-import {getPlanProd, getCurrentPlanSchedule, getScheduleStart} from '@root/lib/schedule_utils';
+import {getPlanProd, getCurrentPlanSchedule, getScheduleEnd} from '@root/lib/schedule_utils';
 import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -198,11 +198,10 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     if (!schedule || !cadencier || !bobineQuantities || currentDay === undefined) {
       return <LoadingIndicator size="large" />;
     }
-
     const currentPlanSchedule = getCurrentPlanSchedule(schedule);
     if (currentPlanSchedule) {
-      const planStart = getScheduleStart(currentPlanSchedule);
-      if (planStart !== undefined && isSameDay(new Date(currentDay), new Date())) {
+      const planEnd = getScheduleEnd(currentPlanSchedule);
+      if (planEnd !== undefined && isSameDay(new Date(currentDay), new Date(planEnd))) {
         const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
         if (planProdSchedule) {
           return (
@@ -282,6 +281,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         day={currentDay}
         schedule={schedule}
         onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
+        style={{overflowY: 'auto'}}
       />
     );
   }
@@ -410,7 +410,6 @@ const ScheduleContainer = styled(Block)`
   flex-grow: 1;
   flex-basis: 1px;
   display: flex;
-  overflow-y: auto;
   margin: 0 ${blockMargin}px;
 `;
 
@@ -419,7 +418,6 @@ const EventsContainer = styled(Block)`
   flex-basis: 1px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   margin-right: ${blockMargin}px;
 `;
 

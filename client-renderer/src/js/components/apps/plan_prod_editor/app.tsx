@@ -425,7 +425,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   public render(): JSX.Element {
-    const {id, start, end, isCreating} = this.props;
+    const {id, start, end} = this.props;
     const {
       planProduction,
       reorderedBobines,

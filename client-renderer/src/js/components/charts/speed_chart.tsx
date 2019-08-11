@@ -221,7 +221,6 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .y2(() => PLOT_SPEED_MAX)
       .attr('fill', (s: SpeedChartEvent) => s.color)
       .attr('opacity', EVENTS_OPACITY);
-    console.log(filteredEvents);
 
     // Axis
     const hourSplit = 10;

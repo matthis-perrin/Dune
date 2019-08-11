@@ -6,19 +6,8 @@ import {Duration} from '@root/components/common/duration';
 import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
-import {
-  computeProductionTime,
-  getMetrageLineaire,
-  getBobineMereConsumption,
-} from '@root/lib/plan_prod';
-import {getOperationTime} from '@root/lib/plan_prod_operation';
-import {
-  getPreviousSchedule,
-  getPlanProd,
-  getPlanStart,
-  getPlanEnd,
-  getProdTime,
-} from '@root/lib/schedule_utils';
+import {getMetrageLineaire, getBobineMereConsumption} from '@root/lib/plan_prod';
+import {getPlanProd, getPlanStart, getPlanEnd, getProdTime} from '@root/lib/schedule_utils';
 import {
   getStockReel,
   getStockTerme,
@@ -28,17 +17,7 @@ import {
 import {numberWithSeparator, roundedToDigit, formatPlanDate} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {EncrierColor} from '@shared/lib/encrier';
-import {
-  BobineFilleWithPose,
-  BobineMere,
-  Stock,
-  PlanProductionInfo,
-  Operation,
-  Perfo,
-  Refente,
-  Schedule,
-} from '@shared/models';
+import {BobineFilleWithPose, BobineMere, Stock, PlanProductionInfo, Schedule} from '@shared/models';
 
 interface TopBarProps {
   style?: React.CSSProperties;

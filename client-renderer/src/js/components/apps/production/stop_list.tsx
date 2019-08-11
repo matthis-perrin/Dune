@@ -141,6 +141,7 @@ export class StopList extends React.Component<StopListProps> {
 const StopsWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 `;
 const StopViewWrapper = styled.div`
   margin-bottom: 6px;

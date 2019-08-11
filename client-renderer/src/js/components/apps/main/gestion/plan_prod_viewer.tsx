@@ -15,12 +15,7 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
-import {
-  getScheduleOperationTime,
-  getPlanStart,
-  getPlanEnd,
-  getProdTime,
-} from '@root/lib/schedule_utils';
+import {getPlanStart, getPlanEnd, getProdTime} from '@root/lib/schedule_utils';
 import {theme} from '@root/theme';
 
 import {BobineQuantities, ScheduledPlanProd} from '@shared/models';

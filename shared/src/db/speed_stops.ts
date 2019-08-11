@@ -1,10 +1,10 @@
 import knex from 'knex';
 
 import {SpeedProdsColumn} from '@shared/db/speed_prods';
+import {getLastSpeedTime} from '@shared/db/speed_times';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {Stop, StopStatus, StopInfo, StopType} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
-import {getLastSpeedTime} from './speed_times';
 
 export const SpeedStopsColumn = {
   Start: 'start',

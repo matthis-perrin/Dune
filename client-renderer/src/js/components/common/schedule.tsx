@@ -36,6 +36,7 @@ interface ScheduleViewProps {
   stocks?: Map<string, Stock[]>;
   withContextMenu?: boolean;
   onPlanProdRefreshNeeded(): void;
+  style?: React.CSSProperties;
 }
 
 const PLANNED_EVENT_OPACITY = 0.75;
@@ -55,7 +56,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   }
 
   public componentDidUpdate(prevProps: ScheduleViewProps): void {
-    if (this.props.day !== prevProps.day) {
+    if (this.props.day.getTime() !== prevProps.day.getTime()) {
       const scheduleWrapper = this.scheduleWrapperRef.current;
       if (scheduleWrapper) {
         scheduleWrapper.scrollTo(0, 0);
@@ -303,7 +304,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForPlan = (planId: number) => (
     event: React.MouseEvent
   ): void => {
-    console.log('handleContextMenuForPlan');
     event.preventDefault();
     event.stopPropagation();
     const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
@@ -323,7 +323,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForNonProd = (end: number | undefined) => (
     event: React.MouseEvent
   ): void => {
-    console.log('handleContextMenuForNonProd');
     const {schedule, onPlanProdRefreshNeeded} = this.props;
     if (!schedule || end === undefined) {
       return;
@@ -352,7 +351,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForMaintenance = (maintenanceId: number) => (
     event: React.MouseEvent
   ): void => {
-    console.log('handleContextMenuForMaintenance');
     const {onPlanProdRefreshNeeded} = this.props;
     event.preventDefault();
     event.stopPropagation();
@@ -372,7 +370,6 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
     const {schedule, day, onPlanProdRefreshNeeded} = this.props;
-    console.log('handleContextMenuForDay');
     if (event.type === 'contextmenu' && schedule !== undefined) {
       showDayContextMenu(schedule, day, onPlanProdRefreshNeeded);
     }
@@ -649,7 +646,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     // it is available to the other render methods. This avoids computing it too many times.
     this.scheduleRange = this.getScheduleRange();
     return (
-      <ScheduleWrapper ref={this.scheduleWrapperRef}>
+      <ScheduleWrapper style={this.props.style} ref={this.scheduleWrapperRef}>
         {this.renderHours()}
         {this.renderPlanProds()}
         {this.renderCurrentTimeIndicator()}

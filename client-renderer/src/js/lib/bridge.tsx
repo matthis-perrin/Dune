@@ -325,7 +325,6 @@ export class Bridge {
       windowId,
     });
   }
-  // tslint:disable-next-line:no-any
   public async openPlanProdEditorApp(
     id: number,
     start: number,
@@ -338,6 +337,7 @@ export class Bridge {
       data: {id, start: start - ONE_WEEK_MS, end: end + ONE_WEEK_MS, isCreating},
     });
   }
+  // tslint:disable-next-line:no-any
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.OpenApp, {type, data});
   }

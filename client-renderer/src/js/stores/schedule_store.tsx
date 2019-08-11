@@ -15,8 +15,6 @@ import {
   SpeedTime,
   NonProd,
   ProdHours,
-  PlanProductionInfo,
-  PlanProductionState,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -86,7 +84,7 @@ export class ScheduleStore {
 
   public emulateWithPlan(planProd: PlanProduction, atIndex: number): Schedule | undefined {
     if (!this.operations || !this.prodData) {
-      return;
+      return undefined;
     }
     const {
       stops,
