@@ -3,13 +3,14 @@ import styled from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {StopList} from '@root/components/apps/production/stop_list';
-import {SpeedChart} from '@root/components/charts/speed_chart';
+import {SpeedChart, SpeedChartEvent} from '@root/components/charts/speed_chart';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
 import {getPlanProd, getCurrentPlanSchedule, getScheduleStart} from '@root/lib/schedule_utils';
+import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore} from '@root/stores/list_store';
@@ -237,12 +238,34 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       endMinute: 59,
     };
 
+    const events: SpeedChartEvent[] = [];
+    schedule.plans.forEach(p =>
+      p.schedulePerDay.forEach(s =>
+        s.stops.forEach(stop => {
+          const eventEnd =
+            stop.end !== undefined
+              ? stop.end
+              : schedule.lastSpeedTime !== undefined
+              ? schedule.lastSpeedTime.time
+              : undefined;
+          if (eventEnd !== undefined) {
+            events.push({
+              start: stop.start,
+              end: eventEnd,
+              color: getColorForStopType(stop.stopType),
+            });
+          }
+        })
+      )
+    );
+
     return (
       <SpeedChart
         day={currentDay.getTime()}
         lastTimeSpeed={schedule.lastSpeedTime}
         prodRange={prodRange}
         speeds={prodInfo.speedTimes}
+        events={events}
       />
     );
   }

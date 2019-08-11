@@ -364,7 +364,7 @@ export const PlottableSpeedCSS = createGlobalStyle`
   }
 
   .plottable .gridlines line {
-    stroke: white;
+    stroke: black;
     opacity: 0.25;
     stroke-width: 1px;
   }
@@ -444,7 +444,7 @@ export const PlottableSpeedCSS = createGlobalStyle`
     stroke-linejoin: round;
   }
 
-  .plottable  .plot {
+  .plottable .component-group {
     background-color: white;
   }
 `;

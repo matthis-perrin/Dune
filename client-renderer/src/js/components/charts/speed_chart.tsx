@@ -11,11 +11,18 @@ import {padNumber} from '@shared/lib/utils';
 import {SpeedTime, ProdRange} from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
+export interface SpeedChartEvent {
+  start: number;
+  end: number;
+  color: string;
+}
+
 interface SpeedChartProps {
   speeds: SpeedTime[];
   day: number;
   prodRange: ProdRange;
   lastTimeSpeed: SpeedTime | undefined;
+  events: SpeedChartEvent[];
 }
 
 interface Datum {
@@ -34,7 +41,8 @@ const SPEED_AGGREGATION_TIME_MS = 5000;
 const SPEED_STOP_THRESHOLD = 50;
 
 // tslint:disable:no-magic-numbers
-const PLOT_SPEED_RANGE = [0, 200];
+const PLOT_SPEED_MAX = 200;
+const PLOT_SPEED_RANGE = [0, PLOT_SPEED_MAX];
 const PLOT_SPEED_TICKS = [0, 50, 100, 150, 180];
 // tslint:enable:no-magic-numbers
 
@@ -44,8 +52,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
   private readonly chartRef = React.createRef<HTMLDivElement>();
   private plot: Plottable.Components.Table | undefined = undefined;
-  private dataset: Plottable.Dataset | undefined = undefined;
   private lastData: Datum[] = [];
+  private lastEvents: SpeedChartEvent[] = [];
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
@@ -175,10 +183,6 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Data
     const data = this.normalizeSpeeds();
-    if (isEqual(this.lastData, data)) {
-      return;
-    }
-    this.lastData = data;
 
     // Scales
     const firstDate = data[0].start;
@@ -187,16 +191,36 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const yScale = new Plottable.Scales.Linear().domain(PLOT_SPEED_RANGE);
     yScale.defaultTicks = () => PLOT_SPEED_TICKS;
 
+    // Check if we should recreate the chart
+    const filteredEvents = this.props.events.filter(
+      e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
+    );
+    if (isEqual(this.lastData, data) && isEqual(this.lastEvents, filteredEvents)) {
+      return;
+    }
+    this.lastData = data;
+    this.lastEvents = filteredEvents;
+
     // Bars
-    this.dataset = new Plottable.Dataset(data);
     const bars = new Plottable.Plots.Rectangle<Date, number>()
-      .addDataset(this.dataset)
+      .addDataset(new Plottable.Dataset(data))
       .x((d: Datum) => d.start, xScale)
       .x2((d: Datum) => d.end)
       .y(() => 0, yScale)
       .y2((d: Datum) => (d.speed !== undefined ? d.speed : NULL_SPEED_HEIGHT))
       .attr('fill', (d: Datum) => this.getColorForSpeed(d.speed))
       .attr('stroke', (d: Datum) => (d.isNow ? this.getColorForSpeed(d.speed) : 'transparent'));
+
+    // Events
+    const events = new Plottable.Plots.Rectangle<Date, number>()
+      .addDataset(new Plottable.Dataset(filteredEvents))
+      .x((s: SpeedChartEvent) => new Date(s.start), xScale)
+      .x2((s: SpeedChartEvent) => new Date(s.end))
+      .y(() => 0, yScale)
+      .y2(() => PLOT_SPEED_MAX)
+      .attr('fill', (s: SpeedChartEvent) => s.color)
+      .attr('opacity', 0.5);
+    console.log(filteredEvents);
 
     // Axis
     const hourSplit = 10;
@@ -247,7 +271,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const gridline = new Plottable.Components.Gridlines(xScale, yScale);
 
     // Final Plot
-    const center = new Plottable.Components.Group([gridline, bars]);
+    const center = new Plottable.Components.Group([events, gridline, bars]);
     this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, xAxis]]);
 
     // Gesture
