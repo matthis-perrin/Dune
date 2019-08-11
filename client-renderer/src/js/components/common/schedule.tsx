@@ -129,9 +129,10 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
         svgComponents.push(
           <line key={current} x1={0} y1={distance} x2={'100%'} y2={distance} {...hourLineStyles} />
         );
+        const hourStr = `${padNumber(currentDate.getHours(), 2)}:00`;
         svgComponents.push(
-          <text x={hourLabelLeftMargin} y={distance - hourLabelOffsetFromLine}>
-            {`${padNumber(currentDate.getHours(), 2)}:00`}
+          <text key={hourStr} x={hourLabelLeftMargin} y={distance - hourLabelOffsetFromLine}>
+            {hourStr}
           </text>
         );
       }
@@ -379,7 +380,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private renderStop(stop: Stop, planId: number, color: Color, isPlanned: boolean): JSX.Element {
     if (stop.stopType === StopType.NotProdHours) {
-      return <React.Fragment />;
+      return <React.Fragment key={`non-prod-stop-block-${stop.start}-${stop.end || 0}`} />;
     }
     if (!stop.end) {
       console.log(stop);
@@ -411,7 +412,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     );
     const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
     return (
-      <React.Fragment>
+      <React.Fragment key={`stop-${stop.start}-${stop.end || 0}`}>
         <StopWrapper
           onContextMenu={contextMenuHandler}
           style={{
@@ -453,6 +454,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
     return (
       <StopWrapper
+        key={`non-prod-${stop.start}-${stop.end || 0}`}
         onContextMenu={this.handleContextMenuForNonProd(stop.end)}
         style={{
           ...positionStyles,
@@ -506,7 +508,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       positionStyles.height as number
     );
     return (
-      <React.Fragment>
+      <React.Fragment key={`prod-${prod.start}-${prod.end || 0}`}>
         <ProdWrapper
           onContextMenu={this.handleContextMenuForPlan(planId)}
           style={{
@@ -537,10 +539,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const {start, end} = this.getProdHours();
     const scheduleStart = getScheduleStart(planSchedule);
     const scheduleEnd = getScheduleEnd(planSchedule);
+    const planId = planSchedule.planProd.id;
 
     if (scheduleStart === undefined || scheduleEnd === undefined) {
       return (
-        <React.Fragment>
+        <React.Fragment key={planId}>
           {this.renderNonProds(
             planSchedule.stops
               .concat(planSchedule.plannedStops)
@@ -550,14 +553,13 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       );
     }
 
-    const planId = planSchedule.planProd.id;
     const planBorderPosition = this.getPositionStyleForDates(
       new Date(Math.max(start, scheduleStart)),
       new Date(Math.min(end, scheduleEnd)),
       planBorderThickness
     );
     return (
-      <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>
+      <WithColor key={planId} color={planSchedule.planProd.data.papier.couleurPapier}>
         {color => (
           <React.Fragment>
             {([] as JSX.Element[])
@@ -566,12 +568,14 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               .concat(planSchedule.prods.map(p => this.renderProd(p, planId, color, false)))
               .concat(planSchedule.plannedProds.map(p => this.renderProd(p, planId, color, true)))}
             <PlanProdBorder
+              key="plan-border"
               style={{
                 ...planBorderPosition,
                 width: `calc(100% - ${paddingLeft + paddingRight}px - ${planBorderThickness}px)`,
               }}
             />
             <PlanTitle
+              key="plan-title"
               onContextMenu={this.handleContextMenuForPlan(planId)}
               style={{
                 ...planBorderPosition,
@@ -600,7 +604,11 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
     return schedule.plans.map(p => {
       const planSchedule = p.schedulePerDay.get(dateAtHour(day, 0).getTime());
-      return planSchedule ? this.renderPlanProdSchedule(planSchedule) : <React.Fragment />;
+      return planSchedule ? (
+        this.renderPlanProdSchedule(planSchedule)
+      ) : (
+        <React.Fragment key={p.planProd.id} />
+      );
     });
   }
 

@@ -42,8 +42,8 @@ export class StopTile extends React.Component<StopTileProps> {
             <StopTileTimeValue>{this.formatTime(end)}</StopTileTimeValue>
           </StopTileEnd>
         </StopTileTimes>
-        {indicators.map(indicator => (
-          <StopTileIndicator>
+        {indicators.map((indicator, i) => (
+          <StopTileIndicator key={i}>
             <StopTileIndicatorValue>{indicator.value}</StopTileIndicatorValue>
             <StopTileLabel style={{width: 'auto'}}>{indicator.label}</StopTileLabel>
           </StopTileIndicator>

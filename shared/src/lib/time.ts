@@ -19,8 +19,15 @@ export function dateAtHour(date: Date, hour: number, minute?: number): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute || 0);
 }
 
+const memo = new Map<number, string>();
 export function getWeekDay(date: Date): string {
-  return date.toLocaleString('fr-FR', {weekday: 'long'});
+  const res = memo.get(date.getTime());
+  if (res !== undefined) {
+    return res;
+  }
+  const weekDay = date.toLocaleString('fr-FR', {weekday: 'long'});
+  memo.set(date.getTime(), weekDay);
+  return weekDay;
 }
 
 export function getNextProdStart(time: number, prodRanges: Map<string, ProdRange>): number {

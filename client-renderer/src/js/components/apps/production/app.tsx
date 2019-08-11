@@ -111,6 +111,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     const start = startOfDay(newDayDate).getTime();
     const end = endOfDay(newDayDate).getTime();
     this.scheduleStore.setRange({start, end});
+    if (this.prodInfoStore) {
+      this.prodInfoStore.setDay(start);
+    }
     this.setState({day: newDayDate});
     this.openedStops = new Map<string, void>();
     document.title = this.getWindowTitle(newDay);
@@ -233,6 +236,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       endHour: 23,
       endMinute: 59,
     };
+
     return (
       <SpeedChart day={currentDay.getTime()} prodRange={prodRange} speeds={prodInfo.speedTimes} />
     );
@@ -274,7 +278,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
           </NavigationIcon>
         </TopBar>
-        <ChartContainer>{/*this.renderChart()*/}</ChartContainer>
+        <ChartContainer>{this.renderChart()}</ChartContainer>
         <ProdStateContainer>
           <ScheduleContainer>
             <BlockTitle>PLANNING</BlockTitle>

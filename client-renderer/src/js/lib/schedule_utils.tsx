@@ -172,7 +172,7 @@ export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | u
     start: getScheduleStart(s) || 0,
   }));
   const lastScheduleWithStart = scheduleWithStart.sort((s1, s2) => s2.start - s1.start)[0];
-  return lastScheduleWithStart.schedule;
+  return lastScheduleWithStart === undefined ? undefined : lastScheduleWithStart.schedule;
 }
 
 export function getCurrentPlanId(schedule: Schedule): number | undefined {

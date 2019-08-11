@@ -104,7 +104,7 @@ export class StopList extends React.Component<StopListProps> {
       <StopsWrapper>
         {sortedStops.map((s, i) => {
           const stopView = (
-            <StopViewWrapper>
+            <StopViewWrapper key={`stop-${s.start}-${i}`}>
               <StopView lastMinute={lastMinute} stop={s} />
             </StopViewWrapper>
           );

@@ -1,4 +1,4 @@
-import {isEqual} from 'lodash-es';
+import {isEqual, sum} from 'lodash-es';
 import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import {Palette} from '@root/theme';
 import {dateAtHour} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
 import {SpeedTime, ProdRange} from '@shared/models';
+import {removeUndefined} from '@shared/type_utils';
 
 interface SpeedChartProps {
   speeds: SpeedTime[];
@@ -16,10 +17,11 @@ interface SpeedChartProps {
   prodRange: ProdRange;
 }
 
-type Datum = [Date, number | undefined];
+type Datum = [Date, Date, number | undefined];
 
 const BAR_THICKNESS_RATIO = 1.05;
 const NULL_SPEED_HEIGHT = 10;
+const THRESHOLD_SPREAD_FOR_MINUTE_DETAILS = 15;
 
 // Those should be extracted it in the constant file shared with the server
 const SPEED_AGGREGATION_TIME_MS = 5000;
@@ -36,6 +38,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   public static displayName = 'SpeedChart';
   private readonly chartRef = React.createRef<HTMLDivElement>();
   private plot: Plottable.Components.Table | undefined = undefined;
+  private dataset: Plottable.Dataset | undefined = undefined;
   private lastData: Datum[] = [];
 
   public componentDidMount(): void {
@@ -60,6 +63,32 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     }
     this.plot.redraw();
   };
+
+  private shouldDisplayMinuteDetail(minute: SpeedTime[]): boolean {
+    let hasNull = false;
+    let hasZero = false;
+    let hasPositive = false;
+    let min = 300;
+    let max = 0;
+    for (const s of minute) {
+      if (s.speed !== undefined && s.speed > 0) {
+        hasPositive = true;
+        min = Math.min(s.speed, min);
+        max = Math.max(s.speed, max);
+      } else if (s.speed === undefined) {
+        hasNull = true;
+      } else {
+        hasZero = true;
+      }
+    }
+    if ((hasNull && hasZero) || (hasZero && hasPositive) || (hasPositive && hasNull)) {
+      return true;
+    }
+    if (!hasPositive) {
+      return false;
+    }
+    return max - min > THRESHOLD_SPREAD_FOR_MINUTE_DETAILS;
+  }
 
   private normalizeSpeeds(): Datum[] {
     const {day, speeds, prodRange} = this.props;
@@ -86,8 +115,32 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     }
 
     const data: Datum[] = [];
+    let currentMinute = Math.floor(rangeStart / 60000);
+    let currentSpeeds: SpeedTime[] = [];
     for (let time = rangeStart; time <= rangeEnd; time += SPEED_AGGREGATION_TIME_MS) {
-      data.push([new Date(time), speedMap.get(time)]);
+      const loopMinute = Math.floor(time / 60000);
+      const loopSpeed = speedMap.get(time);
+      if (loopMinute === currentMinute) {
+        if (loopSpeed !== undefined) {
+          currentSpeeds.push({time, speed: loopSpeed});
+        }
+      } else {
+        if (this.shouldDisplayMinuteDetail(currentSpeeds)) {
+          currentSpeeds.forEach(s =>
+            data.push([new Date(s.time), new Date(s.time + SPEED_AGGREGATION_TIME_MS), s.speed])
+          );
+        } else {
+          const definedSpeed = removeUndefined(currentSpeeds.map(s => s.speed));
+          const speedSum = sum(definedSpeed);
+          data.push([
+            new Date(currentMinute * 60000),
+            new Date((currentMinute + 1) * 60000),
+            speedSum === undefined ? undefined : speedSum / currentSpeeds.length,
+          ]);
+        }
+        currentMinute = loopMinute;
+        currentSpeeds = [{time, speed: loopSpeed}];
+      }
     }
     return data;
   }
@@ -115,14 +168,23 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     yScale.defaultTicks = () => PLOT_SPEED_TICKS;
 
     // Bars
-    const bars = new Plottable.Plots.Bar<Date, number>()
-      .addDataset(new Plottable.Dataset(data))
+    // if (this.plot && this.dataset) {
+    //   this.dataset.data(data);
+    //   this.plot.redraw();
+    //   return;
+    // }
+
+    this.dataset = new Plottable.Dataset(data);
+    const bars = new Plottable.Plots.Rectangle<Date, number>()
+      .addDataset(this.dataset)
       .x((d: Datum) => d[0], xScale)
-      .y((d: Datum) => (d[1] !== undefined ? d[1] : NULL_SPEED_HEIGHT), yScale)
+      .x2((d: Datum) => d[1])
+      .y(() => 0, yScale)
+      .y2((d: Datum) => (d[2] !== undefined ? d[2] : NULL_SPEED_HEIGHT))
       .attr('fill', (d: Datum) =>
-        d[1] === undefined
+        d[2] === undefined
           ? Palette.Asbestos
-          : d[1] < SPEED_STOP_THRESHOLD
+          : d[2] < SPEED_STOP_THRESHOLD
           ? Palette.Alizarin
           : Palette.Nephritis
       );
@@ -130,6 +192,17 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     // Axis
     const hourSplit = 10;
     const xAxis = new Plottable.Axes.Time(xScale, 'bottom').axisConfigurations([
+      [
+        {
+          interval: 'second',
+          step: 5,
+          formatter: (date: Date) =>
+            `${padNumber(date.getHours(), 2)}:${padNumber(date.getMinutes(), 2)}:${padNumber(
+              date.getSeconds(),
+              2
+            )}`,
+        },
+      ],
       [
         {
           interval: 'minute',
