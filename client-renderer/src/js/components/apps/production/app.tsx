@@ -238,7 +238,12 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     };
 
     return (
-      <SpeedChart day={currentDay.getTime()} prodRange={prodRange} speeds={prodInfo.speedTimes} />
+      <SpeedChart
+        day={currentDay.getTime()}
+        lastTimeSpeed={schedule.lastSpeedTime}
+        prodRange={prodRange}
+        speeds={prodInfo.speedTimes}
+      />
     );
   }
 

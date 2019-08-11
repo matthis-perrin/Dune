@@ -15,9 +15,15 @@ interface SpeedChartProps {
   speeds: SpeedTime[];
   day: number;
   prodRange: ProdRange;
+  lastTimeSpeed: SpeedTime | undefined;
 }
 
-type Datum = [Date, Date, number | undefined];
+interface Datum {
+  start: Date;
+  end: Date;
+  speed: number | undefined;
+  isNow: boolean;
+}
 
 const BAR_THICKNESS_RATIO = 1.05;
 const NULL_SPEED_HEIGHT = 10;
@@ -91,7 +97,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 
   private normalizeSpeeds(): Datum[] {
-    const {day, speeds, prodRange} = this.props;
+    const {day, speeds, prodRange, lastTimeSpeed} = this.props;
 
     const speedMap = new Map<number, number | undefined>();
     speeds.forEach(({time, speed}) => speedMap.set(time, speed));
@@ -127,22 +133,36 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       } else {
         if (this.shouldDisplayMinuteDetail(currentSpeeds)) {
           currentSpeeds.forEach(s =>
-            data.push([new Date(s.time), new Date(s.time + SPEED_AGGREGATION_TIME_MS), s.speed])
+            data.push({
+              start: new Date(s.time),
+              end: new Date(s.time + SPEED_AGGREGATION_TIME_MS),
+              speed: s.speed,
+              isNow: lastTimeSpeed !== undefined && s.time === lastTimeSpeed.time,
+            })
           );
         } else {
           const definedSpeed = removeUndefined(currentSpeeds.map(s => s.speed));
           const speedSum = sum(definedSpeed);
-          data.push([
-            new Date(currentMinute * 60000),
-            new Date((currentMinute + 1) * 60000),
-            speedSum === undefined ? undefined : speedSum / currentSpeeds.length,
-          ]);
+          data.push({
+            start: new Date(currentMinute * 60000),
+            end: new Date((currentMinute + 1) * 60000),
+            speed: speedSum === undefined ? undefined : speedSum / currentSpeeds.length,
+            isNow: false,
+          });
         }
         currentMinute = loopMinute;
         currentSpeeds = [{time, speed: loopSpeed}];
       }
     }
     return data;
+  }
+
+  private getColorForSpeed(speed: number | undefined): string {
+    return speed === undefined
+      ? Palette.Asbestos
+      : speed < SPEED_STOP_THRESHOLD
+      ? Palette.Alizarin
+      : Palette.Nephritis;
   }
 
   private createChart(): void {
@@ -161,33 +181,22 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     this.lastData = data;
 
     // Scales
-    const firstDate = data[0][0];
-    const lastDate = data[data.length - 1][0];
+    const firstDate = data[0].start;
+    const lastDate = data[data.length - 1].start;
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
     const yScale = new Plottable.Scales.Linear().domain(PLOT_SPEED_RANGE);
     yScale.defaultTicks = () => PLOT_SPEED_TICKS;
 
     // Bars
-    // if (this.plot && this.dataset) {
-    //   this.dataset.data(data);
-    //   this.plot.redraw();
-    //   return;
-    // }
-
     this.dataset = new Plottable.Dataset(data);
     const bars = new Plottable.Plots.Rectangle<Date, number>()
       .addDataset(this.dataset)
-      .x((d: Datum) => d[0], xScale)
-      .x2((d: Datum) => d[1])
+      .x((d: Datum) => d.start, xScale)
+      .x2((d: Datum) => d.end)
       .y(() => 0, yScale)
-      .y2((d: Datum) => (d[2] !== undefined ? d[2] : NULL_SPEED_HEIGHT))
-      .attr('fill', (d: Datum) =>
-        d[2] === undefined
-          ? Palette.Asbestos
-          : d[2] < SPEED_STOP_THRESHOLD
-          ? Palette.Alizarin
-          : Palette.Nephritis
-      );
+      .y2((d: Datum) => (d.speed !== undefined ? d.speed : NULL_SPEED_HEIGHT))
+      .attr('fill', (d: Datum) => this.getColorForSpeed(d.speed))
+      .attr('stroke', (d: Datum) => (d.isNow ? this.getColorForSpeed(d.speed) : 'transparent'));
 
     // Axis
     const hourSplit = 10;
