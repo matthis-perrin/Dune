@@ -1,3 +1,4 @@
+import {max} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -11,14 +12,20 @@ import {
   getBobineMereConsumption,
 } from '@root/lib/plan_prod';
 import {getOperationTime} from '@root/lib/plan_prod_operation';
-import {getPreviousSchedule} from '@root/lib/schedule_utils';
+import {
+  getPreviousSchedule,
+  getPlanProd,
+  getPlanStart,
+  getPlanEnd,
+  getProdTime,
+} from '@root/lib/schedule_utils';
 import {
   getStockReel,
   getStockTerme,
   getStockReelPrevisionel,
   getStockTermePrevisionel,
 } from '@root/lib/stocks';
-import {numberWithSeparator, roundedToDigit} from '@root/lib/utils';
+import {numberWithSeparator, roundedToDigit, formatPlanDate} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
 import {EncrierColor} from '@shared/lib/encrier';
@@ -38,11 +45,8 @@ interface TopBarProps {
   width: number;
   planProdTitle: string;
   bobines: BobineFilleWithPose[];
-  encriers: EncrierColor[];
   papier?: BobineMere;
   polypro?: BobineMere;
-  perfo?: Perfo;
-  refente?: Refente;
   tourCount?: number;
   speed: number;
   onTourCountChange(tourCount?: number): void;
@@ -53,9 +57,9 @@ interface TopBarProps {
   isComplete: boolean;
   isPrinting: boolean;
   stocks: Map<string, Stock[]>;
+  planId: number;
   planProdInfo: PlanProductionInfo;
-  schedule: Schedule;
-  operations: Operation[];
+  schedule?: Schedule;
 }
 
 export class TopBar extends React.Component<TopBarProps> {
@@ -132,8 +136,10 @@ export class TopBar extends React.Component<TopBarProps> {
 
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
-    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, schedule, planProdInfo);
-    const stockPrevisionelReelTerme = getStockTermePrevisionel(ref, stocks, schedule, planProdInfo);
+    const stockPrevisionelReel =
+      schedule && getStockReelPrevisionel(ref, stocks, schedule, planProdInfo);
+    const stockPrevisionelReelTerme =
+      schedule && getStockTermePrevisionel(ref, stocks, schedule, planProdInfo);
 
     const stockActuel = stockReel;
     const stockActuelTerme = stockTerme;
@@ -149,7 +155,7 @@ export class TopBar extends React.Component<TopBarProps> {
     if (stockActuel < 0) {
       const value = withDecimal(stockActuel);
       message = `Le stock actuel du ${label} est négatif (${value}) !`;
-    } else if (stockPrevisionel < 0) {
+    } else if (stockPrevisionel && stockPrevisionel < 0) {
       const value = withDecimal(stockPrevisionel);
       message = `Le stock prévisionel du ${label} est négatif (${value}) !`;
     } else if (stockAfterProd < 0) {
@@ -158,7 +164,7 @@ export class TopBar extends React.Component<TopBarProps> {
     } else if (stockActuelTerme < 0) {
       const value = withDecimal(stockActuelTerme);
       message = `Le stock actuel à terme du ${label} est négatif (${value}) !`;
-    } else if (stockPrevisionelTerme < 0) {
+    } else if (stockPrevisionelTerme && stockPrevisionelTerme < 0) {
       const value = withDecimal(stockPrevisionelTerme);
       message = `Le stock prévisionel à terme du ${label} est négatif (${value}) !`;
     } else if (stockAfterProdTerme < 0) {
@@ -179,11 +185,7 @@ export class TopBar extends React.Component<TopBarProps> {
       papier,
       polypro,
       schedule,
-      planProdInfo,
-      operations,
-      encriers,
-      perfo,
-      refente,
+      planId,
       style = {},
     } = this.props;
 
@@ -199,13 +201,22 @@ export class TopBar extends React.Component<TopBarProps> {
         <React.Fragment />
       );
 
-    const previousSchedule = getPreviousSchedule(schedule, planProdInfo.index);
-    let operationTime = 0;
-
-    if (previousSchedule && encriers && papier && perfo && polypro && refente) {
-      const currentPlanProd = {bobines, encriers, papier, perfo, polypro, refente};
-      operationTime =
-        1000 * getOperationTime(operations, previousSchedule.planProd.data, currentPlanProd);
+    let start: number | undefined;
+    let end: number | undefined;
+    let prodTime: number | undefined;
+    let operationTime: number | undefined;
+    if (schedule) {
+      const planSchedule = getPlanProd(schedule, planId);
+      if (planSchedule) {
+        start = getPlanStart(planSchedule);
+        end = getPlanEnd(planSchedule);
+        prodTime = getProdTime(planSchedule);
+        const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = planSchedule.operations;
+        operationTime =
+          max(
+            [aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)
+          ) || 0;
+      }
     }
 
     return (
@@ -221,8 +232,11 @@ export class TopBar extends React.Component<TopBarProps> {
           onTourCountInputChange={this.handleTourCountInputChange}
           onSpeedInputChange={this.handleSpeedInputChange}
           isPrinting={isPrinting}
-          operationTime={operationTime}
           renderButtons={this.renderButtons}
+          start={start}
+          end={end}
+          prodTime={prodTime}
+          operationTime={operationTime}
         />
         {alerts}
       </React.Fragment>
@@ -241,8 +255,11 @@ interface TopBarViewProps {
   onTourCountInputChange?: React.ChangeEventHandler<HTMLInputElement>;
   onSpeedInputChange?: React.ChangeEventHandler<HTMLInputElement>;
   isPrinting: boolean;
-  operationTime: number;
   renderButtons?(): JSX.Element;
+  start?: number;
+  end?: number;
+  prodTime?: number;
+  operationTime?: number;
 }
 
 export class TopBarView extends React.Component<TopBarViewProps> {
@@ -257,6 +274,9 @@ export class TopBarView extends React.Component<TopBarViewProps> {
       bobines,
       width,
       papier,
+      start,
+      end,
+      prodTime,
       operationTime,
       style = {},
       renderButtons = () => <React.Fragment />,
@@ -264,10 +284,6 @@ export class TopBarView extends React.Component<TopBarViewProps> {
       onSpeedInputChange,
     } = this.props;
 
-    const productionTimeInSec =
-      bobines.length > 0 && speed > 0 && tourCount && tourCount > 0
-        ? computeProductionTime(bobines[0], speed, tourCount)
-        : undefined;
     const tourCountStr = tourCount === undefined ? '' : String(tourCount);
     const metrageLineaireStr = numberWithSeparator(getMetrageLineaire({bobines, tourCount}));
     const InputClass = isPrinting ? StaticTopBarInput : TopBarInput;
@@ -283,7 +299,6 @@ export class TopBarView extends React.Component<TopBarViewProps> {
           color: Colors.SecondaryDark,
         }
       : {};
-    const operationTimeElement = <Duration durationMs={operationTime} />;
 
     return (
       <TopBarWrapper style={{...style, width}}>
@@ -320,10 +335,14 @@ export class TopBarView extends React.Component<TopBarViewProps> {
           />
         </CenterContainer>
         <RightContainer>
+          <span>{`Début : ${formatPlanDate(start)}`}</span>
           <span>
-            Production: <Duration durationMs={(productionTimeInSec || 0) * 1000} />
+            Réglage: <Duration durationMs={operationTime ? operationTime * 1000 : undefined} />
           </span>
-          <span>Réglage: {operationTimeElement}</span>
+          <span>
+            Production: <Duration durationMs={prodTime} />
+          </span>
+          <span>{`Fin : ${formatPlanDate(end)}`}</span>
         </RightContainer>
       </TopBarWrapper>
     );

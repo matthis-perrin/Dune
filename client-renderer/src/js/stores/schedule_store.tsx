@@ -15,6 +15,8 @@ import {
   SpeedTime,
   NonProd,
   ProdHours,
+  PlanProductionInfo,
+  PlanProductionState,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -80,6 +82,36 @@ export class ScheduleStore {
 
   private scheduleRefresh(): void {
     this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
+  }
+
+  public emulateWithPlan(planProd: PlanProduction, atIndex: number): Schedule | undefined {
+    if (!this.operations || !this.prodData) {
+      return;
+    }
+    const {
+      stops,
+      startedPlans,
+      prods,
+      notStartedPlans,
+      lastSpeedTime,
+      prodRanges,
+      maintenances,
+      nonProds,
+    } = this.prodData;
+
+    const newNotStartedPlans = notStartedPlans.filter(p => p.index < atIndex).concat([planProd]);
+
+    return createSchedule(
+      this.operations,
+      prodRanges,
+      startedPlans,
+      newNotStartedPlans,
+      prods,
+      stops,
+      maintenances,
+      nonProds,
+      lastSpeedTime
+    );
   }
 
   private recompute(): void {

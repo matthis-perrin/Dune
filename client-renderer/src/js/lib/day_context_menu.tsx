@@ -9,7 +9,7 @@ import {contextMenuManager} from '@root/lib/context_menu';
 import {getPlanStart} from '@root/lib/schedule_utils';
 
 import {startOfDay, endOfDay} from '@shared/lib/utils';
-import {ClientAppType, Schedule} from '@shared/models';
+import {Schedule} from '@shared/models';
 
 function getNewPlanProdIndexForDate(schedule: Schedule, date: Date): number {
   const dayEnd = endOfDay(date).getTime();
@@ -46,14 +46,7 @@ export function showDayContextMenu(
             bridge
               .createNewPlanProduction(planProdIndex)
               .then(({id}) => {
-                bridge
-                  .openApp(ClientAppType.PlanProductionEditorApp, {
-                    id,
-                    isCreating: true,
-                    start,
-                    end,
-                  })
-                  .catch(console.error);
+                bridge.openPlanProdEditorApp(id, start, end, true).catch(console.error);
               })
               .catch(err => console.error(err));
           },

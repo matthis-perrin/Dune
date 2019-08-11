@@ -1,3 +1,4 @@
+import {max} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -14,7 +15,12 @@ import {Refente as RefenteComponent} from '@root/components/common/refente';
 import {WithColor} from '@root/components/core/with_colors';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {getPlanProdTitle} from '@root/lib/plan_prod';
-import {getScheduleOperationTime} from '@root/lib/schedule_utils';
+import {
+  getScheduleOperationTime,
+  getPlanStart,
+  getPlanEnd,
+  getProdTime,
+} from '@root/lib/schedule_utils';
 import {theme} from '@root/theme';
 
 import {BobineQuantities, ScheduledPlanProd} from '@shared/models';
@@ -184,6 +190,14 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       ? {transformOrigin: 'left top', transform: `scale(${scale})`}
       : {zoom: scale};
 
+    const start = getPlanStart(schedule);
+    const end = getPlanEnd(schedule);
+    const prodTime = getProdTime(schedule);
+    const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = schedule.operations;
+    const operationTime =
+      max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) ||
+      0;
+
     return (
       <PlanProdEditorContainer
         ref={this.containerRef}
@@ -198,7 +212,10 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
           tourCount={tourCount}
           speed={speed}
           isPrinting
-          operationTime={getScheduleOperationTime(schedule)}
+          start={start}
+          end={end}
+          prodTime={prodTime}
+          operationTime={operationTime}
         />
         <Wrapper style={{width: INNER_RENDERING_WIDTH}}>
           <PlanProdComment

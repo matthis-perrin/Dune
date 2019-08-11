@@ -53,6 +53,19 @@ export function formatDuration(duration: number): string {
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
+export function formatPlanDate(ts?: number): string {
+  if (!ts) {
+    return '??/?? à ??:??:??';
+  }
+  const date = new Date(ts);
+  const days = padNumber(date.getDate(), 2);
+  const months = padNumber(date.getMonth() + 1, 2);
+  const hours = padNumber(date.getHours(), 2);
+  const minutes = padNumber(date.getMinutes(), 2);
+  const seconds = padNumber(date.getSeconds(), 2);
+  return `${days}/${months} à ${hours}:${minutes}:${seconds}`;
+}
+
 const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 // Monday = 0
 export function getDayOfWeek(date: Date): number {

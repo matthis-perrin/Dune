@@ -27,7 +27,6 @@ import {startOfDay} from '@shared/lib/utils';
 import {
   Stock,
   BobineQuantities,
-  ClientAppType,
   ScheduledPlanProd,
   Schedule,
   PlanProductionStatus,
@@ -250,12 +249,7 @@ export class PlanProdTile extends React.Component<Props> {
         : 0;
     if (planType === PlanProductionStatus.PLANNED) {
       bridge
-        .openApp(ClientAppType.PlanProductionEditorApp, {
-          id: planSchedule.planProd.id,
-          start,
-          end,
-          isCreating: false,
-        })
+        .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
         .catch(console.error);
     }
   };

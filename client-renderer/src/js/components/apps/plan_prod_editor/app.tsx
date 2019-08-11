@@ -47,6 +47,7 @@ import {
   PlanProductionInfo,
   Operation,
   Schedule,
+  PlanProduction,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
@@ -378,8 +379,53 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanPolypro(this.props.id, undefined).catch(console.error);
   };
 
+  private readonly asPlanProduction = (
+    data: PlanProductionState & PlanProductionInfo
+  ): PlanProduction | undefined => {
+    const {id} = this.props;
+    const {
+      bobinesMinimums,
+      bobinesMaximums,
+      reorderedEncriers,
+      reorderedBobines,
+      speed,
+      comment,
+    } = this.state;
+    if (
+      data.selectableBobines.length > 0 ||
+      !data.selectedPolypro ||
+      !data.selectedPapier ||
+      !data.selectedPerfo ||
+      !data.selectedRefente
+    ) {
+      return undefined;
+    }
+    return {
+      id,
+      sommeil: false,
+      localUpdate: new Date().getTime(),
+      index: data.index,
+      operationAtStartOfDay: data.operationAtStartOfDay,
+      productionAtStartOfDay: data.productionAtStartOfDay,
+      data: {
+        polypro: data.selectedPolypro,
+        papier: data.selectedPapier,
+        perfo: data.selectedPerfo,
+        refente: data.selectedRefente,
+        bobines: reorderedBobines || data.selectedBobines,
+        bobinesMini: Array.from(bobinesMinimums.entries()),
+        bobinesMax: Array.from(bobinesMaximums.entries()),
+        encriers: reorderedEncriers || data.couleursEncrier[0],
+
+        tourCount: data.tourCount || 0,
+        speed,
+        comment,
+      },
+    };
+  };
+
   public render(): JSX.Element {
-    const {id, start, end} = this.props;
+    const {id, start, end, isCreating} = this.props;
     const {
       planProduction,
       reorderedBobines,
@@ -617,6 +663,10 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
           const planProdTitle = getPlanProdTitle(id);
 
+          const planProd = this.asPlanProduction(planProduction);
+          const emulatedSchedule =
+            planProd && this.scheduleStore.emulateWithPlan(planProd, planProduction.index);
+
           return (
             <PlanProdEditorContainer>
               <TopBar
@@ -625,8 +675,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 bobines={selectedBobines}
                 papier={selectedPapier}
                 polypro={selectedPolypro}
-                refente={selectedRefente}
-                perfo={selectedPerfo}
                 tourCount={tourCount}
                 speed={speed}
                 onTourCountChange={this.handleTourCountChange}
@@ -637,10 +685,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
                 stocks={stocks}
-                schedule={schedule}
+                schedule={emulatedSchedule}
                 planProdInfo={planProduction}
-                encriers={reorderedEncriers || couleursEncrier[0] || []}
-                operations={operations}
+                planId={id}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>
                 <PlanProdComment

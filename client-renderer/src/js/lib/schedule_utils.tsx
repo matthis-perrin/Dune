@@ -208,3 +208,10 @@ export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefine
   );
   return allStops.filter(s => s.start < stop.start).sort((s1, s2) => s2.start - s1.start)[0];
 }
+
+export function getProdTime(planSchedule: ScheduledPlanProd): number {
+  return Array.from(planSchedule.schedulePerDay.values()).reduce(
+    (prod, s) => prod + s.doneProdMs + s.plannedProdMs,
+    0
+  );
+}

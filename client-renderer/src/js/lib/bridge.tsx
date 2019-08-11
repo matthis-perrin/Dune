@@ -326,6 +326,18 @@ export class Bridge {
     });
   }
   // tslint:disable-next-line:no-any
+  public async openPlanProdEditorApp(
+    id: number,
+    start: number,
+    end: number,
+    isCreating: boolean
+  ): Promise<void> {
+    const ONE_WEEK_MS = 604800000; // 7 * 24 * 3600 * 1000
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.OpenApp, {
+      type: ClientAppType.PlanProductionEditorApp,
+      data: {id, start: start - ONE_WEEK_MS, end: end + ONE_WEEK_MS, isCreating},
+    });
+  }
   public async openApp(type: ClientAppType, data?: any): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.OpenApp, {type, data});
   }
