@@ -1,7 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {DayProductionTable} from '@root/components/common/day_production_table';
 import {ScheduleView} from '@root/components/common/schedule';
+import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {SizeMonitor} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {stocksStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
@@ -112,30 +115,51 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     );
   }
 
+  private renderProductionTable(width: number): JSX.Element {
+    const {day, schedule, stocks} = this.state;
+    if (schedule === undefined || stocks === undefined) {
+      return <LoadingIndicator size="medium" />;
+    }
+    return (
+      <DayProductionTable
+        day={day}
+        schedule={schedule}
+        stocks={stocks}
+        width={width - scheduleSize}
+      />
+    );
+  }
+
   public render(): JSX.Element {
     return (
-      <AppWrapper>
-        <LeftColumn>
-          <TopBar>
-            <div onClick={this.handlePreviousClick}>
-              <SVGIcon name="caret-left" width={12} height={12} />
-            </div>
-            {this.formatDay(this.state.day)}
-            <div onClick={this.handleNextClick}>
-              <SVGIcon name="caret-right" width={12} height={12} />
-            </div>
-          </TopBar>
-          <ScheduleWrapper>{this.renderScheduleView()}</ScheduleWrapper>
-        </LeftColumn>
-        <RightColumn>
-          <div>Stats</div>
-          <div>Prod</div>
-          <div>Chart</div>
-        </RightColumn>
-      </AppWrapper>
+      <SizeMonitor>
+        {(width, height) => (
+          <AppWrapper>
+            <LeftColumn>
+              <TopBar>
+                <div onClick={this.handlePreviousClick}>
+                  <SVGIcon name="caret-left" width={12} height={12} />
+                </div>
+                {this.formatDay(this.state.day)}
+                <div onClick={this.handleNextClick}>
+                  <SVGIcon name="caret-right" width={12} height={12} />
+                </div>
+              </TopBar>
+              <ScheduleWrapper>{this.renderScheduleView()}</ScheduleWrapper>
+            </LeftColumn>
+            <RightColumn>
+              <div>Stats</div>
+              {this.renderProductionTable(width)}
+              <div>Chart</div>
+            </RightColumn>
+          </AppWrapper>
+        )}
+      </SizeMonitor>
     );
   }
 }
+
+const scheduleSize = 980;
 
 const AppWrapper = styled.div`
   position: fixed;
