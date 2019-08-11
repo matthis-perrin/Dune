@@ -273,7 +273,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     }
     return (
       <UnplannedStopsBlock>
-        <ContentTitle>AUTRES RAISONS</ContentTitle>
+        <ContentTitle>RAISONS</ContentTitle>
         <ContentInside>
           <UnplannedStopsForm
             stop={stop}
