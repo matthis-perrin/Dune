@@ -39,9 +39,10 @@ import {getSpeedProdBetween} from '@shared/db/speed_prods';
 import {
   getSpeedStopBetween,
   updateStopInfo,
-  createStop,
-  mergeStops,
   getLastPlanProdChangeBefore,
+  startMaintenanceStop,
+  deleteMaintenanceStop,
+  endMaintenanceStop,
 } from '@shared/db/speed_stops';
 import {getSpeedTimesBetween, getLastSpeedTime} from '@shared/db/speed_times';
 import {listStocks} from '@shared/db/stocks';
@@ -373,21 +374,20 @@ export async function handleCommand(
       asNumber(maintenanceId, undefined)
     );
   }
-  if (command === BridgeCommands.CreateStop) {
+  if (command === BridgeCommands.StartMaintenanceStop) {
     debugLog();
-    const {stopStart, stopEnd} = asMap(params);
-    return createStop(SQLITE_DB.Prod, asNumber(stopStart, 0), asNumber(stopEnd, 0));
+    const {maintenanceId} = asMap(params);
+    return startMaintenanceStop(SQLITE_DB.Prod, asNumber(maintenanceId, 0));
   }
-  if (command === BridgeCommands.MergeStops) {
+  if (command === BridgeCommands.DeleteMaintenanceStop) {
     debugLog();
-    const {start1, start2, mergedInfo, newEnd} = asMap(params);
-    return mergeStops(
-      SQLITE_DB.Prod,
-      asNumber(start1, 0),
-      asNumber(start2, 0),
-      asMap(mergedInfo) as StopInfo,
-      asNumber(newEnd, undefined)
-    );
+    const {maintenanceId} = asMap(params);
+    return deleteMaintenanceStop(SQLITE_DB.Prod, asNumber(maintenanceId, 0));
+  }
+  if (command === BridgeCommands.EndMaintenanceStop) {
+    debugLog();
+    const {maintenanceId} = asMap(params);
+    return endMaintenanceStop(SQLITE_DB.Prod, asNumber(maintenanceId, 0));
   }
 
   if (command === BridgeCommands.CreateMaintenance) {

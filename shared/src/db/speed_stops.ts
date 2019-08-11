@@ -4,6 +4,7 @@ import {SpeedProdsColumn} from '@shared/db/speed_prods';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {Stop, StopStatus, StopInfo, StopType} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
+import {getLastSpeedTime} from './speed_times';
 
 export const SpeedStopsColumn = {
   Start: 'start',
@@ -300,27 +301,49 @@ export async function updateStopInfo(
     .update(fields);
 }
 
-export async function createStop(db: knex, stopStart: number, stopEnd: number): Promise<void> {
-  const stop = await getStop(db, stopStart);
-  if (stop === undefined) {
-    throw new Error(`Can not create stop. Stop with start time ${stopStart} does not exist.`);
+// ----------------------------
+// Maintenance stop interaction
+// ----------------------------
+
+export async function getMaintenanceStop(
+  db: knex,
+  maintenanceId: number
+): Promise<Stop | undefined> {
+  const res = asArray(
+    await db(SPEED_STOPS_TABLE_NAME)
+      .select()
+      .whereNull(SpeedStopsColumn.End)
+      .andWhere(SpeedStopsColumn.StopType, '=', StopType.Maintenance)
+      .andWhere(SpeedStopsColumn.MaintenanceId, '=', maintenanceId)
+      .limit(1)
+  );
+  if (res.length === 0) {
+    return undefined;
   }
-  if (stop.end !== undefined) {
-    throw new Error(`Can not create stop. Stop with start time ${stopStart} is not in progress.`);
+  return lineAsStop(res[0]);
+}
+
+export async function startMaintenanceStop(db: knex, maintenanceId: number): Promise<void> {
+  const [lastStop, lastSpeed] = await Promise.all([getLastStop(db), getLastSpeedTime(db, true)]);
+  if (!lastStop || lastStop.end !== undefined) {
+    throw new Error('No stop in progress');
   }
 
   return new Promise<void>((resolve, reject) => {
+    const end = lastSpeed ? lastSpeed.time : Date.now();
     db.transaction(tx =>
       tx(SPEED_STOPS_TABLE_NAME)
-        .where(SpeedStopsColumn.Start, '=', stopStart)
+        .whereNull(SpeedStopsColumn.End)
+        .andWhere(SpeedStopsColumn.Start, '=', lastStop.start)
         .update({
-          [SpeedStopsColumn.End]: stopEnd,
+          [SpeedStopsColumn.End]: end,
         })
         .then(() =>
           tx(SPEED_STOPS_TABLE_NAME).insert({
-            [SpeedStopsColumn.Start]: stopEnd,
-            [SpeedStopsColumn.PlanProdId]: stop.planProdId,
-            [SpeedStopsColumn.MaintenanceId]: stop.maintenanceId,
+            [SpeedStopsColumn.Start]: end,
+            [SpeedStopsColumn.StopType]: StopType.Maintenance,
+            [SpeedStopsColumn.PlanProdId]: lastStop.planProdId,
+            [SpeedStopsColumn.MaintenanceId]: maintenanceId,
           })
         )
         .then(() => {
@@ -335,25 +358,25 @@ export async function createStop(db: knex, stopStart: number, stopEnd: number): 
   });
 }
 
-export async function mergeStops(
-  db: knex,
-  start1: number,
-  start2: number,
-  mergedInfo: StopInfo,
-  newEnd: number | undefined
-): Promise<void> {
+export async function deleteMaintenanceStop(db: knex, maintenanceId: number): Promise<void> {
+  const maintenanceStop = await getMaintenanceStop(db, maintenanceId);
+  if (!maintenanceStop) {
+    throw new Error(`No maintenance in progress with the id ${maintenanceId}`);
+  }
+
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx =>
       tx(SPEED_STOPS_TABLE_NAME)
-        .where(SpeedStopsColumn.Start, start2)
+        .whereNull(SpeedStopsColumn.End)
+        .andWhere(SpeedStopsColumn.StopType, '=', StopType.Maintenance)
+        .andWhere(SpeedStopsColumn.MaintenanceId, '=', maintenanceId)
         .del()
         .then(() =>
           tx(SPEED_STOPS_TABLE_NAME)
-            .where(SpeedStopsColumn.Start, start1)
+            .where(SpeedStopsColumn.End, maintenanceStop.start)
             .update({
               // tslint:disable-next-line:no-null-keyword
-              [SpeedStopsColumn.End]: newEnd === undefined ? null : newEnd,
-              [SpeedStopsColumn.StopInfo]: JSON.stringify(mergedInfo),
+              [SpeedStopsColumn.End]: null,
             })
         )
         .then(() => {
@@ -361,6 +384,44 @@ export async function mergeStops(
           resolve();
         })
         .catch(err => {
+          tx.rollback();
+          reject(err);
+        })
+    );
+  });
+}
+
+export async function endMaintenanceStop(db: knex, maintenanceId: number): Promise<void> {
+  const [maintenanceStop, lastSpeed] = await Promise.all([
+    getMaintenanceStop(db, maintenanceId),
+    getLastSpeedTime(db, true),
+  ]);
+  if (!maintenanceStop) {
+    throw new Error(`No maintenance in progress with the id ${maintenanceId}`);
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const end = lastSpeed ? lastSpeed.time : Date.now();
+    db.transaction(tx =>
+      tx(SPEED_STOPS_TABLE_NAME)
+        .whereNull(SpeedStopsColumn.End)
+        .andWhere(SpeedStopsColumn.StopType, '=', StopType.Maintenance)
+        .andWhere(SpeedStopsColumn.MaintenanceId, '=', maintenanceId)
+        .update({
+          [SpeedStopsColumn.End]: end,
+        })
+        .then(() =>
+          tx(SPEED_STOPS_TABLE_NAME).insert({
+            [SpeedStopsColumn.Start]: end,
+            [SpeedStopsColumn.PlanProdId]: maintenanceStop.planProdId,
+          })
+        )
+        .then(() => {
+          tx.commit();
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
           tx.rollback();
           reject(err);
         })

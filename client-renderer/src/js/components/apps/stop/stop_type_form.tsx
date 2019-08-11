@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {getLabelForStopType} from '@root/lib/stop';
+import {isSameDay} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
 import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
@@ -9,7 +10,7 @@ import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
 interface StopTypeFormProps {
   stop: Stop;
   type?: StopType;
-  previousStopType?: StopType;
+  previousStop?: Stop;
   hadProd: boolean;
   availablePlanProds: ScheduledPlanProd[];
   availableMaintenances: Maintenance[];
@@ -52,6 +53,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
 
   private renderOption(value: StopType, extra?: JSX.Element): JSX.Element {
     const {stop, type} = this.props;
+    const label = value === StopType.Maintenance ? 'Maintenance' : getLabelForStopType(value);
     return (
       <OptionLine>
         <RadioLabel htmlFor={value}>
@@ -63,7 +65,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
             checked={type === value}
             onChange={this.handleInputChange(value)}
           />
-          {getLabelForStopType(value)}
+          {label}
         </RadioLabel>
         {extra}
       </OptionLine>
@@ -72,10 +74,11 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
 
   public render(): JSX.Element {
     const {
+      stop,
       availablePlanProds,
       availableMaintenances,
       lastPlanId,
-      previousStopType,
+      previousStop,
       hadProd,
     } = this.props;
     const emptyOption = <React.Fragment />;
@@ -102,11 +105,19 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
 
+    const previousStopType = previousStop && previousStop.stopType;
+
     if (previousStopType === StopType.EndOfDayEndProd) {
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
 
-    if (previousStopType === StopType.EndOfDayPauseProd) {
+    console.log(previousStop);
+    console.log(stop);
+
+    if (
+      previousStopType === StopType.EndOfDayPauseProd ||
+      (previousStop && !isSameDay(new Date(previousStop.start), new Date(stop.start)))
+    ) {
       return <OptionWrapper>{reprisePlanProdOption}</OptionWrapper>;
     }
 

@@ -643,6 +643,7 @@ function finishPlanProd(
           {
             start: 0,
             planProdId: lastStopEvent.planProdId,
+            maintenanceId: lastStopEvent.maintenanceId,
             stopType: lastStopEventType,
           },
           endTime,

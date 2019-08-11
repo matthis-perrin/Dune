@@ -185,7 +185,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       .filter(s => isSameDay(new Date(s.start), currentDay))
       .sort((s1, s2) => s1.start - s2.start);
 
-    return <StopList lastMinute={lastMinute} stops={stops} />;
+    return <StopList schedule={schedule} lastMinute={lastMinute} stops={stops} />;
   }
 
   private renderCurrentPlan(): JSX.Element {

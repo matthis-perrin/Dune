@@ -45,7 +45,10 @@ class StopsManager {
     }
 
     if (lastProd && lastProd.end) {
-      lastStopEndTime = lastProd.end;
+      lastStopEndTime = Math.max(lastProd.end, lastStopEndTime);
+    }
+    if (lastStop && lastStop.end) {
+      lastStopEndTime = Math.max(lastStop.end, lastStopEndTime);
     }
 
     const nextStopStart = await firstSpeedTimeMatchingBetween(
@@ -74,8 +77,11 @@ class StopsManager {
       }
     }
 
+    if (lastProd && lastProd.end) {
+      lastProdEndTime = Math.max(lastProd.end, lastProdEndTime);
+    }
     if (lastStop && lastStop.end) {
-      lastProdEndTime = lastStop.end;
+      lastProdEndTime = Math.max(lastStop.end, lastProdEndTime);
     }
 
     const nextProdStart = await firstSpeedTimeMatchingBetween(
@@ -143,7 +149,11 @@ class StopsManager {
       let nonProdStart = nonProd.start;
       let shouldRecordNonProdStart = false;
       let planProdId: number | undefined;
-      if (lastStop && lastStop.stopType !== StopType.NotProdHours && lastStop.end === undefined) {
+      if (
+        lastStop &&
+        (lastStop.stopType !== StopType.NotProdHours || lastStop.title !== nonProd.title) &&
+        lastStop.end === undefined
+      ) {
         if (nonProdStart < lastStop.start) {
           nonProdStart = lastTime.time;
         }

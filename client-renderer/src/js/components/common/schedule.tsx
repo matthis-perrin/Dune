@@ -333,16 +333,18 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     if (nonProd && nonProd.start > currentTime) {
       event.preventDefault();
       event.stopPropagation();
-      contextMenuManager.open([
-        {
-          label: 'Supprimer cette zone de non production',
-          callback: () =>
-            bridge
-              .deleteNonProd(nonProd.id)
-              .then(onPlanProdRefreshNeeded)
-              .catch(console.error),
-        },
-      ]);
+      contextMenuManager
+        .open([
+          {
+            label: 'Supprimer cette zone de non production',
+            callback: () =>
+              bridge
+                .deleteNonProd(nonProd.id)
+                .then(onPlanProdRefreshNeeded)
+                .catch(console.error),
+          },
+        ])
+        .catch(console.error);
     }
   };
 
@@ -353,16 +355,18 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const {onPlanProdRefreshNeeded} = this.props;
     event.preventDefault();
     event.stopPropagation();
-    contextMenuManager.open([
-      {
-        label: 'Supprimer cette maintenance',
-        callback: () =>
-          bridge
-            .deleteMaintenance(maintenanceId)
-            .then(onPlanProdRefreshNeeded)
-            .catch(console.error),
-      },
-    ]);
+    contextMenuManager
+      .open([
+        {
+          label: 'Supprimer cette maintenance',
+          callback: () =>
+            bridge
+              .deleteMaintenance(maintenanceId)
+              .then(onPlanProdRefreshNeeded)
+              .catch(console.error),
+        },
+      ])
+      .catch(console.error);
   };
 
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {

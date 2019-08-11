@@ -272,23 +272,19 @@ export class Bridge {
       maintenanceId,
     });
   }
-  public async createStop(stopStart: number, stopEnd: number): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.CreateStop, {
-      stopStart,
-      stopEnd,
+  public async startMaintenanceStop(maintenanceId: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.StartMaintenanceStop, {
+      maintenanceId,
     });
   }
-  public async mergeStops(
-    start1: number,
-    start2: number,
-    mergedInfo: StopInfo,
-    newEnd: number | undefined
-  ): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.MergeStops, {
-      start1,
-      start2,
-      mergedInfo,
-      newEnd,
+  public async deleteMaintenanceStop(maintenanceId: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.DeleteMaintenanceStop, {
+      maintenanceId,
+    });
+  }
+  public async endMaintenanceStop(maintenanceId: number): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.EndMaintenanceStop, {
+      maintenanceId,
     });
   }
 

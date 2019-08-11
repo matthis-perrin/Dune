@@ -253,7 +253,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
           <StopTypeForm
             stop={stop}
             type={stopType}
-            previousStopType={previousStop && previousStop.stopType}
+            previousStop={previousStop}
             hadProd={hadProd}
             lastPlanId={currentPlanId}
             availablePlanProds={availablePlanProds}

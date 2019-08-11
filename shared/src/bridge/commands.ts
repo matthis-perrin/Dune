@@ -40,8 +40,10 @@ export const ClearPlan = 'clear-plan' as BridgeCommand;
 export const GetScheduleInfo = 'get-schedule-info' as BridgeCommand;
 export const GetProdInfo = 'get-prod-info' as BridgeCommand;
 export const UpdateStop = 'update-stop' as BridgeCommand;
-export const CreateStop = 'create-stop' as BridgeCommand;
-export const MergeStops = 'merge-stops' as BridgeCommand;
+
+export const StartMaintenanceStop = 'start-maintenance-stop' as BridgeCommand;
+export const DeleteMaintenanceStop = 'delete-maintenance-stop' as BridgeCommand;
+export const EndMaintenanceStop = 'end-maintenance-stops' as BridgeCommand;
 
 export const CreateMaintenance = 'create-maintenance' as BridgeCommand;
 export const DeleteMaintenance = 'delete-maintenance' as BridgeCommand;
