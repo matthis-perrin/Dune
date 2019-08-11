@@ -3,7 +3,7 @@ import {findIndex, find} from 'lodash-es';
 import {bridge} from '@root/lib/bridge';
 import {ContextMenu, contextMenuManager} from '@root/lib/context_menu';
 import {getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {getAllPlannedSchedules} from '@root/lib/schedule_utils';
+import {getAllPlannedSchedules, getPlanStart, getPlanEnd} from '@root/lib/schedule_utils';
 
 import {Schedule, ScheduledPlanProd, ClientAppType, PlanProductionInfo} from '@shared/models';
 import {asNumber, asMap} from '@shared/type_utils';
@@ -23,8 +23,12 @@ function newPlanProd(
     .then(data => {
       onRefreshNeeded();
       const id = asNumber(asMap(data).id, 0);
+      const planStart = getPlanStart(planSchedule);
+      const planEnd = getPlanEnd(planSchedule);
+      const start = planStart !== undefined ? planStart : 0;
+      const end = planEnd !== undefined ? planEnd : 0;
       bridge
-        .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true})
+        .openApp(ClientAppType.PlanProductionEditorApp, {id, isCreating: true, start, end})
         .catch(console.error);
     })
     .catch(console.error);

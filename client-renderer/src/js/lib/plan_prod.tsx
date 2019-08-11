@@ -1,8 +1,9 @@
 import {MAX_SPEED_RATIO} from '@root/lib/constants';
 
+import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
-import {ProdRange} from '@shared/models';
+import {ProdRange, PlanProductionState} from '@shared/models';
 
 export const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
@@ -75,4 +76,12 @@ export function getProductionDay(prodRanges: Map<string, ProdRange>): number {
   date.setSeconds(0);
   date.setMilliseconds(0);
   return date.getTime();
+}
+
+export function getProductionForBobine(ref: string, planState: PlanProductionState): number {
+  return (
+    planState.selectedBobines
+      .filter(b => b.ref === ref)
+      .reduce((piste, b) => piste + getPoseSize(b.pose), 0) * (planState.tourCount || 0)
+  );
 }

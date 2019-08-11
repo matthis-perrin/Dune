@@ -33,6 +33,7 @@ interface Datum {
 }
 
 const BAR_THICKNESS_RATIO = 1.05;
+const EVENTS_OPACITY = 0.5;
 const NULL_SPEED_HEIGHT = 10;
 const THRESHOLD_SPREAD_FOR_MINUTE_DETAILS = 15;
 
@@ -129,10 +130,10 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     }
 
     const data: Datum[] = [];
-    let currentMinute = Math.floor(rangeStart / 60000);
+    let currentMinute = Math.floor(rangeStart / (60 * 1000));
     let currentSpeeds: SpeedTime[] = [];
     for (let time = rangeStart; time <= rangeEnd; time += SPEED_AGGREGATION_TIME_MS) {
-      const loopMinute = Math.floor(time / 60000);
+      const loopMinute = Math.floor(time / (60 * 1000));
       const loopSpeed = speedMap.get(time);
       if (loopMinute === currentMinute) {
         if (loopSpeed !== undefined) {
@@ -150,10 +151,10 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
           );
         } else {
           const definedSpeed = removeUndefined(currentSpeeds.map(s => s.speed));
-          const speedSum = sum(definedSpeed);
+          const speedSum = definedSpeed.length === 0 ? undefined : sum(definedSpeed);
           data.push({
-            start: new Date(currentMinute * 60000),
-            end: new Date((currentMinute + 1) * 60000),
+            start: new Date(currentMinute * 60 * 1000),
+            end: new Date((currentMinute + 1) * 60 * 1000),
             speed: speedSum === undefined ? undefined : speedSum / currentSpeeds.length,
             isNow: false,
           });
@@ -219,7 +220,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .y(() => 0, yScale)
       .y2(() => PLOT_SPEED_MAX)
       .attr('fill', (s: SpeedChartEvent) => s.color)
-      .attr('opacity', 0.5);
+      .attr('opacity', EVENTS_OPACITY);
     console.log(filteredEvents);
 
     // Axis

@@ -17,6 +17,8 @@ import {
   getScheduleStart,
   getScheduleEnd,
   getScheduleStarts,
+  getPlanEnd,
+  getPlanStart,
 } from '@root/lib/schedule_utils';
 import {Palette, theme, FontWeight} from '@root/theme';
 
@@ -230,12 +232,28 @@ export class PlanProdTile extends React.Component<Props> {
   private readonly handleDoubleClick = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {planSchedule} = this.props;
+    const {planSchedule, schedule} = this.props;
     const planType = getPlanStatus(planSchedule);
+    const planStart = getPlanStart(planSchedule);
+    const planEnd = getPlanEnd(planSchedule);
+    const start =
+      planStart !== undefined
+        ? planStart
+        : schedule.lastSpeedTime !== undefined
+        ? schedule.lastSpeedTime.time
+        : 0;
+    const end =
+      planEnd !== undefined
+        ? planEnd
+        : schedule.lastSpeedTime !== undefined
+        ? schedule.lastSpeedTime.time
+        : 0;
     if (planType === PlanProductionStatus.PLANNED) {
       bridge
         .openApp(ClientAppType.PlanProductionEditorApp, {
           id: planSchedule.planProd.id,
+          start,
+          end,
           isCreating: false,
         })
         .catch(console.error);

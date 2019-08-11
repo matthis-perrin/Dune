@@ -39,14 +39,13 @@ export function getSchedulesFromStartOfDay(
   schedule: Schedule,
   limitPlanIndex?: number
 ): PlanProdSchedule[] {
-  const start = startOfDay().getTime();
+  const now = schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
+  const start = startOfDay(new Date(now)).getTime();
   const todayAndAfterSchedules = allSchedulesAfterDate(schedule, start);
   if (limitPlanIndex === undefined) {
     return todayAndAfterSchedules;
   }
-  return todayAndAfterSchedules.filter(
-    s => s.status !== PlanProductionStatus.PLANNED || s.planProd.index < limitPlanIndex
-  );
+  return todayAndAfterSchedules.filter(s => s.planProd.index < limitPlanIndex);
 }
 
 export function getPreviousSchedule(
@@ -155,6 +154,10 @@ export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
   return min(Array.from(plan.schedulePerDay.values()).map(getScheduleStart));
 }
 
+export function getPlanEnd(plan: ScheduledPlanProd): number | undefined {
+  return max(Array.from(plan.schedulePerDay.values()).map(getScheduleEnd));
+}
+
 export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | undefined {
   const allSchedulesDoneOrInProgress = schedule.plans.reduce(
     (schedules, plan) => {
@@ -171,7 +174,10 @@ export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | u
     schedule: s,
     start: getScheduleStart(s) || 0,
   }));
-  const lastScheduleWithStart = scheduleWithStart.sort((s1, s2) => s2.start - s1.start)[0];
+  const lastScheduleWithStart =
+    scheduleWithStart.length === 0
+      ? undefined
+      : scheduleWithStart.sort((s1, s2) => s2.start - s1.start)[0];
   return lastScheduleWithStart === undefined ? undefined : lastScheduleWithStart.schedule;
 }
 

@@ -9,7 +9,6 @@ import {
   LAIZE_COLUMN,
   COULEUR_PAPIER_COLUMN,
   GRAMMAGE_COLUMN,
-  STOCK_REEL_COLUMN,
   STOCK_TERME_COLUMN,
   TYPE_IMPRESSION_COLUMN,
   MULTI_POSE_COLUMN,
@@ -21,6 +20,7 @@ import {
   LONGUEUR_COLUMN,
   withWidth,
   MONTHLY_SELLING,
+  STOCK_PREVISIONEL_COMPUTED_COLUMN,
 } from '@root/components/table/columns';
 import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
@@ -135,8 +135,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       QUANTITY_TO_PRODUCE(stocks, cadencier, bobineQuantities, schedule, planProd),
       LAST_YEAR_SELLING(cadencier),
       MONTHLY_SELLING(cadencier),
-      STOCK_REEL_COLUMN(stocks),
       STOCK_TERME_COLUMN(stocks),
+      STOCK_PREVISIONEL_COMPUTED_COLUMN(stocks, schedule, planProd),
       STOCK_STATE_COLUMN(stocks, cadencier, bobineQuantities, schedule, planProd),
     ];
     return this.lastColumns;

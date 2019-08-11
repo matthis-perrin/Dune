@@ -17,7 +17,8 @@ import {SVGIcon} from '@root/components/core/svg_icon';
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {getBobineSellingPastYear, getBobineState, getBobineMonthlySelling} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
-import {StockType, getStock} from '@root/lib/stocks';
+import {getProductionForBobine} from '@root/lib/plan_prod';
+import {StockType, getStock, getStockTermePrevisionel} from '@root/lib/stocks';
 import {numberWithSeparator} from '@root/lib/utils';
 import {Colors, FontWeight} from '@root/theme';
 
@@ -327,6 +328,42 @@ export const STOCK_COMMANDE_COLUMN = (stocks: Map<string, Stock[]>) =>
 
 export const STOCK_RESERVE_COLUMN = (stocks: Map<string, Stock[]>) =>
   STOCK_COLUMN('STOCKS RÉSERVÉ', StockType.RESERVE, stocks, 75);
+
+export const STOCK_PREVISIONEL_COMPUTED_COLUMN = (
+  stocks: Map<string, Stock[]>,
+  schedule: Schedule,
+  planProd: PlanProductionState & PlanProductionInfo
+): ColumnMetadata<{ref: string}, number> => ({
+  title: 'STOCK PRÉVISIONEL',
+  width: 65,
+  renderCell: ({ref}) => {
+    const stock =
+      getStockTermePrevisionel(ref, stocks, schedule, planProd) +
+      getProductionForBobine(ref, planProd);
+    const color = stock < 0 ? Colors.Danger : undefined;
+    const fontWeight = stock < 0 ? FontWeight.Bold : undefined;
+    return <span style={{color, fontWeight}}>{renderNumber(stock)}</span>;
+  },
+  justifyContent: 'center',
+  sortFunction: (row1, row2) => {
+    const stock1 =
+      getStockTermePrevisionel(row1.ref, stocks, schedule, planProd) +
+      getProductionForBobine(row1.ref, planProd);
+    const stock2 =
+      getStockTermePrevisionel(row2.ref, stocks, schedule, planProd) +
+      getProductionForBobine(row2.ref, planProd);
+    return stock1 - stock2;
+  },
+  shouldRerender: (prev, next) => {
+    const stock1 =
+      getStockTermePrevisionel(prev.ref, stocks, schedule, planProd) +
+      getProductionForBobine(prev.ref, planProd);
+    const stock2 =
+      getStockTermePrevisionel(next.ref, stocks, schedule, planProd) +
+      getProductionForBobine(next.ref, planProd);
+    return stock1 !== stock2;
+  },
+});
 
 export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, string> = {
   title: 'IMP',
@@ -814,53 +851,70 @@ export const STOCK_STATE_COLUMN = (
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
   schedule: Schedule,
-  planInfo: PlanProductionInfo
+  planProd: PlanProductionState & PlanProductionInfo
 ): ColumnMetadata<{ref: string}, number> => ({
   title: 'ETAT',
   width: 152,
   renderCell: ({ref}) => {
+    const prod = getProductionForBobine(ref, planProd);
     const {state, info} = getBobineState(
       ref,
       stocks,
       cadencier,
       bobineQuantities,
-      0,
+      prod,
       schedule,
-      planInfo
+      planProd
     );
     return <BobineState state={state} info={info} />;
   },
   justifyContent: 'flex-end',
   sortFunction: (row1, row2) => {
+    const prod1 = getProductionForBobine(row1.ref, planProd);
+    const prod2 = getProductionForBobine(row2.ref, planProd);
     const info1 = getBobineState(
       row1.ref,
       stocks,
       cadencier,
       bobineQuantities,
-      0,
+      prod1,
       schedule,
-      planInfo
+      planProd
     );
     const info2 = getBobineState(
       row2.ref,
       stocks,
       cadencier,
       bobineQuantities,
-      0,
+      prod2,
       schedule,
-      planInfo
+      planProd
     );
     if (info1.state === info2.state) {
       return info1.infoValue - info2.infoValue;
     }
     return info1.state - info2.state;
   },
-  shouldRerender: (row1, row2) =>
-    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state !==
-    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state,
+  shouldRerender: (row1, row2) => {
+    const prod1 = getProductionForBobine(row1.ref, planProd);
+    const prod2 = getProductionForBobine(row2.ref, planProd);
+    return (
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, prod1, schedule, planProd)
+        .state !==
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, prod2, schedule, planProd).state
+    );
+  },
   filter: {
     getValue: ({ref}) =>
-      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).state,
+      getBobineState(
+        ref,
+        stocks,
+        cadencier,
+        bobineQuantities,
+        getProductionForBobine(ref, planProd),
+        schedule,
+        planProd
+      ).state,
     render: (row, value) => <BobineState state={value} />,
   },
 });
