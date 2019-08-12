@@ -229,8 +229,8 @@ class WindowManager {
       return {id: `stop-${day}-${stopStart}`, size: {width: 1200}};
     }
 
-    if (appInfo.type === ClientAppType.StatistiquesApp) {
-      return {id: 'production', size: {}};
+    if (appInfo.type === ClientAppType.StatisticsApp) {
+      return {id: 'statistics', size: {}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};

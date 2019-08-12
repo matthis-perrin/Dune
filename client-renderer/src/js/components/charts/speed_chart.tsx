@@ -59,7 +59,6 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
     this.createChart();
-    this.updateChart();
   }
 
   public componentWillUnmount(): void {

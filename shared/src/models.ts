@@ -387,7 +387,7 @@ export enum ClientAppType {
   ViewDayApp = 'ViewDayApp',
   ProductionApp = 'ProductionApp',
   StopApp = 'StopApp',
-  StatistiquesApp = 'StatistiquesApp',
+  StatisticsApp = 'StatisticsApp',
 }
 
 export interface SpeedTime {
@@ -493,4 +493,36 @@ export interface ProdRange {
   startMinute: number;
   endHour: number;
   endMinute: number;
+}
+
+// Statistics Models
+
+export interface StatsData {
+  days: Map<number, PlanDayStats[]>;
+}
+
+export interface PlanDayStats {
+  morningProds: ProdStat[];
+  afternoonProds: ProdStat[];
+  morningStops: StopStat[];
+  afternoonStops: StopStat[];
+  planTotalOperationDone: number;
+  planTotalOperationPlanned: number;
+  repriseProdDone: number;
+}
+
+export interface ProdStat {
+  metrage: number;
+}
+
+export interface StopStat {
+  type: StopType;
+  duration: number;
+  ratio: number;
+}
+
+export interface BarType {
+  name: string;
+  label: string;
+  color: string;
 }
