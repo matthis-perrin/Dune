@@ -76,6 +76,14 @@ export class Sidebar extends React.Component<Props, State> {
                 bridge.openApp(ClientAppType.ProductionApp).catch(console.error);
               }}
             />
+            <SidebarItem
+              key={'statistiques'}
+              title={'Statistiques'}
+              isSelected={false}
+              onClick={() => {
+                bridge.openApp(ClientAppType.StatistiquesApp).catch(console.error);
+              }}
+            />
           </SidebarItemContainer>
         </FlexParent>
       </SidebarContainer>

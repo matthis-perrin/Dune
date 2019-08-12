@@ -83,10 +83,10 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
 
   private readonly handleScheduleChanged = (): void => {
     const schedule = this.scheduleStore.getSchedule();
+    this.setState({schedule});
     if (!schedule) {
       return;
     }
-    this.setState({schedule});
     const currentDay = this.getCurrentDay();
     if (currentDay) {
       const dayTs = currentDay.getTime();

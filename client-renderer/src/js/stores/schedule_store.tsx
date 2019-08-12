@@ -78,6 +78,13 @@ export class ScheduleStore {
       .catch(() => this.scheduleRefresh());
   }
 
+  public refreshOnce(listener: () => void): void {
+    this.listener = listener;
+    this.performRefresh().catch(() =>
+      setTimeout(() => this.refreshOnce(listener), this.WAIT_BETWEEN_REFRESHES)
+    );
+  }
+
   private scheduleRefresh(): void {
     this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
   }

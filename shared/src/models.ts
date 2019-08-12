@@ -387,6 +387,7 @@ export enum ClientAppType {
   ViewDayApp = 'ViewDayApp',
   ProductionApp = 'ProductionApp',
   StopApp = 'StopApp',
+  StatistiquesApp = 'StatistiquesApp',
 }
 
 export interface SpeedTime {

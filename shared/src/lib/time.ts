@@ -15,8 +15,15 @@ export const MONTHS_STRING = [
   'Décembre',
 ];
 
-export function dateAtHour(date: Date, hour: number, minute?: number): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute || 0);
+export function dateAtHour(date: Date, hour: number, minute?: number, second?: number): Date {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    hour,
+    minute || 0,
+    second || 0
+  );
 }
 
 const memo = new Map<number, string>();
