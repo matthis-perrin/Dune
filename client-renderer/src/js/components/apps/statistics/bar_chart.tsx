@@ -145,7 +145,7 @@ export class BarChart extends React.Component<BarChartProps> {
     });
 
     const datalabelsConf =
-      barDataSets.length * barDataSets[0].data.length > 40
+      barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
         ? {
             rotation: 90,
           }
@@ -160,7 +160,7 @@ export class BarChart extends React.Component<BarChartProps> {
     this.chart = new Chart(chartElement, {
       type: 'bar',
       data: {
-        labels: barDataSets[0].data.map(datum => datum.days),
+        labels: barDataSets.length > 0 ? barDataSets[0].data.map(datum => datum.days) : [],
         datasets: barDataSets.map(dataSet => ({
           backgroundColor: dataSet.color,
           data: dataSet.data.map(datum => datum.value),

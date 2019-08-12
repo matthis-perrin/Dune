@@ -3,40 +3,23 @@ import * as React from 'react';
 
 import {BarChart} from '@root/components/apps/statistics/bar_chart';
 import {BarFilter} from '@root/components/apps/statistics/bar_filter';
+import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
 import {numberWithSeparator} from '@root/lib/utils';
-import {Colors, Palette} from '@root/theme';
 
-import {BarType, StatsData, ProdRange, PlanDayStats} from '@shared/models';
+import {StatsData, ProdRange, PlanDayStats} from '@shared/models';
 
 interface StatsChartFormProps {
   prodHours: Map<string, ProdRange>;
   statsData: StatsData;
   statsPeriod: StatsPeriod;
+  statsMetric: StatsMetric;
   date: number;
 }
 
 interface StatsChartFormState {
-  selectedBarTypeNames: string[];
+  selectedMetricFilterNames: string[];
 }
-
-const barTypes: BarType[] = [
-  {
-    name: 'morning',
-    label: 'Équipe matin',
-    color: Palette.Concrete,
-  },
-  {
-    name: 'afternoon',
-    label: 'Équipe soir',
-    color: Palette.Asbestos,
-  },
-  {
-    name: 'all',
-    label: 'Équipes cumulées',
-    color: Colors.SecondaryDark,
-  },
-];
 
 export class StatsChartForm extends React.Component<StatsChartFormProps, StatsChartFormState> {
   public static displayName = 'StatsChartForm';
@@ -44,23 +27,24 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
   public constructor(props: StatsChartFormProps) {
     super(props);
     this.state = {
-      selectedBarTypeNames: ['all'],
+      selectedMetricFilterNames: [props.statsMetric.initialFilter],
     };
   }
 
-  private getSelectedBarTypes(selectedBarTypeNames: string[]): BarType[] {
-    return barTypes.filter(({name}) => selectedBarTypeNames.indexOf(name) !== -1);
+  private getSelectedMetricFilters(selectedMetricFilterNames: string[]): MetricFilter[] {
+    const {statsMetric} = this.props;
+    return statsMetric.filters.filter(({name}) => selectedMetricFilterNames.indexOf(name) !== -1);
   }
 
   public render(): JSX.Element {
-    const {statsData, date, prodHours, statsPeriod} = this.props;
-    const {selectedBarTypeNames} = this.state;
+    const {statsData, date, prodHours, statsPeriod, statsMetric} = this.props;
+    const {selectedMetricFilterNames} = this.state;
     return (
       <div>
         <BarFilter
-          barTypes={barTypes}
-          checked={selectedBarTypeNames}
-          onChange={selectedBarTypeNames => this.setState({selectedBarTypeNames})}
+          barTypes={statsMetric.filters}
+          checked={selectedMetricFilterNames}
+          onChange={selectedMetricFilterNames => this.setState({selectedMetricFilterNames})}
         />
         <BarChart
           statsData={statsData}
@@ -72,7 +56,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
             renderY: (value: number): string => `${numberWithSeparator(value)} m`,
             xAxis: statsPeriod.xAxis,
             yAxis: (dayStats: PlanDayStats) =>
-              this.getSelectedBarTypes(selectedBarTypeNames).map(barType => {
+              this.getSelectedMetricFilters(selectedMetricFilterNames).map(barType => {
                 const {color, name} = barType;
                 let value = 0;
                 if (name === 'morning' || name === 'all') {

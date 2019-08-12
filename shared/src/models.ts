@@ -520,9 +520,3 @@ export interface StopStat {
   duration: number;
   ratio: number;
 }
-
-export interface BarType {
-  name: string;
-  label: string;
-  color: string;
-}

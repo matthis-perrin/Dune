@@ -2,12 +2,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {Checkbox} from '@root/components/core/checkbox';
+import {MetricFilter} from '@root/lib/statistics/metrics';
 import {Palette} from '@root/theme';
 
-import {BarType} from '@shared/models';
-
 interface BarFilterProps {
-  barTypes: BarType[];
+  barTypes: MetricFilter[];
   checked: string[];
   onChange(newChecked: string[]): void;
 }
@@ -15,7 +14,7 @@ interface BarFilterProps {
 export class BarFilter extends React.Component<BarFilterProps> {
   public static displayName = 'BarFilter';
 
-  private renderCheckbox(barType: BarType): JSX.Element {
+  private renderCheckbox(barType: MetricFilter): JSX.Element {
     const {checked, onChange} = this.props;
     const isChecked = checked.indexOf(barType.name) !== -1;
     return (
