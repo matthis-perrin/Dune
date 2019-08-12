@@ -91,7 +91,14 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
           />
         </Block>
         <Block>
-          <TimeBar>{statsPeriod.renderPeriod(currentDay, schedule.prodHours)}</TimeBar>
+          <TimeBar
+            disableForward={!statsPeriod.canNavigate}
+            disabledBackward={!statsPeriod.canNavigate}
+            onForward={() => this.setState({day: statsPeriod.next(currentDay)})}
+            onBackward={() => this.setState({day: statsPeriod.previous(currentDay)})}
+          >
+            {statsPeriod.renderPeriod(currentDay, schedule.prodHours)}
+          </TimeBar>
         </Block>
         <Block>
           <StatsChartForm

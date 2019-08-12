@@ -180,7 +180,7 @@ export class BarChart extends React.Component<BarChartProps> {
             backgroundColor: 'red',
           },
         },
-        layout: {padding: {left: 16, right: 16}},
+        layout: {padding: {left: 16, right: 16, top: 16}},
         responsive: true,
         legend: {display: false},
         maintainAspectRatio: false,

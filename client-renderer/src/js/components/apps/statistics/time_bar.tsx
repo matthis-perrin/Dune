@@ -17,17 +17,25 @@ export class TimeBar extends React.Component<TimeBarProps> {
   public static displayName = 'TimeBar';
 
   public render(): JSX.Element {
-    const {children, onBackward, onForward} = this.props;
+    const {children, onBackward, onForward, disableForward, disabledBackward} = this.props;
     const rest = omit(this.props, ['children']);
     return (
       <TimeBarWrapper {...rest}>
-        <NavigationIcon onClick={onBackward}>
-          <SVGIcon name="caret-left" width={iconSize} height={iconSize} />
-        </NavigationIcon>
+        {disabledBackward ? (
+          <React.Fragment />
+        ) : (
+          <NavigationIcon onClick={onBackward}>
+            <SVGIcon name="caret-left" width={iconSize} height={iconSize} />
+          </NavigationIcon>
+        )}
         <TimeBarTitle>{children}</TimeBarTitle>
-        <NavigationIcon onClick={onForward}>
-          <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
-        </NavigationIcon>
+        {disableForward ? (
+          <React.Fragment />
+        ) : (
+          <NavigationIcon onClick={onForward}>
+            <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
+          </NavigationIcon>
+        )}
       </TimeBarWrapper>
     );
   }

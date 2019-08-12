@@ -123,11 +123,11 @@ export function getYearDaysByMonth(ts: number): number[][] {
 }
 
 export function nextWeek(time: number): number {
-  return time + DAY_IN_WEEK;
+  return time + DAY_IN_WEEK * MS_IN_DAY;
 }
 
 export function previousWeek(time: number): number {
-  return time - DAY_IN_WEEK;
+  return time - DAY_IN_WEEK * MS_IN_DAY;
 }
 
 export function nextMonth(time: number): number {
