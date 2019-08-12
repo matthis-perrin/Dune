@@ -2,10 +2,17 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {StatsChartForm} from '@root/components/apps/statistics/stats_chart_form';
+import {StatsPeriodDropdown} from '@root/components/apps/statistics/stats_period_dropdown';
 import {TimeBar} from '@root/components/apps/statistics/time_bar';
 import {WeekText} from '@root/components/apps/statistics/time_format';
 import {LoadingScreen} from '@root/components/core/loading_screen';
-import {computeStatsData} from '@root/lib/statistics';
+import {computeStatsData} from '@root/lib/statistics/data';
+import {
+  WEEK_STATS_PERIOD,
+  StatsPeriod,
+  MONTH_STATS_PERIOD,
+  YEAR_STATS_PERIOD,
+} from '@root/lib/statistics/period';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {Palette, Colors} from '@root/theme';
 
@@ -17,6 +24,7 @@ interface StatisticsAppProps {}
 interface StatisticsAppState {
   day?: number;
   schedule?: Schedule;
+  statsPeriod: StatsPeriod;
 }
 
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
@@ -28,7 +36,9 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
 
   public constructor(props: StatisticsAppProps) {
     super(props);
-    this.state = {};
+    this.state = {
+      statsPeriod: MONTH_STATS_PERIOD,
+    };
     this.scheduleStore = new ScheduleStore({start: 0, end: Date.now() * 2});
   }
 
@@ -64,7 +74,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
   }
 
   public render(): JSX.Element {
-    const {schedule} = this.state;
+    const {schedule, statsPeriod} = this.state;
     const currentDay = this.getCurrentDay();
     if (!schedule || !currentDay) {
       return <LoadingScreen />;
@@ -74,12 +84,22 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
     return (
       <StatisticWrapper>
         <Block>
-          <TimeBar>
-            <WeekText prodHours={schedule.prodHours} ts={currentDay} />
-          </TimeBar>
+          <StatsPeriodDropdown
+            statsPeriods={[WEEK_STATS_PERIOD, MONTH_STATS_PERIOD, YEAR_STATS_PERIOD]}
+            selected={statsPeriod}
+            onChange={newStatsPeriod => this.setState({statsPeriod: newStatsPeriod})}
+          />
         </Block>
         <Block>
-          <StatsChartForm date={currentDay} prodHours={schedule.prodHours} statsData={statsData} />
+          <TimeBar>{statsPeriod.renderPeriod(currentDay, schedule.prodHours)}</TimeBar>
+        </Block>
+        <Block>
+          <StatsChartForm
+            date={currentDay}
+            prodHours={schedule.prodHours}
+            statsData={statsData}
+            statsPeriod={statsPeriod}
+          />
         </Block>
         <Block>
           {<pre>{JSON.stringify(Array.from(statsData.days.entries()), undefined, 2)}</pre>}

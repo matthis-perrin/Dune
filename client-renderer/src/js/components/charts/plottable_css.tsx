@@ -677,7 +677,7 @@ export const PlottableStatsCSS = createGlobalStyle`
   }
 
   .plottable .on-bar-label text {
-    fill: white;
+    fill: black;
   }
   .plottable .off-bar-label text {
     fill: black;

@@ -3,7 +3,8 @@ import * as React from 'react';
 
 import {BarChart} from '@root/components/apps/statistics/bar_chart';
 import {BarFilter} from '@root/components/apps/statistics/bar_filter';
-import {getWeekDays} from '@root/components/apps/statistics/time_format';
+import {StatsPeriod} from '@root/lib/statistics/period';
+import {numberWithSeparator} from '@root/lib/utils';
 import {Colors, Palette} from '@root/theme';
 
 import {BarType, StatsData, ProdRange, PlanDayStats} from '@shared/models';
@@ -11,6 +12,7 @@ import {BarType, StatsData, ProdRange, PlanDayStats} from '@shared/models';
 interface StatsChartFormProps {
   prodHours: Map<string, ProdRange>;
   statsData: StatsData;
+  statsPeriod: StatsPeriod;
   date: number;
 }
 
@@ -51,7 +53,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
   }
 
   public render(): JSX.Element {
-    const {statsData, date, prodHours} = this.props;
+    const {statsData, date, prodHours, statsPeriod} = this.props;
     const {selectedBarTypeNames} = this.state;
     return (
       <div>
@@ -62,14 +64,13 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
         />
         <BarChart
           statsData={statsData}
+          prodHours={prodHours}
           date={date}
           chartConfig={{
             mode: 'sum',
-            renderX: (days: number[]): string =>
-              new Date(days[0]).toLocaleString('fr', {weekday: 'long'}),
-            renderY: (value: number): string => `${value} m`,
-            xAxis: (statsData: StatsData, date: number): number[][] =>
-              getWeekDays(prodHours, date).map(d => [d]),
+            renderX: statsPeriod.renderX,
+            renderY: (value: number): string => `${numberWithSeparator(value)} m`,
+            xAxis: statsPeriod.xAxis,
             yAxis: (dayStats: PlanDayStats) =>
               this.getSelectedBarTypes(selectedBarTypeNames).map(barType => {
                 const {color, name} = barType;

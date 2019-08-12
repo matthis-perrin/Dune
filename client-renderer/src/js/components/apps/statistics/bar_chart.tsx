@@ -1,12 +1,14 @@
+import Chart from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {isEqual, sum} from 'lodash-es';
 import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import {PlottableStatsCSS} from '@root/components/charts/plottable_css';
+import {Palette} from '@root/theme';
 
-import {StatsData, PlanDayStats} from '@shared/models';
-import {asString} from '@shared/type_utils';
+import {StatsData, PlanDayStats, ProdRange} from '@shared/models';
 
 interface BarDataSet {
   color: string;
@@ -19,7 +21,7 @@ interface Datum {
 }
 
 export interface BarChartConfig {
-  xAxis(stats: StatsData, date: number): number[][];
+  xAxis(stats: StatsData, prodHours: Map<string, ProdRange>, date: number): number[][];
   yAxis(dayStats: PlanDayStats): {value: number; color: string}[];
   renderX(days: number[]): string;
   renderY(value: number): string;
@@ -28,6 +30,7 @@ export interface BarChartConfig {
 
 interface BarChartProps {
   statsData: StatsData;
+  prodHours: Map<string, ProdRange>;
   chartConfig: BarChartConfig;
   date: number;
 }
@@ -42,32 +45,22 @@ const emptyPlanDayStats: PlanDayStats = {
   repriseProdDone: 0,
 };
 
+(Plottable.Plots.Bar as any).prototype._removeDatasetNodes = () => {};
+
 export class BarChart extends React.Component<BarChartProps> {
   public static displayName = 'BarChart';
-  private readonly chartRef = React.createRef<HTMLDivElement>();
-  private plot: Plottable.Components.Table | undefined = undefined;
+  private readonly chartRef = React.createRef<HTMLCanvasElement>();
+  private chart: Chart | undefined = undefined;
 
   public componentDidMount(): void {
-    window.addEventListener('resize', this.handleResize);
     this.createChart();
-  }
-
-  public componentWillUnmount(): void {
-    window.removeEventListener('resize', this.handleResize);
   }
 
   public componentDidUpdate(prevProps: BarChartProps): void {
     if (!isEqual(this.props, prevProps)) {
-      this.updateChart();
+      this.createChart();
     }
   }
-
-  private readonly handleResize = (): void => {
-    if (!this.plot) {
-      return;
-    }
-    this.plot.redraw();
-  };
 
   private createChart(): void {
     // Check this is a good time to render
@@ -77,9 +70,13 @@ export class BarChart extends React.Component<BarChartProps> {
       return;
     }
 
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
     // Data
-    const {statsData, chartConfig, date} = this.props;
-    const xAxisDates = chartConfig.xAxis(statsData, date);
+    const {statsData, prodHours, chartConfig, date} = this.props;
+    const xAxisDates = chartConfig.xAxis(statsData, prodHours, date);
 
     const dataSets = new Map<string, Datum[]>();
     const colorOrder: string[] = [];
@@ -147,31 +144,56 @@ export class BarChart extends React.Component<BarChartProps> {
       }
     });
 
-    // Scales
-    const xScale = new Plottable.Scales.Category();
-    const yScale = new Plottable.Scales.Linear();
+    const datalabelsConf =
+      barDataSets.length * barDataSets[0].data.length > 40
+        ? {
+            rotation: 90,
+          }
+        : {
+            anchor: 'end' as 'end',
+            align: 'top' as 'top',
+            offset: -4,
+            rotation: 0,
+          };
 
-    // Bars
-    const barPlot = new Plottable.Plots.ClusteredBar();
-    barDataSets.forEach(barDataSet =>
-      barPlot.addDataset(new Plottable.Dataset(barDataSet.data).metadata(barDataSet.color))
-    );
-    barPlot
-      .x((d: Datum) => d.days, xScale)
-      .y((d: Datum) => d.value, yScale)
-      .attr('fill', (d, i, ds) => asString(ds.metadata(), 'black'))
-      .labelsEnabled(true)
-      .labelFormatter(chartConfig.renderY);
-
-    // Axis
-    const xAxis = new Plottable.Axes.Category(xScale, 'bottom');
-
-    // Final Plot
-    this.plot = new Plottable.Components.Table([[barPlot], [xAxis]]);
-
-    // Rendering
-    chartElement.innerHTML = '';
-    this.plot.renderTo(chartElement);
+    // Chart
+    this.chart = new Chart(chartElement, {
+      type: 'bar',
+      data: {
+        labels: barDataSets[0].data.map(datum => datum.days),
+        datasets: barDataSets.map(dataSet => ({
+          backgroundColor: dataSet.color,
+          data: dataSet.data.map(datum => datum.value),
+        })),
+      },
+      plugins: [ChartDataLabels],
+      options: {
+        plugins: {
+          datalabels: {
+            ...datalabelsConf,
+            color: 'black',
+            display: a => ((a.dataset.data || [])[a.dataIndex] || 0) > 0,
+          },
+        },
+        elements: {
+          rectangle: {
+            backgroundColor: 'red',
+          },
+        },
+        layout: {padding: {left: 16, right: 16}},
+        responsive: true,
+        legend: {display: false},
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{display: false}],
+          xAxes: [
+            {
+              ticks: {fontColor: Palette.Black},
+            },
+          ],
+        },
+      },
+    });
   }
 
   public updateChart(): void {
@@ -182,7 +204,9 @@ export class BarChart extends React.Component<BarChartProps> {
     return (
       <React.Fragment>
         <PlottableStatsCSS />
-        <ChartContainer ref={this.chartRef} />
+        <ChartContainer>
+          <Canvas ref={this.chartRef} />
+        </ChartContainer>
       </React.Fragment>
     );
   }
@@ -191,4 +215,9 @@ export class BarChart extends React.Component<BarChartProps> {
 const ChartContainer = styled.div`
   width: 100%;
   height: 384px;
+  box-sizing: border-box;
+  padding: 16px;
+`;
+const Canvas = styled.canvas`
+  background-color: white;
 `;
