@@ -38,7 +38,7 @@ interface ProductionTableProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   schedule: Schedule;
-  planIndex?: number;
+  planIndex: number;
   onRemove?(ref: string): void;
   canRemove: boolean;
   showQuantity: boolean;

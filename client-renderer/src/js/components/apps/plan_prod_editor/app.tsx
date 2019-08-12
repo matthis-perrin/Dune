@@ -491,7 +491,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPapier}
                       isPolypro={false}
                       stocks={stocks}
-                      planIndex={emulatedSchedule ? planProduction.index : undefined}
+                      planIndex={planProduction.index}
                       schedule={emulatedSchedule || schedule}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
@@ -536,7 +536,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPolypro}
                       isPolypro
                       stocks={stocks}
-                      planIndex={emulatedSchedule ? planProduction.index : undefined}
+                      planIndex={planProduction.index}
                       schedule={emulatedSchedule || schedule}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
@@ -583,7 +583,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   maximums={bobinesMaximums}
                   onMiniUpdated={this.handleMiniUpdated}
                   onMaxUpdated={this.handleMaxUpdated}
-                  planIndex={emulatedSchedule ? planProduction.index : undefined}
+                  planIndex={planProduction.index}
                   schedule={emulatedSchedule || schedule}
                 />
               </React.Fragment>
@@ -644,7 +644,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isPrinting={isPrinting}
                 stocks={stocks}
                 schedule={emulatedSchedule || schedule}
-                planIndex={emulatedSchedule ? planProduction.index : undefined}
+                planIndex={planProduction.index}
                 planId={id}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>

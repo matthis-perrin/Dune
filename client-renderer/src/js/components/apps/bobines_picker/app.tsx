@@ -190,10 +190,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                 planProduction &&
                 this.scheduleStore.emulateWithPlan(planProduction, planProd.index);
 
-              const start = getStartForPlanIndex(
-                emulatedSchedule || schedule,
-                emulatedSchedule ? planProd.index : undefined
-              );
+              const start = getStartForPlanIndex(emulatedSchedule || schedule, planProd.index);
 
               const columns = this.getColumns(
                 stocks,
@@ -225,7 +222,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                     }}
                     showQuantity
                     schedule={emulatedSchedule || schedule}
-                    planIndex={emulatedSchedule ? planProd.index : undefined}
+                    planIndex={planProd.index}
                   />
                 ) : (
                   <React.Fragment />

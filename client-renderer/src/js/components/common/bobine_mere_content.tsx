@@ -23,7 +23,7 @@ interface BobineMereContentProps {
   tourCount?: number;
   selectedBobines: BobineFilleWithPose[];
   schedule: Schedule;
-  planIndex?: number;
+  planIndex: number;
 }
 
 export class BobineMereContent extends React.Component<BobineMereContentProps> {

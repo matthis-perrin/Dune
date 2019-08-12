@@ -43,7 +43,7 @@ interface TopBarProps {
   isPrinting: boolean;
   stocks: Map<string, Stock[]>;
   planId: number;
-  planIndex?: number;
+  planIndex: number;
   schedule?: Schedule;
 }
 

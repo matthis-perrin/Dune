@@ -1,4 +1,4 @@
-import {min, max} from 'lodash-es';
+import {min, max, maxBy} from 'lodash-es';
 
 import {dateAtHour} from '@shared/lib/time';
 import {startOfDay} from '@shared/lib/utils';
@@ -151,13 +151,14 @@ export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
   return min(Array.from(plan.schedulePerDay.values()).map(getScheduleStart));
 }
 
-export function getStartForPlanIndex(schedule: Schedule, index: number | undefined): number {
-  if (index === undefined) {
-    return Date.now() * 2;
-  }
-  const planSchedule = schedule.plans.find(p => p.planProd.index === index);
+export function getStartForPlanIndex(schedule: Schedule, index: number): number {
+  const planSchedule = maxBy(
+    schedule.plans.filter(p => p.planProd.index <= index),
+    p => p.planProd.index
+  );
   if (planSchedule) {
-    const planStart = getPlanStart(planSchedule);
+    const planStart =
+      planSchedule.planProd.index < index ? getPlanEnd(planSchedule) : getPlanStart(planSchedule);
     if (planStart) {
       return planStart;
     }
