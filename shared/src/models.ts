@@ -207,7 +207,6 @@ export interface PlanProductionInfo {
 
 interface PlanProductionBase extends PlanProductionInfo {
   id: number;
-  sommeil: boolean;
   localUpdate: number;
 }
 

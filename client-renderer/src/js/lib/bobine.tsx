@@ -6,14 +6,7 @@ import {numberWithSeparator} from '@root/lib/utils';
 
 import {getLastYear, getLastMonth} from '@shared/lib/cadencier';
 import {getPoseSize} from '@shared/lib/cliches';
-import {
-  Stock,
-  BobineQuantities,
-  BobineState,
-  POSE_NEUTRE,
-  PlanProductionInfo,
-  Schedule,
-} from '@shared/models';
+import {Stock, BobineQuantities, BobineState, POSE_NEUTRE, Schedule} from '@shared/models';
 
 const MONTHS_IN_YEAR = 12;
 
@@ -104,7 +97,7 @@ export function getBobineState(
   bobineQuantities: BobineQuantities[],
   additionalStock: number,
   schedule: Schedule,
-  currentPlanProd: PlanProductionInfo
+  start: number
 ): {
   state: BobineState;
   quantity: number;
@@ -116,8 +109,7 @@ export function getBobineState(
   info: string;
   infoValue: number;
 } {
-  const currentStock =
-    getStockTermePrevisionel(ref, stocks, schedule, currentPlanProd) + additionalStock;
+  const currentStock = getStockTermePrevisionel(ref, stocks, schedule, start) + additionalStock;
   const lastYearSelling = getBobineSellingPastYear(cadencier.get(ref));
   const averageSellingByMonth = Math.ceil(lastYearSelling / MONTHS_IN_YEAR);
   const {threshold, quantity, minSell, maxSell} = getQuantityToProduce(
@@ -191,14 +183,13 @@ export function getBobinePoseState(
   cadencier: Map<string, Map<number, number>>,
   bobineQuantities: BobineQuantities[],
   schedule: Schedule,
-  currentPlanProd: PlanProductionInfo
+  start: number
 ): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
     .filter(
       b =>
         [BobineState.Rupture, BobineState.Alerte].indexOf(
-          getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, schedule, currentPlanProd)
-            .state
+          getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, schedule, start).state
         ) !== -1
     )
     .map(b => b.ref)[0];
@@ -215,7 +206,7 @@ export function getBobinePoseState(
         bobineQuantities,
         additionalStock,
         schedule,
-        currentPlanProd
+        start
       );
       const poseStr = pose === POSE_NEUTRE ? 'neutre' : pose;
       if (firstRuptureOrAlertBobine === ref) {

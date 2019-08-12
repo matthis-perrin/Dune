@@ -7,7 +7,13 @@ import {Button} from '@root/components/core/button';
 import {Input} from '@root/components/core/input';
 import {TopBottom} from '@root/components/core/top_bottom';
 import {getMetrageLineaire, getBobineMereConsumption} from '@root/lib/plan_prod';
-import {getPlanProd, getPlanStart, getPlanEnd, getProdTime} from '@root/lib/schedule_utils';
+import {
+  getPlanProd,
+  getPlanStart,
+  getPlanEnd,
+  getProdTime,
+  getStartForPlanIndex,
+} from '@root/lib/schedule_utils';
 import {
   getStockReel,
   getStockTerme,
@@ -17,7 +23,7 @@ import {
 import {numberWithSeparator, roundedToDigit, formatPlanDate} from '@root/lib/utils';
 import {theme, Palette, FontWeight, Colors} from '@root/theme';
 
-import {BobineFilleWithPose, BobineMere, Stock, PlanProductionInfo, Schedule} from '@shared/models';
+import {BobineFilleWithPose, BobineMere, Stock, Schedule} from '@shared/models';
 
 interface TopBarProps {
   style?: React.CSSProperties;
@@ -37,7 +43,7 @@ interface TopBarProps {
   isPrinting: boolean;
   stocks: Map<string, Stock[]>;
   planId: number;
-  planProdInfo: PlanProductionInfo;
+  planIndex?: number;
   schedule?: Schedule;
 }
 
@@ -108,17 +114,19 @@ export class TopBar extends React.Component<TopBarProps> {
       return undefined;
     }
     const {ref, longueur = 0} = bobineMere;
-    const {stocks, bobines, schedule, planProdInfo, tourCount = 0} = this.props;
+    const {stocks, bobines, schedule, planIndex, tourCount = 0} = this.props;
 
     const longueurBobineFille = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
     const prod = longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0;
 
+    const start = schedule && getStartForPlanIndex(schedule, planIndex);
+
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
     const stockPrevisionelReel =
-      schedule && getStockReelPrevisionel(ref, stocks, schedule, planProdInfo);
+      schedule && start && getStockReelPrevisionel(ref, stocks, schedule, start);
     const stockPrevisionelReelTerme =
-      schedule && getStockTermePrevisionel(ref, stocks, schedule, planProdInfo);
+      schedule && start && getStockTermePrevisionel(ref, stocks, schedule, start);
 
     const stockActuel = stockReel;
     const stockActuelTerme = stockTerme;

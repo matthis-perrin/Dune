@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChart, SpeedChartEvent} from '@root/components/charts/speed_chart';
+import {DayProductionTable} from '@root/components/common/day_production_table';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
@@ -13,14 +14,14 @@ import {getPlanProd, getCurrentPlanSchedule, getScheduleEnd} from '@root/lib/sch
 import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
-import {cadencierStore} from '@root/stores/list_store';
+import {cadencierStore, stocksStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, endOfDay, capitalize} from '@shared/lib/utils';
-import {ProdInfo, Schedule, StopType, BobineQuantities} from '@shared/models';
+import {ProdInfo, Schedule, StopType, BobineQuantities, Stock} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay?: number;
@@ -31,6 +32,7 @@ interface ProductionAppState {
   schedule?: Schedule;
   cadencier?: Map<string, Map<number, number>>;
   bobineQuantities?: BobineQuantities[];
+  stocks?: Map<string, Stock[]>;
   prodInfo?: ProdInfo;
 }
 
@@ -57,12 +59,14 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   public componentDidMount(): void {
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
+    stocksStore.addListener(this.handleStoresChanged);
     this.scheduleStore.start(this.handleScheduleChanged);
   }
 
   public componentWillUnmount(): void {
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
+    stocksStore.removeListener(this.handleStoresChanged);
     if (this.prodInfoStore) {
       this.prodInfoStore.removeListener(this.handleProdInfoChanged);
     }
@@ -73,6 +77,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     this.setState({
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
+      stocks: stocksStore.getStockIndex(),
     });
   };
 
@@ -192,12 +197,65 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     return <StopList schedule={schedule} lastMinute={lastMinute} stops={stops} />;
   }
 
-  private renderCurrentPlan(): JSX.Element {
-    const {schedule, cadencier, bobineQuantities} = this.state;
+  private getDayStatus(): 'past' | 'current' | 'future' | 'unknown' {
+    const {schedule} = this.state;
     const currentDay = this.getCurrentDay();
-    if (!schedule || !cadencier || !bobineQuantities || currentDay === undefined) {
+    if (!schedule || currentDay === undefined) {
+      return 'unknown';
+    }
+    const prodTime =
+      schedule.lastSpeedTime === undefined ? Date.now() : schedule.lastSpeedTime.time;
+    const currentDayStart = startOfDay(currentDay).getTime();
+    const currentDayEnd = endOfDay(currentDay).getTime();
+
+    if (prodTime < currentDayStart) {
+      return 'future';
+    }
+    if (prodTime >= currentDayEnd) {
+      return 'past';
+    }
+    return 'current';
+  }
+
+  private renderCurrentPlan(): JSX.Element {
+    const {schedule, cadencier, bobineQuantities, stocks} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || !cadencier || !bobineQuantities || !stocks || currentDay === undefined) {
       return <LoadingIndicator size="large" />;
     }
+
+    const dayStatus = this.getDayStatus();
+    if (dayStatus === 'unknown') {
+      return <LoadingIndicator size="large" />;
+    }
+
+    if (dayStatus === 'past') {
+      return (
+        <React.Fragment>
+          <BlockTitle>PRODUCTION RÉALISÉ</BlockTitle>
+          <DayProductionTable
+            day={currentDay.getTime()}
+            stocks={stocks}
+            schedule={schedule}
+            width={planProdViewerWidth}
+          />
+        </React.Fragment>
+      );
+    }
+    if (dayStatus === 'future') {
+      return (
+        <React.Fragment>
+          <BlockTitle>PRODUCTION PLANNIFIÉE</BlockTitle>
+          <DayProductionTable
+            day={currentDay.getTime()}
+            stocks={stocks}
+            schedule={schedule}
+            width={planProdViewerWidth}
+          />
+        </React.Fragment>
+      );
+    }
+
     const currentPlanSchedule = getCurrentPlanSchedule(schedule);
     if (currentPlanSchedule) {
       const planEnd = getScheduleEnd(currentPlanSchedule);
@@ -205,20 +263,28 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
         if (planProdSchedule) {
           return (
-            <PlanProdViewer
-              bobineQuantities={bobineQuantities}
-              cadencier={cadencier}
-              schedule={planProdSchedule}
-              width={planProdViewerWidth}
-              hideOperationTable
-              nonInteractive
-            />
+            <React.Fragment>
+              <BlockTitle>PRODUCTION EN COURS</BlockTitle>
+              <PlanProdViewer
+                bobineQuantities={bobineQuantities}
+                cadencier={cadencier}
+                schedule={planProdSchedule}
+                width={planProdViewerWidth}
+                hideOperationTable
+                nonInteractive
+              />
+            </React.Fragment>
           );
         }
       }
     }
 
-    return <div>Pas de plan de production en cours</div>;
+    return (
+      <React.Fragment>
+        <BlockTitle>PRODUCTION EN COURS</BlockTitle>
+        <div style={{color: Palette.White}}>Pas de plan de production en cours</div>
+      </React.Fragment>
+    );
   }
 
   private renderChart(): JSX.Element {
@@ -316,10 +382,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <BlockTitle>ARRÊTS MACHINE</BlockTitle>
             {this.renderStops()}
           </EventsContainer>
-          <CurrentPlanContainer>
-            <BlockTitle>PRODUCTION EN COURS</BlockTitle>
-            {this.renderCurrentPlan()}
-          </CurrentPlanContainer>
+          <CurrentPlanContainer>{this.renderCurrentPlan()}</CurrentPlanContainer>
         </ProdStateContainer>
       </AppWrapper>
     );
@@ -428,7 +491,7 @@ const CurrentPlanContainer = styled(Block)`
   box-sizing: border-box;
   overflow-y: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   margin-right: ${blockMargin}px;
 `;

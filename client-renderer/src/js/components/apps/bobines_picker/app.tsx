@@ -24,6 +24,8 @@ import {
 } from '@root/components/table/columns';
 import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
 import {bridge} from '@root/lib/bridge';
+import {asPlanProduction} from '@root/lib/plan_prod';
+import {getStartForPlanIndex} from '@root/lib/schedule_utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {
   bobinesFillesWithMultiPoseStore,
@@ -43,7 +45,7 @@ import {
 } from '@shared/models';
 
 // tslint:disable-next-line:no-any
-type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose, any>[];
+type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose & {start: number}, any>[];
 
 interface Props {
   id: number;
@@ -119,6 +121,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     ) {
       return this.lastColumns;
     }
+
     this.lastStocks = stocks;
     this.lastCadencier = cadencier;
     this.lastBobineQuantities = bobineQuantities;
@@ -182,6 +185,16 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
+              const planProduction = asPlanProduction(planProd, id);
+              const emulatedSchedule =
+                planProduction &&
+                this.scheduleStore.emulateWithPlan(planProduction, planProd.index);
+
+              const start = getStartForPlanIndex(
+                emulatedSchedule || schedule,
+                emulatedSchedule ? planProd.index : undefined
+              );
+
               const columns = this.getColumns(
                 stocks,
                 cadencier,
@@ -211,8 +224,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                       bridge.removePlanBobine(id, ref).catch(console.error);
                     }}
                     showQuantity
-                    planInfo={planProd}
-                    schedule={schedule}
+                    schedule={emulatedSchedule || schedule}
+                    planIndex={emulatedSchedule ? planProd.index : undefined}
                   />
                 ) : (
                   <React.Fragment />
@@ -225,7 +238,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                   <SortableTable
                     width={availableWidth}
                     height={selectableTableHeight}
-                    data={elements}
+                    data={elements.map(e => ({...e, start}))}
                     columns={columns}
                     initialSort={{
                       index: columns.length - 1,

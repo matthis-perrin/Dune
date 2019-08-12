@@ -11,6 +11,7 @@ import {
 import {SortableTable, ColumnMetadata} from '@root/components/table/sortable_table';
 import {getSchedulesForDay, getScheduleStart} from '@root/lib/schedule_utils';
 import {getStockTermePrevisionel} from '@root/lib/stocks';
+import {theme} from '@root/theme';
 
 import {getPoseSize} from '@shared/lib/cliches';
 import {endOfDay} from '@shared/lib/utils';
@@ -41,10 +42,7 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
     const isFuture = endOfDay(new Date(day)).getTime() > current;
 
     const schedules = getSchedulesForDay(schedule, new Date(day));
-    const future = Date.now() * 2;
-    const firstSchedule = schedules.sort(
-      (s1, s2) => (getScheduleStart(s1) || future) - (getScheduleStart(s2) || future)
-    )[0];
+    const firstScheduleStart = schedules.map(getScheduleStart).sort()[0];
 
     const refs = new Map<string, {laize?: number; prod: number}>();
     schedules.forEach(s => {
@@ -73,12 +71,10 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
           if (!bData) {
             return undefined;
           }
-          const stockPrevisionel = getStockTermePrevisionel(
-            ref,
-            stocks,
-            schedule,
-            firstSchedule.planProd
-          );
+          const stockPrevisionel =
+            firstScheduleStart === undefined
+              ? 0
+              : getStockTermePrevisionel(ref, stocks, schedule, firstScheduleStart);
           return {
             ref,
             laize: bData.laize || 0,
@@ -100,7 +96,12 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
     }
 
     return (
-      <SortableTable width={width} height={42 + data.length * 32} columns={columns} data={data} />
+      <SortableTable
+        width={width}
+        height={theme.table.headerHeight + data.length * theme.table.rowHeight}
+        columns={columns}
+        data={data}
+      />
     );
   }
 }

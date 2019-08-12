@@ -25,8 +25,12 @@ import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
-import {getPlanProdTitle, PLAN_PROD_NUMBER_DIGIT_COUNT} from '@root/lib/plan_prod';
-import {getPreviousSchedule} from '@root/lib/schedule_utils';
+import {
+  getPlanProdTitle,
+  PLAN_PROD_NUMBER_DIGIT_COUNT,
+  asPlanProduction,
+} from '@root/lib/plan_prod';
+import {getPreviousSchedule, getStartForPlanIndex} from '@root/lib/schedule_utils';
 import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
@@ -47,7 +51,6 @@ import {
   PlanProductionInfo,
   Operation,
   Schedule,
-  PlanProduction,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
@@ -149,6 +152,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     if (!stocks || !cadencier || !bobineQuantities || !schedule || !planProduction) {
       return tourCount;
     }
+    const start = getStartForPlanIndex(schedule, planProduction.index);
     for (const bobine of selectedBobines) {
       const {state, quantity, stock} = getBobineState(
         bobine.ref,
@@ -157,7 +161,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
         bobineQuantities,
         0,
         schedule,
-        planProduction
+        start
       );
       if (state === BobineState.Imperatif) {
         const poses = selectedBobines
@@ -379,51 +383,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     bridge.setPlanPolypro(this.props.id, undefined).catch(console.error);
   };
 
-  private readonly asPlanProduction = (
-    data: PlanProductionState & PlanProductionInfo
-  ): PlanProduction | undefined => {
-    const {id} = this.props;
-    const {
-      bobinesMinimums,
-      bobinesMaximums,
-      reorderedEncriers,
-      reorderedBobines,
-      speed,
-      comment,
-    } = this.state;
-    if (
-      data.selectableBobines.length > 0 ||
-      !data.selectedPolypro ||
-      !data.selectedPapier ||
-      !data.selectedPerfo ||
-      !data.selectedRefente
-    ) {
-      return undefined;
-    }
-    return {
-      id,
-      sommeil: false,
-      localUpdate: new Date().getTime(),
-      index: data.index,
-      operationAtStartOfDay: data.operationAtStartOfDay,
-      productionAtStartOfDay: data.productionAtStartOfDay,
-      data: {
-        polypro: data.selectedPolypro,
-        papier: data.selectedPapier,
-        perfo: data.selectedPerfo,
-        refente: data.selectedRefente,
-        bobines: reorderedBobines || data.selectedBobines,
-        bobinesMini: Array.from(bobinesMinimums.entries()),
-        bobinesMax: Array.from(bobinesMaximums.entries()),
-        encriers: reorderedEncriers || data.couleursEncrier[0],
-
-        tourCount: data.tourCount || 0,
-        speed,
-        comment,
-      },
-    };
-  };
-
   public render(): JSX.Element {
     const {id, start, end} = this.props;
     const {
@@ -532,8 +491,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPapier}
                       isPolypro={false}
                       stocks={stocks}
-                      schedule={schedule}
-                      info={planProduction}
+                      planIndex={emulatedSchedule ? planProduction.index : undefined}
+                      schedule={emulatedSchedule || schedule}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
                     />
@@ -577,8 +536,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                       bobine={selectedPolypro}
                       isPolypro
                       stocks={stocks}
-                      schedule={schedule}
-                      info={planProduction}
+                      planIndex={emulatedSchedule ? planProduction.index : undefined}
+                      schedule={emulatedSchedule || schedule}
                       tourCount={tourCount}
                       selectedBobines={selectedBobines}
                     />
@@ -601,6 +560,9 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           const halfPadding = (
             <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
           );
+          const planProd = asPlanProduction(planProduction, id);
+          const emulatedSchedule =
+            planProd && this.scheduleStore.emulateWithPlan(planProd, planProduction.index);
 
           const productionTable =
             planProduction.selectedBobines.length > 0 && cadencier && bobineQuantities ? (
@@ -621,8 +583,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                   maximums={bobinesMaximums}
                   onMiniUpdated={this.handleMiniUpdated}
                   onMaxUpdated={this.handleMaxUpdated}
-                  planInfo={planProduction}
-                  schedule={schedule}
+                  planIndex={emulatedSchedule ? planProduction.index : undefined}
+                  schedule={emulatedSchedule || schedule}
                 />
               </React.Fragment>
             ) : (
@@ -663,10 +625,6 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
 
           const planProdTitle = getPlanProdTitle(id);
 
-          const planProd = this.asPlanProduction(planProduction);
-          const emulatedSchedule =
-            planProd && this.scheduleStore.emulateWithPlan(planProd, planProduction.index);
-
           return (
             <PlanProdEditorContainer>
               <TopBar
@@ -685,8 +643,8 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
                 isComplete={this.isComplete()}
                 isPrinting={isPrinting}
                 stocks={stocks}
-                schedule={emulatedSchedule}
-                planProdInfo={planProduction}
+                schedule={emulatedSchedule || schedule}
+                planIndex={emulatedSchedule ? planProduction.index : undefined}
                 planId={id}
               />
               <Wrapper style={{width: adjustedAvailableWidth + leftPadding}}>

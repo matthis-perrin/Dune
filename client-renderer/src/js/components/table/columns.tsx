@@ -333,12 +333,12 @@ export const STOCK_PREVISIONEL_COMPUTED_COLUMN = (
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
   planProd: PlanProductionState & PlanProductionInfo
-): ColumnMetadata<{ref: string}, number> => ({
+): ColumnMetadata<{ref: string; start: number}, number> => ({
   title: 'STOCK PRÉVISIONEL',
   width: 65,
-  renderCell: ({ref}) => {
+  renderCell: ({ref, start}) => {
     const stock =
-      getStockTermePrevisionel(ref, stocks, schedule, planProd) +
+      getStockTermePrevisionel(ref, stocks, schedule, start) +
       getProductionForBobine(ref, planProd);
     const color = stock < 0 ? Colors.Danger : undefined;
     const fontWeight = stock < 0 ? FontWeight.Bold : undefined;
@@ -347,19 +347,19 @@ export const STOCK_PREVISIONEL_COMPUTED_COLUMN = (
   justifyContent: 'center',
   sortFunction: (row1, row2) => {
     const stock1 =
-      getStockTermePrevisionel(row1.ref, stocks, schedule, planProd) +
+      getStockTermePrevisionel(row1.ref, stocks, schedule, row1.start) +
       getProductionForBobine(row1.ref, planProd);
     const stock2 =
-      getStockTermePrevisionel(row2.ref, stocks, schedule, planProd) +
+      getStockTermePrevisionel(row2.ref, stocks, schedule, row2.start) +
       getProductionForBobine(row2.ref, planProd);
     return stock1 - stock2;
   },
   shouldRerender: (prev, next) => {
     const stock1 =
-      getStockTermePrevisionel(prev.ref, stocks, schedule, planProd) +
+      getStockTermePrevisionel(prev.ref, stocks, schedule, prev.start) +
       getProductionForBobine(prev.ref, planProd);
     const stock2 =
-      getStockTermePrevisionel(next.ref, stocks, schedule, planProd) +
+      getStockTermePrevisionel(next.ref, stocks, schedule, next.start) +
       getProductionForBobine(next.ref, planProd);
     return stock1 !== stock2;
   },
@@ -852,10 +852,10 @@ export const STOCK_STATE_COLUMN = (
   bobineQuantities: BobineQuantities[],
   schedule: Schedule,
   planProd: PlanProductionState & PlanProductionInfo
-): ColumnMetadata<{ref: string}, number> => ({
+): ColumnMetadata<{ref: string; start: number}, number> => ({
   title: 'ETAT',
   width: 152,
-  renderCell: ({ref}) => {
+  renderCell: ({ref, start}) => {
     const prod = getProductionForBobine(ref, planProd);
     const {state, info} = getBobineState(
       ref,
@@ -864,7 +864,7 @@ export const STOCK_STATE_COLUMN = (
       bobineQuantities,
       prod,
       schedule,
-      planProd
+      start
     );
     return <BobineState state={state} info={info} />;
   },
@@ -879,7 +879,7 @@ export const STOCK_STATE_COLUMN = (
       bobineQuantities,
       prod1,
       schedule,
-      planProd
+      row1.start
     );
     const info2 = getBobineState(
       row2.ref,
@@ -888,7 +888,7 @@ export const STOCK_STATE_COLUMN = (
       bobineQuantities,
       prod2,
       schedule,
-      planProd
+      row2.start
     );
     if (info1.state === info2.state) {
       return info1.infoValue - info2.infoValue;
@@ -899,13 +899,14 @@ export const STOCK_STATE_COLUMN = (
     const prod1 = getProductionForBobine(row1.ref, planProd);
     const prod2 = getProductionForBobine(row2.ref, planProd);
     return (
-      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, prod1, schedule, planProd)
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, prod1, schedule, row1.start)
         .state !==
-      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, prod2, schedule, planProd).state
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, prod2, schedule, row2.start)
+        .state
     );
   },
   filter: {
-    getValue: ({ref}) =>
+    getValue: ({ref, start}) =>
       getBobineState(
         ref,
         stocks,
@@ -913,7 +914,7 @@ export const STOCK_STATE_COLUMN = (
         bobineQuantities,
         getProductionForBobine(ref, planProd),
         schedule,
-        planProd
+        start
       ).state,
     render: (row, value) => <BobineState state={value} />,
   },
@@ -925,23 +926,25 @@ export const QUANTITY_TO_PRODUCE = (
   bobineQuantities: BobineQuantities[],
   schedule: Schedule,
   planInfo: PlanProductionInfo
-): ColumnMetadata<{ref: string}, number> => ({
+): ColumnMetadata<{ref: string; start: number}, number> => ({
   title: 'QTÉ À PROD',
   width: 65,
-  renderCell: ({ref}) =>
+  renderCell: ({ref, start}) =>
     renderNumber(
-      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity
+      getBobineState(ref, stocks, cadencier, bobineQuantities, 0, schedule, start).quantity
     ),
   justifyContent: 'center',
   sortFunction: (row1, row2) =>
     numberSort(
-      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity,
-      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity
+      getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, row1.start)
+        .quantity,
+      getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, row2.start)
+        .quantity
     ),
   shouldRerender: (row1, row2) =>
-    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo)
+    getBobineState(row1.ref, stocks, cadencier, bobineQuantities, 0, schedule, row1.start)
       .quantity !==
-    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, planInfo).quantity,
+    getBobineState(row2.ref, stocks, cadencier, bobineQuantities, 0, schedule, row2.start).quantity,
 });
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {

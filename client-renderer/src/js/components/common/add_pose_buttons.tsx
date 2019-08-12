@@ -3,6 +3,7 @@ import * as React from 'react';
 import {Button, ButtonMode} from '@root/components/core/button';
 import {getBobinePoseState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
+import {getStartForPlanIndex} from '@root/lib/schedule_utils';
 
 import {dedupePoseNeutre} from '@shared/lib/bobines_filles';
 import {
@@ -39,6 +40,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
     const poses = bobine.availablePoses;
     const filteredPoses = dedupePoseNeutre(poses);
     const tourCount = planProd.tourCount;
+    const start = getStartForPlanIndex(schedule, planInfo.index);
 
     const unusedPoses = getBobinePoseState(
       bobine.ref,
@@ -49,7 +51,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       cadencier,
       bobineQuantities,
       schedule,
-      planInfo
+      start
     ).map(({pose, mode, reason}, index) => {
       return (
         <Button

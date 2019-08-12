@@ -1,9 +1,9 @@
 import {sum} from 'lodash-es';
 
-import {getSchedulesFromStartOfDay} from '@root/lib/schedule_utils';
+import {getSchedulesFromStartOfDayUpTo} from '@root/lib/schedule_utils';
 
 import {getPoseSize} from '@shared/lib/cliches';
-import {Stock, BobineMere, BobineFilleWithPose, Schedule, PlanProductionInfo} from '@shared/models';
+import {Stock, BobineMere, BobineFilleWithPose, Schedule} from '@shared/models';
 
 export enum StockType {
   REEL,
@@ -57,11 +57,11 @@ export function getStockPrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
-  planProd: PlanProductionInfo, // not included
-  type: StockType
+  type: StockType,
+  atTime: number
 ): number {
   const startStock = getStock(ref, stocks, type);
-  const futurSchedules = getSchedulesFromStartOfDay(schedule, planProd.index);
+  const futurSchedules = getSchedulesFromStartOfDayUpTo(schedule, atTime);
   const stockDiffs = futurSchedules.map(s =>
     getStockDiff(ref, s.planProd.data, s.doneProdMeters + s.plannedProdMeters)
   );
@@ -77,9 +77,9 @@ export function getStockReelPrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
-  planProd: PlanProductionInfo
+  atTime: number
 ): number {
-  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.REEL);
+  return getStockPrevisionel(ref, stocks, schedule, StockType.REEL, atTime);
 }
 
 export function getStockCommande(ref: string, stocks: Map<string, Stock[]>): number {
@@ -90,9 +90,9 @@ export function getStockCommandePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
-  planProd: PlanProductionInfo
+  atTime: number
 ): number {
-  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.COMMANDE);
+  return getStockPrevisionel(ref, stocks, schedule, StockType.COMMANDE, atTime);
 }
 
 export function getStockReserve(ref: string, stocks: Map<string, Stock[]>): number {
@@ -103,9 +103,9 @@ export function getStockReservePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
-  planProd: PlanProductionInfo
+  atTime: number
 ): number {
-  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.RESERVE);
+  return getStockPrevisionel(ref, stocks, schedule, StockType.RESERVE, atTime);
 }
 
 export function getStockTerme(ref: string, stocks: Map<string, Stock[]>): number {
@@ -116,7 +116,7 @@ export function getStockTermePrevisionel(
   ref: string,
   stocks: Map<string, Stock[]>,
   schedule: Schedule,
-  planProd: PlanProductionInfo
+  atTime: number
 ): number {
-  return getStockPrevisionel(ref, stocks, schedule, planProd, StockType.TERME);
+  return getStockPrevisionel(ref, stocks, schedule, StockType.TERME, atTime);
 }

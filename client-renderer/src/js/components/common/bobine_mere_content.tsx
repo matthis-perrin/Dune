@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';
+import {getStartForPlanIndex} from '@root/lib/schedule_utils';
 import {
   getStockReel,
   getStockTerme,
@@ -11,14 +12,7 @@ import {
 import {numberWithSeparator} from '@root/lib/utils';
 import {theme} from '@root/theme';
 
-import {
-  BobineMere,
-  Stock,
-  Color,
-  BobineFilleWithPose,
-  PlanProductionInfo,
-  Schedule,
-} from '@shared/models';
+import {BobineMere, Stock, Color, BobineFilleWithPose, Schedule} from '@shared/models';
 
 interface BobineMereContentProps {
   color: Color;
@@ -29,7 +23,7 @@ interface BobineMereContentProps {
   tourCount?: number;
   selectedBobines: BobineFilleWithPose[];
   schedule: Schedule;
-  info: PlanProductionInfo;
+  planIndex?: number;
 }
 
 export class BobineMereContent extends React.Component<BobineMereContentProps> {
@@ -45,7 +39,7 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
       tourCount = 0,
       selectedBobines,
       schedule,
-      info,
+      planIndex,
     } = this.props;
     const {ref, couleurPapier = '', laize = 0, longueur = 0, grammage = 0} = bobine;
 
@@ -55,10 +49,12 @@ export class BobineMereContent extends React.Component<BobineMereContentProps> {
     const withDecimal = (value: number): number => Math.round(value * 10) / 10;
     const prod = withDecimal(longueur !== 0 ? (tourCount * longueurBobineFille) / longueur : 0);
 
+    const start = getStartForPlanIndex(schedule, planIndex);
+
     const stockReel = getStockReel(ref, stocks);
     const stockTerme = getStockTerme(ref, stocks);
-    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, schedule, info);
-    const stockPrevisionelTerme = getStockTermePrevisionel(ref, stocks, schedule, info);
+    const stockPrevisionelReel = getStockReelPrevisionel(ref, stocks, schedule, start);
+    const stockPrevisionelTerme = getStockTermePrevisionel(ref, stocks, schedule, start);
 
     const title = `${ref} ${couleurPapier} ${laize} ${grammageStr} - ${longueurStr}`;
     const stockActuel = `${stockReel} (à terme ${stockTerme})`;

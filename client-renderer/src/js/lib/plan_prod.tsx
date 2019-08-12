@@ -3,7 +3,7 @@ import {MAX_SPEED_RATIO} from '@root/lib/constants';
 import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
-import {ProdRange, PlanProductionState} from '@shared/models';
+import {ProdRange, PlanProductionState, PlanProduction, PlanProductionInfo} from '@shared/models';
 
 export const PLAN_PROD_NUMBER_DIGIT_COUNT = 5;
 
@@ -84,4 +84,40 @@ export function getProductionForBobine(ref: string, planState: PlanProductionSta
       .filter(b => b.ref === ref)
       .reduce((piste, b) => piste + getPoseSize(b.pose), 0) * (planState.tourCount || 0)
   );
+}
+
+export function asPlanProduction(
+  data: PlanProductionState & PlanProductionInfo,
+  id: number
+): PlanProduction | undefined {
+  if (
+    data.selectableBobines.length > 0 ||
+    !data.selectedPolypro ||
+    !data.selectedPapier ||
+    !data.selectedPerfo ||
+    !data.selectedRefente
+  ) {
+    return undefined;
+  }
+  return {
+    id,
+    localUpdate: new Date().getTime(),
+    index: data.index,
+    operationAtStartOfDay: data.operationAtStartOfDay,
+    productionAtStartOfDay: data.productionAtStartOfDay,
+    data: {
+      polypro: data.selectedPolypro,
+      papier: data.selectedPapier,
+      perfo: data.selectedPerfo,
+      refente: data.selectedRefente,
+      bobines: data.selectedBobines,
+      bobinesMini: [],
+      bobinesMax: [],
+      encriers: data.couleursEncrier[0],
+
+      tourCount: data.tourCount || 0,
+      speed: 0,
+      comment: '',
+    },
+  };
 }

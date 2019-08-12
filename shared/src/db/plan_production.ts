@@ -11,7 +11,6 @@ export const PlansProductionColumn = {
   OPERATION_AT_START_OF_DAY: 'operation_at_start_of_day',
   PRODUCTION_AT_START_OF_DAY: 'production_at_start_of_day',
   DATA_COLUMN: 'data',
-  SOMMEIL_COLUMN: 'sommeil',
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
@@ -27,7 +26,6 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
       table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
-      table.boolean(PlansProductionColumn.SOMMEIL_COLUMN).notNullable();
       table.dateTime(PlansProductionColumn.LOCAL_UPDATE_COLUMN).notNullable();
     });
   }
@@ -55,7 +53,6 @@ export async function createPlanProduction(
               [PlansProductionColumn.OPERATION_AT_START_OF_DAY]: operationAtStartOfDay,
               [PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]: productionAtStartOfDay,
               [PlansProductionColumn.DATA_COLUMN]: data,
-              [PlansProductionColumn.SOMMEIL_COLUMN]: false,
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
             })
             .then(() => {
@@ -143,12 +140,7 @@ export async function deletePlanProduction(db: knex, index: number): Promise<voi
       db(PLANS_PRODUCTION_TABLE_NAME)
         .transacting(tx)
         .where(PlansProductionColumn.INDEX_COLUMN, '=', index)
-        .update({
-          [PlansProductionColumn.SOMMEIL_COLUMN]: 1,
-          // tslint:disable-next-line:no-null-keyword
-          [PlansProductionColumn.INDEX_COLUMN]: null,
-          [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: Date.now(),
-        })
+        .del()
         .then(() => {
           const indexesToUpdate = (query: knex.QueryBuilder) =>
             query.where(PlansProductionColumn.INDEX_COLUMN, '>', index);
@@ -214,19 +206,8 @@ function mapLineToPlanProductionRaw(line: any): PlanProductionRaw {
     operationAtStartOfDay: asBoolean(r[PlansProductionColumn.OPERATION_AT_START_OF_DAY]),
     productionAtStartOfDay: asBoolean(r[PlansProductionColumn.PRODUCTION_AT_START_OF_DAY]),
     data: asString(r[PlansProductionColumn.DATA_COLUMN], ''),
-    sommeil: asNumber(r[PlansProductionColumn.SOMMEIL_COLUMN], 0) === 1,
     localUpdate: asNumber(r[PlansProductionColumn.LOCAL_UPDATE_COLUMN], 0),
   };
-}
-
-export async function listPlansProduction(
-  db: knex,
-  sinceLocalUpdate: number
-): Promise<PlanProductionRaw[]> {
-  return db(PLANS_PRODUCTION_TABLE_NAME)
-    .select()
-    .where(PlansProductionColumn.LOCAL_UPDATE_COLUMN, '>', new Date(sinceLocalUpdate))
-    .map(mapLineToPlanProductionRaw);
 }
 
 export async function getNextPlanProductionId(db: knex): Promise<number> {

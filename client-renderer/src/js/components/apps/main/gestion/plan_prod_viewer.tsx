@@ -241,7 +241,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
 }
 
 const PlanProdEditorContainer = styled.div<{nonInteractive?: boolean}>`
-  margin: auto;
+  margin: 0 auto;
   background-color: ${theme.planProd.contentBackgroundColor};
   input {
     pointer-events: ${props => (props.nonInteractive ? 'none' : 'initial')};

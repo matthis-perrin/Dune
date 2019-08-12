@@ -18,6 +18,7 @@ import {
 } from '@root/components/table/columns';
 import {SortableTable} from '@root/components/table/sortable_table';
 import {getBobineState, getBobineSellingPastYear, getQuantityToProduce} from '@root/lib/bobine';
+import {getStartForPlanIndex} from '@root/lib/schedule_utils';
 import {getStockTermePrevisionel} from '@root/lib/stocks';
 import {theme} from '@root/theme';
 
@@ -27,7 +28,6 @@ import {
   BobineQuantities,
   PlanProductionState,
   BobineFilleWithPose,
-  PlanProductionInfo,
   Schedule,
 } from '@shared/models';
 
@@ -38,7 +38,7 @@ interface ProductionTableProps {
   cadencier: Map<string, Map<number, number>>;
   bobineQuantities: BobineQuantities[];
   schedule: Schedule;
-  planInfo: PlanProductionInfo;
+  planIndex?: number;
   onRemove?(ref: string): void;
   canRemove: boolean;
   showQuantity: boolean;
@@ -55,7 +55,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     const {
       width,
       planProduction,
-      planInfo,
+      planIndex,
       stocks,
       cadencier,
       bobineQuantities,
@@ -79,7 +79,8 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
     const data = Array.from(selectedBobines.entries()).map(([ref, bobine]) => {
       const pistes = selectedPistesSum.get(ref) || 0;
       const production = (planProduction.tourCount || 0) * pistes;
-      const stock = getStockTermePrevisionel(ref, stocks, schedule, planInfo);
+      const start = getStartForPlanIndex(schedule, planIndex);
+      const stock = getStockTermePrevisionel(ref, stocks, schedule, start);
       const {state, info, quantity} = getBobineState(
         bobine.ref,
         stocks,
@@ -87,7 +88,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         bobineQuantities,
         0,
         schedule,
-        planInfo
+        start
       );
       const newStock = stock + production;
       const newBobineState = getBobineState(
@@ -97,7 +98,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
         bobineQuantities,
         production,
         schedule,
-        planInfo
+        start
       );
 
       return {
