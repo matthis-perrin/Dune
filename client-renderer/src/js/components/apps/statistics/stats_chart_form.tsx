@@ -1,11 +1,9 @@
-import {sum} from 'lodash-es';
 import * as React from 'react';
 
 import {BarChart} from '@root/components/apps/statistics/bar_chart';
 import {BarFilter} from '@root/components/apps/statistics/bar_filter';
 import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
-import {numberWithSeparator} from '@root/lib/utils';
 
 import {StatsData, ProdRange, PlanDayStats} from '@shared/models';
 
@@ -53,20 +51,13 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
           chartConfig={{
             mode: 'sum',
             renderX: statsPeriod.renderX,
-            renderY: (value: number): string => `${numberWithSeparator(value)} m`,
+            renderY: statsMetric.renderY,
             xAxis: statsPeriod.xAxis,
             yAxis: (dayStats: PlanDayStats) =>
-              this.getSelectedMetricFilters(selectedMetricFilterNames).map(barType => {
-                const {color, name} = barType;
-                let value = 0;
-                if (name === 'morning' || name === 'all') {
-                  value += sum(dayStats.morningProds.map(p => p.metrage));
-                }
-                if (name === 'afternoon' || name === 'all') {
-                  value += sum(dayStats.afternoonProds.map(p => p.metrage));
-                }
-                return {value, color};
-              }),
+              this.getSelectedMetricFilters(selectedMetricFilterNames).map(metricFilter => ({
+                value: statsMetric.yAxis(metricFilter.name, dayStats),
+                color: metricFilter.color,
+              })),
           }}
         />
       </div>

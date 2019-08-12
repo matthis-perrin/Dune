@@ -1,9 +1,9 @@
 import {sum} from 'lodash-es';
 
-import {numberWithSeparator} from '@root/lib/utils';
+import {numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
-import {PlanDayStats} from '@shared/models';
+import {PlanDayStats, StopType} from '@shared/models';
 
 export interface MetricFilter {
   name: string;
@@ -26,6 +26,24 @@ const MORNING_AFTERNOON_FILTERS = [
     name: 'all',
     label: 'Équipes cumulées',
     color: Colors.SecondaryDark,
+  },
+];
+
+const PLANNED_UNPLANNED_FILTERS = [
+  {
+    name: 'planned',
+    label: 'Arrêts Prévus',
+    color: Palette.PeterRiver,
+  },
+  {
+    name: 'unplanned',
+    label: 'Arrêts Imprévus',
+    color: Colors.Danger,
+  },
+  {
+    name: 'all',
+    label: 'Arrêts cumulés',
+    color: Palette.Asbestos,
   },
 ];
 
@@ -53,5 +71,43 @@ export const METRAGE_METRIC: StatsMetric = {
   },
   renderY: (value: number): string => `${numberWithSeparator(value)} m`,
   filters: MORNING_AFTERNOON_FILTERS,
+  initialFilter: 'all',
+};
+
+export const STOP_METRIC: StatsMetric = {
+  name: 'stop',
+  label: 'ARRÊTS',
+  yAxis: (metricFilter: string, dayStats: PlanDayStats) => {
+    const stops = dayStats.morningStops.concat(dayStats.afternoonStops);
+    let value = 0;
+    if (metricFilter === 'planned' || metricFilter === 'all') {
+      value += sum(
+        stops
+          .filter(
+            s =>
+              [
+                StopType.ChangePlanProd,
+                StopType.ReprisePlanProd,
+                StopType.ReglagesAdditionel,
+                StopType.ChangeBobinePapier,
+                StopType.ChangeBobinePolypro,
+                StopType.ChangeBobinePapierAndPolypro,
+                StopType.EndOfDayEndProd,
+                StopType.EndOfDayPauseProd,
+                StopType.Maintenance,
+              ].indexOf(s.type) !== -1
+          )
+          .map(s => s.duration)
+      );
+    }
+    if (metricFilter === 'unplanned' || metricFilter === 'all') {
+      value += sum(
+        stops.filter(s => [StopType.Unplanned].indexOf(s.type) !== -1).map(s => s.duration)
+      );
+    }
+    return value;
+  },
+  renderY: formatDuration,
+  filters: PLANNED_UNPLANNED_FILTERS,
   initialFilter: 'all',
 };

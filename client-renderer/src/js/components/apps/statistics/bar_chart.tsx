@@ -171,7 +171,9 @@ export class BarChart extends React.Component<BarChartProps> {
         plugins: {
           datalabels: {
             ...datalabelsConf,
+            formatter: chartConfig.renderY,
             color: 'black',
+
             display: a => ((a.dataset.data || [])[a.dataIndex] || 0) > 0,
           },
         },

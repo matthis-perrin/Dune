@@ -7,7 +7,7 @@ import {StatsPeriodDropdown} from '@root/components/apps/statistics/stats_period
 import {TimeBar} from '@root/components/apps/statistics/time_bar';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {computeStatsData} from '@root/lib/statistics/data';
-import {StatsMetric, METRAGE_METRIC} from '@root/lib/statistics/metrics';
+import {StatsMetric, METRAGE_METRIC, STOP_METRIC} from '@root/lib/statistics/metrics';
 import {
   WEEK_STATS_PERIOD,
   StatsPeriod,
@@ -88,7 +88,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
       <StatisticWrapper>
         <Block>
           <StatsMetricDropdown
-            statsMetrics={[METRAGE_METRIC]}
+            statsMetrics={[METRAGE_METRIC, STOP_METRIC]}
             selected={statsMetric}
             onChange={newStatsMetric => this.setState({statsMetric: newStatsMetric})}
           />
