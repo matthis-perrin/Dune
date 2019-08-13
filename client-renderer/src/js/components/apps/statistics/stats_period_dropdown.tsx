@@ -1,7 +1,9 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Select, Option} from '@root/components/core/select';
 import {StatsPeriod} from '@root/lib/statistics/period';
+import {Colors, FontWeight} from '@root/theme';
 
 interface StatsPeriodDropdownProps {
   statsPeriods: StatsPeriod[];
@@ -15,7 +17,7 @@ export class StatsPeriodDropdown extends React.Component<StatsPeriodDropdownProp
   public render(): JSX.Element {
     const {statsPeriods, selected, onChange} = this.props;
     return (
-      <Select
+      <StyledSelect
         style={{width: 180}}
         onChange={event => onChange(statsPeriods.filter(sp => sp.name === event.target.value)[0])}
         value={selected.name}
@@ -25,7 +27,14 @@ export class StatsPeriodDropdown extends React.Component<StatsPeriodDropdownProp
             {statsPeriod.label}
           </Option>
         ))}
-      </Select>
+      </StyledSelect>
     );
   }
 }
+
+const StyledSelect = styled(Select)`
+  background-color: ${Colors.SecondaryDark};
+  border: none;
+  color: ${Colors.TextOnPrimary};
+  font-weight: ${FontWeight.SemiBold};
+`;

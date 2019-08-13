@@ -1,9 +1,10 @@
 import {sum} from 'lodash-es';
 
+import {ADDITIONAL_TIME_TO_RESTART_PROD} from '@root/lib/constants';
 import {numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
-import {PlanDayStats, StopType, Operation} from '@shared/models';
+import {PlanDayStats, StopType, Operation, StopStat, OperationConstraint} from '@shared/models';
 
 export interface MetricFilter {
   name: string;
@@ -50,6 +51,12 @@ const STOP_FILTERS = [
     label: 'Production',
     color: Palette.Nephritis,
   },
+];
+
+const UnplannedStopTypes = [
+  StopType.EndOfDayEndProd,
+  StopType.EndOfDayPauseProd,
+  StopType.Unplanned,
 ];
 
 export interface StatsMetric {
@@ -108,14 +115,7 @@ export const STOP_METRIC: StatsMetric = {
         .map(s => s.duration);
     }
     if (metricFilter === 'unplanned') {
-      return stops
-        .filter(
-          s =>
-            [StopType.EndOfDayEndProd, StopType.EndOfDayPauseProd, StopType.Unplanned].indexOf(
-              s.type
-            ) !== -1
-        )
-        .map(s => s.duration);
+      return stops.filter(s => UnplannedStopTypes.indexOf(s.type) !== -1).map(s => s.duration);
     }
     if (metricFilter === 'non-prod') {
       return stops
@@ -135,40 +135,81 @@ export const DELAY_METRIC: StatsMetric = {
   name: 'delay',
   label: 'RETARD',
   yAxis: (metricFilter: string, dayStats: PlanDayStats, operations: Operation[]) => {
-    const planTotalOerationsDelay =
+    const planTotalOperationsDelay =
       dayStats.planTotalOperationDone - dayStats.planTotalOperationPlanned;
 
     let values: number[] = [];
+
+    const stops = dayStats.morningStops.concat(dayStats.afternoonStops);
+
+    let stopsToCheck: StopStat[] = [];
     if (metricFilter === 'morning' || metricFilter === 'all') {
-      const stops = dayStats.morningStops;
-      const hasChangePlanProdStop =
-        stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
-      const morningOperationStops = hasChangePlanProdStop
-        ? stops.filter(
-            s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
-          )
-        : [];
-      values = values.concat(
-        morningOperationStops.map(
-          p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
-        )
-      );
+      stopsToCheck = stopsToCheck.concat(dayStats.morningStops);
     }
     if (metricFilter === 'afternoon' || metricFilter === 'all') {
-      const stops = dayStats.afternoonStops;
-      const hasChangePlanProdStop =
-        stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
-      const afternoonOperationStops = hasChangePlanProdStop
-        ? stops.filter(
-            s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
-          )
-        : [];
-      values = values.concat(
-        afternoonOperationStops.map(
-          p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
-        )
-      );
+      stopsToCheck = stopsToCheck.concat(dayStats.afternoonStops);
     }
+
+    const hasChangePlanProdStop = stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
+    const operationTypes = [StopType.ChangePlanProd];
+    const repriseTypes = [StopType.ReprisePlanProd];
+    if (hasChangePlanProdStop) {
+      operationTypes.push(StopType.ReglagesAdditionel);
+    } else {
+      repriseTypes.push(StopType.ReglagesAdditionel);
+    }
+
+    // Change Prod delays
+    values = values.concat(
+      stopsToCheck
+        .filter(s => operationTypes.indexOf(s.type) !== -1)
+        .map(p => (planTotalOperationsDelay * p.duration) / dayStats.planTotalOperationDone)
+    );
+
+    // Reprise Prod delays
+    const repriseStops = stopsToCheck.filter(s => repriseTypes.indexOf(s.type) !== -1);
+    const repriseTotalTime = sum(repriseStops.map(s => s.duration));
+    const repriseDelay = repriseTotalTime - ADDITIONAL_TIME_TO_RESTART_PROD;
+    values = values.concat(repriseStops.map(p => (repriseDelay * p.duration) / repriseTotalTime));
+
+    // Unplanned delays
+    values = values.concat(
+      stopsToCheck.filter(s => UnplannedStopTypes.indexOf(s.type) !== -1).map(s => s.duration)
+    );
+
+    // Change Bobines Papier
+    const planChangeBobinePapierTime = sum(
+      operations
+        .filter(o => o.constraint === OperationConstraint.ChangementBobinesMerePapier)
+        .map(o => o.duration * 1000)
+    );
+    values = values.concat(
+      stopsToCheck
+        .filter(s => s.type === StopType.ChangeBobinePapier)
+        .map(s => s.duration - s.ratio * planChangeBobinePapierTime)
+    );
+
+    // Change Bobines Polypro
+    const planChangeBobinePolyproTime = sum(
+      operations
+        .filter(o => o.constraint === OperationConstraint.ChangementBobinesMerePolypro)
+        .map(o => o.duration * 1000)
+    );
+    values = values.concat(
+      stopsToCheck
+        .filter(s => s.type === StopType.ChangeBobinePolypro)
+        .map(s => s.duration - s.ratio * planChangeBobinePolyproTime)
+    );
+
+    // Change Bobines Papier and Polypro
+    const planChangeBobinePapierAndPolyproTime =
+      planChangeBobinePapierTime + planChangeBobinePolyproTime;
+    values = values.concat(
+      stopsToCheck
+        .filter(s => s.type === StopType.ChangeBobinePapierAndPolypro)
+        .map(s => s.duration - s.ratio * planChangeBobinePapierAndPolyproTime)
+    );
+
     return values;
   },
   renderY: formatDuration,

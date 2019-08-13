@@ -44,7 +44,6 @@ export class TimeBar extends React.Component<TimeBarProps> {
 const iconSize = 16;
 
 const TimeBarWrapper = styled.div`
-  height: 64px;
   display: flex;
   justify-content: space-between;
   background-color: ${Colors.PrimaryDark};
@@ -64,6 +63,7 @@ const NavigationIcon = styled.div`
   justify-content: center;
   cursor: pointer;
   width: 48px;
+  margin: -16px;
   &:hover svg {
     fill: ${Palette.White};
   }

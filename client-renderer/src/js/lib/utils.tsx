@@ -36,6 +36,12 @@ export function formatProdTime(date: Date): string {
 }
 
 export function formatDuration(duration: number): string {
+  const isNegative = duration < 0;
+  let prefix = '';
+  if (isNegative) {
+    prefix = '-';
+    duration = -duration;
+  }
   const hours = Math.floor(duration / MS_IN_HOUR);
   duration -= hours * MS_IN_HOUR;
   const minutes = Math.floor(duration / MS_IN_MINUTE);
@@ -46,11 +52,11 @@ export function formatDuration(duration: number): string {
   const secondsStr = padNumber(seconds, 2);
 
   if (hours === 0) {
-    return `${minutesStr}:${secondsStr}`;
+    return `${prefix}${minutesStr}:${secondsStr}`;
   }
 
   const hoursStr = padNumber(hours, 2);
-  return `${hoursStr}:${minutesStr}:${secondsStr}`;
+  return `${prefix}${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
 export function formatPlanDate(ts?: number): string {

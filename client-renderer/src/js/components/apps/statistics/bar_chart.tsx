@@ -5,7 +5,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {PlottableStatsCSS} from '@root/components/charts/plottable_css';
-import {Palette} from '@root/theme';
+import {Palette, FontWeight} from '@root/theme';
 
 import {StatsData, PlanDayStats, ProdRange} from '@shared/models';
 
@@ -149,10 +149,12 @@ export class BarChart extends React.Component<BarChartProps> {
           }
         : barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
         ? {
-            rotation: 90,
+            rotation: -90,
             anchor: 'start' as 'start',
             align: 'top' as 'top',
-            color: Palette.Black,
+            color: Palette.White,
+            textStrokeWidth: 3,
+            textStrokeColor: Palette.Black,
           }
         : {
             anchor: 'end' as 'end',
@@ -160,6 +162,8 @@ export class BarChart extends React.Component<BarChartProps> {
             offset: -4,
             rotation: 0,
             color: Palette.Black,
+            textStrokeWidth: 3,
+            textStrokeColor: Palette.White,
           };
 
     // Chart
@@ -178,8 +182,9 @@ export class BarChart extends React.Component<BarChartProps> {
         plugins: {
           datalabels: {
             ...datalabelsConf,
+            font: {family: 'Segoe UI', weight: FontWeight.SemiBold},
             formatter: chartConfig.renderY,
-            display: a => ((a.dataset.data || [])[a.dataIndex] || 0) > 0,
+            display: a => ((a.dataset.data || [])[a.dataIndex] || 0) !== 0,
           },
         },
         elements: {
@@ -224,9 +229,8 @@ export class BarChart extends React.Component<BarChartProps> {
 
 const ChartContainer = styled.div`
   width: 100%;
-  height: 600px;
+  height: 100%;
   box-sizing: border-box;
-  padding: 16px;
 `;
 const Canvas = styled.canvas`
   background-color: white;

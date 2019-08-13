@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {StatsChartForm} from '@root/components/apps/statistics/stats_chart_form';
 import {StatsMetricDropdown} from '@root/components/apps/statistics/stats_metric_dropdown';
 import {StatsPeriodDropdown} from '@root/components/apps/statistics/stats_period_dropdown';
+import {StatsSummaryTable} from '@root/components/apps/statistics/stats_summary_table';
 import {TimeBar} from '@root/components/apps/statistics/time_bar';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {computeStatsData} from '@root/lib/statistics/data';
@@ -84,7 +85,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
     const statsData = computeStatsData(schedule);
     return (
       <StatisticWrapper>
-        <Block>
+        <DropdownBlock>
           <StatsMetricDropdown
             statsMetrics={[METRAGE_METRIC, STOP_METRIC, DELAY_METRIC]}
             selected={statsMetric}
@@ -95,7 +96,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
             selected={statsPeriod}
             onChange={newStatsPeriod => this.setState({statsPeriod: newStatsPeriod})}
           />
-        </Block>
+        </DropdownBlock>
         <Block>
           <TimeBar
             disableForward={!statsPeriod.canNavigate}
@@ -106,7 +107,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
             {statsPeriod.renderPeriod(currentDay, schedule.prodHours)}
           </TimeBar>
         </Block>
-        <Block>
+        <ChartBlock>
           <StatsChartForm
             date={currentDay}
             prodHours={schedule.prodHours}
@@ -115,9 +116,16 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
             statsMetric={statsMetric}
             statsPeriod={statsPeriod}
           />
-        </Block>
+        </ChartBlock>
         <Block>
-          {<pre>{JSON.stringify(Array.from(statsData.days.entries()), undefined, 2)}</pre>}
+          <StatsSummaryTable
+            date={currentDay}
+            prodHours={schedule.prodHours}
+            operations={operations}
+            statsData={statsData}
+            statsMetric={statsMetric}
+            statsPeriod={statsPeriod}
+          />
         </Block>
       </StatisticWrapper>
     );
@@ -141,4 +149,16 @@ const StatisticWrapper = styled.div`
 const Block = styled.div`
   background-color: ${Colors.PrimaryDark};
   margin-bottom: ${padding}px;
+  padding: 16px;
+  flex-shrink: 0;
+`;
+
+const DropdownBlock = styled(Block)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const ChartBlock = styled(Block)`
+  flex-grow: 1;
 `;

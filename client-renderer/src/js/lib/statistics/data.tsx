@@ -1,4 +1,8 @@
-import {max} from 'lodash-es';
+import {sum} from 'd3';
+import {max, flatten, flattenDeep} from 'lodash-es';
+
+import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
+import {StatsPeriod} from '@root/lib/statistics/period';
 
 import {getWeekDay, dateAtHour} from '@shared/lib/time';
 import {
@@ -9,6 +13,8 @@ import {
   PlanDayStats,
   ProdStat,
   StopStat,
+  ProdRange,
+  Operation,
 } from '@shared/models';
 
 const prodHourStartStopRegex = /^Production démarre à [0-9]+h[0-9]+$/;
@@ -47,7 +53,7 @@ export function computeStatsData(schedule: Schedule): StatsData {
           planDayStats = [];
           days.set(day, planDayStats);
         }
-        planDayStats.push(computePlanDayStats(planDaySchedule, planOperationTime, midTime));
+        planDayStats.push(computePlanDayStats(planDaySchedule, planOperationTime * 1000, midTime));
       }
     });
   });
@@ -138,6 +144,32 @@ function getDuration(
   return {morning: midDay - start, afternoon: end - midDay};
 }
 
-// Retard = % temps operation * ( real temps operation / planned temps operation ) + sum end of day
-//
-//
+export function processStatsData(
+  statsData: StatsData,
+  prodHours: Map<string, ProdRange>,
+  operations: Operation[],
+  period: StatsPeriod,
+  date: number,
+  metric: StatsMetric,
+  filter: MetricFilter
+): number[] {
+  const dateGroups = period.xAxis(statsData, prodHours, date);
+  return dateGroups.map(dateGroup => {
+    const values = dateGroup.map(date => {
+      const dayStats = statsData.days.get(date);
+      if (!dayStats) {
+        return [];
+      }
+      const values = dayStats.map(planDayStats =>
+        metric.yAxis(filter.name, planDayStats, operations)
+      );
+      return values;
+    });
+    const flatValues = flatten(flatten(values));
+    return flatValues.length === 0
+      ? 0
+      : metric.aggregation === 'sum'
+      ? sum(flatValues)
+      : sum(flatValues) / flatValues.length;
+  });
+}

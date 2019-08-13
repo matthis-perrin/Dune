@@ -1,7 +1,9 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Select, Option} from '@root/components/core/select';
 import {StatsMetric} from '@root/lib/statistics/metrics';
+import {Colors, FontWeight} from '@root/theme';
 
 interface StatsMetricDropdownProps {
   statsMetrics: StatsMetric[];
@@ -15,7 +17,7 @@ export class StatsMetricDropdown extends React.Component<StatsMetricDropdownProp
   public render(): JSX.Element {
     const {statsMetrics, selected, onChange} = this.props;
     return (
-      <Select
+      <StyledSelect
         style={{width: 180}}
         onChange={event => onChange(statsMetrics.filter(sp => sp.name === event.target.value)[0])}
         value={selected.name}
@@ -25,7 +27,14 @@ export class StatsMetricDropdown extends React.Component<StatsMetricDropdownProp
             {statsMetric.label}
           </Option>
         ))}
-      </Select>
+      </StyledSelect>
     );
   }
 }
+
+const StyledSelect = styled(Select)`
+  background-color: ${Colors.SecondaryDark};
+  border: none;
+  color: ${Colors.TextOnPrimary};
+  font-weight: ${FontWeight.SemiBold};
+`;
