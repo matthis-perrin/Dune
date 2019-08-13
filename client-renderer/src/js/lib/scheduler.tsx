@@ -4,7 +4,7 @@ import {ADDITIONAL_TIME_TO_RESTART_PROD, MAX_SPEED_RATIO} from '@root/lib/consta
 import {metersToProductionTime, productionTimeToMeters} from '@root/lib/plan_prod';
 import {getConstraints, splitOperations} from '@root/lib/plan_prod_operation';
 import {computeMetrage} from '@root/lib/prod';
-import {isSameDay, dateIsAfterOrSameDay} from '@root/lib/utils';
+import {isSameDay} from '@root/lib/utils';
 
 import {getCurrentNonProd, getNextNonProd} from '@shared/lib/prod_hours';
 import {dateAtHour, getWeekDay} from '@shared/lib/time';

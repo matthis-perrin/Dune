@@ -232,7 +232,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     if (dayStatus === 'past') {
       return (
         <React.Fragment>
-          <BlockTitle>PRODUCTION RÉALISÉ</BlockTitle>
+          <BlockTitle>PRODUCTION RÉALISÉE (THÉORIQUE)</BlockTitle>
           <DayProductionTable
             day={currentDay.getTime()}
             stocks={stocks}
