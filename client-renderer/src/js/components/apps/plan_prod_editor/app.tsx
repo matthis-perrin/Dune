@@ -560,7 +560,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
           const halfPadding = (
             <div style={{height: (theme.planProd.basePadding * pixelPerMM) / 2}} />
           );
-          const planProd = asPlanProduction(planProduction, id);
+          const planProd = asPlanProduction(planProduction, id, speed);
           const emulatedSchedule =
             planProd && this.scheduleStore.emulateWithPlan(planProd, planProduction.index);
 

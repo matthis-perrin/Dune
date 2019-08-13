@@ -2,8 +2,9 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
-import {getDayOfWeek, isWeekDay} from '@root/lib/utils';
 import {theme} from '@root/theme';
+
+import {getDayOfWeek, isWeekDay} from '@shared/lib/time';
 
 const MONTH_IN_YEAR = 12;
 const DAY_IN_WEEK = 7;

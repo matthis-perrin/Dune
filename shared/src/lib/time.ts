@@ -1,5 +1,3 @@
-import {getDayOfWeek} from '@root/lib/utils';
-
 import {startOfDay} from '@shared/lib/utils';
 import {ProdRange} from '@shared/models';
 
@@ -17,9 +15,22 @@ export const MONTHS_STRING = [
   'Novembre',
   'Décembre',
 ];
+
+const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+
 const HOUR_IN_DAY = 24;
 const DAY_IN_WEEK = 7;
 const MS_IN_DAY = HOUR_IN_DAY * 60 * 60 * 1000;
+
+// Monday = 0
+export function getDayOfWeek(date: Date): number {
+  return DayOfWeek.indexOf(getWeekDay(date));
+}
+
+export function isWeekDay(date: Date): boolean {
+  const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
+  return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
+}
 
 export function dateAtHour(date: Date, hour: number, minute?: number, second?: number): Date {
   return new Date(

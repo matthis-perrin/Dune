@@ -88,7 +88,8 @@ export function getProductionForBobine(ref: string, planState: PlanProductionSta
 
 export function asPlanProduction(
   data: PlanProductionState & PlanProductionInfo,
-  id: number
+  id: number,
+  speed: number
 ): PlanProduction | undefined {
   if (
     data.selectableBobines.length > 0 ||
@@ -116,7 +117,7 @@ export function asPlanProduction(
       encriers: data.couleursEncrier[0],
 
       tourCount: data.tourCount || 0,
-      speed: 0,
+      speed,
       comment: '',
     },
   };

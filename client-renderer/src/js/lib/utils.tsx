@@ -66,17 +66,6 @@ export function formatPlanDate(ts?: number): string {
   return `${days}/${months} à ${hours}:${minutes}:${seconds}`;
 }
 
-const DayOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-// Monday = 0
-export function getDayOfWeek(date: Date): number {
-  return DayOfWeek.indexOf(getWeekDay(date));
-}
-
-export function isWeekDay(date: Date): boolean {
-  const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
-  return dayOfWeek !== 'samedi' && dayOfWeek !== 'dimanche';
-}
-
 export function isSameDay(date1: Date, date2: Date): boolean {
   return (
     date1.getDate() === date2.getDate() &&

@@ -360,7 +360,6 @@ function generatePlannedEventsForProdLeft(
   // Find the next valid prod time
   let current = applyNonProdIfNeeded(currentSchedules, planProd, startTime, supportData);
   current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
-
   // If there was no other prod this day and no ChangePlanProd or RepriseProd event
   // we need to add a RepriseProd event
   if (shouldCreateRestartProdStop(currentSchedules, current)) {

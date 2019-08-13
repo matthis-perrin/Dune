@@ -185,7 +185,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
-              const planProduction = asPlanProduction(planProd, id);
+              const planProduction = asPlanProduction(planProd, id, 180);
               const emulatedSchedule =
                 planProduction &&
                 this.scheduleStore.emulateWithPlan(planProduction, planProd.index);
