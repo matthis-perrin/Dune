@@ -513,6 +513,7 @@ export interface PlanDayStats {
 
 export interface ProdStat {
   metrage: number;
+  duration: number;
 }
 
 export interface StopStat {

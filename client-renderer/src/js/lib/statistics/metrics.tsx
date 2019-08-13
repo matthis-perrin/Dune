@@ -29,90 +29,106 @@ const MORNING_AFTERNOON_FILTERS = [
   },
 ];
 
-const PLANNED_UNPLANNED_FILTERS = [
-  {
-    name: 'planned',
-    label: 'Arrêts Prévus',
-    color: Palette.PeterRiver,
-  },
+const STOP_FILTERS = [
   {
     name: 'unplanned',
     label: 'Arrêts Imprévus',
     color: Colors.Danger,
   },
   {
-    name: 'all',
-    label: 'Arrêts cumulés',
+    name: 'planned',
+    label: 'Arrêts Prévus',
+    color: Palette.PeterRiver,
+  },
+  {
+    name: 'non-prod',
+    label: 'Maintenance & Non prod',
     color: Palette.Asbestos,
+  },
+  {
+    name: 'prod',
+    label: 'Production',
+    color: Palette.Nephritis,
   },
 ];
 
 export interface StatsMetric {
   name: string;
   label: string;
-  yAxis(metricFilter: string, dayStats: PlanDayStats, operations: Operation[]): number;
+  yAxis(metricFilter: string, dayStats: PlanDayStats, operations: Operation[]): number[];
   renderY(value: number): string;
   filters: MetricFilter[];
-  initialFilter: string;
+  initialFilter: string[];
   aggregation: 'sum' | 'avg';
+  mode: 'separated' | 'stacked';
 }
 
 export const METRAGE_METRIC: StatsMetric = {
   name: 'metrage',
   label: 'MÉTRAGE',
   yAxis: (metricFilter: string, dayStats: PlanDayStats) => {
-    let value = 0;
+    let values: number[] = [];
     if (metricFilter === 'morning' || metricFilter === 'all') {
-      value += sum(dayStats.morningProds.map(p => p.metrage));
+      values = values.concat(dayStats.morningProds.map(p => p.metrage));
     }
     if (metricFilter === 'afternoon' || metricFilter === 'all') {
-      value += sum(dayStats.afternoonProds.map(p => p.metrage));
+      values = values.concat(dayStats.afternoonProds.map(p => p.metrage));
     }
-    return value;
+    return values;
   },
   renderY: (value: number): string => `${numberWithSeparator(value)} m`,
   filters: MORNING_AFTERNOON_FILTERS,
-  initialFilter: 'all',
+  initialFilter: ['all'],
   aggregation: 'sum',
+  mode: 'separated',
 };
 
 export const STOP_METRIC: StatsMetric = {
   name: 'stop',
   label: 'ARRÊTS',
   yAxis: (metricFilter: string, dayStats: PlanDayStats) => {
+    if (metricFilter === 'prod') {
+      const prods = dayStats.morningProds.concat(dayStats.afternoonProds);
+      return prods.map(p => p.duration);
+    }
     const stops = dayStats.morningStops.concat(dayStats.afternoonStops);
-    let value = 0;
-    if (metricFilter === 'planned' || metricFilter === 'all') {
-      value += sum(
-        stops
-          .filter(
-            s =>
-              [
-                StopType.ChangePlanProd,
-                StopType.ReprisePlanProd,
-                StopType.ReglagesAdditionel,
-                StopType.ChangeBobinePapier,
-                StopType.ChangeBobinePolypro,
-                StopType.ChangeBobinePapierAndPolypro,
-                StopType.EndOfDayEndProd,
-                StopType.EndOfDayPauseProd,
-                StopType.Maintenance,
-              ].indexOf(s.type) !== -1
-          )
-          .map(s => s.duration)
-      );
+    if (metricFilter === 'planned') {
+      return stops
+        .filter(
+          s =>
+            [
+              StopType.ChangePlanProd,
+              StopType.ReprisePlanProd,
+              StopType.ReglagesAdditionel,
+              StopType.ChangeBobinePapier,
+              StopType.ChangeBobinePolypro,
+              StopType.ChangeBobinePapierAndPolypro,
+            ].indexOf(s.type) !== -1
+        )
+        .map(s => s.duration);
     }
-    if (metricFilter === 'unplanned' || metricFilter === 'all') {
-      value += sum(
-        stops.filter(s => [StopType.Unplanned].indexOf(s.type) !== -1).map(s => s.duration)
-      );
+    if (metricFilter === 'unplanned') {
+      return stops
+        .filter(
+          s =>
+            [StopType.EndOfDayEndProd, StopType.EndOfDayPauseProd, StopType.Unplanned].indexOf(
+              s.type
+            ) !== -1
+        )
+        .map(s => s.duration);
     }
-    return value;
+    if (metricFilter === 'non-prod') {
+      return stops
+        .filter(s => [StopType.Maintenance, StopType.NotProdHours].indexOf(s.type) !== -1)
+        .map(s => s.duration);
+    }
+    return [];
   },
   renderY: formatDuration,
-  filters: PLANNED_UNPLANNED_FILTERS,
-  initialFilter: 'all',
+  filters: STOP_FILTERS,
+  initialFilter: ['unplanned', 'planned', 'non-prod', 'prod'],
   aggregation: 'sum',
+  mode: 'stacked',
 };
 
 export const DELAY_METRIC: StatsMetric = {
@@ -122,7 +138,7 @@ export const DELAY_METRIC: StatsMetric = {
     const planTotalOerationsDelay =
       dayStats.planTotalOperationDone - dayStats.planTotalOperationPlanned;
 
-    let value = 0;
+    let values: number[] = [];
     if (metricFilter === 'morning' || metricFilter === 'all') {
       const stops = dayStats.morningStops;
       const hasChangePlanProdStop =
@@ -132,7 +148,7 @@ export const DELAY_METRIC: StatsMetric = {
             s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
           )
         : [];
-      value += sum(
+      values = values.concat(
         morningOperationStops.map(
           p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
         )
@@ -147,16 +163,17 @@ export const DELAY_METRIC: StatsMetric = {
             s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
           )
         : [];
-      value += sum(
+      values = values.concat(
         afternoonOperationStops.map(
           p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
         )
       );
     }
-    return value;
+    return values;
   },
   renderY: formatDuration,
   filters: MORNING_AFTERNOON_FILTERS,
-  initialFilter: 'all',
+  initialFilter: ['all'],
   aggregation: 'sum',
+  mode: 'separated',
 };

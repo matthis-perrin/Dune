@@ -57,7 +57,7 @@ export const MONTH_STATS_PERIOD: StatsPeriod = {
     getMonthDays(prodHours, date).map(d => [d]),
   renderX: (days: number[]): string => {
     const day = padNumber(new Date(days[0]).getDate(), 2);
-    const month = padNumber(new Date(days[0]).getDate() + 1, 2);
+    const month = padNumber(new Date(days[0]).getMonth() + 1, 2);
     return `${day}/${month}`;
   },
 };

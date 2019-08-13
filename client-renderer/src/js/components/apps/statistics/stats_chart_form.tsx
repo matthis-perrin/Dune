@@ -26,8 +26,14 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
   public constructor(props: StatsChartFormProps) {
     super(props);
     this.state = {
-      selectedMetricFilterNames: [props.statsMetric.initialFilter],
+      selectedMetricFilterNames: props.statsMetric.initialFilter,
     };
+  }
+
+  public componentDidUpdate(prevProps: StatsChartFormProps): void {
+    if (this.props.statsMetric !== prevProps.statsMetric) {
+      this.setState({selectedMetricFilterNames: this.props.statsMetric.initialFilter});
+    }
   }
 
   private getSelectedMetricFilters(selectedMetricFilterNames: string[]): MetricFilter[] {
@@ -51,12 +57,13 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
           date={date}
           chartConfig={{
             aggregation: statsMetric.aggregation,
+            mode: statsMetric.mode,
             renderX: statsPeriod.renderX,
             renderY: statsMetric.renderY,
             xAxis: statsPeriod.xAxis,
             yAxis: (dayStats: PlanDayStats) =>
               this.getSelectedMetricFilters(selectedMetricFilterNames).map(metricFilter => ({
-                value: statsMetric.yAxis(metricFilter.name, dayStats, operations),
+                values: statsMetric.yAxis(metricFilter.name, dayStats, operations),
                 color: metricFilter.color,
               })),
           }}

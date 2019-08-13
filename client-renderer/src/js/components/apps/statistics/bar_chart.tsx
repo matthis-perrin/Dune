@@ -1,7 +1,6 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {isEqual, sum} from 'lodash-es';
-import * as Plottable from 'plottable';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -22,10 +21,11 @@ interface Datum {
 
 export interface BarChartConfig {
   xAxis(stats: StatsData, prodHours: Map<string, ProdRange>, date: number): number[][];
-  yAxis(dayStats: PlanDayStats): {value: number; color: string}[];
+  yAxis(dayStats: PlanDayStats): {values: number[]; color: string}[];
   renderX(days: number[]): string;
   renderY(value: number): string;
   aggregation: 'sum' | 'avg';
+  mode: 'separated' | 'stacked';
 }
 
 interface BarChartProps {
@@ -44,8 +44,6 @@ const emptyPlanDayStats: PlanDayStats = {
   planTotalOperationPlanned: 0,
   repriseProdDone: 0,
 };
-
-(Plottable.Plots.Bar as any).prototype._removeDatasetNodes = () => {};
 
 export class BarChart extends React.Component<BarChartProps> {
   public static displayName = 'BarChart';
@@ -90,7 +88,7 @@ export class BarChart extends React.Component<BarChartProps> {
           planDayStats.length > 0
             ? planDayStats.reduce(
                 (acc, planDayStat) => acc.concat(chartConfig.yAxis(planDayStat)),
-                [] as {value: number; color: string}[]
+                [] as {values: number[]; color: string}[]
               )
             : chartConfig.yAxis(emptyPlanDayStats);
         return barsDataForDay;
@@ -106,12 +104,12 @@ export class BarChart extends React.Component<BarChartProps> {
           if (colorOrder.indexOf(barData.color) === -1) {
             colorOrder.push(barData.color);
           }
-          let valuesForColor = xValueDataMap.get(barData.color);
+          const valuesForColor = xValueDataMap.get(barData.color);
           if (!valuesForColor) {
-            valuesForColor = [];
-            xValueDataMap.set(barData.color, valuesForColor);
+            xValueDataMap.set(barData.color, barData.values);
+          } else {
+            xValueDataMap.set(barData.color, valuesForColor.concat(barData.values));
           }
-          valuesForColor.push(barData.value);
         })
       );
 
@@ -145,17 +143,23 @@ export class BarChart extends React.Component<BarChartProps> {
     });
 
     const datalabelsConf =
-      barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
+      chartConfig.mode === 'stacked'
+        ? {
+            color: Palette.White,
+          }
+        : barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
         ? {
             rotation: 90,
             anchor: 'start' as 'start',
             align: 'top' as 'top',
+            color: Palette.Black,
           }
         : {
             anchor: 'end' as 'end',
             align: 'top' as 'top',
             offset: -4,
             rotation: 0,
+            color: Palette.Black,
           };
 
     // Chart
@@ -166,6 +170,7 @@ export class BarChart extends React.Component<BarChartProps> {
         datasets: barDataSets.map(dataSet => ({
           backgroundColor: dataSet.color,
           data: dataSet.data.map(datum => datum.value),
+          stack: chartConfig.mode === 'stacked' ? 'stackId' : undefined,
         })),
       },
       plugins: [ChartDataLabels],
@@ -174,8 +179,6 @@ export class BarChart extends React.Component<BarChartProps> {
           datalabels: {
             ...datalabelsConf,
             formatter: chartConfig.renderY,
-            color: 'black',
-            clamp: true,
             display: a => ((a.dataset.data || [])[a.dataIndex] || 0) > 0,
           },
         },
@@ -221,7 +224,7 @@ export class BarChart extends React.Component<BarChartProps> {
 
 const ChartContainer = styled.div`
   width: 100%;
-  height: 384px;
+  height: 600px;
   box-sizing: border-box;
   padding: 16px;
 `;

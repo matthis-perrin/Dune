@@ -11,6 +11,15 @@ import {
   StopStat,
 } from '@shared/models';
 
+const prodHourStartStopRegex = /^Production démarre à [0-9]+h[0-9]+$/;
+const prodHourEndStopRegex = /^Production termine à [0-9]+h[0-9]+$/;
+
+function isProdHourNonProd(title?: string): boolean {
+  return (
+    title !== undefined && (prodHourStartStopRegex.test(title) || prodHourEndStopRegex.test(title))
+  );
+}
+
 export function computeStatsData(schedule: Schedule): StatsData {
   const days = new Map<number, PlanDayStats[]>();
   schedule.plans.forEach(plan => {
@@ -63,11 +72,11 @@ function computePlanDayStats(
   planDaySchedule.prods.forEach(({start, end, avgSpeed}) => {
     if (avgSpeed !== undefined && end !== undefined) {
       const {morning, afternoon} = getDuration(start, end, midDay);
-      morningProds.push({metrage: (avgSpeed * morning) / (60 * 1000)});
-      afternoonProds.push({metrage: (avgSpeed * afternoon) / (60 * 1000)});
+      morningProds.push({metrage: (avgSpeed * morning) / (60 * 1000), duration: morning});
+      afternoonProds.push({metrage: (avgSpeed * afternoon) / (60 * 1000), duration: afternoon});
     }
   });
-  planDaySchedule.stops.forEach(({start, end, stopType}) => {
+  planDaySchedule.stops.forEach(({start, end, stopType, title}) => {
     if (stopType !== undefined && end !== undefined) {
       const {morning, afternoon} = getDuration(start, end, midDay);
       if (stopType === StopType.ChangePlanProd) {
@@ -83,6 +92,9 @@ function computePlanDayStats(
         } else {
           repriseProdDone += morning + afternoon;
         }
+      }
+      if (isProdHourNonProd(title)) {
+        return;
       }
       morningStops.push({
         type: stopType,
