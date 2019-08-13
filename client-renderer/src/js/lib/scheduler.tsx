@@ -4,7 +4,7 @@ import {ADDITIONAL_TIME_TO_RESTART_PROD, MAX_SPEED_RATIO} from '@root/lib/consta
 import {metersToProductionTime, productionTimeToMeters} from '@root/lib/plan_prod';
 import {getConstraints, splitOperations} from '@root/lib/plan_prod_operation';
 import {computeMetrage} from '@root/lib/prod';
-import {isSameDay} from '@root/lib/utils';
+import {isSameDay, dateIsAfterOrSameDay} from '@root/lib/utils';
 
 import {getCurrentNonProd, getNextNonProd} from '@shared/lib/prod_hours';
 import {dateAtHour, getWeekDay} from '@shared/lib/time';
@@ -481,26 +481,28 @@ function generateChangePlanProd(
   // If we need to pin to the start of the day, we create a NotProd event up to the next
   // free time, apply the non prod and maintenance, and try again.
   if (planProd.operationAtStartOfDay && !isStartOfDay(currentSchedules, startTime)) {
-    const endTime = lastValidConsecutiveFreeTime(startTime, supportData);
-    current = addNonProdEvents(currentSchedules, current, planProd, {
-      id: -startTime,
-      start: startTime,
-      end: endTime,
-      title: 'Réglage du prochain plan obligatoire en début de journée',
-    });
-    current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
-    current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
+    while (isSameDay(new Date(current), new Date(startTime))) {
+      const endTime = lastValidConsecutiveFreeTime(current, supportData);
+      current = addNonProdEvents(currentSchedules, current, planProd, {
+        id: current,
+        start: current,
+        end: endTime,
+        title: 'Réglage du prochain plan obligatoire en début de journée',
+      });
+      current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
+      current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
+    }
     return generateChangePlanProd(currentSchedules, planProd, operationTime, current, supportData);
   }
   return generatePlannedEventsForStopLeft(
     currentSchedules,
     operationTime,
     {
-      start: startTime,
+      start: current,
       planProdId: planProd.id,
       stopType: StopType.ChangePlanProd,
     },
-    startTime,
+    current,
     planProd,
     supportData
   );
@@ -530,15 +532,17 @@ function generateProdLeft(
   // If we need to pin to the start of the day, we create a NotProd event up to the next
   // free time, apply the non prod and maintenance, and try again.
   if (planProd.productionAtStartOfDay && !isStartOfDay(currentSchedules, startTime)) {
-    const endTime = lastValidConsecutiveFreeTime(startTime, supportData);
-    current = addNonProdEvents(currentSchedules, current, planProd, {
-      id: -startTime,
-      start: startTime,
-      end: endTime,
-      title: 'Production du prochain plan obligatoire en début de journée',
-    });
-    current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
-    current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
+    while (isSameDay(new Date(current), new Date(startTime))) {
+      const endTime = lastValidConsecutiveFreeTime(current, supportData);
+      current = addNonProdEvents(currentSchedules, current, planProd, {
+        id: current,
+        start: current,
+        end: endTime,
+        title: 'Production du prochain plan obligatoire en début de journée',
+      });
+      current = applyNonProdIfNeeded(currentSchedules, planProd, current, supportData);
+      current = applyMaintenanceIfNeeded(currentSchedules, planProd, current, supportData);
+    }
     return generateProdLeft(currentSchedules, planProd, current, supportData);
   }
   return generatePlannedEventsForProdLeft(
