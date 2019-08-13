@@ -40,6 +40,7 @@ const THRESHOLD_SPREAD_FOR_MINUTE_DETAILS = 15;
 // Those should be extracted it in the constant file shared with the server
 const SPEED_AGGREGATION_TIME_MS = 5000;
 const SPEED_STOP_THRESHOLD = 50;
+const EVENT_FAKE_SPEED = 50;
 
 // tslint:disable:no-magic-numbers
 const PLOT_SPEED_MAX = 200;
@@ -217,7 +218,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .x((s: SpeedChartEvent) => new Date(s.start), xScale)
       .x2((s: SpeedChartEvent) => new Date(s.end))
       .y(() => 0, yScale)
-      .y2(() => PLOT_SPEED_MAX)
+      .y2(() => EVENT_FAKE_SPEED)
       .attr('fill', (s: SpeedChartEvent) => s.color)
       .attr('opacity', EVENTS_OPACITY);
 

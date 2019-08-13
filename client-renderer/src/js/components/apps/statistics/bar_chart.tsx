@@ -148,6 +148,8 @@ export class BarChart extends React.Component<BarChartProps> {
       barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
         ? {
             rotation: 90,
+            anchor: 'start' as 'start',
+            align: 'top' as 'top',
           }
         : {
             anchor: 'end' as 'end',
@@ -173,7 +175,7 @@ export class BarChart extends React.Component<BarChartProps> {
             ...datalabelsConf,
             formatter: chartConfig.renderY,
             color: 'black',
-
+            clamp: true,
             display: a => ((a.dataset.data || [])[a.dataIndex] || 0) > 0,
           },
         },
@@ -186,6 +188,9 @@ export class BarChart extends React.Component<BarChartProps> {
         responsive: true,
         legend: {display: false},
         maintainAspectRatio: false,
+        tooltips: {
+          enabled: false,
+        },
         scales: {
           yAxes: [{display: false}],
           xAxes: [

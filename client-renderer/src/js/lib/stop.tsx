@@ -28,7 +28,7 @@ export function getLabelForStopType(
 }
 
 const colorForStopType = new Map<StopType, string>([
-  [StopType.ChangePlanProd, Palette.PeterRiver],
+  [StopType.ChangePlanProd, Palette.Carrot],
   [StopType.ReglagesAdditionel, Palette.PeterRiver],
   [StopType.ReprisePlanProd, Palette.PeterRiver],
   [StopType.ChangeBobinePapier, Palette.PeterRiver],
