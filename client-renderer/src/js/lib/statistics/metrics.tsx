@@ -12,45 +12,57 @@ export interface MetricFilter {
   color: string;
 }
 
-const MORNING_AFTERNOON_FILTERS = [
-  {
-    name: 'morning',
-    label: 'Équipe matin',
-    color: Palette.Concrete,
-  },
-  {
-    name: 'afternoon',
-    label: 'Équipe soir',
-    color: Palette.Asbestos,
-  },
-  {
-    name: 'all',
-    label: 'Équipes cumulées',
-    color: Colors.SecondaryDark,
-  },
+export const MORNING_TEAM_FILTER = {
+  name: 'morning',
+  label: 'Équipe matin',
+  color: Palette.Concrete,
+};
+export const AFTERNOON_TEAM_FILTER = {
+  name: 'afternoon',
+  label: 'Équipe soir',
+  color: Palette.Asbestos,
+};
+export const ALL_TEAM_FILTER = {
+  name: 'all',
+  label: 'Équipes cumulées',
+  color: Colors.SecondaryDark,
+};
+
+export const MORNING_AFTERNOON_FILTERS = [
+  MORNING_TEAM_FILTER,
+  AFTERNOON_TEAM_FILTER,
+  ALL_TEAM_FILTER,
 ];
 
+export const UNPLANNED_STOP_FILTER = {
+  name: 'unplanned',
+  label: 'Arrêts Imprévus',
+  color: Colors.Danger,
+};
+
+export const PLANNED_STOP_FILTER = {
+  name: 'planned',
+  label: 'Arrêts Prévus',
+  color: Palette.PeterRiver,
+};
+
+export const NON_PROD_STOP_FILTER = {
+  name: 'non-prod',
+  label: 'Maintenance & Non prod',
+  color: Palette.Asbestos,
+};
+
+export const PROD_STOP_FILTER = {
+  name: 'prod',
+  label: 'Production',
+  color: Palette.Nephritis,
+};
+
 const STOP_FILTERS = [
-  {
-    name: 'unplanned',
-    label: 'Arrêts Imprévus',
-    color: Colors.Danger,
-  },
-  {
-    name: 'planned',
-    label: 'Arrêts Prévus',
-    color: Palette.PeterRiver,
-  },
-  {
-    name: 'non-prod',
-    label: 'Maintenance & Non prod',
-    color: Palette.Asbestos,
-  },
-  {
-    name: 'prod',
-    label: 'Production',
-    color: Palette.Nephritis,
-  },
+  UNPLANNED_STOP_FILTER,
+  PLANNED_STOP_FILTER,
+  NON_PROD_STOP_FILTER,
+  PROD_STOP_FILTER,
 ];
 
 const UnplannedStopTypes = [
@@ -131,53 +143,64 @@ export const STOP_METRIC: StatsMetric = {
   mode: 'stacked',
 };
 
-export const DELAY_METRIC: StatsMetric = {
-  name: 'delay',
-  label: 'RETARD',
-  yAxis: (metricFilter: string, dayStats: PlanDayStats, operations: Operation[]) => {
-    const planTotalOperationsDelay =
-      dayStats.planTotalOperationDone - dayStats.planTotalOperationPlanned;
+export type TeamTypes = 'morning' | 'afternoon' | 'all';
+export type DelayTypes = 'change-prod' | 'reprise-prod' | 'unplanned' | 'change-bobine' | 'all';
 
-    let values: number[] = [];
+export function getDelays(
+  dayStats: PlanDayStats,
+  operations: Operation[],
+  team: TeamTypes,
+  type: DelayTypes
+): number[] {
+  const planTotalOperationsDelay =
+    dayStats.planTotalOperationDone - dayStats.planTotalOperationPlanned;
 
-    const stops = dayStats.morningStops.concat(dayStats.afternoonStops);
+  let values: number[] = [];
+  const stops = dayStats.morningStops.concat(dayStats.afternoonStops);
 
-    let stopsToCheck: StopStat[] = [];
-    if (metricFilter === 'morning' || metricFilter === 'all') {
-      stopsToCheck = stopsToCheck.concat(dayStats.morningStops);
-    }
-    if (metricFilter === 'afternoon' || metricFilter === 'all') {
-      stopsToCheck = stopsToCheck.concat(dayStats.afternoonStops);
-    }
+  let stopsToCheck: StopStat[] = [];
+  if (team === 'morning' || team === 'all') {
+    stopsToCheck = stopsToCheck.concat(dayStats.morningStops);
+  }
+  if (team === 'afternoon' || team === 'all') {
+    stopsToCheck = stopsToCheck.concat(dayStats.afternoonStops);
+  }
 
-    const hasChangePlanProdStop = stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
-    const operationTypes = [StopType.ChangePlanProd];
-    const repriseTypes = [StopType.ReprisePlanProd];
-    if (hasChangePlanProdStop) {
-      operationTypes.push(StopType.ReglagesAdditionel);
-    } else {
-      repriseTypes.push(StopType.ReglagesAdditionel);
-    }
+  const hasChangePlanProdStop = stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
+  const operationTypes = [StopType.ChangePlanProd];
+  const repriseTypes = [StopType.ReprisePlanProd];
+  if (hasChangePlanProdStop) {
+    operationTypes.push(StopType.ReglagesAdditionel);
+  } else {
+    repriseTypes.push(StopType.ReglagesAdditionel);
+  }
 
-    // Change Prod delays
+  // Change Prod delays
+  if (type === 'change-prod' || type === 'all') {
     values = values.concat(
       stopsToCheck
         .filter(s => operationTypes.indexOf(s.type) !== -1)
         .map(p => (planTotalOperationsDelay * p.duration) / dayStats.planTotalOperationDone)
     );
+  }
 
-    // Reprise Prod delays
+  // Reprise Prod delays
+  if (type === 'reprise-prod' || type === 'all') {
     const repriseStops = stopsToCheck.filter(s => repriseTypes.indexOf(s.type) !== -1);
     const repriseTotalTime = sum(repriseStops.map(s => s.duration));
     const repriseDelay = repriseTotalTime - ADDITIONAL_TIME_TO_RESTART_PROD;
     values = values.concat(repriseStops.map(p => (repriseDelay * p.duration) / repriseTotalTime));
+  }
 
-    // Unplanned delays
+  // Unplanned delays
+  if (type === 'unplanned' || type === 'all') {
     values = values.concat(
       stopsToCheck.filter(s => UnplannedStopTypes.indexOf(s.type) !== -1).map(s => s.duration)
     );
+  }
 
-    // Change Bobines Papier
+  // Change Bobines Papier
+  if (type === 'change-bobine' || type === 'all') {
     const planChangeBobinePapierTime = sum(
       operations
         .filter(o => o.constraint === OperationConstraint.ChangementBobinesMerePapier)
@@ -209,9 +232,16 @@ export const DELAY_METRIC: StatsMetric = {
         .filter(s => s.type === StopType.ChangeBobinePapierAndPolypro)
         .map(s => s.duration - s.ratio * planChangeBobinePapierAndPolyproTime)
     );
+  }
 
-    return values;
-  },
+  return values;
+}
+
+export const DELAY_METRIC: StatsMetric = {
+  name: 'delay',
+  label: 'RETARD',
+  yAxis: (metricFilter: string, dayStats: PlanDayStats, operations: Operation[]) =>
+    getDelays(dayStats, operations, 'all', metricFilter as DelayTypes),
   renderY: formatDuration,
   filters: MORNING_AFTERNOON_FILTERS,
   initialFilter: ['all'],

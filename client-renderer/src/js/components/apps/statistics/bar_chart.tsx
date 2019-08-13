@@ -74,6 +74,7 @@ export class BarChart extends React.Component<BarChartProps> {
 
     // Data
     const {statsData, prodHours, chartConfig, date} = this.props;
+
     const xAxisDates = chartConfig.xAxis(statsData, prodHours, date);
 
     const dataSets = new Map<string, Datum[]>();
