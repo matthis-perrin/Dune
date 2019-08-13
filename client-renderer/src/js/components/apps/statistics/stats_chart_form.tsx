@@ -5,10 +5,11 @@ import {BarFilter} from '@root/components/apps/statistics/bar_filter';
 import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
 
-import {StatsData, ProdRange, PlanDayStats} from '@shared/models';
+import {StatsData, ProdRange, PlanDayStats, Operation} from '@shared/models';
 
 interface StatsChartFormProps {
   prodHours: Map<string, ProdRange>;
+  operations: Operation[];
   statsData: StatsData;
   statsPeriod: StatsPeriod;
   statsMetric: StatsMetric;
@@ -35,7 +36,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
   }
 
   public render(): JSX.Element {
-    const {statsData, date, prodHours, statsPeriod, statsMetric} = this.props;
+    const {statsData, date, prodHours, operations, statsPeriod, statsMetric} = this.props;
     const {selectedMetricFilterNames} = this.state;
     return (
       <div>
@@ -49,13 +50,13 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
           prodHours={prodHours}
           date={date}
           chartConfig={{
-            mode: 'sum',
+            aggregation: statsMetric.aggregation,
             renderX: statsPeriod.renderX,
             renderY: statsMetric.renderY,
             xAxis: statsPeriod.xAxis,
             yAxis: (dayStats: PlanDayStats) =>
               this.getSelectedMetricFilters(selectedMetricFilterNames).map(metricFilter => ({
-                value: statsMetric.yAxis(metricFilter.name, dayStats),
+                value: statsMetric.yAxis(metricFilter.name, dayStats, operations),
                 color: metricFilter.color,
               })),
           }}

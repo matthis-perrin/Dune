@@ -25,7 +25,7 @@ export interface BarChartConfig {
   yAxis(dayStats: PlanDayStats): {value: number; color: string}[];
   renderX(days: number[]): string;
   renderY(value: number): string;
-  mode: 'sum' | 'average';
+  aggregation: 'sum' | 'avg';
 }
 
 interface BarChartProps {
@@ -117,10 +117,10 @@ export class BarChart extends React.Component<BarChartProps> {
 
       xValueDataMap.forEach((values, color) => {
         let aggregation = 0;
-        if (chartConfig.mode === 'sum') {
+        if (chartConfig.aggregation === 'sum') {
           aggregation = sum(values);
         }
-        if (chartConfig.mode === 'average') {
+        if (chartConfig.aggregation === 'avg') {
           aggregation = sum(values) / values.length;
         }
 

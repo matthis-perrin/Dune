@@ -3,7 +3,7 @@ import {sum} from 'lodash-es';
 import {numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
-import {PlanDayStats, StopType} from '@shared/models';
+import {PlanDayStats, StopType, Operation} from '@shared/models';
 
 export interface MetricFilter {
   name: string;
@@ -50,10 +50,11 @@ const PLANNED_UNPLANNED_FILTERS = [
 export interface StatsMetric {
   name: string;
   label: string;
-  yAxis(metricFilter: string, dayStats: PlanDayStats): number;
+  yAxis(metricFilter: string, dayStats: PlanDayStats, operations: Operation[]): number;
   renderY(value: number): string;
   filters: MetricFilter[];
   initialFilter: string;
+  aggregation: 'sum' | 'avg';
 }
 
 export const METRAGE_METRIC: StatsMetric = {
@@ -72,6 +73,7 @@ export const METRAGE_METRIC: StatsMetric = {
   renderY: (value: number): string => `${numberWithSeparator(value)} m`,
   filters: MORNING_AFTERNOON_FILTERS,
   initialFilter: 'all',
+  aggregation: 'sum',
 };
 
 export const STOP_METRIC: StatsMetric = {
@@ -110,4 +112,51 @@ export const STOP_METRIC: StatsMetric = {
   renderY: formatDuration,
   filters: PLANNED_UNPLANNED_FILTERS,
   initialFilter: 'all',
+  aggregation: 'sum',
+};
+
+export const DELAY_METRIC: StatsMetric = {
+  name: 'delay',
+  label: 'RETARD',
+  yAxis: (metricFilter: string, dayStats: PlanDayStats, operations: Operation[]) => {
+    const planTotalOerationsDelay =
+      dayStats.planTotalOperationDone - dayStats.planTotalOperationPlanned;
+
+    let value = 0;
+    if (metricFilter === 'morning' || metricFilter === 'all') {
+      const stops = dayStats.morningStops;
+      const hasChangePlanProdStop =
+        stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
+      const morningOperationStops = hasChangePlanProdStop
+        ? stops.filter(
+            s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
+          )
+        : [];
+      value += sum(
+        morningOperationStops.map(
+          p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
+        )
+      );
+    }
+    if (metricFilter === 'afternoon' || metricFilter === 'all') {
+      const stops = dayStats.afternoonStops;
+      const hasChangePlanProdStop =
+        stops.filter(s => s.type === StopType.ChangePlanProd).length > 0;
+      const afternoonOperationStops = hasChangePlanProdStop
+        ? stops.filter(
+            s => [StopType.ChangePlanProd, StopType.ReglagesAdditionel].indexOf(s.type) !== -1
+          )
+        : [];
+      value += sum(
+        afternoonOperationStops.map(
+          p => planTotalOerationsDelay * ((p.ratio * p.duration) / dayStats.planTotalOperationDone)
+        )
+      );
+    }
+    return value;
+  },
+  renderY: formatDuration,
+  filters: MORNING_AFTERNOON_FILTERS,
+  initialFilter: 'all',
+  aggregation: 'sum',
 };

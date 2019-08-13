@@ -7,7 +7,7 @@ import {StatsPeriodDropdown} from '@root/components/apps/statistics/stats_period
 import {TimeBar} from '@root/components/apps/statistics/time_bar';
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {computeStatsData} from '@root/lib/statistics/data';
-import {StatsMetric, METRAGE_METRIC, STOP_METRIC} from '@root/lib/statistics/metrics';
+import {StatsMetric, METRAGE_METRIC, STOP_METRIC, DELAY_METRIC} from '@root/lib/statistics/metrics';
 import {
   WEEK_STATS_PERIOD,
   StatsPeriod,
@@ -18,13 +18,14 @@ import {ScheduleStore} from '@root/stores/schedule_store';
 import {Palette, Colors} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
-import {Schedule} from '@shared/models';
+import {Schedule, Operation} from '@shared/models';
 
 interface StatisticsAppProps {}
 
 interface StatisticsAppState {
   day?: number;
   schedule?: Schedule;
+  operations?: Operation[];
   statsPeriod: StatsPeriod;
   statsMetric: StatsMetric;
 }
@@ -51,10 +52,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
 
   private readonly handleScheduleChanged = (): void => {
     const schedule = this.scheduleStore.getSchedule();
-    if (!schedule) {
-      return;
-    }
-    this.setState({schedule});
+    this.setState({schedule, operations: this.scheduleStore.getOperations()});
   };
 
   private getFirstProdDayBeforeOrAtTime(schedule: Schedule, time: number): number {
@@ -77,9 +75,9 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
   }
 
   public render(): JSX.Element {
-    const {schedule, statsPeriod, statsMetric} = this.state;
+    const {schedule, operations, statsPeriod, statsMetric} = this.state;
     const currentDay = this.getCurrentDay();
-    if (!schedule || !currentDay) {
+    if (!schedule || !currentDay || !operations) {
       return <LoadingScreen />;
     }
 
@@ -88,7 +86,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
       <StatisticWrapper>
         <Block>
           <StatsMetricDropdown
-            statsMetrics={[METRAGE_METRIC, STOP_METRIC]}
+            statsMetrics={[METRAGE_METRIC, STOP_METRIC, DELAY_METRIC]}
             selected={statsMetric}
             onChange={newStatsMetric => this.setState({statsMetric: newStatsMetric})}
           />
@@ -112,6 +110,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
           <StatsChartForm
             date={currentDay}
             prodHours={schedule.prodHours}
+            operations={operations}
             statsData={statsData}
             statsMetric={statsMetric}
             statsPeriod={statsPeriod}
