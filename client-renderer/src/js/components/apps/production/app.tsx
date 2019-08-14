@@ -401,7 +401,7 @@ const AppWrapper = styled.div`
   right: 0;
   display: flex;
   flex-direction: column;
-  background-color: ${Palette.White};
+  background-color: ${Palette.Clouds};
 `;
 
 const TopBar = styled.div`

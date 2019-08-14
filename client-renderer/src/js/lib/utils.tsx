@@ -35,7 +35,7 @@ export function formatProdTime(date: Date): string {
   return `${weekDay} ${day} ${time}`;
 }
 
-export function formatDuration(duration: number): string {
+export function formatDuration(duration: number, forceHours?: boolean): string {
   const isNegative = duration < 0;
   let prefix = '';
   if (isNegative) {
@@ -51,7 +51,7 @@ export function formatDuration(duration: number): string {
   const minutesStr = padNumber(minutes, 2);
   const secondsStr = padNumber(seconds, 2);
 
-  if (hours === 0) {
+  if (hours === 0 && !forceHours) {
     return `${prefix}${minutesStr}:${secondsStr}`;
   }
 

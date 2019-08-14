@@ -1,149 +1,192 @@
+import {sum, flatten} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {StatsChartForm} from '@root/components/apps/statistics/stats_chart_form';
-import {StatsMetricDropdown} from '@root/components/apps/statistics/stats_metric_dropdown';
-import {StatsPeriodDropdown} from '@root/components/apps/statistics/stats_period_dropdown';
-import {StatsSummaryTable} from '@root/components/apps/statistics/stats_summary_table';
-import {TimeBar} from '@root/components/apps/statistics/time_bar';
-import {computeStatsData, processStatsDataForDay} from '@root/lib/statistics/data';
+import {Gauge} from '@root/components/common/gauge';
+import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {MAX_SPEED, MAX_SPEED_RATIO} from '@root/lib/constants';
+import {computeStatsData} from '@root/lib/statistics/data';
 import {
-  METRAGE_METRIC,
-  STOP_METRIC,
-  DELAY_METRIC,
-  MORNING_AFTERNOON_FILTERS,
+  UNPLANNED_STOP_FILTER,
+  PLANNED_STOP_FILTER,
+  MAINTENANCE_STOP_FILTER,
+  NON_PROD_STOP_FILTER,
+  MetricFilter,
+  PROD_STOP_FILTER,
+  getStops,
+  getMetrages,
+  TeamTypes,
+  getDelays,
 } from '@root/lib/statistics/metrics';
-import {
-  WEEK_STATS_PERIOD,
-  MONTH_STATS_PERIOD,
-  YEAR_STATS_PERIOD,
-} from '@root/lib/statistics/period';
-import {ScheduleStore} from '@root/stores/schedule_store';
+import {formatDuration, numberWithSeparator} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
-import {Schedule, Operation} from '@shared/models';
-import {startOfDay, endOfDay} from '@shared/lib/utils';
-import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {startOfDay} from '@shared/lib/utils';
+import {Schedule, Operation, StatsData, PlanDayStats} from '@shared/models';
 
 interface DayStatsProps {
   day: number;
   team: MetricFilter;
-}
-
-interface DayStatsState {
   schedule?: Schedule;
   operations?: Operation[];
 }
 
-export class DayStats extends React.Component<DayStatsProps, DayStatsState> {
+export class DayStats extends React.Component<DayStatsProps> {
   public static displayName = 'DayStats';
 
-  private readonly scheduleStore: ScheduleStore;
-
-  public constructor(props: DayStatsProps) {
-    super(props);
-    this.state = {};
-    this.scheduleStore = new ScheduleStore({
-      start: startOfDay(new Date(props.day)).getTime(),
-      end: endOfDay(new Date(props.day)).getTime(),
-    });
+  private aggregate(
+    statsData: StatsData,
+    date: number,
+    aggregation: 'sum' | 'avg',
+    dayDataProcessor: (planDayStats: PlanDayStats) => number[]
+  ): number {
+    const dayStats = statsData.days.get(date);
+    if (!dayStats) {
+      return 0;
+    }
+    const values = dayStats.map(dayDataProcessor);
+    const flatValues = flatten(values);
+    return aggregation === 'sum' ? sum(flatValues) : sum(flatValues) / flatValues.length;
   }
 
-  public componentDidMount(): void {
-    this.scheduleStore.start(this.handleScheduleChanged);
+  public renderLine(value: string, label: string, color: string): JSX.Element {
+    return (
+      <StatLine style={{backgroundColor: color}} key={label}>
+        <StatLabel>{label}</StatLabel>
+        <StatValue>{value}</StatValue>
+      </StatLine>
+    );
   }
 
-  private readonly handleScheduleChanged = (): void => {
-    const schedule = this.scheduleStore.getSchedule();
-    this.setState({schedule, operations: this.scheduleStore.getOperations()});
-  };
+  public renderDurationLine(
+    value: number,
+    label: string,
+    color: string,
+    hideWhenNull?: boolean
+  ): JSX.Element {
+    if (value === 0 && hideWhenNull) {
+      return <React.Fragment />;
+    }
+    return this.renderLine(formatDuration(value, true), label, color);
+  }
 
   public render(): JSX.Element {
-    const {day, team} = this.props;
-    const {schedule, operations} = this.state;
+    const {day, team, schedule, operations} = this.props;
     if (!schedule || !operations) {
-      return <LoadingIndicator size="large" />;
+      return <LoadingIndicator size="medium" />;
     }
 
+    const dataDay = startOfDay(new Date(day)).getTime();
     const statsData = computeStatsData(schedule);
-    const data = processStatsDataForDay(statsData, operations, day, METRAGE_METRIC, team);
+
+    const metrageDone = this.aggregate(statsData, dataDay, 'sum', dayStatsData =>
+      getMetrages(dayStatsData, team.name as TeamTypes)
+    );
+
+    const [unplannedDone, plannedDone, maintenanceDone, nonProdDone, prodDone] = [
+      UNPLANNED_STOP_FILTER.name,
+      PLANNED_STOP_FILTER.name,
+      MAINTENANCE_STOP_FILTER.name,
+      NON_PROD_STOP_FILTER.name,
+      PROD_STOP_FILTER.name,
+    ].map(stopFilter =>
+      this.aggregate(statsData, dataDay, 'sum', dayStatsData =>
+        getStops(dayStatsData, team.name as TeamTypes, stopFilter)
+      )
+    );
+
+    const stopDone = unplannedDone + plannedDone + maintenanceDone + nonProdDone;
+    const activePeriod = stopDone + prodDone;
+    const activePeriodMetrage = (activePeriod * MAX_SPEED) / (60 * 1000);
+
+    const delays = this.aggregate(statsData, dataDay, 'sum', dayStatsData =>
+      getDelays(dayStatsData, operations, team.name as TeamTypes, 'all')
+    );
 
     return (
-      <StatisticWrapper>
-        <DropdownBlock>
-          <StatsMetricDropdown
-            statsMetrics={[METRAGE_METRIC, STOP_METRIC, DELAY_METRIC]}
-            selected={statsMetric}
-            onChange={newStatsMetric => this.setState({statsMetric: newStatsMetric})}
-          />
-          <StatsPeriodDropdown
-            statsPeriods={[WEEK_STATS_PERIOD, MONTH_STATS_PERIOD, YEAR_STATS_PERIOD]}
-            selected={statsPeriod}
-            onChange={newStatsPeriod => this.setState({statsPeriod: newStatsPeriod})}
-          />
-        </DropdownBlock>
-        <Block>
-          <TimeBar
-            disableForward={!statsPeriod.canNavigate}
-            disabledBackward={!statsPeriod.canNavigate}
-            onForward={() => this.setState({day: statsPeriod.next(currentDay)})}
-            onBackward={() => this.setState({day: statsPeriod.previous(currentDay)})}
-          >
-            {statsPeriod.renderPeriod(currentDay, schedule.prodHours)}
-          </TimeBar>
-        </Block>
-        <ChartBlock>
-          <StatsChartForm
-            date={currentDay}
-            prodHours={schedule.prodHours}
-            operations={operations}
-            statsData={statsData}
-            statsMetric={statsMetric}
-            statsPeriod={statsPeriod}
-          />
-        </ChartBlock>
-        <Block>
-          <StatsSummaryTable
-            date={currentDay}
-            prodHours={schedule.prodHours}
-            operations={operations}
-            statsData={statsData}
-            statsMetric={statsMetric}
-            statsPeriod={statsPeriod}
-          />
-        </Block>
-      </StatisticWrapper>
+      <Column>
+        <GaugeWrapper>
+          <Gauge ratio={metrageDone / activePeriodMetrage} ratioMax={MAX_SPEED_RATIO} />
+        </GaugeWrapper>
+        <StatGroups>
+          <StatGroup>
+            {this.renderDurationLine(
+              unplannedDone,
+              UNPLANNED_STOP_FILTER.label,
+              UNPLANNED_STOP_FILTER.color
+            )}
+            {this.renderDurationLine(
+              plannedDone,
+              PLANNED_STOP_FILTER.label,
+              PLANNED_STOP_FILTER.color
+            )}
+            {this.renderDurationLine(
+              maintenanceDone,
+              MAINTENANCE_STOP_FILTER.label,
+              MAINTENANCE_STOP_FILTER.color,
+              true
+            )}
+            {this.renderDurationLine(
+              nonProdDone,
+              NON_PROD_STOP_FILTER.label,
+              NON_PROD_STOP_FILTER.color,
+              true
+            )}
+            {this.renderDurationLine(prodDone, PROD_STOP_FILTER.label, PROD_STOP_FILTER.color)}
+          </StatGroup>
+          <StatGroup>
+            {this.renderDurationLine(delays, 'Retards', Colors.Danger)}
+            {this.renderLine(
+              `${numberWithSeparator(metrageDone)} m`,
+              'Mètres Linéaires',
+              Colors.SecondaryDark
+            )}
+            {this.renderDurationLine(stopDone, 'Arrêts Cumulés', Colors.SecondaryDark)}
+          </StatGroup>
+        </StatGroups>
+      </Column>
     );
   }
 }
 
-const padding = 8;
-
-const StatisticWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+const Column = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${padding}px ${padding}px 0 ${padding}px;
-  background-color: ${Palette.Clouds};
 `;
 
-const Block = styled.div`
-  background-color: ${Colors.PrimaryDark};
-  margin-bottom: ${padding}px;
-  padding: 16px;
-  flex-shrink: 0;
+const GaugeWrapper = styled.div`
+  margin-bottom: 16px;
 `;
 
-const DropdownBlock = styled(Block)`
+const StatGroups = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-item: flex-start;
 `;
 
-const ChartBlock = styled(Block)`
+const StatGroup = styled.div`
+  flex-basis: 1px;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  &:first-of-type {
+    margin-right: 8px;
+  }
 `;
+const StatLine = styled.div`
+  width: 100%;
+  box-sizing: border-box;
+  height: 24px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 2px;
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+  color: ${Palette.White};
+`;
+
+const StatLabel = styled.div``;
+
+const StatValue = styled.div``;

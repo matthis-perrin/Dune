@@ -2,10 +2,16 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {DayProductionTable} from '@root/components/common/day_production_table';
+import {DayStats} from '@root/components/common/day_stats';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
-import {SizeMonitor} from '@root/components/core/size_monitor';
+import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
+import {
+  MORNING_TEAM_FILTER,
+  AFTERNOON_TEAM_FILTER,
+  ALL_TEAM_FILTER,
+} from '@root/lib/statistics/metrics';
 import {stocksStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme, Colors, Palette} from '@root/theme';
@@ -121,37 +127,60 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
       return <LoadingIndicator size="medium" />;
     }
     return (
-      <DayProductionTable
-        day={day}
-        schedule={schedule}
-        stocks={stocks}
-        width={width - scheduleSize}
-      />
+      <div style={{display: 'flex', justifyContent: 'center'}}>
+        <DayProductionTable day={day} schedule={schedule} stocks={stocks} width={width} />
+      </div>
     );
   }
 
   public render(): JSX.Element {
+    const {schedule, day} = this.state;
     return (
       <SizeMonitor>
         {(width, height) => (
           <AppWrapper>
-            <LeftColumn>
-              <TopBar>
-                <div onClick={this.handlePreviousClick}>
-                  <SVGIcon name="caret-left" width={12} height={12} />
-                </div>
-                {this.formatDay(this.state.day)}
-                <div onClick={this.handleNextClick}>
-                  <SVGIcon name="caret-right" width={12} height={12} />
-                </div>
-              </TopBar>
-              <ScheduleWrapper>{this.renderScheduleView()}</ScheduleWrapper>
-            </LeftColumn>
-            <RightColumn>
-              <div>Stats</div>
-              {this.renderProductionTable(width)}
-              <div>Chart</div>
-            </RightColumn>
+            <TopBar>
+              <NavigationIcon onClick={this.handlePreviousClick}>
+                <SVGIcon name="caret-left" width={iconSize} height={iconSize} />
+              </NavigationIcon>
+              <TopBarTitle>{this.formatDay(this.state.day)}</TopBarTitle>
+              <NavigationIcon onClick={this.handleNextClick}>
+                <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
+              </NavigationIcon>
+            </TopBar>
+
+            <Bottom>
+              <LeftColumn>
+                <ScheduleBlock>
+                  <BlockContent>
+                    <ScheduleWrapper>{this.renderScheduleView()}</ScheduleWrapper>
+                  </BlockContent>
+                </ScheduleBlock>
+              </LeftColumn>
+              <RightColumn>
+                {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+                  <Block>
+                    <BlockTitle>{team.label}</BlockTitle>
+                    <BlockContent>
+                      <DayStats
+                        day={day}
+                        operations={this.scheduleStore.getOperations()}
+                        schedule={schedule}
+                        team={team}
+                      />
+                    </BlockContent>
+                  </Block>
+                ))}
+                <Block>
+                  <BlockTitle>Production du jour</BlockTitle>
+                  <BlockContent>
+                    {this.renderProductionTable(
+                      width - scheduleSize - 3 * blockSpacing - 4 * blockPadding + SCROLLBAR_WIDTH
+                    )}
+                  </BlockContent>
+                </Block>
+              </RightColumn>
+            </Bottom>
           </AppWrapper>
         )}
       </SizeMonitor>
@@ -160,6 +189,9 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 }
 
 const scheduleSize = 980;
+const blockPadding = 16;
+const blockSpacing = 8;
+const iconSize = 16;
 
 const AppWrapper = styled.div`
   position: fixed;
@@ -168,7 +200,53 @@ const AppWrapper = styled.div`
   left: 0;
   right: 0;
   display: flex;
-  background-color: ${theme.page.backgroundColor};
+  flex-direction: column;
+  background-color: ${Palette.Clouds};
+`;
+
+// const TopBar = styled.div`
+//   flex-shrink: 0;
+//   width: 100%;
+//   height: 48px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   background-color: ${Colors.PrimaryDark};
+//   color: ${Colors.TextOnPrimary};
+// `;
+const TopBar = styled.div`
+  flex-shrink: 0;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  background-color: ${Colors.PrimaryDark};
+  color: ${Colors.TextOnPrimary};
+`;
+
+const TopBarTitle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+`;
+
+const NavigationIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 48px;
+  &:hover svg {
+    fill: ${Palette.White};
+  }
+  svg {
+    fill: ${Palette.Clouds};
+  }
+`;
+
+const Bottom = styled.div`
+  flex-grow: 1;
+  display: flex;
 `;
 
 const LeftColumn = styled.div`
@@ -176,28 +254,48 @@ const LeftColumn = styled.div`
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-`;
-
-const TopBar = styled.div`
-  flex-shrink: 0;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: ${Colors.PrimaryDark};
-  color: ${Colors.TextOnPrimary};
-`;
-
-const ScheduleWrapper = styled.div`
-  flex-grow: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: ${Palette.Clouds};
+  margin: ${blockSpacing}px;
 `;
 
 const RightColumn = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  margin: ${blockSpacing}px;
+  margin-left: 0;
+  & > div {
+    margin-bottom: ${blockSpacing}px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const Block = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const BlockTitle = styled.div`
+  flex-shrink: 0;
+  background-color: ${Colors.SecondaryDark};
+  color: ${Palette.White};
+  text-transform: uppercase;
+  padding: 4px 8px;
+`;
+const BlockContent = styled.div`
+  flex-grow: 1;
   background-color: ${Colors.PrimaryLight};
+  padding: ${blockPadding}px;
+`;
+
+const ScheduleWrapper = styled.div`
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: ${Palette.Clouds};
+`;
+
+const ScheduleBlock = styled(Block)`
+  height: 100%;
 `;

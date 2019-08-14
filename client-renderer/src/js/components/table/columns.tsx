@@ -949,7 +949,7 @@ export const QUANTITY_TO_PRODUCE = (
 
 export const PRODUCTION_COLUMN: ColumnMetadata<{production: number}, number> = {
   title: 'PROD',
-  width: 60,
+  width: 65,
   renderCell: ({production}) => (
     <span style={{fontWeight: FontWeight.Bold, fontSize: 16}}>{`+${numberWithSeparator(
       production

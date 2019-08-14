@@ -144,22 +144,6 @@ function getDuration(
   return {morning: midDay - start, afternoon: end - midDay};
 }
 
-export function processStatsDataForDay(
-  statsData: StatsData,
-  operations: Operation[],
-  date: number,
-  metric: StatsMetric,
-  filter: MetricFilter
-): number {
-  const dayStats = statsData.days.get(date);
-  if (!dayStats) {
-    return 0;
-  }
-  const values = dayStats.map(planDayStats => metric.yAxis(filter.name, planDayStats, operations));
-  const flatValues = flatten(values);
-  return metric.aggregation === 'sum' ? sum(flatValues) : sum(flatValues) / flatValues.length;
-}
-
 export function processStatsData(
   statsData: StatsData,
   prodHours: Map<string, ProdRange>,

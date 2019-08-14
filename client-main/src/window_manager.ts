@@ -218,7 +218,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.ViewDayApp) {
-      return {id: `view-day-app--${Date.now()}`, size: {width: 1420, height: 980}};
+      return {id: `view-day-app--${Date.now()}`, size: {}};
     }
 
     if (appInfo.type === ClientAppType.ProductionApp) {

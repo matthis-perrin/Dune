@@ -24,7 +24,7 @@ import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
-import {CAPACITE_MACHINE} from '@root/lib/constants';
+import {CAPACITE_MACHINE, MAX_SPEED} from '@root/lib/constants';
 import {
   getPlanProdTitle,
   PLAN_PROD_NUMBER_DIGIT_COUNT,
@@ -55,7 +55,6 @@ import {
 import {asMap, asNumber} from '@shared/type_utils';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
-const INITIAL_SPEED = 180;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
 
 interface Props {
@@ -91,7 +90,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     super(props);
     this.state = {
       tourCountSetByUser: false,
-      speed: INITIAL_SPEED,
+      speed: MAX_SPEED,
       bobinesMinimums: new Map<string, number>(),
       bobinesMaximums: new Map<string, number>(),
       comment: '',
