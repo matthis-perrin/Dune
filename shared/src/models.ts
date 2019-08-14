@@ -388,6 +388,7 @@ export enum ClientAppType {
   ProductionApp = 'ProductionApp',
   StopApp = 'StopApp',
   StatisticsApp = 'StatisticsApp',
+  ReportsApp = 'ReportsApp',
 }
 
 export interface SpeedTime {

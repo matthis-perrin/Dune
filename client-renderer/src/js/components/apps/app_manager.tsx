@@ -13,6 +13,7 @@ import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {ProductionApp} from '@root/components/apps/production/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
+import {ReportsApp} from '@root/components/apps/reports/app';
 import {StatisticsApp} from '@root/components/apps/statistics/app';
 import {StopApp} from '@root/components/apps/stop/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
@@ -151,6 +152,18 @@ export class AppManager extends React.Component<Props, State> {
       return [operationsStore];
     }
 
+    if (type === ClientAppType.ReportsApp) {
+      return [
+        colorsStore,
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        operationsStore,
+        unplannedStopsStore,
+        cleaningsStore,
+      ];
+    }
+
     return [];
   }
 
@@ -232,6 +245,11 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.StatisticsApp) {
       return <StatisticsApp />;
+    }
+
+    if (type === ClientAppType.ReportsApp) {
+      const {initialDay} = asMap(data);
+      return <ReportsApp initialDay={asNumber(initialDay, undefined)} />;
     }
 
     return (

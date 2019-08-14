@@ -233,6 +233,10 @@ class WindowManager {
       return {id: 'statistics', size: {}};
     }
 
+    if (appInfo.type === ClientAppType.ReportsApp) {
+      return {id: 'production', size: {}};
+    }
+
     return {id: 'unknown-app', size: {width: 400, height: 700}};
   }
 
