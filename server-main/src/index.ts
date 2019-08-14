@@ -13,7 +13,7 @@ import {GescomWatcherCliches} from '@root/gescom/cliches';
 import {setupSqliteDB} from '@root/gescom/common';
 import {GescomWatcherStocks} from '@root/gescom/stocks';
 import {configureLogs} from '@root/log';
-import {prodHoursStore} from '@root/prod_hours_store';
+import {prodHoursStore, constantsStore} from '@root/prod_hours_store';
 
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 
@@ -25,6 +25,7 @@ async function startServer(): Promise<void> {
   await setupSqliteDB();
   log.info('Starting Prod Hours store');
   await prodHoursStore.start();
+  await constantsStore.start();
   if (process.env.MODE !== 'development' || forceProdMode) {
     const gescomBobinesFilles = new GescomWatcherBobinesFilles(gescomDB, SQLITE_DB.Gescom);
     const gescomBobinesMeres = new GescomWatcherBobinesMeres(gescomDB, SQLITE_DB.Gescom);

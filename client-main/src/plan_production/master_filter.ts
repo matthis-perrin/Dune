@@ -37,7 +37,8 @@ import {Cliche} from '@shared/models';
 export function filterAll(
   planProd: PlanProduction,
   selectables: Selectables,
-  cliches: Map<string, Cliche>
+  cliches: Map<string, Cliche>,
+  nbEncriers: number
 ): Selectables {
   let i = 0;
   const MAX_STEP = 20;
@@ -52,7 +53,7 @@ export function filterAll(
     }
     // const t = Date.now();
     try {
-      const newSelectables = filterAllOnce(planProd, currentSelectable, cliches);
+      const newSelectables = filterAllOnce(planProd, currentSelectable, cliches, nbEncriers);
       somethingChanged = selectablesAreDifferent(currentSelectable, newSelectables);
       currentSelectable = newSelectables;
     } catch (err) {
@@ -80,7 +81,8 @@ function markPerf(label: string): void {
 function filterAllOnce(
   planProd: PlanProduction,
   selectables: Selectables,
-  cliches: Map<string, Cliche>
+  cliches: Map<string, Cliche>,
+  nbEncriers: number
 ): Selectables {
   const filtered = {...selectables};
   const {bobinesFilles, papier, perfo, polypro, refente} = planProd;
@@ -253,7 +255,8 @@ function filterAllOnce(
     filtered.selectableRefentes = filterRefentesForSelectableBobinesAndSelectedBobines(
       filtered.selectableRefentes,
       filtered.selectableBobinesFilles,
-      bobinesFilles
+      bobinesFilles,
+      nbEncriers
     );
     markPerf('filterRefentesForSelectableBobinesAndSelectedBobines');
 
@@ -269,7 +272,8 @@ function filterAllOnce(
       filtered.selectablePapiers,
       refente ? [refente] : filtered.selectableRefentes,
       filtered.selectableBobinesFilles,
-      bobinesFilles
+      bobinesFilles,
+      nbEncriers
     );
     markPerf('filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines');
 
@@ -284,13 +288,15 @@ function filterAllOnce(
     ? filterBobinesFillesForSelectedRefenteAndBobines(
         filtered.selectableBobinesFilles,
         refente,
-        bobinesFilles
+        bobinesFilles,
+        nbEncriers
       )
     : filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         filtered.selectableBobinesFilles,
         filtered.selectableRefentes,
         papier ? [papier] : filtered.selectablePapiers,
-        bobinesFilles
+        bobinesFilles,
+        nbEncriers
       );
   markPerf(
     refente

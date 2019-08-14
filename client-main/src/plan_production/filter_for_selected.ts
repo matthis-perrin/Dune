@@ -301,7 +301,8 @@ export function filterBobinesFillesForSelectedBobinesFilles(
 export function filterBobinesFillesForSelectedRefenteAndBobines(
   selectableBobinesFilles: BobineFilleClichePose[],
   refente: Refente,
-  selectedBobinesFilles: BobineFilleClichePose[]
+  selectedBobinesFilles: BobineFilleClichePose[],
+  nbEncriers: number
 ): BobineFilleClichePose[] {
   const compatibleBobinesFillesHashes = new Map<string, void>();
   const notCompatibleBobinesFillesHashes = new Map<string, void>();
@@ -321,7 +322,12 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
     const newSelectableBobinesFilles = without(selectableBobinesFilles, bobine);
 
     // Check if a compatible combinaison exists with our bobine now in the selected bobines array
-    const res = compatibilityExists(newSelectedBobinesFilles, newSelectableBobinesFilles, refente);
+    const res = compatibilityExists(
+      newSelectedBobinesFilles,
+      newSelectableBobinesFilles,
+      refente,
+      nbEncriers
+    );
 
     // If there is no compatible combinaison, add the bobine to the array of non-compatible bobines
     if (res === undefined) {

@@ -4,7 +4,6 @@ import {BobineHashCombinaison} from '@root/plan_production/bobines_hash_combinai
 import {compatibilityCache} from '@root/plan_production/bobines_refentes_compatibility_cache';
 import {BobineFilleClichePose, Refente} from '@root/plan_production/models';
 
-import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
 import {getPoseSize} from '@shared/lib/cliches';
 import {validColorCombinaison} from '@shared/lib/encrier';
 import {permutations} from '@shared/lib/utils';
@@ -16,7 +15,8 @@ import {permutations} from '@shared/lib/utils';
 export function compatibilityExists(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
-  refente: Refente
+  refente: Refente,
+  nbEncriers: number
 ): BobineHashCombinaison | undefined {
   // Check in the cache if we've already found a valid combinaison
   const cachedCombi = compatibilityCache.compatibilityInCache(
@@ -63,7 +63,7 @@ export function compatibilityExists(
   // Optimization #4
   // Ensure that the selected bobines filles have compatible colors, otherwise we can already
   // return undefined
-  if (!bobinesColorsAreCompatbile(selectedBobines)) {
+  if (!bobinesColorsAreCompatbile(selectedBobines, nbEncriers)) {
     return undefined;
   }
 
@@ -71,14 +71,24 @@ export function compatibilityExists(
   // Greedy algorithm before looking for all combinaisons
 
   if (selectedBobines.length === 0) {
-    const res = compatibilityExistsForOrderedBobines([], compatibleSelectableBobines, refente);
+    const res = compatibilityExistsForOrderedBobines(
+      [],
+      compatibleSelectableBobines,
+      refente,
+      nbEncriers
+    );
     if (res !== undefined) {
       return compatibilityCache.addCompatibility(refente, selectedBobines, res);
     }
   } else {
     const selectedBobinesCombinaison = getSelectedBobinesCombinaison(selectedBobines);
     for (const combi of selectedBobinesCombinaison) {
-      const res = compatibilityExistsForOrderedBobines(combi, compatibleSelectableBobines, refente);
+      const res = compatibilityExistsForOrderedBobines(
+        combi,
+        compatibleSelectableBobines,
+        refente,
+        nbEncriers
+      );
       if (res !== undefined) {
         return compatibilityCache.addCompatibility(refente, selectedBobines, res);
       }
@@ -136,15 +146,16 @@ export function analyseLaizesLeftOnRefente(
   return laizesLeft;
 }
 
-function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[]): boolean {
-  return validColorCombinaison(bobines.map(b => b.couleursImpression), MAX_COULEURS_IMPRESSIONS);
+function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[], nbEncrier: number): boolean {
+  return validColorCombinaison(bobines.map(b => b.couleursImpression), nbEncrier);
 }
 
 // Same as `compatibilityExists` but without trying all permutation of `selectedBobines`
 function compatibilityExistsForOrderedBobines(
   selectedBobines: BobineFilleClichePose[],
   selectableBobines: BobineFilleClichePose[],
-  refente: Refente
+  refente: Refente,
+  nbEncriers: number
 ): BobineFilleClichePose[] | undefined {
   const laizesLeft = analyseLaizesLeftOnRefente(selectedBobines, refente);
   if (!laizesLeft) {
@@ -161,7 +172,7 @@ function compatibilityExistsForOrderedBobines(
   }
 
   // If there is some kind of compatibility, it's now worth checking the colors
-  if (!bobinesColorsAreCompatbile(selectedBobines)) {
+  if (!bobinesColorsAreCompatbile(selectedBobines, nbEncriers)) {
     return undefined;
   }
 
@@ -178,7 +189,12 @@ function compatibilityExistsForOrderedBobines(
       const newSelected = selectedBobines
         .slice(0, i)
         .concat([selectableBobine].concat(selectedBobines.slice(i)));
-      const res = compatibilityExistsForOrderedBobines(newSelected, newSelectable, refente);
+      const res = compatibilityExistsForOrderedBobines(
+        newSelected,
+        newSelectable,
+        refente,
+        nbEncriers
+      );
       if (res !== undefined) {
         return res;
       }

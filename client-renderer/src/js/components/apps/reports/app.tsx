@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {ReportViewer} from '@root/components/common/report_viewer';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -168,6 +169,26 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
     return <span>{this.formatDay(currentDay.getTime())}</span>;
   }
 
+  private renderReport(): JSX.Element {
+    const {schedule, prodInfo, stocks} = this.state;
+    const day = this.getCurrentDay();
+    const operations = this.scheduleStore.getOperations();
+
+    if (!schedule || !prodInfo || !day || !operations || !stocks) {
+      return <LoadingIndicator size="large" />;
+    }
+
+    return (
+      <ReportViewer
+        schedule={schedule}
+        operations={operations}
+        day={day.getTime()}
+        prodInfo={prodInfo}
+        stocks={stocks}
+      />
+    );
+  }
+
   public render(): JSX.Element {
     return (
       <AppWrapper>
@@ -180,14 +201,13 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
             <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
           </NavigationIcon>
         </TopBar>
-        <ContentContainer>Content</ContentContainer>
+        <ContentContainer>{this.renderReport()}</ContentContainer>
       </AppWrapper>
     );
   }
 }
 
 const iconSize = 16;
-const blockMargin = 8;
 
 const AppWrapper = styled.div`
   position: fixed;
@@ -198,6 +218,7 @@ const AppWrapper = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${Palette.Clouds};
+  overflow-y: scroll;
 `;
 
 const TopBar = styled.div`
@@ -232,6 +253,6 @@ const NavigationIcon = styled.div`
 
 const ContentContainer = styled.div`
   flex-grow: 1;
-  display: flex;
-  margin-bottom: ${blockMargin}px;
+  margin: 16px auto;
+  width: 1200px;
 `;

@@ -14,7 +14,7 @@ import {
 } from '@root/lib/statistics/metrics';
 import {stocksStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
-import {theme, Colors, Palette} from '@root/theme';
+import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, capitalize, endOfDay} from '@shared/lib/utils';

@@ -1,8 +1,9 @@
 import knex from 'knex';
 
+import {listConstants} from '@shared/db/constants';
 import {listNonProds} from '@shared/db/non_prods';
 import {listProdHours} from '@shared/db/prod_hours';
-import {ProdRange, ProdHours, NonProd} from '@shared/models';
+import {ProdRange, ProdHours, NonProd, Constants} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export class ProdHoursStore extends BaseStore {
@@ -59,6 +60,44 @@ export class ProdHoursStore extends BaseStore {
     this.prodHours = await listProdHours(this.paramsDB);
     this.prodHoursMap = new Map<string, ProdRange>();
     this.prodHours.forEach(prodHour => this.prodHoursMap.set(prodHour.day, prodHour));
+    this.emit();
+  }
+}
+
+export class ConstantsStore extends BaseStore {
+  private readonly WAIT_BETWEEN_REFRESHES = 1000;
+  private refreshTimeout: NodeJS.Timeout | undefined;
+
+  private constants: Constants | undefined;
+
+  public constructor(private readonly paramsDB: knex) {
+    super();
+  }
+
+  public async start(): Promise<void> {
+    await this.performRefresh();
+    this.scheduleRefresh();
+  }
+
+  public getConstants(): Constants | undefined {
+    return this.constants;
+  }
+
+  private scheduleRefresh(): void {
+    this.refreshTimeout = setTimeout(() => this.refresh(), this.WAIT_BETWEEN_REFRESHES);
+  }
+
+  private refresh(): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout);
+    }
+    this.performRefresh()
+      .finally(() => this.scheduleRefresh())
+      .catch(() => this.scheduleRefresh());
+  }
+
+  private async performRefresh(): Promise<void> {
+    this.constants = await listConstants(this.paramsDB);
     this.emit();
   }
 }

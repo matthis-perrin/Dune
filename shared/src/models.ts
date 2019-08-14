@@ -522,3 +522,10 @@ export interface StopStat {
   duration: number;
   ratio: number;
 }
+
+export interface Constants {
+  nombreEncriers: number; // 3
+  maxSpeed: number; // 180
+  maxSpeedRatio: number; // 0.82
+  reglageRepriseProdMs: number; // 20 * 60 * 1000
+}

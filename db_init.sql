@@ -130,4 +130,9 @@ INSERT INTO "prod_hours" VALUES ("mercredi", 6, 0, 22, 0);
 INSERT INTO "prod_hours" VALUES ("jeudi", 6, 0, 22, 0);
 INSERT INTO "prod_hours" VALUES ("vendredi", 6, 0, 20, 0);
 
+INSERT INTO "constants" VALUES ("nombreEncriers", "3");
+INSERT INTO "constants" VALUES ("maxSpeed", "180");
+INSERT INTO "constants" VALUES ("maxSpeedRatio", "0.82");
+INSERT INTO "constants" VALUES ("reglageRepriseProdMs", "1200000");
+
 COMMIT;

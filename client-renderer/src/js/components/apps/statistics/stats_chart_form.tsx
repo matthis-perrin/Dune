@@ -3,6 +3,8 @@ import styled from 'styled-components';
 
 import {BarChart} from '@root/components/apps/statistics/bar_chart';
 import {BarFilter} from '@root/components/apps/statistics/bar_filter';
+import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {WithConstants} from '@root/components/core/with_constants';
 import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
 
@@ -46,34 +48,50 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
     const {statsData, date, prodHours, operations, statsPeriod, statsMetric} = this.props;
     const {selectedMetricFilterNames} = this.state;
     return (
-      <StatChartFormWrapper>
-        <BarFilterWrapper>
-          <BarFilter
-            barTypes={statsMetric.filters}
-            checked={selectedMetricFilterNames}
-            onChange={selectedMetricFilterNames => this.setState({selectedMetricFilterNames})}
-          />
-        </BarFilterWrapper>
-        <BarChartWrapper>
-          <BarChart
-            statsData={statsData}
-            prodHours={prodHours}
-            date={date}
-            chartConfig={{
-              aggregation: statsMetric.aggregation,
-              mode: statsMetric.mode,
-              renderX: statsPeriod.renderX,
-              renderY: statsMetric.renderY,
-              xAxis: statsPeriod.xAxis,
-              yAxis: (dayStats: PlanDayStats) =>
-                this.getSelectedMetricFilters(selectedMetricFilterNames).map(metricFilter => ({
-                  values: statsMetric.yAxis(metricFilter.name, dayStats, operations),
-                  color: metricFilter.color,
-                })),
-            }}
-          />
-        </BarChartWrapper>
-      </StatChartFormWrapper>
+      <WithConstants>
+        {constants => {
+          if (!constants) {
+            return <LoadingIndicator size="large" />;
+          }
+          return (
+            <StatChartFormWrapper>
+              <BarFilterWrapper>
+                <BarFilter
+                  barTypes={statsMetric.filters}
+                  checked={selectedMetricFilterNames}
+                  onChange={selectedMetricFilterNames => this.setState({selectedMetricFilterNames})}
+                />
+              </BarFilterWrapper>
+              <BarChartWrapper>
+                <BarChart
+                  statsData={statsData}
+                  prodHours={prodHours}
+                  date={date}
+                  chartConfig={{
+                    aggregation: statsMetric.aggregation,
+                    mode: statsMetric.mode,
+                    renderX: statsPeriod.renderX,
+                    renderY: statsMetric.renderY,
+                    xAxis: statsPeriod.xAxis,
+                    yAxis: (dayStats: PlanDayStats) =>
+                      this.getSelectedMetricFilters(selectedMetricFilterNames).map(
+                        metricFilter => ({
+                          values: statsMetric.yAxis(
+                            metricFilter.name,
+                            dayStats,
+                            operations,
+                            constants
+                          ),
+                          color: metricFilter.color,
+                        })
+                      ),
+                  }}
+                />
+              </BarChartWrapper>
+            </StatChartFormWrapper>
+          );
+        }}
+      </WithConstants>
     );
   }
 }

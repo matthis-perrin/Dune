@@ -1,5 +1,5 @@
 import {sum} from 'd3';
-import {max, flatten, flattenDeep} from 'lodash-es';
+import {max, flatten} from 'lodash-es';
 
 import {StatsMetric, MetricFilter} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
@@ -15,15 +15,37 @@ import {
   StopStat,
   ProdRange,
   Operation,
+  Constants,
 } from '@shared/models';
 
 const prodHourStartStopRegex = /^Production démarre à [0-9]+h[0-9]+$/;
 const prodHourEndStopRegex = /^Production termine à [0-9]+h[0-9]+$/;
 
-function isProdHourNonProd(title?: string): boolean {
+export function isProdHourNonProd(title?: string): boolean {
   return (
     title !== undefined && (prodHourStartStopRegex.test(title) || prodHourEndStopRegex.test(title))
   );
+}
+
+export function getMidDay(schedule: Schedule, day: number): number {
+  const date = new Date(day);
+  const prodRange = schedule.prodHours.get(getWeekDay(date));
+  if (prodRange) {
+    const midHour = (prodRange.startHour + prodRange.endHour) / 2;
+    const midHourInteger = Math.floor(midHour);
+    const midHourDecimal = midHour - midHourInteger;
+    const midMinute = (prodRange.startMinute + prodRange.endMinute) / 2;
+    const midMinuteInteger = Math.floor(midMinute);
+    const midMinuteDecimal = midMinute - midMinuteInteger;
+    const midTime = dateAtHour(
+      date,
+      midHourInteger,
+      midMinuteInteger + midHourDecimal * 60,
+      midMinuteDecimal * 60
+    ).getTime();
+    return midTime;
+  }
+  return dateAtHour(date, 12).getTime();
 }
 
 export function computeStatsData(schedule: Schedule): StatsData {
@@ -33,31 +55,31 @@ export function computeStatsData(schedule: Schedule): StatsData {
     const planOperationTime =
       max([aideConducteur, chauffePerfo, chauffeRefente, conducteur].map(o => o.total)) || 0;
     plan.schedulePerDay.forEach((planDaySchedule, day) => {
-      const date = new Date(day);
-      const prodRange = schedule.prodHours.get(getWeekDay(date));
-      if (prodRange) {
-        const midHour = (prodRange.startHour + prodRange.endHour) / 2;
-        const midHourInteger = Math.floor(midHour);
-        const midHourDecimal = midHour - midHourInteger;
-        const midMinute = (prodRange.startMinute + prodRange.endMinute) / 2;
-        const midMinuteInteger = Math.floor(midMinute);
-        const midMinuteDecimal = midMinute - midMinuteInteger;
-        const midTime = dateAtHour(
-          date,
-          midHourInteger,
-          midMinuteInteger + midHourDecimal * 60,
-          midMinuteDecimal * 60
-        ).getTime();
-        let planDayStats = days.get(day);
-        if (!planDayStats) {
-          planDayStats = [];
-          days.set(day, planDayStats);
-        }
-        planDayStats.push(computePlanDayStats(planDaySchedule, planOperationTime * 1000, midTime));
+      const midDay = getMidDay(schedule, day);
+      let planDayStats = days.get(day);
+      if (!planDayStats) {
+        planDayStats = [];
+        days.set(day, planDayStats);
       }
+      planDayStats.push(computePlanDayStats(planDaySchedule, planOperationTime * 1000, midDay));
     });
   });
   return {days};
+}
+
+export function aggregate(
+  statsData: StatsData,
+  date: number,
+  aggregation: 'sum' | 'avg',
+  dayDataProcessor: (planDayStats: PlanDayStats) => number[]
+): number {
+  const dayStats = statsData.days.get(date);
+  if (!dayStats) {
+    return 0;
+  }
+  const values = dayStats.map(dayDataProcessor);
+  const flatValues = flatten(values);
+  return aggregation === 'sum' ? sum(flatValues) : sum(flatValues) / flatValues.length;
 }
 
 function computePlanDayStats(
@@ -148,6 +170,7 @@ export function processStatsData(
   statsData: StatsData,
   prodHours: Map<string, ProdRange>,
   operations: Operation[],
+  constants: Constants,
   period: StatsPeriod,
   date: number,
   metric: StatsMetric,
@@ -161,7 +184,7 @@ export function processStatsData(
         return [];
       }
       const values = dayStats.map(planDayStats =>
-        metric.yAxis(filter.name, planDayStats, operations)
+        metric.yAxis(filter.name, planDayStats, operations, constants)
       );
       return values;
     });

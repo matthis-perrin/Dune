@@ -1,6 +1,5 @@
 import {sum} from 'lodash-es';
 
-import {ADDITIONAL_TIME_TO_RESTART_PROD} from '@root/lib/constants';
 import {numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
@@ -11,6 +10,7 @@ import {
   StopStat,
   OperationConstraint,
   ProdStat,
+  Constants,
 } from '@shared/models';
 
 export interface MetricFilter {
@@ -93,7 +93,12 @@ const UnplannedStopTypes = [
 export interface StatsMetric {
   name: string;
   label: string;
-  yAxis(metricFilter: string, dayStats: PlanDayStats, operations: Operation[]): number[];
+  yAxis(
+    metricFilter: string,
+    dayStats: PlanDayStats,
+    operations: Operation[],
+    constants: Constants
+  ): number[];
   renderY(value: number): string;
   filters: MetricFilter[];
   initialFilter: string[];
@@ -172,6 +177,7 @@ export function getStops(
 export function getDelays(
   dayStats: PlanDayStats,
   operations: Operation[],
+  constants: Constants,
   team: TeamTypes,
   type: DelayTypes
 ): number[] {
@@ -214,7 +220,7 @@ export function getDelays(
     const repriseStops = stopsToCheck.filter(s => repriseTypes.indexOf(s.type) !== -1);
     const repriseTotalTime = sum(repriseStops.map(s => s.duration));
     if (repriseTotalTime > 0) {
-      const repriseDelay = repriseTotalTime - ADDITIONAL_TIME_TO_RESTART_PROD;
+      const repriseDelay = repriseTotalTime - constants.reglageRepriseProdMs;
       values = values.concat(repriseStops.map(p => (repriseDelay * p.duration) / repriseTotalTime));
     }
   }
@@ -293,8 +299,12 @@ export const STOP_METRIC: StatsMetric = {
 export const DELAY_METRIC: StatsMetric = {
   name: 'delay',
   label: 'RETARD',
-  yAxis: (metricFilter: string, dayStats: PlanDayStats, operations: Operation[]) =>
-    getDelays(dayStats, operations, metricFilter as TeamTypes, 'all'),
+  yAxis: (
+    metricFilter: string,
+    dayStats: PlanDayStats,
+    operations: Operation[],
+    constants: Constants
+  ) => getDelays(dayStats, operations, constants, metricFilter as TeamTypes, 'all'),
   renderY: formatDuration,
   filters: MORNING_AFTERNOON_FILTERS,
   initialFilter: ['all'],

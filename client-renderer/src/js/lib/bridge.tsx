@@ -30,6 +30,7 @@ import {
   StopType,
   StopInfo,
   ScheduleInfo,
+  Constants,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -124,6 +125,9 @@ export class Bridge {
   }
   public async listCleanings(): Promise<Cleaning[]> {
     return this.bridgeTransport.sendBridgeCommand<Cleaning[]>(BridgeCommands.ListCleanings);
+  }
+  public async listConstants(): Promise<Constants[]> {
+    return this.bridgeTransport.sendBridgeCommand<Constants[]>(BridgeCommands.ListConstants);
   }
 
   public async createNewPlanProduction(index: number): Promise<{id: number}> {

@@ -188,12 +188,13 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   selectableBobinesFilles: BobineFilleClichePose[],
   selectableRefentes: Refente[],
   selectablePapier: BobineMerePapier[],
-  selectedBobinesFilles: BobineFilleClichePose[]
+  selectedBobinesFilles: BobineFilleClichePose[],
+  nbEncriers: number
 ): BobineFilleClichePose[] {
   const compatibleBobinesFillesHashes = new Map<string, void>();
   // No need to check the refente that are fully filled.
   const refenteToCheck = selectableRefentes.filter(
-    refente => compatibilityExists(selectedBobinesFilles, [], refente) === undefined
+    refente => compatibilityExists(selectedBobinesFilles, [], refente, nbEncriers) === undefined
   );
   for (const bobine of selectableBobinesFilles) {
     if (compatibleBobinesFillesHashes.has(`${bobine.hash}_C-${bobine.couleurPapier}`)) {
@@ -210,7 +211,8 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
       const res = compatibilityExists(
         newSelectedBobinesFilles,
         newSelectableBobinesFilles,
-        refente
+        refente,
+        nbEncriers
       );
       if (res !== undefined) {
         // Ensure that there is a Papier that works when we select this refente
@@ -257,10 +259,11 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
 export function filterRefentesForSelectableBobinesAndSelectedBobines(
   selectableRefentes: Refente[],
   selectableBobinesFilles: BobineFilleClichePose[],
-  bobinesFilles: BobineFilleClichePose[]
+  bobinesFilles: BobineFilleClichePose[],
+  nbEncriers: number
 ): Refente[] {
   const newRefentes = selectableRefentes.filter(r => {
-    return compatibilityExists(bobinesFilles, selectableBobinesFilles, r) !== undefined;
+    return compatibilityExists(bobinesFilles, selectableBobinesFilles, r, nbEncriers) !== undefined;
   });
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
@@ -278,7 +281,8 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   selectablePapiers: BobineMerePapier[],
   selectableRefentes: Refente[],
   selectableBobinesFilles: BobineFilleClichePose[],
-  bobinesFilles: BobineFilleClichePose[]
+  bobinesFilles: BobineFilleClichePose[],
+  nbEncriers: number
 ): BobineMerePapier[] {
   // We sort the refente to have the ones where it's easy to find a combinaison of bobines first
   const sortedSelectableRefentes = [...selectableRefentes].sort((r1, r2) => {
@@ -329,7 +333,10 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
       if (refente.laize !== papier.laize) {
         continue;
       }
-      if (compatibilityExists(bobinesFilles, filteredSelectableBobines, refente) !== undefined) {
+      if (
+        compatibilityExists(bobinesFilles, filteredSelectableBobines, refente, nbEncriers) !==
+        undefined
+      ) {
         return true;
       }
     }

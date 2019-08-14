@@ -14,6 +14,8 @@ interface StopTileProps {
   stop: Stop;
   lastMinute: number;
   maintenances: Maintenance[];
+  showBorder?: boolean;
+  interactive: boolean;
 }
 
 export class StopTile extends React.Component<StopTileProps> {
@@ -80,15 +82,21 @@ export class StopTile extends React.Component<StopTileProps> {
   }
 
   public render(): JSX.Element {
-    const {stop, lastMinute} = this.props;
+    const {stop, lastMinute, showBorder, interactive} = this.props;
 
     const start = stop.start;
     const end = stop.end;
     const color = stop.stopType === undefined ? 'transparent' : getColorForStopType(stop.stopType);
     const duration = (end || lastMinute) - start;
 
-    return (
-      <StopTileWrapper style={{borderLeftColor: color}} onClick={this.handleClick}>
+    const additionalBorderStyles: React.CSSProperties = showBorder
+      ? {
+          border: `solid 1px ${color}`,
+        }
+      : {};
+
+    const content = (
+      <React.Fragment>
         <StopTileLeft>
           <StopTileTimes>
             <StopTileStart>
@@ -106,18 +114,37 @@ export class StopTile extends React.Component<StopTileProps> {
           </StopTileIndicator>
         </StopTileLeft>
         <StopTileRight>{this.renderStopDetails()}</StopTileRight>
-      </StopTileWrapper>
+      </React.Fragment>
     );
+
+    if (interactive) {
+      return (
+        <StopTileWrapperWithHover
+          style={{...additionalBorderStyles, borderLeft: `solid 8px ${color}`}}
+          onClick={this.handleClick}
+        >
+          {content}
+        </StopTileWrapperWithHover>
+      );
+    } else {
+      return (
+        <StopTileWrapper style={{...additionalBorderStyles, borderLeft: `solid 8px ${color}`}}>
+          {content}
+        </StopTileWrapper>
+      );
+    }
   }
 }
 
 const StopTileWrapper = styled.div`
   width: 100%;
   box-sizing: border-box;
-  border-left: solid 8px;
   padding: 8px;
   display: flex;
   background-color: ${Palette.White};
+`;
+
+const StopTileWrapperWithHover = styled(StopTileWrapper)`
   &:hover {
     background: ${Palette.Clouds};
     cursor: pointer;

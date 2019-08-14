@@ -18,8 +18,8 @@ import {
 } from '@root/plan_production/data_extraction/refente';
 import {filterAll} from '@root/plan_production/master_filter';
 import {Selectables, PlanProduction, BobineFilleClichePose} from '@root/plan_production/models';
+import {constantsStore} from '@root/stores';
 
-import {MAX_COULEURS_IMPRESSIONS} from '@shared/constants';
 import {getPosesForCliches} from '@shared/lib/cliches';
 import {generateAllAcceptableColorsOrder, EncrierColor} from '@shared/lib/encrier';
 import {
@@ -326,9 +326,12 @@ export class PlanProductionEngine {
   }
 
   public recalculate(notifyChangeHandler: boolean = true): void {
-    this.selectables = this.computeSelectables();
-    if (notifyChangeHandler) {
-      this.changeHandler();
+    const constants = constantsStore.getConstants();
+    if (constants) {
+      this.selectables = this.computeSelectables(constants.nombreEncriers);
+      if (notifyChangeHandler) {
+        this.changeHandler();
+      }
     }
   }
 
@@ -424,17 +427,27 @@ export class PlanProductionEngine {
   }
 
   private getValidCouleursEncriers(): EncrierColor[][] {
-    return generateAllAcceptableColorsOrder(
-      this.planProduction.bobinesFilles.map(b => b.couleursImpression),
-      MAX_COULEURS_IMPRESSIONS,
-      this.previousPlanProd && this.previousPlanProd.data.encriers
-    );
+    const constants = constantsStore.getConstants();
+    if (constants) {
+      return generateAllAcceptableColorsOrder(
+        this.planProduction.bobinesFilles.map(b => b.couleursImpression),
+        constants.nombreEncriers,
+        this.previousPlanProd && this.previousPlanProd.data.encriers
+      );
+    } else {
+      return [];
+    }
   }
 
-  private computeSelectables(): Selectables {
+  private computeSelectables(nbEncriers: number): Selectables {
     this.isComputing = true;
     const startTime = Date.now();
-    const res = filterAll(this.planProduction, this.originalSelectables, this.allClicheByRef);
+    const res = filterAll(
+      this.planProduction,
+      this.originalSelectables,
+      this.allClicheByRef,
+      nbEncriers
+    );
     const endTime = Date.now();
     this.calculationTime = endTime - startTime;
     this.isComputing = false;

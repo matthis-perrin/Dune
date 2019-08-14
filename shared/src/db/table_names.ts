@@ -17,6 +17,7 @@ export const OPERATEUR_OPERATION_TABLE_NAME = 'operateur_operation';
 export const UNPLANNED_STOPS_TABLE_NAME = 'unplanned_stops';
 export const CLEANINGS_TABLE_NAME = 'cleanings';
 export const PROD_HOURS = 'prod_hours';
+export const CONSTANTS_TABLE_NAME = 'constants';
 
 // Prod
 export const PLANS_PRODUCTION_TABLE_NAME = 'plan_production';

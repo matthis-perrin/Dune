@@ -234,7 +234,7 @@ class WindowManager {
     }
 
     if (appInfo.type === ClientAppType.ReportsApp) {
-      return {id: 'production', size: {}};
+      return {id: 'reports', size: {}};
     }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};

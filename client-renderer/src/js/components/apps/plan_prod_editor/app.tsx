@@ -24,14 +24,14 @@ import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {WithColor} from '@root/components/core/with_colors';
 import {getBobineState} from '@root/lib/bobine';
 import {bridge} from '@root/lib/bridge';
-import {CAPACITE_MACHINE, MAX_SPEED} from '@root/lib/constants';
+import {CAPACITE_MACHINE} from '@root/lib/constants';
 import {
   getPlanProdTitle,
   PLAN_PROD_NUMBER_DIGIT_COUNT,
   asPlanProduction,
 } from '@root/lib/plan_prod';
 import {getPreviousSchedule, getStartForPlanIndex} from '@root/lib/schedule_utils';
-import {bobinesQuantitiesStore, operationsStore} from '@root/stores/data_store';
+import {bobinesQuantitiesStore, operationsStore, constantsStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {theme} from '@root/theme';
@@ -51,6 +51,7 @@ import {
   PlanProductionInfo,
   Operation,
   Schedule,
+  Constants,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 
@@ -76,6 +77,7 @@ interface State {
   bobineQuantities?: BobineQuantities[];
   schedule?: Schedule;
   operations?: Operation[];
+  constants?: Constants;
 
   tourCountSetByUser: boolean;
   speed: number;
@@ -90,7 +92,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     super(props);
     this.state = {
       tourCountSetByUser: false,
-      speed: MAX_SPEED,
+      speed: 0,
       bobinesMinimums: new Map<string, number>(),
       bobinesMaximums: new Map<string, number>(),
       comment: '',
@@ -105,6 +107,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.addListener(this.handleStoresChanged);
     bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     operationsStore.addListener(this.handleStoresChanged);
+    constantsStore.addListener(this.handleStoresChanged);
     this.scheduleStore.start(this.handleScheduleChange);
     this.refreshPlanProduction(true);
   }
@@ -115,6 +118,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     cadencierStore.removeListener(this.handleStoresChanged);
     bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     operationsStore.removeListener(this.handleStoresChanged);
+    constantsStore.removeListener(this.handleStoresChanged);
     this.scheduleStore.stop();
   }
 
@@ -127,11 +131,17 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
   };
 
   private readonly handleStoresChanged = (): void => {
+    const constants = constantsStore.getData();
+    let speed = this.state.speed;
+    if (speed === 0 && constants !== undefined) {
+      speed = constants[0].maxSpeed;
+    }
     this.setState({
       stocks: stocksStore.getStockIndex(),
       cadencier: cadencierStore.getCadencierIndex(),
       bobineQuantities: bobinesQuantitiesStore.getData(),
       operations: operationsStore.getData(),
+      constants: constants && constants[0],
     });
   };
 

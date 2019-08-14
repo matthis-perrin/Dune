@@ -5,7 +5,7 @@ import {cadencier} from '@root/cadencier';
 import {openContextMenu} from '@root/context_menu';
 import {SQLITE_DB} from '@root/db';
 import {planProductionStore} from '@root/plan_production_store';
-import {prodHoursStore} from '@root/prod_hours_store';
+import {prodHoursStore} from '@root/stores';
 import {windowManager} from '@root/window_manager';
 
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
@@ -58,6 +58,7 @@ import {
   ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
+import {listConstants} from '@shared/db/constants';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -117,6 +118,9 @@ export async function handleCommand(
   }
   if (command === BridgeCommands.ListCleanings) {
     return listCleanings(SQLITE_DB.Params);
+  }
+  if (command === BridgeCommands.ListConstants) {
+    return [await listConstants(SQLITE_DB.Params)];
   }
 
   // Window Management

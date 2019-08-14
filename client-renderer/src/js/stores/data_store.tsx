@@ -3,7 +3,14 @@ import {isEqual} from 'lodash-es';
 import {bridge} from '@root/lib/bridge';
 import {Palette, Colors} from '@root/theme';
 
-import {BobineQuantities, Color, Operation, Cleaning, UnplannedStop} from '@shared/models';
+import {
+  BobineQuantities,
+  Color,
+  Operation,
+  Cleaning,
+  UnplannedStop,
+  Constants,
+} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export abstract class DataStore<T> extends BaseStore {
@@ -55,6 +62,13 @@ class CleaningsStore extends DataStore<Cleaning> {
   }
 }
 export const cleaningsStore = new CleaningsStore();
+
+class ConstantsStore extends DataStore<Constants> {
+  public async fetch(): Promise<Constants[]> {
+    return bridge.listConstants();
+  }
+}
+export const constantsStore = new ConstantsStore();
 
 class ColorsStore extends DataStore<Color> {
   private getDefaultColor(ref: string): Color {

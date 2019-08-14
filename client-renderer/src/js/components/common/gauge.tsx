@@ -51,6 +51,7 @@ const GaugeWrapper = styled.div`
   width: 100%;
   height: 32px;
   background-color: ${Palette.White};
+  border: solid 1px ${Colors.PrimaryDark};
 `;
 
 const GaugeMax = styled.div`

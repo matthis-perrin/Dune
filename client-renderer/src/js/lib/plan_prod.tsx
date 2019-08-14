@@ -1,5 +1,3 @@
-import {MAX_SPEED_RATIO} from '@root/lib/constants';
-
 import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
@@ -18,27 +16,30 @@ export function getShortPlanProdTitle(id: number): string {
 export function metersToProductionTime(
   meters: number,
   speed: number,
-  includeChangeBobineMere: boolean
+  includeChangeBobineMere: boolean,
+  maxSpeedRatio: number
 ): number {
-  const ratio = includeChangeBobineMere ? MAX_SPEED_RATIO : 1;
+  const ratio = includeChangeBobineMere ? maxSpeedRatio : 1;
   return (meters / (speed * ratio)) * 60 * 1000;
 }
 
 export function productionTimeToMeters(
   productionTime: number,
   speed: number,
-  includeChangeBobineMere: boolean
+  includeChangeBobineMere: boolean,
+  maxSpeedRatio: number
 ): number {
-  const ratio = includeChangeBobineMere ? MAX_SPEED_RATIO : 1;
+  const ratio = includeChangeBobineMere ? maxSpeedRatio : 1;
   return (productionTime / 60 / 1000) * (speed * ratio);
 }
 
 export function computeProductionTime(
   firstBobine: {longueur?: number},
   speed: number,
-  tourCount: number
+  tourCount: number,
+  maxSpeedRatio: number
 ): number {
-  const actualSpeed = MAX_SPEED_RATIO * speed;
+  const actualSpeed = maxSpeedRatio * speed;
   const lengthToProduce = tourCount * (firstBobine.longueur || 0);
   return Math.round((lengthToProduce / actualSpeed) * 60);
 }

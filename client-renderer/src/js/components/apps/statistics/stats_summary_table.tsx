@@ -2,6 +2,8 @@ import {sum, max} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {WithConstants} from '@root/components/core/with_constants';
 import {processStatsData} from '@root/lib/statistics/data';
 import {StatsMetric} from '@root/lib/statistics/metrics';
 import {StatsPeriod} from '@root/lib/statistics/period';
@@ -25,41 +27,53 @@ export class StatsSummaryTable extends React.Component<StatsSummaryTableProps> {
     const {statsData, date, prodHours, operations, statsPeriod, statsMetric} = this.props;
 
     return (
-      <StatsSummaryTableElement>
-        <thead>
-          <tr>
-            <th />
-            <StatsSummaryTableHeaderCell>Total</StatsSummaryTableHeaderCell>
-            <StatsSummaryTableHeaderCell>Moyenne</StatsSummaryTableHeaderCell>
-            <StatsSummaryTableHeaderCell>Maximum</StatsSummaryTableHeaderCell>
-          </tr>
-        </thead>
-        <tbody>
-          {statsMetric.filters.map(filter => {
-            const data = processStatsData(
-              statsData,
-              prodHours,
-              operations,
-              statsPeriod,
-              date,
-              statsMetric,
-              filter
-            );
-            return (
-              <tr>
-                <FilterLabelCell style={{backgroundColor: filter.color}}>
-                  {filter.label}
-                </FilterLabelCell>
-                <StatsSummaryDataCell>{statsMetric.renderY(sum(data))}</StatsSummaryDataCell>
-                <StatsSummaryDataCell>
-                  {statsMetric.renderY(Math.round(sum(data) / data.length))}
-                </StatsSummaryDataCell>
-                <StatsSummaryDataCell>{statsMetric.renderY(max(data) || 0)}</StatsSummaryDataCell>
-              </tr>
-            );
-          })}
-        </tbody>
-      </StatsSummaryTableElement>
+      <WithConstants>
+        {constants => {
+          if (!constants) {
+            return <LoadingIndicator size="large" />;
+          }
+          return (
+            <StatsSummaryTableElement>
+              <thead>
+                <tr>
+                  <th />
+                  <StatsSummaryTableHeaderCell>Total</StatsSummaryTableHeaderCell>
+                  <StatsSummaryTableHeaderCell>Moyenne</StatsSummaryTableHeaderCell>
+                  <StatsSummaryTableHeaderCell>Maximum</StatsSummaryTableHeaderCell>
+                </tr>
+              </thead>
+              <tbody>
+                {statsMetric.filters.map(filter => {
+                  const data = processStatsData(
+                    statsData,
+                    prodHours,
+                    operations,
+                    constants,
+                    statsPeriod,
+                    date,
+                    statsMetric,
+                    filter
+                  );
+                  return (
+                    <tr>
+                      <FilterLabelCell style={{backgroundColor: filter.color}}>
+                        {filter.label}
+                      </FilterLabelCell>
+                      <StatsSummaryDataCell>{statsMetric.renderY(sum(data))}</StatsSummaryDataCell>
+                      <StatsSummaryDataCell>
+                        {statsMetric.renderY(Math.round(sum(data) / data.length))}
+                      </StatsSummaryDataCell>
+                      <StatsSummaryDataCell>
+                        {statsMetric.renderY(max(data) || 0)}
+                      </StatsSummaryDataCell>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </StatsSummaryTableElement>
+          );
+        }}
+      </WithConstants>
     );
   }
 }

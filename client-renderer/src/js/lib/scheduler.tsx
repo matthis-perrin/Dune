@@ -1,6 +1,5 @@
 import {max, min} from 'lodash-es';
 
-import {ADDITIONAL_TIME_TO_RESTART_PROD, MAX_SPEED_RATIO} from '@root/lib/constants';
 import {metersToProductionTime, productionTimeToMeters} from '@root/lib/plan_prod';
 import {getConstraints, splitOperations} from '@root/lib/plan_prod_operation';
 import {computeMetrage} from '@root/lib/prod';
@@ -25,6 +24,7 @@ import {
   StopType,
   PlanProductionStatus,
   NonProd,
+  Constants,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -40,6 +40,7 @@ interface ScheduleSupportData {
   nonProds: NonProd[];
   prodRanges: Map<string, ProdRange>;
   currentTime: number;
+  constants: Constants;
 }
 
 function getProductionLengthMeters(planProd: PlanProduction): number {
@@ -365,7 +366,7 @@ function generatePlannedEventsForProdLeft(
   if (shouldCreateRestartProdStop(currentSchedules, current)) {
     current = generatePlannedEventsForStopLeft(
       currentSchedules,
-      ADDITIONAL_TIME_TO_RESTART_PROD,
+      supportData.constants.reglageRepriseProdMs,
       {
         start: 0,
         planProdId: planProd.id,
@@ -386,20 +387,30 @@ function generatePlannedEventsForProdLeft(
   }
 
   // Check how far we can go in time
-  const targetProdTime = metersToProductionTime(metersToProduce, planProd.data.speed, true);
+  const targetProdTime = metersToProductionTime(
+    metersToProduce,
+    planProd.data.speed,
+    true,
+    supportData.constants.maxSpeedRatio
+  );
   const targetEndTime = current + targetProdTime;
   const schedule = getOrCreateScheduleForTime(current, planProd, currentSchedules);
   const lastPossibleEndTime = lastValidConsecutiveFreeTime(current, supportData);
   const endTime = Math.min(targetEndTime, lastPossibleEndTime);
   // Add a planned prod up to the max we can go
-  const actualProd = productionTimeToMeters(endTime - current, planProd.data.speed, true);
+  const actualProd = productionTimeToMeters(
+    endTime - current,
+    planProd.data.speed,
+    true,
+    supportData.constants.maxSpeedRatio
+  );
   schedule.plannedProdMeters += actualProd;
   schedule.plannedProdMs += endTime - current;
   schedule.plannedProds.push({
     start: current,
     end: endTime,
     planProdId: planProd.id,
-    avgSpeed: planProd.data.speed * MAX_SPEED_RATIO,
+    avgSpeed: planProd.data.speed * supportData.constants.maxSpeedRatio,
   });
   // If we can't fit everything in one go, call the function again
   if (endTime < targetEndTime) {
@@ -607,7 +618,7 @@ function finishPlanProd(
       ) {
         stopLeft = operationsTime - getTotalOperationTimeDone(currentSchedules);
       } else if (lastStopEventType === StopType.ReprisePlanProd) {
-        stopLeft = ADDITIONAL_TIME_TO_RESTART_PROD - (endTime - lastStopEvent.start);
+        stopLeft = supportData.constants.reglageRepriseProdMs - (endTime - lastStopEvent.start);
       } else if (isEndOfDayStop(lastStopEvent)) {
         const startDate = new Date(lastStopEvent.start);
         const endOfDayRange = supportData.prodRanges.get(getWeekDay(startDate));
@@ -688,7 +699,8 @@ function finishPlanProd(
       lastSchedule.doneProdMeters += productionTimeToMeters(
         prodDuration,
         lastProdEvent.avgSpeed || 0,
-        false
+        false,
+        supportData.constants.maxSpeedRatio
       );
     }
   }
@@ -824,6 +836,7 @@ export function createSchedule(
   stops: Stop[],
   maintenances: Maintenance[],
   nonProds: NonProd[],
+  constants: Constants,
   lastSpeedTime?: SpeedTime
 ): Schedule {
   // Remove startedPlans from the notStartedPlans array (happens when a plan is in progress)
@@ -882,6 +895,7 @@ export function createSchedule(
     prodRanges,
     nonProds,
     currentTime: lastSpeedTime !== undefined ? lastSpeedTime.time : Date.now(),
+    constants,
   };
 
   const sortedPlans = allPlans.sort((p1, p2) => {

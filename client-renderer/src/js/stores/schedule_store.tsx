@@ -1,6 +1,6 @@
 import {bridge} from '@root/lib/bridge';
 import {createSchedule} from '@root/lib/scheduler';
-import {operationsStore} from '@root/stores/data_store';
+import {operationsStore, constantsStore} from '@root/stores/data_store';
 
 import {
   Operation,
@@ -15,6 +15,7 @@ import {
   SpeedTime,
   NonProd,
   ProdHours,
+  Constants,
 } from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
@@ -24,6 +25,7 @@ export class ScheduleStore {
   private refreshTimeout: number | undefined;
 
   private operations?: Operation[];
+  private constants?: Constants;
   private prodData?: {
     startedPlans: PlanProduction[];
     notStartedPlans: PlanProduction[];
@@ -39,6 +41,7 @@ export class ScheduleStore {
 
   public constructor(private range?: {start: number; end: number}) {
     operationsStore.addListener(this.handleOperationsChanged);
+    constantsStore.addListener(this.handleConstantsChanged);
   }
 
   public start(listener: () => void): void {
@@ -69,6 +72,12 @@ export class ScheduleStore {
     this.recompute();
   };
 
+  private readonly handleConstantsChanged = (): void => {
+    const constants = constantsStore.getData();
+    this.constants = constants && constants[0];
+    this.recompute();
+  };
+
   public refresh(): void {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
@@ -94,7 +103,7 @@ export class ScheduleStore {
   }
 
   public emulateWithPlan(planProd: PlanProduction, atIndex: number): Schedule | undefined {
-    if (!this.operations || !this.prodData) {
+    if (!this.operations || !this.prodData || !this.constants) {
       return undefined;
     }
     const {
@@ -119,12 +128,13 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
+      this.constants,
       lastSpeedTime
     );
   }
 
   private recompute(): void {
-    if (!this.operations || !this.prodData) {
+    if (!this.operations || !this.prodData || !this.constants) {
       return;
     }
     const {
@@ -146,6 +156,7 @@ export class ScheduleStore {
       stops,
       maintenances,
       nonProds,
+      this.constants,
       lastSpeedTime
     );
 

@@ -14,6 +14,7 @@ interface StopListProps {
   schedule: Schedule;
   stops: Stop[];
   lastMinute: number;
+  forReport?: boolean;
 }
 
 export class StopList extends React.Component<StopListProps> {
@@ -95,7 +96,7 @@ export class StopList extends React.Component<StopListProps> {
   };
 
   public render(): JSX.Element {
-    const {stops, lastMinute, schedule} = this.props;
+    const {stops, lastMinute, schedule, forReport} = this.props;
     const sortedStops = stops.sort((s1, s2) => s1.start - s2.start);
     const startMaintenanceId = this.canStartMaintenance();
     const endMaintenanceId = this.canEndMaintenance();
@@ -105,11 +106,18 @@ export class StopList extends React.Component<StopListProps> {
         {sortedStops.map((s, i) => {
           const stopView = (
             <StopTileWrapper key={`stop-${s.start}-${i}`}>
-              <StopTile lastMinute={lastMinute} stop={s} maintenances={schedule.maintenances} />
+              <StopTile
+                showBorder={forReport}
+                interactive={!forReport}
+                lastMinute={lastMinute}
+                stop={s}
+                maintenances={schedule.maintenances}
+              />
             </StopTileWrapper>
           );
           const previousStop = sortedStops[i - 1];
           if (
+            !forReport &&
             previousStop &&
             previousStop.end === s.start &&
             s.stopType === StopType.Maintenance &&
@@ -123,12 +131,12 @@ export class StopList extends React.Component<StopListProps> {
           }
           return stopView;
         })}
-        {startMaintenanceId !== undefined ? (
+        {!forReport && startMaintenanceId !== undefined ? (
           <Button onClick={this.handleStartMaintenanceClick}>Démarrer maintenance</Button>
         ) : (
           <React.Fragment />
         )}
-        {endMaintenanceId !== undefined ? (
+        {!forReport && endMaintenanceId !== undefined ? (
           <Button onClick={this.handleEndMaintenanceClick}>Fin de maintenance</Button>
         ) : (
           <React.Fragment />
