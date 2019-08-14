@@ -358,23 +358,36 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     );
   }
 
-  private renderTeamPerfs(): JSX.Element | JSX.Element[] {
+  private renderTeamPerfs(): JSX.Element {
     const {schedule} = this.state;
     const currentDay = this.getCurrentDay();
+    const dayStatus = this.getDayStatus();
+
     if (!schedule || currentDay === undefined) {
-      return <LoadingIndicator size="large" />;
+      return (
+        <TeamPerfContainer>
+          <LoadingIndicator size="large" />
+        </TeamPerfContainer>
+      );
     }
-    return [MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
-      <TeamPerfoBlock key={team.name}>
-        <StatsTitle>{team.label}</StatsTitle>
-        <DayStats
-          day={currentDay.getTime()}
-          operations={this.scheduleStore.getOperations()}
-          schedule={schedule}
-          team={team}
-        />
-      </TeamPerfoBlock>
-    ));
+    if (dayStatus === 'unknown' || dayStatus === 'future') {
+      return <React.Fragment />;
+    }
+    return (
+      <TeamPerfContainer>
+        {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+          <TeamPerfoBlock key={team.name}>
+            <StatsTitle>{team.label}</StatsTitle>
+            <DayStats
+              day={currentDay.getTime()}
+              operations={this.scheduleStore.getOperations()}
+              schedule={schedule}
+              team={team}
+            />
+          </TeamPerfoBlock>
+        ))}
+      </TeamPerfContainer>
+    );
   }
 
   private renderTopBar(): JSX.Element {
@@ -398,8 +411,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
           </NavigationIcon>
         </TopBar>
         <ChartContainer>{this.renderChart()}</ChartContainer>
-
-        <TeamPerfContainer>{this.renderTeamPerfs()}</TeamPerfContainer>
+        {this.renderTeamPerfs()}
         <ProdStateContainer>
           <ScheduleContainer>
             <BlockTitle>PLANNING</BlockTitle>
