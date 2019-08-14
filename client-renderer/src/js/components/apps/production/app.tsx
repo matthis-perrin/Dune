@@ -5,12 +5,18 @@ import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewe
 import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChart, SpeedChartEvent} from '@root/components/charts/speed_chart';
 import {DayProductionTable} from '@root/components/common/day_production_table';
+import {DayStats} from '@root/components/common/day_stats';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {bridge} from '@root/lib/bridge';
 import {getPlanProd, getCurrentPlanSchedule, getScheduleEnd} from '@root/lib/schedule_utils';
+import {
+  MORNING_TEAM_FILTER,
+  AFTERNOON_TEAM_FILTER,
+  ALL_TEAM_FILTER,
+} from '@root/lib/statistics/metrics';
 import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
@@ -352,6 +358,25 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     );
   }
 
+  private renderTeamPerfs(): JSX.Element | JSX.Element[] {
+    const {schedule} = this.state;
+    const currentDay = this.getCurrentDay();
+    if (!schedule || currentDay === undefined) {
+      return <LoadingIndicator size="large" />;
+    }
+    return [MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+      <TeamPerfoBlock key={team.name}>
+        <StatsTitle>{team.label}</StatsTitle>
+        <DayStats
+          day={currentDay.getTime()}
+          operations={this.scheduleStore.getOperations()}
+          schedule={schedule}
+          team={team}
+        />
+      </TeamPerfoBlock>
+    ));
+  }
+
   private renderTopBar(): JSX.Element {
     const currentDay = this.getCurrentDay();
     if (currentDay === undefined) {
@@ -373,6 +398,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
           </NavigationIcon>
         </TopBar>
         <ChartContainer>{this.renderChart()}</ChartContainer>
+
+        <TeamPerfContainer>{this.renderTeamPerfs()}</TeamPerfContainer>
         <ProdStateContainer>
           <ScheduleContainer>
             <BlockTitle>PLANNING</BlockTitle>
@@ -455,6 +482,16 @@ const BlockTitle = styled.div`
   justify-content: center;
 `;
 
+const StatsTitle = styled.div`
+  height: 32px;
+  background-color: ${Colors.SecondaryDark};
+  color: ${Colors.TextOnSecondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+`;
+
 const ChartContainer = styled(Block)`
   flex-shrink: 0;
   height: 200px;
@@ -467,6 +504,19 @@ const ProdStateContainer = styled.div`
   flex-grow: 1;
   display: flex;
   margin-bottom: ${blockMargin}px;
+`;
+
+const TeamPerfContainer = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-evenly;
+  margin: 0 ${blockMargin}px ${blockMargin}px ${blockMargin}px;
+  padding: 16px;
+  background-color: ${Colors.PrimaryDark};
+`;
+
+const TeamPerfoBlock = styled.div`
+  width: 444px;
 `;
 
 const ScheduleContainer = styled(Block)`
