@@ -28,10 +28,11 @@ import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, endOfDay, capitalize} from '@shared/lib/utils';
-import {ProdInfo, Schedule, StopType, BobineQuantities, Stock} from '@shared/models';
+import {ProdInfo, Schedule, StopType, BobineQuantities, Stock, Config} from '@shared/models';
 
 interface ProductionAppProps {
   initialDay?: number;
+  config: Config;
 }
 
 interface ProductionAppState {
@@ -104,7 +105,11 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), currentDay));
       stops.forEach(s => {
         const hash = `${dayTs}-${s.start}`;
-        if (s.stopType === undefined && !this.openedStops.has(hash)) {
+        if (
+          s.stopType === undefined &&
+          !this.openedStops.has(hash) &&
+          this.props.config.hasStopPopups
+        ) {
           this.openedStops.set(hash);
           bridge.openDayStopWindow(dayTs, s.start).catch(console.error);
         }

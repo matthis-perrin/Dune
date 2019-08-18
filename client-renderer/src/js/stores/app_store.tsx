@@ -1,8 +1,8 @@
+import {Config} from '@shared/models';
 import {BaseStore} from '@shared/store';
 
 export enum AppPage {
   Gestion = 'gestion',
-  Production = 'production',
   Administration = 'administration',
 }
 
@@ -12,17 +12,29 @@ export interface ModalModel {
 }
 
 interface AppState {
-  currentPage: AppPage;
+  currentPage?: AppPage;
   modal: ModalModel;
 }
 
 class AppStore extends BaseStore {
   private readonly state: AppState = {
-    currentPage: AppPage.Gestion,
     modal: {
       isOpened: false,
     },
   };
+
+  public getCurrentPage(config: Config): AppPage | undefined {
+    if (this.state.currentPage) {
+      return this.state.currentPage;
+    }
+    if (config.hasGestionPage) {
+      return AppPage.Gestion;
+    }
+    if (config.hasGescomPage) {
+      return AppPage.Administration;
+    }
+    return undefined;
+  }
 
   public getState(): AppState {
     return this.state;

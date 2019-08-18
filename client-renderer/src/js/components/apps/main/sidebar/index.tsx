@@ -8,15 +8,16 @@ import {bridge} from '@root/lib/bridge';
 import {AppPage, appStore} from '@root/stores/app_store';
 import {theme} from '@root/theme';
 
-import {ClientAppType} from '@shared/models';
+import {ClientAppType, Config} from '@shared/models';
 
-interface Props {}
-
-interface State {
-  currentPage: AppPage;
+interface Props {
+  config: Config;
 }
 
-const SidebarPages: AppPage[] = [AppPage.Gestion, AppPage.Administration];
+interface State {
+  currentPage?: AppPage;
+}
+
 const sidebarPadding = (theme.sidebar.width - theme.sidebar.logoSize) / 2;
 
 const logoSize = 140;
@@ -27,7 +28,7 @@ export class Sidebar extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
     this.state = {
-      currentPage: appStore.getState().currentPage,
+      currentPage: appStore.getCurrentPage(this.props.config),
     };
   }
 
@@ -41,57 +42,93 @@ export class Sidebar extends React.Component<Props, State> {
 
   private readonly handleStoreChanged = (): void => {
     this.setState({
-      currentPage: appStore.getState().currentPage,
+      currentPage: appStore.getCurrentPage(this.props.config),
     });
   };
 
-  public render(): JSX.Element {
+  private getIndex(): number {
+    const {config} = this.props;
     const {currentPage} = this.state;
-    const pageIndex = SidebarPages.indexOf(currentPage) || 0;
+    if (currentPage === undefined) {
+      return -1;
+    }
+    if (currentPage === AppPage.Gestion) {
+      return 0;
+    }
+    if (currentPage === AppPage.Administration) {
+      return config.hasGestionPage ? 1 : 0;
+    }
+    return -1;
+  }
+
+  public render(): JSX.Element {
+    const {config} = this.props;
+    const {currentPage} = this.state;
+    const index = this.getIndex();
     return (
       <SidebarContainer>
         <SidebarTitle>
           <Herisson style={{width: logoSize}} />
         </SidebarTitle>
         <FlexParent alignItems="stretch">
-          <SidebarSelectedIndicator index={pageIndex} />
+          {index === -1 ? <React.Fragment /> : <SidebarSelectedIndicator index={0} />}
           <SidebarItemContainer flexDirection="column">
-            <SidebarItem
-              key={'gestion'}
-              title={'Gestion'}
-              isSelected={pageIndex === 0}
-              onClick={() => appStore.setCurrentPage(AppPage.Gestion)}
-            />
-            <SidebarItem
-              key={'gescom'}
-              title={'Gescom'}
-              isSelected={pageIndex === 1}
-              onClick={() => appStore.setCurrentPage(AppPage.Administration)}
-            />
-            <SidebarItem
-              key={'production'}
-              title={'Production'}
-              isSelected={false}
-              onClick={() => {
-                bridge.openApp(ClientAppType.ProductionApp).catch(console.error);
-              }}
-            />
-            <SidebarItem
-              key={'statistiques'}
-              title={'Statistiques'}
-              isSelected={false}
-              onClick={() => {
-                bridge.openApp(ClientAppType.StatisticsApp).catch(console.error);
-              }}
-            />
-            <SidebarItem
-              key={'rapports'}
-              title={'Rapports'}
-              isSelected={false}
-              onClick={() => {
-                bridge.openApp(ClientAppType.ReportsApp).catch(console.error);
-              }}
-            />
+            {config.hasGestionPage ? (
+              <SidebarItem
+                key={'gestion'}
+                title={'Gestion'}
+                isSelected={currentPage === AppPage.Gestion}
+                onClick={() => appStore.setCurrentPage(AppPage.Gestion)}
+              />
+            ) : (
+              <React.Fragment />
+            )}
+            {config.hasGescomPage ? (
+              <SidebarItem
+                key={'gescom'}
+                title={'Gescom'}
+                isSelected={currentPage === AppPage.Administration}
+                onClick={() => appStore.setCurrentPage(AppPage.Administration)}
+              />
+            ) : (
+              <React.Fragment />
+            )}
+            {config.hasProductionPage ? (
+              <SidebarItem
+                key={'production'}
+                title={'Production'}
+                isSelected={false}
+                onClick={() => {
+                  bridge.openApp(ClientAppType.ProductionApp).catch(console.error);
+                }}
+              />
+            ) : (
+              <React.Fragment />
+            )}
+            {config.hasStatsPage ? (
+              <SidebarItem
+                key={'statistiques'}
+                title={'Statistiques'}
+                isSelected={false}
+                onClick={() => {
+                  bridge.openApp(ClientAppType.StatisticsApp).catch(console.error);
+                }}
+              />
+            ) : (
+              <React.Fragment />
+            )}
+            {config.hasRapportPage ? (
+              <SidebarItem
+                key={'rapports'}
+                title={'Rapports'}
+                isSelected={false}
+                onClick={() => {
+                  bridge.openApp(ClientAppType.ReportsApp).catch(console.error);
+                }}
+              />
+            ) : (
+              <React.Fragment />
+            )}
           </SidebarItemContainer>
         </FlexParent>
       </SidebarContainer>

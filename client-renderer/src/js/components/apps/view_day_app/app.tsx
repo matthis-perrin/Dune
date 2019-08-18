@@ -19,10 +19,11 @@ import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, capitalize, endOfDay} from '@shared/lib/utils';
-import {Stock, Schedule, BobineQuantities} from '@shared/models';
+import {Stock, Schedule, BobineQuantities, Config} from '@shared/models';
 
 interface ViewDayAppProps {
   initialDay: number;
+  config: Config;
 }
 
 interface ViewDayAppState {
@@ -115,6 +116,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
   }
 
   private renderScheduleView(): JSX.Element {
+    const {config} = this.props;
     const {schedule, bobineQuantities, cadencier, day} = this.state;
     if (!schedule || !bobineQuantities || !cadencier) {
       return <React.Fragment />;
@@ -125,7 +127,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
         schedule={schedule}
         bobineQuantities={bobineQuantities}
         cadencier={cadencier}
-        withContextMenu
+        withContextMenu={config.hasGestionPlan}
         onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
       />
     );

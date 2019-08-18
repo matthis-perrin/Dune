@@ -1,5 +1,15 @@
 import {BobineColors, EncrierColor} from '@shared/lib/encrier';
 
+export interface Config {
+  hasGestionPlan: boolean;
+  hasStopPopups: boolean;
+  hasGestionPage: boolean;
+  hasGescomPage: boolean;
+  hasProductionPage: boolean;
+  hasStatsPage: boolean;
+  hasRapportPage: boolean;
+}
+
 export interface BobineFille {
   ref: string;
   designation?: string;

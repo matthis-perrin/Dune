@@ -31,6 +31,7 @@ import {
   StopInfo,
   ScheduleInfo,
   Constants,
+  Config,
 } from '@shared/models';
 
 export interface BridgeListResponse<T> {
@@ -324,10 +325,13 @@ export class Bridge {
     });
   }
 
-  public async getAppInfo(windowId: string): Promise<ClientAppInfo> {
-    return this.bridgeTransport.sendBridgeCommand<ClientAppInfo>(BridgeCommands.GetAppInfo, {
-      windowId,
-    });
+  public async getAppInfo(windowId: string): Promise<ClientAppInfo & {config: Config}> {
+    return this.bridgeTransport.sendBridgeCommand<ClientAppInfo & {config: Config}>(
+      BridgeCommands.GetAppInfo,
+      {
+        windowId,
+      }
+    );
   }
   public async openPlanProdEditorApp(
     id: number,

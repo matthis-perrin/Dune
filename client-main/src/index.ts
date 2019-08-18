@@ -5,6 +5,7 @@ import {prodHoursStore, constantsStore} from '@root/stores';
 import {windowManager} from '@root/window_manager';
 
 import {ClientAppType} from '@shared/models';
+import {loadConfig} from './config';
 
 async function startApp(): Promise<void> {
   if (session.defaultSession) {
@@ -14,6 +15,7 @@ async function startApp(): Promise<void> {
   }
   await prodHoursStore.start();
   await constantsStore.start();
+  await loadConfig();
   await windowManager.openWindow({type: ClientAppType.MainApp});
 }
 

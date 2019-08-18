@@ -27,9 +27,11 @@ import {
   Schedule,
   PlanProductionStatus,
   PlanProdSchedule,
+  Config,
 } from '@shared/models';
 
 interface Props {
+  config: Config;
   date: Date;
   planSchedule: ScheduledPlanProd;
   schedule: Schedule;
@@ -79,9 +81,9 @@ export class PlanProdTile extends React.Component<Props> {
   private readonly handleContextMenu = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {planSchedule, schedule, onPlanProdRefreshNeeded} = this.props;
+    const {planSchedule, schedule, onPlanProdRefreshNeeded, config} = this.props;
     const planType = getPlanStatus(planSchedule);
-    if (planType === PlanProductionStatus.PLANNED) {
+    if (planType === PlanProductionStatus.PLANNED && config.hasGestionPlan) {
       showPlanContextMenu(schedule, planSchedule.planProd.id, () => {
         this.removeViewer();
         onPlanProdRefreshNeeded();
@@ -93,7 +95,7 @@ export class PlanProdTile extends React.Component<Props> {
   private readonly handleDoubleClick = (event: React.MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    const {planSchedule, schedule} = this.props;
+    const {planSchedule, schedule, config} = this.props;
     const planType = getPlanStatus(planSchedule);
     const planStart = getPlanStart(planSchedule);
     const planEnd = getPlanEnd(planSchedule);
@@ -109,7 +111,7 @@ export class PlanProdTile extends React.Component<Props> {
         : schedule.lastSpeedTime !== undefined
         ? schedule.lastSpeedTime.time
         : 0;
-    if (planType === PlanProductionStatus.PLANNED) {
+    if (planType === PlanProductionStatus.PLANNED && config.hasGestionPlan) {
       bridge
         .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
         .catch(console.error);

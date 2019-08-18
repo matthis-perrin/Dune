@@ -10,11 +10,13 @@ import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
 import {startOfDay} from '@shared/lib/utils';
-import {Stock, BobineQuantities, Schedule} from '@shared/models';
+import {Stock, BobineQuantities, Schedule, Config} from '@shared/models';
 
 const LAST_MONTH = 11;
 
-interface Props {}
+interface Props {
+  config: Config;
+}
 
 interface State {
   stocks?: Map<string, Stock[]>;
@@ -86,8 +88,9 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   private readonly handleDayContextMenu = (event: React.MouseEvent, date: Date): void => {
+    const {config} = this.props;
     const schedule = this.scheduleStore.getSchedule();
-    if (event.type === 'contextmenu' && schedule !== undefined) {
+    if (event.type === 'contextmenu' && schedule !== undefined && config.hasGestionPlan) {
       showDayContextMenu(schedule, date, () => this.scheduleStore.refresh());
     }
   };
@@ -101,6 +104,7 @@ export class GestionPage extends React.Component<Props, State> {
   };
 
   public renderDay(date: Date): JSX.Element {
+    const {config} = this.props;
     const {stocks, cadencier, bobineQuantities, schedule} = this.state;
     if (!stocks || !cadencier || !bobineQuantities || !schedule) {
       return <div />;
@@ -112,6 +116,7 @@ export class GestionPage extends React.Component<Props, State> {
           .filter(planSchedule => planSchedule.schedulePerDay.has(start))
           .map(plan => (
             <PlanProdTile
+              config={config}
               key={plan.planProd.id}
               date={date}
               planSchedule={plan}

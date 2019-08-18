@@ -9,8 +9,9 @@ import {planProductionStore} from '@root/plan_production_store';
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
 import {PlanProductionChanged} from '@shared/bridge/commands';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
-import {ClientAppInfo, ClientAppType} from '@shared/models';
+import {ClientAppInfo, ClientAppType, Config} from '@shared/models';
 import {asMap, asNumber, asBoolean} from '@shared/type_utils';
+import {getConfig} from './config';
 
 interface WindowOptions {
   id: string;
@@ -192,12 +193,12 @@ class WindowManager {
     }
   }
 
-  public getAppInfo(windowId: string): ClientAppInfo | undefined {
+  public getAppInfo(windowId: string): (ClientAppInfo & {config: Config}) | undefined {
     const windowInfo = this.windows.get(windowId);
     if (!windowInfo) {
       return undefined;
     }
-    return windowInfo.appInfo;
+    return {...windowInfo.appInfo, config: getConfig()};
   }
 
   private readonly handlePlanProductionChanged = (id: number) => {

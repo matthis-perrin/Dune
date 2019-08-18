@@ -6,10 +6,14 @@ import {MainGlobalStyle} from '@root/components/apps/main/main_global_styles';
 import {Sidebar} from '@root/components/apps/main/sidebar/index';
 import {AppPage, appStore} from '@root/stores/app_store';
 
-interface Props {}
+import {Config} from '@shared/models';
+
+interface Props {
+  config: Config;
+}
 
 interface State {
-  currentPage: AppPage;
+  currentPage?: AppPage;
 }
 
 export class MainApp extends React.Component<Props, State> {
@@ -34,7 +38,7 @@ export class MainApp extends React.Component<Props, State> {
 
   private getAppState(): State {
     return {
-      currentPage: appStore.getState().currentPage,
+      currentPage: appStore.getCurrentPage(this.props.config),
     };
   }
 
@@ -44,12 +48,13 @@ export class MainApp extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
+    const {config} = this.props;
     return (
       <React.Fragment>
         <MainGlobalStyle />
-        <Sidebar />
-        {this.renderPage(<GestionPage />, AppPage.Gestion)}
-        {this.renderPage(<AdministrationPage />, AppPage.Administration)}
+        <Sidebar config={config} />
+        {config.hasGestionPage && this.renderPage(<GestionPage config={config} />, AppPage.Gestion)}
+        {config.hasGescomPage && this.renderPage(<AdministrationPage />, AppPage.Administration)}
       </React.Fragment>
     );
   }

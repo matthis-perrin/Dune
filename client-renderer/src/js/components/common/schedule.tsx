@@ -359,8 +359,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForNonProd = (end: number | undefined) => (
     event: React.MouseEvent
   ): void => {
-    const {schedule, onPlanProdRefreshNeeded} = this.props;
-    if (!schedule || end === undefined) {
+    const {schedule, onPlanProdRefreshNeeded, withContextMenu} = this.props;
+    if (!schedule || end === undefined || !withContextMenu) {
       return;
     }
     const nonProd = schedule.nonProds.find(np => np.end === end);
@@ -387,7 +387,10 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   private readonly handleContextMenuForMaintenance = (maintenanceId: number) => (
     event: React.MouseEvent
   ): void => {
-    const {onPlanProdRefreshNeeded} = this.props;
+    const {onPlanProdRefreshNeeded, withContextMenu} = this.props;
+    if (!withContextMenu) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     contextMenuManager
@@ -405,8 +408,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
   };
 
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
-    const {schedule, day, onPlanProdRefreshNeeded} = this.props;
-    if (event.type === 'contextmenu' && schedule !== undefined) {
+    const {schedule, day, onPlanProdRefreshNeeded, withContextMenu} = this.props;
+    if (event.type === 'contextmenu' && schedule !== undefined && withContextMenu) {
       showDayContextMenu(schedule, day, onPlanProdRefreshNeeded);
     }
   };

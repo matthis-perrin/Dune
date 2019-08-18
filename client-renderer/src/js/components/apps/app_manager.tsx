@@ -43,7 +43,7 @@ import {
 } from '@root/stores/list_store';
 import {Refreshable, StoreManager} from '@root/stores/store_manager';
 
-import {ClientAppInfo, ClientAppType} from '@shared/models';
+import {ClientAppInfo, ClientAppType, Config} from '@shared/models';
 import {asMap, asString, asNumber, asBoolean} from '@shared/type_utils';
 
 interface Props {
@@ -51,7 +51,7 @@ interface Props {
 }
 
 interface State {
-  appInfo?: ClientAppInfo;
+  appInfo?: ClientAppInfo & {config: Config};
   error?: string;
 }
 
@@ -190,11 +190,11 @@ export class AppManager extends React.Component<Props, State> {
     return [];
   }
 
-  private renderForApp(appInfo: ClientAppInfo): JSX.Element {
-    const {data, type} = appInfo;
+  private renderForApp(appInfo: ClientAppInfo & {config: Config}): JSX.Element {
+    const {data, type, config} = appInfo;
 
     if (type === ClientAppType.MainApp) {
-      return <MainApp />;
+      return <MainApp config={config} />;
     }
     if (type === ClientAppType.ListBobinesFillesApp) {
       return <ListBobinesFillesApp />;
@@ -254,12 +254,12 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.ViewDayApp) {
       const {initialDay} = asMap(data);
-      return <ViewDayApp initialDay={asNumber(initialDay, 0)} />;
+      return <ViewDayApp config={config} initialDay={asNumber(initialDay, 0)} />;
     }
 
     if (type === ClientAppType.ProductionApp) {
       const {initialDay} = asMap(data);
-      return <ProductionApp initialDay={asNumber(initialDay, undefined)} />;
+      return <ProductionApp config={config} initialDay={asNumber(initialDay, undefined)} />;
     }
     if (type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(data);
