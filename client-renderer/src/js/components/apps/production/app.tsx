@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {PlanProdPopup} from '@root/components/apps/main/gestion/plan_prod_popup';
 import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChart, SpeedChartEvent} from '@root/components/charts/speed_chart';
 import {DayProductionTable} from '@root/components/common/day_production_table';
@@ -226,18 +227,27 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   private renderCurrentPlan(): JSX.Element {
     const {schedule, cadencier, bobineQuantities, stocks} = this.state;
     const currentDay = this.getCurrentDay();
+
     if (!schedule || !cadencier || !bobineQuantities || !stocks || currentDay === undefined) {
-      return <LoadingIndicator size="large" />;
+      return (
+        <CurrentPlanContainer>
+          <LoadingIndicator size="large" />
+        </CurrentPlanContainer>
+      );
     }
 
     const dayStatus = this.getDayStatus();
     if (dayStatus === 'unknown') {
-      return <LoadingIndicator size="large" />;
+      return (
+        <CurrentPlanContainer>
+          <LoadingIndicator size="large" />
+        </CurrentPlanContainer>
+      );
     }
 
     if (dayStatus === 'past') {
       return (
-        <React.Fragment>
+        <CurrentPlanContainer>
           <BlockTitle>PRODUCTION RÉALISÉE (THÉORIQUE)</BlockTitle>
           <DayProductionTable
             day={currentDay.getTime()}
@@ -245,12 +255,12 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             schedule={schedule}
             width={planProdViewerWidth}
           />
-        </React.Fragment>
+        </CurrentPlanContainer>
       );
     }
     if (dayStatus === 'future') {
       return (
-        <React.Fragment>
+        <CurrentPlanContainer>
           <BlockTitle>PRODUCTION PLANNIFIÉE</BlockTitle>
           <DayProductionTable
             day={currentDay.getTime()}
@@ -258,7 +268,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             schedule={schedule}
             width={planProdViewerWidth}
           />
-        </React.Fragment>
+        </CurrentPlanContainer>
       );
     }
 
@@ -269,27 +279,33 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         const planProdSchedule = getPlanProd(schedule, currentPlanSchedule.planProd.id);
         if (planProdSchedule) {
           return (
-            <React.Fragment>
-              <BlockTitle>PRODUCTION EN COURS</BlockTitle>
-              <PlanProdViewer
-                bobineQuantities={bobineQuantities}
-                cadencier={cadencier}
-                schedule={planProdSchedule}
-                width={planProdViewerWidth}
-                hideOperationTable
-                nonInteractive
-              />
-            </React.Fragment>
+            <PlanProdPopup
+              planSchedule={planProdSchedule}
+              bobineQuantities={bobineQuantities}
+              cadencier={cadencier}
+            >
+              <CurrentPlanContainer>
+                <BlockTitle>PRODUCTION EN COURS</BlockTitle>
+                <PlanProdViewer
+                  bobineQuantities={bobineQuantities}
+                  cadencier={cadencier}
+                  schedule={planProdSchedule}
+                  width={planProdViewerWidth}
+                  hideOperationTable
+                  nonInteractive
+                />
+              </CurrentPlanContainer>
+            </PlanProdPopup>
           );
         }
       }
     }
 
     return (
-      <React.Fragment>
+      <CurrentPlanContainer>
         <BlockTitle>PRODUCTION EN COURS</BlockTitle>
         <div style={{color: Palette.White}}>Pas de plan de production en cours</div>
-      </React.Fragment>
+      </CurrentPlanContainer>
     );
   }
 
@@ -423,7 +439,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
             <BlockTitle>ARRÊTS MACHINE</BlockTitle>
             {this.renderStops()}
           </EventsContainer>
-          <CurrentPlanContainer>{this.renderCurrentPlan()}</CurrentPlanContainer>
+          {this.renderCurrentPlan()}
         </ProdStateContainer>
       </AppWrapper>
     );
