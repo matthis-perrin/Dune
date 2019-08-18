@@ -194,8 +194,6 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
       max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) ||
       0;
 
-    console.log(width, window.innerWidth);
-
     return (
       <PlanProdEditorContainer
         ref={this.containerRef}

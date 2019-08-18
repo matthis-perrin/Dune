@@ -342,9 +342,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
   }
 
   private renderPlanning(): JSX.Element {
-    const {schedule} = this.state;
+    const {schedule, bobineQuantities, cadencier} = this.state;
     const currentDay = this.getCurrentDay();
-    if (!schedule || currentDay === undefined) {
+    if (!schedule || !bobineQuantities || !cadencier || currentDay === undefined) {
       return <LoadingIndicator size="large" />;
     }
 
@@ -352,6 +352,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
       <ScheduleView
         day={currentDay}
         schedule={schedule}
+        bobineQuantities={bobineQuantities}
+        cadencier={cadencier}
         onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
         style={{overflowY: 'auto'}}
       />

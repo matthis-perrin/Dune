@@ -84,6 +84,7 @@ export class PlanProdPopup extends React.Component<PlanProdPopupProps> {
   }
 
   private showViewer(): void {
+    console.log('Show Viewer');
     if (this.showViewerTimeout) {
       clearTimeout(this.showViewerTimeout);
     }

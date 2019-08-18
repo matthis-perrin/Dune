@@ -12,13 +12,14 @@ import {
   AFTERNOON_TEAM_FILTER,
   ALL_TEAM_FILTER,
 } from '@root/lib/statistics/metrics';
-import {stocksStore} from '@root/stores/list_store';
+import {bobinesQuantitiesStore} from '@root/stores/data_store';
+import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {Colors, Palette} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, capitalize, endOfDay} from '@shared/lib/utils';
-import {Stock, Schedule} from '@shared/models';
+import {Stock, Schedule, BobineQuantities} from '@shared/models';
 
 interface ViewDayAppProps {
   initialDay: number;
@@ -27,6 +28,8 @@ interface ViewDayAppProps {
 interface ViewDayAppState {
   day: number;
   schedule?: Schedule;
+  cadencier?: Map<string, Map<number, number>>;
+  bobineQuantities?: BobineQuantities[];
   stocks?: Map<string, Stock[]>;
 }
 
@@ -44,17 +47,23 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
 
   public componentDidMount(): void {
     stocksStore.addListener(this.handleStoresChanged);
+    cadencierStore.addListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.addListener(this.handleStoresChanged);
     this.scheduleStore.start(this.handleStoresChanged);
   }
 
   public componentWillUnmount(): void {
     stocksStore.removeListener(this.handleStoresChanged);
+    cadencierStore.removeListener(this.handleStoresChanged);
+    bobinesQuantitiesStore.removeListener(this.handleStoresChanged);
     this.scheduleStore.stop();
   }
 
   private readonly handleStoresChanged = (): void => {
     this.setState({
       stocks: stocksStore.getStockIndex(),
+      cadencier: cadencierStore.getCadencierIndex(),
+      bobineQuantities: bobinesQuantitiesStore.getData(),
       schedule: this.scheduleStore.getSchedule(),
     });
   };
@@ -106,15 +115,16 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
   }
 
   private renderScheduleView(): JSX.Element {
-    const {schedule, day, stocks} = this.state;
-    if (!schedule) {
+    const {schedule, bobineQuantities, cadencier, day} = this.state;
+    if (!schedule || !bobineQuantities || !cadencier) {
       return <React.Fragment />;
     }
     return (
       <ScheduleView
         day={new Date(day)}
         schedule={schedule}
-        stocks={stocks}
+        bobineQuantities={bobineQuantities}
+        cadencier={cadencier}
         withContextMenu
         onPlanProdRefreshNeeded={() => this.scheduleStore.refresh()}
       />
@@ -137,7 +147,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     const {schedule, day} = this.state;
     return (
       <SizeMonitor>
-        {(width, height) => (
+        {width => (
           <AppWrapper>
             <TopBar>
               <NavigationIcon onClick={this.handlePreviousClick}>

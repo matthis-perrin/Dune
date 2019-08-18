@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import {PlanProdPopup} from '@root/components/apps/main/gestion/plan_prod_popup';
 import {WithColor} from '@root/components/core/with_colors';
 import {bridge} from '@root/lib/bridge';
 import {contextMenuManager} from '@root/lib/context_menu';
@@ -20,7 +21,6 @@ import {theme, Palette, FontWeight, alpha} from '@root/theme';
 import {dateAtHour} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
 import {
-  Stock,
   Schedule,
   PlanProdSchedule,
   Stop,
@@ -28,12 +28,15 @@ import {
   Prod,
   StopType,
   PlanProductionStatus,
+  BobineQuantities,
+  ScheduledPlanProd,
 } from '@shared/models';
 
 interface ScheduleViewProps {
   day: Date;
-  schedule?: Schedule;
-  stocks?: Map<string, Stock[]>;
+  schedule: Schedule;
+  cadencier: Map<string, Map<number, number>>;
+  bobineQuantities: BobineQuantities[];
   withContextMenu?: boolean;
   onPlanProdRefreshNeeded(): void;
   style?: React.CSSProperties;
@@ -532,13 +535,23 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     );
   }
 
-  private renderPlanProdSchedule(planSchedule: PlanProdSchedule): JSX.Element {
+  private renderPlanProdSchedule(
+    planSchedule: PlanProdSchedule,
+    scheduledPlanProd: ScheduledPlanProd
+  ): JSX.Element {
     const {start, end} = this.getProdHours();
     const scheduleStart = getScheduleStart(planSchedule);
     const scheduleEnd = getScheduleEnd(planSchedule);
     const planId = planSchedule.planProd.id;
 
-    if (scheduleStart === undefined || scheduleEnd === undefined) {
+    const {bobineQuantities, cadencier} = this.props;
+
+    if (
+      scheduleStart === undefined ||
+      scheduleEnd === undefined ||
+      !bobineQuantities ||
+      !cadencier
+    ) {
       return (
         <React.Fragment key={planId}>
           {this.renderNonProds(
@@ -571,18 +584,24 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
                 width: `calc(100% - ${paddingLeft + paddingRight}px - ${planBorderThickness}px)`,
               }}
             />
-            <PlanTitle
-              key="plan-title"
-              onContextMenu={this.handleContextMenuForPlan(planId)}
-              style={{
-                ...planBorderPosition,
-                width: sideBlockWidth,
-                left: paddingLeft,
-                background: color.backgroundHex,
-              }}
+            <PlanProdPopup
+              planSchedule={scheduledPlanProd}
+              bobineQuantities={bobineQuantities}
+              cadencier={cadencier}
             >
-              {this.getTitleForHeight(planSchedule, planBorderPosition.height as number)}
-            </PlanTitle>
+              <PlanTitle
+                key="plan-title"
+                onContextMenu={this.handleContextMenuForPlan(planId)}
+                style={{
+                  ...planBorderPosition,
+                  width: sideBlockWidth,
+                  left: paddingLeft,
+                  background: color.backgroundHex,
+                }}
+              >
+                {this.getTitleForHeight(planSchedule, planBorderPosition.height as number)}
+              </PlanTitle>
+            </PlanProdPopup>
             {this.renderNonProds(
               planSchedule.stops
                 .concat(planSchedule.plannedStops)
@@ -602,7 +621,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return schedule.plans.map(p => {
       const planSchedule = p.schedulePerDay.get(dateAtHour(day, 0).getTime());
       return planSchedule ? (
-        this.renderPlanProdSchedule(planSchedule)
+        this.renderPlanProdSchedule(planSchedule, p)
       ) : (
         <React.Fragment key={p.planProd.id} />
       );
