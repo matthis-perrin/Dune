@@ -3,9 +3,19 @@ import {findIndex, find} from 'lodash-es';
 import {bridge} from '@root/lib/bridge';
 import {ContextMenu, contextMenuManager} from '@root/lib/context_menu';
 import {getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {getAllPlannedSchedules, getPlanStart, getPlanEnd} from '@root/lib/schedule_utils';
+import {
+  getAllPlannedSchedules,
+  getPlanStart,
+  getPlanEnd,
+  getPlanStatus,
+} from '@root/lib/schedule_utils';
 
-import {Schedule, ScheduledPlanProd, PlanProductionInfo} from '@shared/models';
+import {
+  Schedule,
+  ScheduledPlanProd,
+  PlanProductionInfo,
+  PlanProductionStatus,
+} from '@shared/models';
 import {asNumber, asMap} from '@shared/type_utils';
 
 function getPlanIndex(schedule: Schedule, planSchedule: ScheduledPlanProd): number {
@@ -89,9 +99,35 @@ export function showPlanContextMenu(
     return;
   }
 
+  const menus: ContextMenu[] = [];
+
+  const planType = getPlanStatus(planSchedule);
+  const planStart = getPlanStart(planSchedule);
+  const planEnd = getPlanEnd(planSchedule);
+  const start =
+    planStart !== undefined
+      ? planStart
+      : schedule.lastSpeedTime !== undefined
+      ? schedule.lastSpeedTime.time
+      : 0;
+  const end =
+    planEnd !== undefined
+      ? planEnd
+      : schedule.lastSpeedTime !== undefined
+      ? schedule.lastSpeedTime.time
+      : 0;
+  if (planType === PlanProductionStatus.PLANNED) {
+    menus.push({
+      label: 'Modifier',
+      callback: () =>
+        bridge
+          .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
+          .catch(console.error),
+    });
+  }
+
   const planIndex = getPlanIndex(schedule, planSchedule);
 
-  const menus: ContextMenu[] = [];
   menus.push({
     label: 'Nouveau plan de production avant',
     callback: () => newPlanProd(planSchedule, true, onRefreshNeeded),

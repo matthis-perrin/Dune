@@ -13,6 +13,8 @@ import {
   getScheduleEnd,
   getPlanStatus,
   getPlanProd,
+  getPlanStart,
+  getPlanEnd,
 } from '@root/lib/schedule_utils';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {isRoundHour, isHalfHour, isSameDay, numberWithSeparator} from '@root/lib/utils';
@@ -310,7 +312,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     event.preventDefault();
     event.stopPropagation();
     const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
-    if (!schedule || !withContextMenu) {
+    if (!withContextMenu) {
       return;
     }
     const planSchedule = getPlanProd(schedule, planId);
@@ -320,6 +322,37 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const planType = getPlanStatus(planSchedule);
     if (planType === PlanProductionStatus.PLANNED) {
       showPlanContextMenu(schedule, planSchedule.planProd.id, onPlanProdRefreshNeeded);
+    }
+  };
+
+  private readonly handleDoubleClickForPlanSchedule = (planSchedule: ScheduledPlanProd) => (
+    event: React.MouseEvent
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    const {schedule, withContextMenu} = this.props;
+    if (!withContextMenu) {
+      return;
+    }
+    const planType = getPlanStatus(planSchedule);
+    const planStart = getPlanStart(planSchedule);
+    const planEnd = getPlanEnd(planSchedule);
+    const start =
+      planStart !== undefined
+        ? planStart
+        : schedule.lastSpeedTime !== undefined
+        ? schedule.lastSpeedTime.time
+        : 0;
+    const end =
+      planEnd !== undefined
+        ? planEnd
+        : schedule.lastSpeedTime !== undefined
+        ? schedule.lastSpeedTime.time
+        : 0;
+    if (planType === PlanProductionStatus.PLANNED) {
+      bridge
+        .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
+        .catch(console.error);
     }
   };
 
@@ -592,6 +625,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               <PlanTitle
                 key="plan-title"
                 onContextMenu={this.handleContextMenuForPlan(planId)}
+                onDoubleClick={this.handleDoubleClickForPlanSchedule(scheduledPlanProd)}
                 style={{
                   ...planBorderPosition,
                   width: sideBlockWidth,
