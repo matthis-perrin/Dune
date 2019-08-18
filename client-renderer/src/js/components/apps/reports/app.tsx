@@ -2,8 +2,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {ReportViewer} from '@root/components/common/report_viewer';
+import {Button} from '@root/components/core/button';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SVGIcon} from '@root/components/core/svg_icon';
+import {bridge} from '@root/lib/bridge';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {cadencierStore, stocksStore} from '@root/stores/list_store';
 import {ProdInfoStore} from '@root/stores/prod_info_store';
@@ -190,6 +192,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
   }
 
   public render(): JSX.Element {
+    const day = this.getCurrentDay() || new Date();
     return (
       <AppWrapper>
         <TopBar>
@@ -201,6 +204,14 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
             <SVGIcon name="caret-right" width={iconSize} height={iconSize} />
           </NavigationIcon>
         </TopBar>
+        <ButtonBar>
+          <ReportButton onClick={() => bridge.printAsPDF()}>Imprimer</ReportButton>
+          <ReportButton
+            onClick={() => bridge.saveToPDF(`${this.getWindowTitle(day.getTime())}.pdf`)}
+          >
+            Télécharger
+          </ReportButton>
+        </ButtonBar>
         <ContentContainer>{this.renderReport()}</ContentContainer>
       </AppWrapper>
     );
@@ -218,6 +229,9 @@ const AppWrapper = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${Palette.Clouds};
+  @media print {
+    background-color: ${Palette.White};
+  }
   overflow-y: scroll;
 `;
 
@@ -228,6 +242,27 @@ const TopBar = styled.div`
   justify-content: space-between;
   background-color: ${Colors.PrimaryDark};
   color: ${Colors.TextOnPrimary};
+
+  @media print {
+    display: none;
+  }
+`;
+
+const ButtonBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  @media print {
+    display: none;
+  }
+`;
+
+const ReportButton = styled(Button)`
+  margin-right: 16px;
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 const TopBarTitle = styled.div`
@@ -254,5 +289,4 @@ const NavigationIcon = styled.div`
 const ContentContainer = styled.div`
   flex-grow: 1;
   margin: 16px auto;
-  width: 1200px;
 `;

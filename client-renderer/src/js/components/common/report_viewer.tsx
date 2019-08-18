@@ -6,6 +6,7 @@ import {SpeedChartEvent, SpeedChart} from '@root/components/charts/speed_chart';
 import {DayProductionTable} from '@root/components/common/day_production_table';
 import {DayStats} from '@root/components/common/day_stats';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
+import {SizeMonitor} from '@root/components/core/size_monitor';
 import {WithConstants} from '@root/components/core/with_constants';
 import {isProdHourNonProd, getMidDay, computeStatsData, aggregate} from '@root/lib/statistics/data';
 import {
@@ -199,27 +200,32 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
 
   public render(): JSX.Element {
     return (
-      <WithConstants>
-        {constants => {
-          if (!constants) {
-            return <LoadingIndicator size="large" />;
-          }
-          return (
-            <ReportWrapper>
-              {this.renderTitle()}
-              {this.renderSummary(constants)}
-              <ReportSectionTitle>Historique des vitesses</ReportSectionTitle>
-              {this.renderChart()}
-              <ReportSectionTitle>Performance de la journée</ReportSectionTitle>
-              {this.renderPerfs()}
-              <ReportSectionTitle>Détail des arrêts</ReportSectionTitle>
-              {this.renderStops()}
-              <ReportSectionTitle>Production de la journée (théorique)</ReportSectionTitle>
-              {this.renderProductionTable()}
-            </ReportWrapper>
-          );
-        }}
-      </WithConstants>
+      <SizeMonitor>
+        {width => (
+          <WithConstants>
+            {constants => {
+              if (!constants) {
+                return <LoadingIndicator size="large" />;
+              }
+              const scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
+              return (
+                <ReportWrapper style={{zoom: scale}}>
+                  {this.renderTitle()}
+                  {this.renderSummary(constants)}
+                  <ReportSectionTitle>Historique des vitesses</ReportSectionTitle>
+                  {this.renderChart()}
+                  <ReportSectionTitle>Performance de la journée</ReportSectionTitle>
+                  {this.renderPerfs()}
+                  <ReportSectionTitle>Détail des arrêts</ReportSectionTitle>
+                  {this.renderStops()}
+                  <ReportSectionTitle>Production de la journée (théorique)</ReportSectionTitle>
+                  {this.renderProductionTable()}
+                </ReportWrapper>
+              );
+            }}
+          </WithConstants>
+        )}
+      </SizeMonitor>
     );
   }
 }
@@ -227,7 +233,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
 const REPORT_WIDTH = 1200;
 
 const ReportWrapper = styled.div`
-  width: ${REPORT_WIDTH}px;
+  min-width: ${REPORT_WIDTH}px;
   display: flex;
   flex-direction: column;
   border-bottom: solid 2px ${Colors.PrimaryDark};
