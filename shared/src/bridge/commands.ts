@@ -17,7 +17,7 @@ export const OpenApp = 'open-app' as BridgeCommand;
 export const CloseApp = 'close-app' as BridgeCommand;
 export const CloseAppOfType = 'close-app-of-type' as BridgeCommand;
 export const SaveToPDF = 'save-to-pdf' as BridgeCommand;
-export const Print = 'print' as BridgeCommand;
+export const PrintAsPDF = 'print-as-pdf' as BridgeCommand;
 
 export const CreateNewPlanProduction = 'create-new-plan-production' as BridgeCommand;
 export const DeletePlanProduction = 'delete-plan-production' as BridgeCommand;

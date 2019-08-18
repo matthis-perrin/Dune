@@ -359,8 +359,8 @@ export class Bridge {
       title,
     });
   }
-  public async print(): Promise<void> {
-    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.Print, {
+  public async printAsPDF(): Promise<void> {
+    return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.PrintAsPDF, {
       windowId: getWindowId(),
     });
   }

@@ -27,6 +27,7 @@ interface PlanProdViewerProps {
   width: number;
   hideOperationTable?: boolean;
   nonInteractive?: boolean;
+  forPrinting?: boolean;
   onHeightAvailable?(height: number): void;
 }
 
@@ -192,6 +193,8 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
     const operationTime =
       max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) ||
       0;
+
+    console.log(width, window.innerWidth);
 
     return (
       <PlanProdEditorContainer

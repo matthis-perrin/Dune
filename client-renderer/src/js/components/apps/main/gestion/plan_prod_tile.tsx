@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import styled, {keyframes} from 'styled-components';
 
-import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
+import {PlanProdViewer} from '@root/components/common/plan_prod_viewer';
 import {RefLink} from '@root/components/common/ref_link';
 import {HTMLDivProps} from '@root/components/core/common';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';

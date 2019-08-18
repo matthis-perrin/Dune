@@ -142,6 +142,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       bobineQuantities: bobinesQuantitiesStore.getData(),
       operations: operationsStore.getData(),
       constants: constants && constants[0],
+      speed,
     });
   };
 

@@ -16,6 +16,7 @@ import {
   getGescomSyncData,
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
+import {createConstantsTable} from '@shared/db/constants';
 import {createMaintenancesTable} from '@shared/db/maintenances';
 import {createNonProdsTable} from '@shared/db/non_prods';
 import {createOperationsTable} from '@shared/db/operations';
@@ -47,6 +48,7 @@ export async function setupSqliteDB(): Promise<void> {
     createUnplannedStopTable(SQLITE_DB.Params),
     createCleaningTable(SQLITE_DB.Params),
     createProdHoursTable(SQLITE_DB.Params),
+    createConstantsTable(SQLITE_DB.Params),
 
     createPlansProductionTable(SQLITE_DB.Prod),
     createMaintenancesTable(SQLITE_DB.Prod),

@@ -9,7 +9,7 @@ import {contextMenuManager} from '@root/lib/context_menu';
 import {getPlanStart} from '@root/lib/schedule_utils';
 
 import {startOfDay, endOfDay} from '@shared/lib/utils';
-import {Schedule} from '@shared/models';
+import {Schedule, ClientAppType} from '@shared/models';
 
 function getNewPlanProdIndexForDate(schedule: Schedule, date: Date): number {
   const dayEnd = endOfDay(date).getTime();
@@ -59,8 +59,19 @@ export function showDayContextMenu(
           label: `Créer une période de non production le ${date.toLocaleDateString('fr')}`,
           callback: () => showNonProdModal(date, onRefreshNeeded),
         },
+        {
+          label: `Imprimer les plans de production du ${date.toLocaleDateString('fr')}`,
+          callback: () => bridge.openApp(ClientAppType.PlanProdPrinterApp, {day: date.getTime()}),
+        },
       ])
       .catch(console.error);
+  } else {
+    contextMenuManager.open([
+      {
+        label: `Imprimer les plans de production du ${date.toLocaleDateString('fr')}`,
+        callback: () => bridge.openApp(ClientAppType.PlanProdPrinterApp, {day: date.getTime()}),
+      },
+    ]);
   }
 }
 

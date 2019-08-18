@@ -10,6 +10,7 @@ import {MainApp} from '@root/components/apps/main/app';
 import {PapierPickerApp} from '@root/components/apps/papier_picker/app';
 import {PerfoPickerApp} from '@root/components/apps/perfo_picker/app';
 import {PlanProdEditorApp} from '@root/components/apps/plan_prod_editor/app';
+import {PlanProdPrinterApp} from '@root/components/apps/plan_prod_printer/app';
 import {PolyproPickerApp} from '@root/components/apps/polypro_picker/app';
 import {ProductionApp} from '@root/components/apps/production/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
@@ -28,6 +29,7 @@ import {
   operationsStore,
   unplannedStopsStore,
   cleaningsStore,
+  constantsStore,
 } from '@root/stores/data_store';
 import {
   bobinesFillesStore,
@@ -92,7 +94,14 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.PlanProductionEditorApp) {
-      return [stocksStore, cadencierStore, bobinesQuantitiesStore, colorsStore, operationsStore];
+      return [
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        colorsStore,
+        operationsStore,
+        constantsStore,
+      ];
     }
     if (type === ClientAppType.BobinesPickerApp) {
       return [
@@ -104,6 +113,7 @@ export class AppManager extends React.Component<Props, State> {
         bobinesQuantitiesStore,
         colorsStore,
         operationsStore,
+        constantsStore,
       ];
     }
     if (type === ClientAppType.RefentePickerApp) {
@@ -113,10 +123,10 @@ export class AppManager extends React.Component<Props, State> {
       return [perfosStore];
     }
     if (type === ClientAppType.PapierPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, constantsStore];
     }
     if (type === ClientAppType.PolyproPickerApp) {
-      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore];
+      return [bobinesMeresStore, stocksStore, colorsStore, operationsStore, constantsStore];
     }
 
     if (type === ClientAppType.ViewBobineApp) {
@@ -131,7 +141,14 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.ViewDayApp) {
-      return [colorsStore, stocksStore, cadencierStore, bobinesQuantitiesStore, operationsStore];
+      return [
+        colorsStore,
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        operationsStore,
+        constantsStore,
+      ];
     }
 
     if (type === ClientAppType.ProductionApp) {
@@ -143,13 +160,14 @@ export class AppManager extends React.Component<Props, State> {
         operationsStore,
         unplannedStopsStore,
         cleaningsStore,
+        constantsStore,
       ];
     }
     if (type === ClientAppType.StopApp) {
-      return [unplannedStopsStore, cleaningsStore, operationsStore];
+      return [unplannedStopsStore, cleaningsStore, operationsStore, constantsStore];
     }
     if (type === ClientAppType.StatisticsApp) {
-      return [operationsStore];
+      return [operationsStore, constantsStore];
     }
 
     if (type === ClientAppType.ReportsApp) {
@@ -161,7 +179,12 @@ export class AppManager extends React.Component<Props, State> {
         operationsStore,
         unplannedStopsStore,
         cleaningsStore,
+        constantsStore,
       ];
+    }
+
+    if (type === ClientAppType.PlanProdPrinterApp) {
+      return [colorsStore, cadencierStore, bobinesQuantitiesStore, operationsStore, constantsStore];
     }
 
     return [];
@@ -250,6 +273,11 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ReportsApp) {
       const {initialDay} = asMap(data);
       return <ReportsApp initialDay={asNumber(initialDay, undefined)} />;
+    }
+
+    if (type === ClientAppType.PlanProdPrinterApp) {
+      const {day} = asMap(data);
+      return <PlanProdPrinterApp day={asNumber(day, 0)} />;
     }
 
     return (

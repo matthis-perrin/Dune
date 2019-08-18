@@ -1,11 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {PlanProdViewer} from '@root/components/apps/main/gestion/plan_prod_viewer';
 import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChart, SpeedChartEvent} from '@root/components/charts/speed_chart';
 import {DayProductionTable} from '@root/components/common/day_production_table';
 import {DayStats} from '@root/components/common/day_stats';
+import {PlanProdViewer} from '@root/components/common/plan_prod_viewer';
 import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';

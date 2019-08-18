@@ -45,3 +45,15 @@ export function padNumber(value: number, padding: number): string {
   }
   return valueStr;
 }
+
+export function arrayJoin<T>(arr: T[], separator: T): T[] {
+  if (arr.length === 0) {
+    return [];
+  }
+  const res = [arr[0]];
+  for (const element of arr.slice(1)) {
+    res.push(separator);
+    res.push(element);
+  }
+  return res;
+}

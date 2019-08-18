@@ -1,5 +1,7 @@
-import {BrowserWindow, dialog, screen, shell} from 'electron';
+import child_process from 'child_process';
+import {BrowserWindow, dialog, screen, shell, app} from 'electron';
 import fs from 'fs';
+import path from 'path';
 
 import {handleCommand} from '@root/bridge';
 import {planProductionStore} from '@root/plan_production_store';
@@ -20,6 +22,7 @@ interface WindowOptions {
     minHeight?: number;
   };
   closable?: boolean;
+  forPrinting?: boolean;
 }
 
 interface WindowInfo {
@@ -95,7 +98,7 @@ class WindowManager {
     return new Promise<void>((resolve, reject) => {
       windowInfo.browserWindow.webContents.printToPDF(
         {
-          marginsType: 2, // minimum margin
+          marginsType: 0, // default margin
           pageSize: 'A4',
           printBackground: true,
           printSelectionOnly: false,
@@ -103,6 +106,7 @@ class WindowManager {
         },
         (printError, data) => {
           if (printError) {
+            console.log(printError);
             reject(printError);
             return;
           }
@@ -115,6 +119,39 @@ class WindowManager {
           });
         }
       );
+    });
+  }
+
+  public async printAsPDF(windowId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const windowInfo = this.windows.get(windowId);
+      if (!windowInfo) {
+        reject();
+        return;
+      }
+
+      const tempFileName = `for_printing_${Date.now()}.pdf`;
+      const tempFilePath = path.join(app.getPath('temp'), tempFileName);
+      this.saveAsPDF(windowInfo, tempFilePath)
+        .then(() => {
+          const AdobeReaderPath = path.join(
+            'C:',
+            'Program Files (x86)',
+            'Adobe',
+            'Acrobat Reader DC',
+            'Reader',
+            'AcroRd32.exe'
+          );
+          const cmd = `"${AdobeReaderPath}" /p ${tempFilePath}`;
+          child_process.exec(cmd, error => {
+            if (error) {
+              reject(error.message);
+              return;
+            }
+            resolve();
+          });
+        })
+        .catch(reject);
     });
   }
 
@@ -236,6 +273,9 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ReportsApp) {
       return {id: 'reports', size: {}};
     }
+    if (appInfo.type === ClientAppType.PlanProdPrinterApp) {
+      return {id: 'plan-prod-printer', size: {width: 1100}, forPrinting: true};
+    }
 
     return {id: 'unknown-app', size: {width: 400, height: 700}};
   }
@@ -254,7 +294,7 @@ class WindowManager {
 
   private async openOrForegroundWindow(appInfo: ClientAppInfo): Promise<WindowInfo> {
     // If window already exists, just bring it to the foreground
-    const {size, id, closable} = this.getWindowOptionsForAppInfo(appInfo);
+    const {size, id, closable, forPrinting} = this.getWindowOptionsForAppInfo(appInfo);
     let windowInfo = this.windows.get(id);
     if (windowInfo) {
       const {browserWindow} = windowInfo;
@@ -290,7 +330,9 @@ class WindowManager {
     // tslint:disable-next-line: no-any
     try {
       await setupBrowserWindow(newBrowserWindow, handleCommand, id);
-      if (size.width === undefined && size.height === undefined) {
+      if (forPrinting) {
+        newBrowserWindow.minimize();
+      } else if (size.width === undefined && size.height === undefined) {
         newBrowserWindow.maximize();
       }
       newBrowserWindow.show();

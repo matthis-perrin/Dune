@@ -16,6 +16,7 @@ import {listBobinesQuantities} from '@shared/db/bobines_quantities';
 import {listCleanings} from '@shared/db/cleanings';
 import {listCliches} from '@shared/db/cliches';
 import {listColors} from '@shared/db/colors';
+import {listConstants} from '@shared/db/constants';
 import {
   createMaintenance,
   getMaintenancesBetween,
@@ -58,7 +59,6 @@ import {
   ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
-import {listConstants} from '@shared/db/constants';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -155,6 +155,11 @@ export async function handleCommand(
     debugLog();
     const {windowId, title} = asMap(params);
     return windowManager.saveToPDF(asString(windowId, ''), asString(title, ''));
+  }
+  if (command === BridgeCommands.PrintAsPDF) {
+    debugLog();
+    const {windowId} = asMap(params);
+    return windowManager.printAsPDF(asString(windowId, ''));
   }
 
   // Plan Production
