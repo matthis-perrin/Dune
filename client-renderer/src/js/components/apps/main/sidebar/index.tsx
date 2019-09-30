@@ -71,7 +71,7 @@ export class Sidebar extends React.Component<Props, State> {
           <Herisson style={{width: logoSize}} />
         </SidebarTitle>
         <FlexParent alignItems="stretch">
-          {index === -1 ? <React.Fragment /> : <SidebarSelectedIndicator index={0} />}
+          {index === -1 ? <React.Fragment /> : <SidebarSelectedIndicator index={index} />}
           <SidebarItemContainer flexDirection="column">
             {config.hasGestionPage ? (
               <SidebarItem

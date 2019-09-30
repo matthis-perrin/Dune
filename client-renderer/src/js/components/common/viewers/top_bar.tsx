@@ -68,6 +68,10 @@ const SommeilIndicatorText = styled.div`
 
 const ViewerTopBarWrapper = styled(Card2)`
   position: relative;
-  padding: 16px;
+  padding: 0 16px;
+  height: 72px;
   font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;

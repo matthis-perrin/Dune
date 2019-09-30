@@ -133,7 +133,7 @@ export class DayStats extends React.Component<DayStatsProps> {
                 <StatGroup>
                   {this.renderDurationLine(delays, 'Retards', Colors.Danger)}
                   {this.renderLine(
-                    `${numberWithSeparator(metrageDone)} m`,
+                    `${numberWithSeparator(Math.round(metrageDone))} m`,
                     'Mètres Linéaires',
                     Colors.SecondaryDark
                   )}

@@ -56,7 +56,7 @@ import {
 import {asMap, asNumber} from '@shared/type_utils';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
-const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1180;
+const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1000;
 
 interface Props {
   id: number;

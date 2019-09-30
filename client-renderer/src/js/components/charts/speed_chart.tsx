@@ -56,6 +56,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   private plot: Plottable.Components.Table | undefined = undefined;
   private lastData: Datum[] = [];
   private lastEvents: SpeedChartEvent[] = [];
+  private barDataset: Plottable.Dataset | undefined = undefined;
+  private eventDataset: Plottable.Dataset | undefined = undefined;
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
@@ -203,8 +205,9 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     this.lastEvents = filteredEvents;
 
     // Bars
+    this.barDataset = new Plottable.Dataset(data);
     const bars = new Plottable.Plots.Rectangle<Date, number>()
-      .addDataset(new Plottable.Dataset(data))
+      .addDataset(this.barDataset)
       .x((d: Datum) => d.start, xScale)
       .x2((d: Datum) => d.end)
       .y(() => 0, yScale)
@@ -213,8 +216,9 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .attr('stroke', (d: Datum) => (d.isNow ? this.getColorForSpeed(d.speed) : 'transparent'));
 
     // Events
+    this.eventDataset = new Plottable.Dataset(filteredEvents);
     const events = new Plottable.Plots.Rectangle<Date, number>()
-      .addDataset(new Plottable.Dataset(filteredEvents))
+      .addDataset(this.eventDataset)
       .x((s: SpeedChartEvent) => new Date(s.start), xScale)
       .x2((s: SpeedChartEvent) => new Date(s.end))
       .y(() => 0, yScale)
@@ -289,10 +293,16 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 
   public updateChart(): void {
-    this.createChart();
-    // if (this.plot) {
-    //   this.plot.redraw();
-    // }
+    if (this.barDataset && this.eventDataset) {
+      const data = this.normalizeSpeeds();
+      const firstDate = data[0].start;
+      const lastDate = data[data.length - 1].start;
+      const filteredEvents = this.props.events.filter(
+        e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
+      );
+      this.barDataset.data(data);
+      this.eventDataset.data(filteredEvents);
+    }
   }
 
   public render(): JSX.Element {

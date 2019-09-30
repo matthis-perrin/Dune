@@ -2759,10 +2759,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sqlite3@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-4.0.7.tgz#d3ba009de040198199dfbe6549126aa2a17b26d5"
-  integrity sha512-TGEeSBB8O48bEu8KUUMqzeB22WrfTxzhIf0lFm8wLTo3a6yJBonF2sPKMYrYtOne1F1t9AHAEn+DTISq8WebQg==
+sqlite3@^4.0.9:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-4.1.0.tgz#e051fb9c133be15726322a69e2e37ec560368380"
+  integrity sha512-RvqoKxq+8pDHsJo7aXxsFR18i+dU2Wp5o12qAJOV5LNcDt+fgJsc2QKKg3sIRfXrN9ZjzY1T7SNe/DFVqAXjaw==
   dependencies:
     nan "^2.12.1"
     node-pre-gyp "^0.11.0"

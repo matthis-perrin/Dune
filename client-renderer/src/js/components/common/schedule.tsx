@@ -231,6 +231,8 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const metrage = (
       <PlanTitleMetrage>{`${numberWithSeparator(
         Math.round(schedule.doneProdMeters)
+      )} m / ${numberWithSeparator(
+        Math.round(schedule.doneProdMeters + schedule.plannedProdMeters)
       )} m`}</PlanTitleMetrage>
     );
     // tslint:disable:no-magic-numbers

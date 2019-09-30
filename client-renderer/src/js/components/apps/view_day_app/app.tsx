@@ -7,16 +7,19 @@ import {ScheduleView} from '@root/components/common/schedule';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor, SCROLLBAR_WIDTH} from '@root/components/core/size_monitor';
 import {SVGIcon} from '@root/components/core/svg_icon';
+import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {
   MORNING_TEAM_FILTER,
   AFTERNOON_TEAM_FILTER,
   ALL_TEAM_FILTER,
 } from '@root/lib/statistics/metrics';
+import {numberWithSeparator} from '@root/lib/utils';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 import {Colors, Palette} from '@root/theme';
 
+import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {startOfDay, capitalize, endOfDay} from '@shared/lib/utils';
 import {Stock, Schedule, BobineQuantities, Config} from '@shared/models';
@@ -145,6 +148,45 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     );
   }
 
+  private renderSummary(): JSX.Element {
+    const {schedule, bobineQuantities, cadencier, day} = this.state;
+    if (!schedule || !bobineQuantities || !cadencier) {
+      return <React.Fragment />;
+    }
+
+    let totalBobines = 0;
+    let totalMeters = 0;
+
+    const schedules = getSchedulesForDay(schedule, new Date(day));
+    schedules.forEach(s => {
+      const bobines = s.planProd.data.bobines;
+      const meters = s.doneProdMeters + s.plannedProdMeters;
+      totalMeters += meters;
+      const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
+      const tour = meters / longueurFirstBobine;
+      if (tour > 0) {
+        bobines.forEach(b => {
+          const pose = getPoseSize(b.pose);
+
+          totalBobines += pose * tour;
+        });
+      }
+    });
+
+    return (
+      <Summary>
+        <SummaryLine>
+          <SummaryLineLabel>Total bobines</SummaryLineLabel>
+          <SummaryLineValue>{`x ${numberWithSeparator(totalBobines)}`}</SummaryLineValue>
+        </SummaryLine>
+        <SummaryLine>
+          <SummaryLineLabel>Total mètres linéaires</SummaryLineLabel>
+          <SummaryLineValue>{`${numberWithSeparator(Math.round(totalMeters))} m`}</SummaryLineValue>
+        </SummaryLine>
+      </Summary>
+    );
+  }
+
   public render(): JSX.Element {
     const {schedule, day} = this.state;
     return (
@@ -170,27 +212,33 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
                 </ScheduleBlock>
               </LeftColumn>
               <RightColumn>
-                {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+                <RightColumnInner>
+                  {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+                    <Block>
+                      <BlockTitle>{team.label}</BlockTitle>
+                      <BlockContent>
+                        <DayStats
+                          day={day}
+                          operations={this.scheduleStore.getOperations()}
+                          schedule={schedule}
+                          team={team}
+                        />
+                      </BlockContent>
+                    </Block>
+                  ))}
                   <Block>
-                    <BlockTitle>{team.label}</BlockTitle>
+                    <BlockTitle>Production du jour</BlockTitle>
                     <BlockContent>
-                      <DayStats
-                        day={day}
-                        operations={this.scheduleStore.getOperations()}
-                        schedule={schedule}
-                        team={team}
-                      />
+                      {this.renderProductionTable(
+                        width - scheduleSize - 3 * blockSpacing - 4 * blockPadding + SCROLLBAR_WIDTH
+                      )}
                     </BlockContent>
                   </Block>
-                ))}
-                <Block>
-                  <BlockTitle>Production du jour</BlockTitle>
-                  <BlockContent>
-                    {this.renderProductionTable(
-                      width - scheduleSize - 3 * blockSpacing - 4 * blockPadding + SCROLLBAR_WIDTH
-                    )}
-                  </BlockContent>
-                </Block>
+                  <Block>
+                    <BlockTitle>Résumé du jour</BlockTitle>
+                    <BlockContent>{this.renderSummary()}</BlockContent>
+                  </Block>
+                </RightColumnInner>
               </RightColumn>
             </Bottom>
           </AppWrapper>
@@ -271,10 +319,15 @@ const LeftColumn = styled.div`
 
 const RightColumn = styled.div`
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  height: calc(100% - ${2 * blockSpacing}px);
   margin: ${blockSpacing}px;
   margin-left: 0;
+`;
+
+const RightColumnInner = styled.div`
+  display: flex;
+  flex-direction: column;
   & > div {
     margin-bottom: ${blockSpacing}px;
     &:last-of-type {
@@ -310,4 +363,31 @@ const ScheduleWrapper = styled.div`
 
 const ScheduleBlock = styled(Block)`
   height: 100%;
+`;
+
+const Summary = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const SummaryLine = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${Colors.TextOnSecondary};
+  margin-bottom: 4px;
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+const SummaryLineLabel = styled.div`
+  flex-grow: 1;
+  margin-right: 4px;
+  background-color: ${Colors.PrimaryDark};
+  padding: 4px;
+`;
+const SummaryLineValue = styled.div`
+  flex-shrink: 0;
+  width: 100px;
+  background-color: ${Colors.PrimaryDark};
+  text-align: center;
+  padding: 4px;
 `;

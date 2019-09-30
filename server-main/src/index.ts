@@ -18,7 +18,7 @@ import {prodHoursStore, constantsStore} from '@root/prod_hours_store';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 
 configureLogs();
-const forceProdMode = false;
+const forceProdMode = true;
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');

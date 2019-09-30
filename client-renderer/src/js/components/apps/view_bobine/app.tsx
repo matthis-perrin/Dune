@@ -1,5 +1,6 @@
 import {find} from 'lodash-es';
 import * as React from 'react';
+import Barcode from 'react-barcode';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
@@ -330,13 +331,20 @@ export class ViewBobineApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {bobineRef} = this.props;
     const {bobine} = this.state;
+    const barcode = bobine ? (
+      <Barcode value={bobine.ref} displayValue={false} height={58} margin={4} />
+    ) : (
+      <React.Fragment />
+    );
 
     return (
       <AppWrapper>
-        <ViewerTopBar
-          sommeil={bobine && bobine.sommeil}
-          color={bobine && bobine.couleurPapier}
-        >{`Bobine ${bobineRef}`}</ViewerTopBar>
+        <ViewerTopBar sommeil={bobine && bobine.sommeil} color={bobine && bobine.couleurPapier}>
+          <React.Fragment>
+            <span style={{marginRight: 16}}>{`Bobine ${bobineRef}`}</span>
+            {barcode}
+          </React.Fragment>
+        </ViewerTopBar>
         <InfoContainer>
           <GeneralInfoContainer>{this.renderGeneralInfo()}</GeneralInfoContainer>
           <EtatInfoContainer>{this.renderStockInfo()}</EtatInfoContainer>

@@ -11,12 +11,12 @@ import {createCadencierTable} from '@shared/db/cadencier';
 import {createCleaningTable} from '@shared/db/cleanings';
 import {createClichesTable} from '@shared/db/cliches';
 import {createColorsTable} from '@shared/db/colors';
+import {createConstantsTable} from '@shared/db/constants';
 import {
   createGescomSyncTable,
   getGescomSyncData,
   updateGescomSyncData,
 } from '@shared/db/gescom_sync';
-import {createConstantsTable} from '@shared/db/constants';
 import {createMaintenancesTable} from '@shared/db/maintenances';
 import {createNonProdsTable} from '@shared/db/non_prods';
 import {createOperationsTable} from '@shared/db/operations';

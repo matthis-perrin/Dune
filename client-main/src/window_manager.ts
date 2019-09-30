@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 import {handleCommand} from '@root/bridge';
+import {getConfig} from '@root/config';
 import {planProductionStore} from '@root/plan_production_store';
 
 import {sendBridgeEvent} from '@shared/bridge/bridge_main';
@@ -11,7 +12,6 @@ import {PlanProductionChanged} from '@shared/bridge/commands';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 import {ClientAppInfo, ClientAppType, Config} from '@shared/models';
 import {asMap, asNumber, asBoolean} from '@shared/type_utils';
-import {getConfig} from './config';
 
 interface WindowOptions {
   id: string;

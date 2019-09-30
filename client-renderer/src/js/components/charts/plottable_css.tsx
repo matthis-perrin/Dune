@@ -52,7 +52,7 @@ export const PlottableCSS = createGlobalStyle`
 
   .plottable .label text {
     font-family: ${theme.base.fontFamily}, sans-serif;
-    fill: white;
+    fill: black;
   }
 
   .plottable .bar-label-text-area text {
@@ -111,7 +111,7 @@ export const PlottableCSS = createGlobalStyle`
   }
 
   .plottable .axis text {
-    fill: white;
+    fill: black;
     font-family: ${theme.base.fontFamily}, sans-serif;
     font-size: 12px;
     font-weight: 200;
