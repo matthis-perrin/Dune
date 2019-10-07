@@ -55,7 +55,7 @@ class WindowManager {
     planProductionStore.setListener(this.handlePlanProductionChanged);
   }
 
-  public async openWindow(appInfo: ClientAppInfo): Promise<void> {
+  public async openWindow(appInfo: ClientAppInfo): Promise<WindowInfo> {
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
       const {id, isCreating} = asMap(appInfo.data);
       if (!asBoolean(isCreating)) {
@@ -79,6 +79,8 @@ class WindowManager {
       }
       this.windows.delete(windowInfo.id);
     });
+
+    return windowInfo;
   }
 
   public closeWindow(windowId: string): void {
@@ -95,8 +97,12 @@ class WindowManager {
     this.windows.delete(windowId);
   }
 
-  public async saveAsPDF(windowInfo: WindowInfo, filePath: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public async saveAsPDF(
+    windowInfo: WindowInfo,
+    filePath: string,
+    failSafe = false
+  ): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
       windowInfo.browserWindow.webContents.printToPDF(
         {
           marginsType: 0, // default margin
@@ -113,10 +119,14 @@ class WindowManager {
           }
           fs.writeFile(filePath, data, saveError => {
             if (saveError) {
-              reject(saveError);
+              if (failSafe) {
+                resolve(data);
+              } else {
+                reject(saveError);
+              }
               return;
             }
-            resolve();
+            resolve(data);
           });
         }
       );
@@ -274,6 +284,9 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ReportsApp) {
       return {id: 'reports', size: {}};
     }
+    if (appInfo.type === ClientAppType.ReportsPrinterApp) {
+      return {id: 'reports-printer', size: {width: 1200}, forPrinting: true};
+    }
     if (appInfo.type === ClientAppType.PlanProdPrinterApp) {
       return {id: 'plan-prod-printer', size: {width: 1100}, forPrinting: true};
     }
@@ -336,7 +349,9 @@ class WindowManager {
       } else if (size.width === undefined && size.height === undefined) {
         newBrowserWindow.maximize();
       }
-      newBrowserWindow.show();
+      if (!forPrinting) {
+        newBrowserWindow.show();
+      }
       return windowInfo;
     } catch (err) {
       // If something went wrong, close the window and remove it from the window manager

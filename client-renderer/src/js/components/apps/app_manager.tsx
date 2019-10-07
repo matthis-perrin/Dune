@@ -170,7 +170,7 @@ export class AppManager extends React.Component<Props, State> {
       return [operationsStore, constantsStore];
     }
 
-    if (type === ClientAppType.ReportsApp) {
+    if (type === ClientAppType.ReportsApp || type === ClientAppType.ReportsPrinterApp) {
       return [
         colorsStore,
         stocksStore,
@@ -273,6 +273,10 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.ReportsApp) {
       const {initialDay} = asMap(data);
       return <ReportsApp initialDay={asNumber(initialDay, undefined)} />;
+    }
+
+    if (type === ClientAppType.ReportsPrinterApp) {
+      return <ReportsApp initialDay={Date.now()} />;
     }
 
     if (type === ClientAppType.PlanProdPrinterApp) {

@@ -208,8 +208,12 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
                 return <LoadingIndicator size="large" />;
               }
               const scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
+              const scalingStyles: React.CSSProperties = {
+                transformOrigin: 'left top',
+                transform: `scale(${scale})`,
+              };
               return (
-                <ReportWrapper style={{zoom: scale}}>
+                <ReportWrapper style={scalingStyles}>
                   {this.renderTitle()}
                   {this.renderSummary(constants)}
                   <ReportSectionTitle>Historique des vitesses</ReportSectionTitle>

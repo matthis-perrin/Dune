@@ -15,7 +15,8 @@
     "// --- DEV COMMANDS ---": "",
     "build:dev": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts",
     "build:dev:lint": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts --lintAutoFix",
-    "start": "electron --inspect dist/index.js"
+    "start": "electron --inspect dist/index.js",
+    "start-report": "electron dist/index.js action=report archive=C:\\Users\\Matthis"
   },
   "main": "dist/index.js",
   "build": {
@@ -46,6 +47,7 @@
     "electron-log": "^3.0.5",
     "knex": "^0.16.5",
     "lodash": "^4.17.11",
+    "nodejs-nodemailer-outlook": "^1.2.1",
     "sqlite3": "^4.0.9"
   },
   "devDependencies": {

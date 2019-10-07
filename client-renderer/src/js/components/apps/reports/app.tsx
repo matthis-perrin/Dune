@@ -231,6 +231,8 @@ const AppWrapper = styled.div`
   background-color: ${Palette.Clouds};
   @media print {
     background-color: ${Palette.White};
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
   overflow-y: scroll;
 `;

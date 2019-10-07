@@ -399,6 +399,7 @@ export enum ClientAppType {
   StopApp = 'StopApp',
   StatisticsApp = 'StatisticsApp',
   ReportsApp = 'ReportsApp',
+  ReportsPrinterApp = 'ReportsPrinterApp',
   PlanProdPrinterApp = 'PlanProdPrinterApp',
 }
 

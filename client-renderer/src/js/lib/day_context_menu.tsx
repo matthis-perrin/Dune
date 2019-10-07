@@ -33,6 +33,7 @@ export function showDayContextMenu(
   date: Date,
   onRefreshNeeded: () => void
 ): void {
+  console.log('showDayContextMenu');
   const minEventTime = schedule.lastSpeedTime ? schedule.lastSpeedTime.time : Date.now();
   if (date.getTime() > minEventTime) {
     contextMenuManager
