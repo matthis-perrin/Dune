@@ -14,7 +14,7 @@ export const CadencierColumns = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
-export async function createCadencierTable(db: knex): Promise<void> {
+export async function createCadencierTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(CADENCIER_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(CADENCIER_TABLE_NAME, table => {
@@ -29,6 +29,9 @@ export async function createCadencierTable(db: knex): Promise<void> {
       table.dateTime(CadencierColumns.LAST_UPDATE_COLUMN);
       table.dateTime(CadencierColumns.LOCAL_UPDATE_COLUMN);
     });
+  }
+  if (truncateGescom) {
+    await db(CADENCIER_TABLE_NAME).truncate();
   }
 }
 

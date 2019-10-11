@@ -33,12 +33,11 @@ export function getBobineFilleClichePose(
     const couleursImpression = getCouleursForCliches(cliche1, cliche2);
     return poses.map(pose => {
       const hash = getBobineHash(laize, pose, couleursImpression);
-      const transformedCouleurPapier = couleurPapier === 'ECRU ENDUIT' ? 'ECRU' : couleurPapier;
       return {
         ref,
         laize,
         grammage,
-        couleurPapier: transformedCouleurPapier,
+        couleurPapier,
         hash,
         pose,
         couleursImpression,

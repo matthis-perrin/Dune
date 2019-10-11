@@ -12,7 +12,7 @@ export interface GescomSyncData {
   lastChecked: Date;
 }
 
-export async function createGescomSyncTable(db: knex): Promise<void> {
+export async function createGescomSyncTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(GESCOM_SYNC_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(GESCOM_SYNC_TABLE_NAME, table => {
@@ -23,6 +23,9 @@ export async function createGescomSyncTable(db: knex): Promise<void> {
       table.dateTime(LAST_UPDATED_COLUMN).notNullable();
       table.dateTime(LAST_CHECKED_COLUMN).notNullable();
     });
+  }
+  if (truncateGescom) {
+    await db(GESCOM_SYNC_TABLE_NAME).truncate();
   }
 }
 

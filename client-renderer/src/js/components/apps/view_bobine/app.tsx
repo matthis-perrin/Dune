@@ -332,7 +332,13 @@ export class ViewBobineApp extends React.Component<Props, State> {
     const {bobineRef} = this.props;
     const {bobine} = this.state;
     const barcode = bobine ? (
-      <Barcode value={bobine.ref} displayValue={false} height={58} margin={4} />
+      <Barcode
+        value={'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'}
+        format="CODE39"
+        displayValue
+        height={58}
+        // margin={4}
+      />
     ) : (
       <React.Fragment />
     );

@@ -1,8 +1,8 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
-import path from 'path';
 import {sendEmail} from 'nodejs-nodemailer-outlook';
+import path from 'path';
 
 import {loadConfig} from '@root/config';
 import {prodHoursStore, constantsStore} from '@root/stores';

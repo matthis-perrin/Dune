@@ -112,7 +112,8 @@ export async function insertOrUpdateSpeedTimes(
           if (deleteCount > 0) {
             console.warn(
               `Updating ${deleteCount} time_speeds. This should not happend.`,
-              timeSpeeds
+              timeSpeeds,
+              res
             );
           }
           db.batchInsert(

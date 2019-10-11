@@ -79,6 +79,7 @@ export function filterPapiersForSelectablePolypros(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(`filterPapiersForSelectablePolypros dropping ${dropped.length} Papier`);
+    console.log(dropped.map(p => p.ref));
   }
   return newPapiers;
 }
@@ -95,6 +96,7 @@ export function filterPapiersForSelectableRefentes(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(`filterPapiersForSelectableRefentes dropping ${dropped.length} Papier`);
+    console.log(dropped.map(p => p.ref));
   }
   return newPapiers;
 }
@@ -284,6 +286,8 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   bobinesFilles: BobineFilleClichePose[],
   nbEncriers: number
 ): BobineMerePapier[] {
+  console.log('\n\n\n\n\n');
+  console.log(selectableRefentes, bobinesFilles, nbEncriers);
   // We sort the refente to have the ones where it's easy to find a combinaison of bobines first
   const sortedSelectableRefentes = [...selectableRefentes].sort((r1, r2) => {
     if (r1.laizes.length !== r2.laizes.length) {
@@ -307,6 +311,7 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   });
 
   const newPapiers = selectablePapiers.filter(papier => {
+    const test = papier.ref === '84-900-01';
     // Check if the selected bobines are compatible with that Papier.
     // Should never happen?
     if (bobinesFilles.length > 0) {
@@ -326,8 +331,12 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
     const filteredSelectableBobines = filterBobinesFillesForSelectedPapier(
       selectableBobinesFilles,
       papier,
-      false /* debug */
+      test /* debug */
     );
+    if (test) {
+      console.log(uniq(selectableBobinesFilles.map(b => b.couleurPapier)));
+      console.log(filteredSelectableBobines.map(b => b.couleurPapier));
+    }
     for (const refente of sortedSelectableRefentes) {
       // Ensure the refente is compatible with the papier.
       if (refente.laize !== papier.laize) {
@@ -352,6 +361,9 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
         dropped.length
       } Papier`
     );
+    console.log(selectablePapiers.map(p => p.ref));
+    console.log(dropped.map(p => p.ref));
   }
+  console.log('\n\n\n\n\n');
   return newPapiers;
 }

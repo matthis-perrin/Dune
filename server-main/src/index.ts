@@ -19,10 +19,11 @@ import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_
 
 configureLogs();
 const forceProdMode = false;
+const truncateGescom = process.env.MODE !== 'development' || forceProdMode;
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
-  await setupSqliteDB();
+  await setupSqliteDB(truncateGescom);
   log.info('Starting Prod Hours store');
   await prodHoursStore.start();
   await constantsStore.start();

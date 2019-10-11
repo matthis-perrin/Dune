@@ -15,7 +15,7 @@ export const StockColumns = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
-export async function createStocksTable(db: knex): Promise<void> {
+export async function createStocksTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(STOCKS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(STOCKS_TABLE_NAME, table => {
@@ -31,6 +31,9 @@ export async function createStocksTable(db: knex): Promise<void> {
       table.dateTime(StockColumns.LAST_UPDATE_COLUMN);
       table.dateTime(StockColumns.LOCAL_UPDATE_COLUMN);
     });
+  }
+  if (truncateGescom) {
+    await db(STOCKS_TABLE_NAME).truncate();
   }
 }
 

@@ -1,3 +1,4 @@
+import * as log from 'electron-log';
 import {Socket} from 'net';
 
 import {aggregator} from '@root/automate/aggregator';
@@ -34,9 +35,13 @@ class AutomateWatcher {
 
   private setupSocketEventHandlers(): void {
     this.socket.on('data', buffer => {
-      // tslint:disable-next-line:no-magic-numbers
-      const value = buffer.readUInt32BE(buffer.length - 4);
-      this.handleSpeed(value);
+      try {
+        // tslint:disable-next-line:no-magic-numbers
+        const value = buffer.readUInt32BE(buffer.length - 4);
+        this.handleSpeed(value);
+      } catch (err) {
+        log.error('Failure top parse automate response.', err, buffer);
+      }
     });
     this.socket.on('close', () => this.restart());
     this.socket.on('end', () => this.restart());
@@ -67,6 +72,11 @@ class AutomateWatcher {
 
   private restart(): void {
     if (this.isStarting || this.isStopping) {
+      log.info(
+        'Not restarting because socket is already starting or stopping',
+        this.isStarting,
+        this.isStopping
+      );
       return;
     }
 
@@ -75,15 +85,17 @@ class AutomateWatcher {
       return;
     }
 
+    log.info('Restarting socket');
     this.isStarting = true;
     this.connect()
       .then(() => {
+        log.info('Restart success');
         this.isStarting = false;
         this.fetchOnce();
       })
       .catch(err => {
-        addError("Erreur lors de la connexion à l'automate", String(err));
         this.isStarting = false;
+        addError("Erreur lors de la connexion à l'automate", String(err));
         setTimeout(() => {
           this.restart();
         }, WAIT_ON_ERROR);

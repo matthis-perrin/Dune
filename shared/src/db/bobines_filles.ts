@@ -20,7 +20,7 @@ export const BobineFilleColumns = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
-export async function createBobinesFillesTable(db: knex): Promise<void> {
+export async function createBobinesFillesTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(BOBINES_FILLES_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(BOBINES_FILLES_TABLE_NAME, table => {
@@ -41,6 +41,9 @@ export async function createBobinesFillesTable(db: knex): Promise<void> {
       table.dateTime(BobineFilleColumns.LAST_UPDATE_COLUMN);
       table.dateTime(BobineFilleColumns.LOCAL_UPDATE_COLUMN);
     });
+  }
+  if (truncateGescom) {
+    await db(BOBINES_FILLES_TABLE_NAME).truncate();
   }
 }
 

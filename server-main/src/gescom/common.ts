@@ -31,14 +31,14 @@ import {createStocksTable} from '@shared/db/stocks';
 import {createUnplannedStopTable} from '@shared/db/unplanned_stops';
 import {errorAsString, asArray, asMap, asDate} from '@shared/type_utils';
 
-export async function setupSqliteDB(): Promise<void> {
+export async function setupSqliteDB(truncateGescom: boolean): Promise<void> {
   await Promise.all([
-    createBobinesFillesTable(SQLITE_DB.Gescom),
-    createBobinesMeresTable(SQLITE_DB.Gescom),
-    createClichesTable(SQLITE_DB.Gescom),
-    createStocksTable(SQLITE_DB.Gescom),
-    createGescomSyncTable(SQLITE_DB.Gescom),
-    createCadencierTable(SQLITE_DB.Gescom),
+    createBobinesFillesTable(SQLITE_DB.Gescom, truncateGescom),
+    createBobinesMeresTable(SQLITE_DB.Gescom, truncateGescom),
+    createClichesTable(SQLITE_DB.Gescom, truncateGescom),
+    createStocksTable(SQLITE_DB.Gescom, truncateGescom),
+    createGescomSyncTable(SQLITE_DB.Gescom, truncateGescom),
+    createCadencierTable(SQLITE_DB.Gescom, truncateGescom),
 
     createPerfosTable(SQLITE_DB.Params),
     createRefentesTable(SQLITE_DB.Params),

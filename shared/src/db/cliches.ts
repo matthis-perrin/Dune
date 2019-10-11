@@ -23,7 +23,7 @@ export const ClichesColumn = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
-export async function createClichesTable(db: knex): Promise<void> {
+export async function createClichesTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(CLICHES_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(CLICHES_TABLE_NAME, table => {
@@ -47,6 +47,9 @@ export async function createClichesTable(db: knex): Promise<void> {
       table.dateTime(ClichesColumn.LAST_UPDATE_COLUMN);
       table.dateTime(ClichesColumn.LOCAL_UPDATE_COLUMN);
     });
+  }
+  if (truncateGescom) {
+    await db(CLICHES_TABLE_NAME).truncate();
   }
 }
 
