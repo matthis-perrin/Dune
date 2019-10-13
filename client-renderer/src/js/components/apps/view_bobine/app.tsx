@@ -1,6 +1,5 @@
 import {find} from 'lodash-es';
 import * as React from 'react';
-import Barcode from 'react-barcode';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 
@@ -331,17 +330,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {bobineRef} = this.props;
     const {bobine} = this.state;
-    const barcode = bobine ? (
-      <Barcode
-        value={'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'}
-        format="CODE39"
-        displayValue
-        height={58}
-        // margin={4}
-      />
-    ) : (
-      <React.Fragment />
-    );
+    const barcode = bobine ? <C39>{bobine.ref}</C39> : <React.Fragment />;
 
     return (
       <AppWrapper>
@@ -454,4 +443,11 @@ const CadencierChartContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const C39 = styled.div`
+  font-family: C39;
+  background-color: white;
+  font-size: 64px;
+  padding: 4px 8px;
 `;
