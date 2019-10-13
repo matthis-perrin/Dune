@@ -22,9 +22,9 @@ export async function createPlansProductionTable(db: knex): Promise<void> {
         .integer(PlansProductionColumn.ID_COLUMN)
         .notNullable()
         .primary();
-      table.integer(PlansProductionColumn.INDEX_COLUMN);
-      table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY);
-      table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY);
+      table.integer(PlansProductionColumn.INDEX_COLUMN).nullable();
+      table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY).nullable();
+      table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY).nullable();
       table.text(PlansProductionColumn.DATA_COLUMN).notNullable();
       table.dateTime(PlansProductionColumn.LOCAL_UPDATE_COLUMN).notNullable();
     });

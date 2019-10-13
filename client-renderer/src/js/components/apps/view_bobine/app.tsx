@@ -122,7 +122,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
             {title: 'Laize', value: bobine.laize},
             {title: 'Couleur Papier', value: bobine.couleurPapier},
             {title: 'Grammage', value: `${bobine.grammage}g`},
-            {title: 'Longueur', value: `${bobine.longueur}m`},
+            {title: 'Longueur', value: `${bobine.longueurDesignation}m`},
             {title: "Type d'impression", value: bobine.typeImpression || 'Neutre'},
           ]}
         />

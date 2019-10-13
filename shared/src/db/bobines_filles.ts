@@ -1,7 +1,8 @@
 import knex from 'knex';
 
+import {listLongueurs} from '@shared/db/longueurs';
 import {BOBINES_FILLES_TABLE_NAME} from '@shared/db/table_names';
-import {BobineFille} from '@shared/models';
+import {BobineFille, Longueurs} from '@shared/models';
 import {asMap, asNumber, asString} from '@shared/type_utils';
 
 export const BobineFilleColumns = {
@@ -28,18 +29,18 @@ export async function createBobinesFillesTable(db: knex, truncateGescom: boolean
         .string(BobineFilleColumns.REF_COLUMN)
         .notNullable()
         .primary();
-      table.string(BobineFilleColumns.DESIGNATION_COLUMN);
-      table.string(BobineFilleColumns.DESIGNATION_OPERATEUR_COLUMN);
-      table.integer(BobineFilleColumns.LAIZE_COLUMN);
-      table.integer(BobineFilleColumns.LONGUEUR_COLUMN);
-      table.string(BobineFilleColumns.COULEUR_PAPIER_COLUMN);
-      table.integer(BobineFilleColumns.GRAMMAGE_COLUMN);
-      table.string(BobineFilleColumns.REF_CLICHE_1_COLUMN);
-      table.string(BobineFilleColumns.REF_CLICHE_2_COLUMN);
-      table.string(BobineFilleColumns.TYPE_IMPRESSION_COLUMN);
-      table.boolean(BobineFilleColumns.SOMMEIL_COLUMN);
-      table.dateTime(BobineFilleColumns.LAST_UPDATE_COLUMN);
-      table.dateTime(BobineFilleColumns.LOCAL_UPDATE_COLUMN);
+      table.string(BobineFilleColumns.DESIGNATION_COLUMN).nullable();
+      table.string(BobineFilleColumns.DESIGNATION_OPERATEUR_COLUMN).nullable();
+      table.integer(BobineFilleColumns.LAIZE_COLUMN).nullable();
+      table.integer(BobineFilleColumns.LONGUEUR_COLUMN).nullable();
+      table.string(BobineFilleColumns.COULEUR_PAPIER_COLUMN).nullable();
+      table.integer(BobineFilleColumns.GRAMMAGE_COLUMN).nullable();
+      table.string(BobineFilleColumns.REF_CLICHE_1_COLUMN).nullable();
+      table.string(BobineFilleColumns.REF_CLICHE_2_COLUMN).nullable();
+      table.string(BobineFilleColumns.TYPE_IMPRESSION_COLUMN).nullable();
+      table.boolean(BobineFilleColumns.SOMMEIL_COLUMN).nullable();
+      table.dateTime(BobineFilleColumns.LAST_UPDATE_COLUMN).nullable();
+      table.dateTime(BobineFilleColumns.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
   if (truncateGescom) {
@@ -53,15 +54,39 @@ export async function deleteBobinesFilles(db: knex, refs: string[]): Promise<voi
     .delete();
 }
 
+function getRealLongueur(
+  longueurMapping: Longueurs[],
+  longueur: number | undefined,
+  couleurPapier: string | undefined
+): number | undefined {
+  if (longueur === undefined) {
+    return undefined;
+  }
+  const matchingLongueurs = longueurMapping.filter(l => l.longueur === longueur);
+  const matchingLongueursAndColors = matchingLongueurs.filter(l => l.colorRef === couleurPapier);
+  if (matchingLongueursAndColors.length > 0) {
+    return matchingLongueursAndColors[0].realLongueur;
+  }
+  if (matchingLongueurs.length > 0) {
+    return matchingLongueurs[0].realLongueur;
+  }
+  return longueur;
+}
+
 export async function listBobinesFilles(
-  db: knex,
+  dbGescom: knex,
+  dbParams: knex,
   sinceLocalUpdate: number
 ): Promise<BobineFille[]> {
-  return db(BOBINES_FILLES_TABLE_NAME)
+  const longueurMapping = await listLongueurs(dbParams);
+  return dbGescom(BOBINES_FILLES_TABLE_NAME)
     .select()
     .where(BobineFilleColumns.LOCAL_UPDATE_COLUMN, '>', new Date(sinceLocalUpdate))
     .map(bobineFilleLine => {
       const b = asMap(bobineFilleLine);
+      const longueurDesignation = asNumber(b[BobineFilleColumns.LONGUEUR_COLUMN], undefined);
+      const couleurPapier = asString(b[BobineFilleColumns.COULEUR_PAPIER_COLUMN], undefined);
+      const realLongueur = getRealLongueur(longueurMapping, longueurDesignation, couleurPapier);
       return {
         ref: asString(b[BobineFilleColumns.REF_COLUMN], ''),
         designation: asString(b[BobineFilleColumns.DESIGNATION_COLUMN], undefined),
@@ -70,8 +95,9 @@ export async function listBobinesFilles(
           undefined
         ),
         laize: asNumber(b[BobineFilleColumns.LAIZE_COLUMN], undefined),
-        longueur: asNumber(b[BobineFilleColumns.LONGUEUR_COLUMN], undefined),
-        couleurPapier: asString(b[BobineFilleColumns.COULEUR_PAPIER_COLUMN], undefined),
+        longueur: realLongueur,
+        longueurDesignation,
+        couleurPapier,
         grammage: asNumber(b[BobineFilleColumns.GRAMMAGE_COLUMN], undefined),
         refCliche1: asString(b[BobineFilleColumns.REF_CLICHE_1_COLUMN], undefined),
         refCliche2: asString(b[BobineFilleColumns.REF_CLICHE_2_COLUMN], undefined),

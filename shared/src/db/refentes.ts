@@ -30,16 +30,16 @@ export async function createRefentesTable(db: knex): Promise<void> {
         .primary();
       table.string(RefentesColumn.REF_PERFO_COLUMN).notNullable();
       table.integer(RefentesColumn.DECALAGE_COLUMN).notNullable();
-      table.integer(RefentesColumn.LAIZE_1_COLUMN);
-      table.integer(RefentesColumn.LAIZE_2_COLUMN);
-      table.integer(RefentesColumn.LAIZE_3_COLUMN);
-      table.integer(RefentesColumn.LAIZE_4_COLUMN);
-      table.integer(RefentesColumn.LAIZE_5_COLUMN);
-      table.integer(RefentesColumn.LAIZE_6_COLUMN);
-      table.integer(RefentesColumn.LAIZE_7_COLUMN);
-      table.integer(RefentesColumn.CHUTE_COLUMN);
-      table.boolean(RefentesColumn.SOMMEIL_COLUMN);
-      table.dateTime(RefentesColumn.LOCAL_UPDATE_COLUMN);
+      table.integer(RefentesColumn.LAIZE_1_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_2_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_3_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_4_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_5_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_6_COLUMN).nullable();
+      table.integer(RefentesColumn.LAIZE_7_COLUMN).nullable();
+      table.integer(RefentesColumn.CHUTE_COLUMN).nullable();
+      table.boolean(RefentesColumn.SOMMEIL_COLUMN).nullable();
+      table.dateTime(RefentesColumn.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
 }

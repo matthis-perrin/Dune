@@ -24,14 +24,14 @@ export async function createBobinesMeresTable(db: knex, truncateGescom: boolean)
         .string(BobineMereColumns.REF_COLUMN)
         .notNullable()
         .primary();
-      table.string(BobineMereColumns.DESIGNATION_COLUMN);
-      table.integer(BobineMereColumns.LAIZE_COLUMN);
-      table.integer(BobineMereColumns.LONGUEUR_COLUMN);
-      table.string(BobineMereColumns.COULEUR_PAPIER_COLUMN);
-      table.integer(BobineMereColumns.GRAMMAGE_COLUMN);
-      table.boolean(BobineMereColumns.SOMMEIL_COLUMN);
-      table.dateTime(BobineMereColumns.LAST_UPDATE_COLUMN);
-      table.dateTime(BobineMereColumns.LOCAL_UPDATE_COLUMN);
+      table.string(BobineMereColumns.DESIGNATION_COLUMN).nullable();
+      table.integer(BobineMereColumns.LAIZE_COLUMN).nullable();
+      table.integer(BobineMereColumns.LONGUEUR_COLUMN).nullable();
+      table.string(BobineMereColumns.COULEUR_PAPIER_COLUMN).nullable();
+      table.integer(BobineMereColumns.GRAMMAGE_COLUMN).nullable();
+      table.boolean(BobineMereColumns.SOMMEIL_COLUMN).nullable();
+      table.dateTime(BobineMereColumns.LAST_UPDATE_COLUMN).nullable();
+      table.dateTime(BobineMereColumns.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
   if (truncateGescom) {

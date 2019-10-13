@@ -9,7 +9,7 @@ import {
   STOCK_TERME_COLUMN,
   STOCK_REEL_COLUMN,
   STOCK_COMMANDE_COLUMN,
-  LONGUEUR_COLUMN,
+  REAL_LONGUEUR_COLUMN,
   GRAMMAGE_M2_COLUMN,
 } from '@root/components/table/columns';
 import {bobinesMeresStore, stocksStore} from '@root/stores/list_store';
@@ -68,7 +68,7 @@ export class ListPolyprosApp extends React.Component<Props, State> {
           BOBINE_MERE_REF_COLUMN,
           DESIGNATION_COLUMN,
           LAIZE_COLUMN,
-          LONGUEUR_COLUMN,
+          REAL_LONGUEUR_COLUMN,
           GRAMMAGE_M2_COLUMN,
           STOCK_REEL_COLUMN(stocks),
           STOCK_COMMANDE_COLUMN(stocks),

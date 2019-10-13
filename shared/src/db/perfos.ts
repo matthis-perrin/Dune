@@ -34,22 +34,22 @@ export async function createPerfosTable(db: knex): Promise<void> {
         .notNullable()
         .primary();
       table.integer(PerfosColumn.DECALAGE_INITIAL_COLUMN).notNullable();
-      table.integer(PerfosColumn.CALE_1_COLUMN);
-      table.integer(PerfosColumn.BAGUE_1_COLUMN);
-      table.integer(PerfosColumn.CALE_2_COLUMN);
-      table.integer(PerfosColumn.BAGUE_2_COLUMN);
-      table.integer(PerfosColumn.CALE_3_COLUMN);
-      table.integer(PerfosColumn.BAGUE_3_COLUMN);
-      table.integer(PerfosColumn.CALE_4_COLUMN);
-      table.integer(PerfosColumn.BAGUE_4_COLUMN);
-      table.integer(PerfosColumn.CALE_5_COLUMN);
-      table.integer(PerfosColumn.BAGUE_5_COLUMN);
-      table.integer(PerfosColumn.CALE_6_COLUMN);
-      table.integer(PerfosColumn.BAGUE_6_COLUMN);
-      table.integer(PerfosColumn.CALE_7_COLUMN);
-      table.integer(PerfosColumn.BAGUE_7_COLUMN);
-      table.boolean(PerfosColumn.SOMMEIL_COLUMN);
-      table.dateTime(PerfosColumn.LOCAL_UPDATE_COLUMN);
+      table.integer(PerfosColumn.CALE_1_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_1_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_2_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_2_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_3_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_3_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_4_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_4_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_5_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_5_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_6_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_6_COLUMN).nullable();
+      table.integer(PerfosColumn.CALE_7_COLUMN).nullable();
+      table.integer(PerfosColumn.BAGUE_7_COLUMN).nullable();
+      table.boolean(PerfosColumn.SOMMEIL_COLUMN).nullable();
+      table.dateTime(PerfosColumn.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
 }

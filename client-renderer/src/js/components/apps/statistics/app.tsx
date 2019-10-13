@@ -31,7 +31,8 @@ interface StatisticsAppState {
   statsMetric: StatsMetric;
 }
 
-const MS_IN_DAY = 24 * 60 * 60 * 1000;
+const HOURS_IN_DAY = 24;
+const MS_IN_DAY = HOURS_IN_DAY * 60 * 60 * 1000;
 
 export class StatisticsApp extends React.Component<StatisticsAppProps, StatisticsAppState> {
   public static displayName = 'StatisticsApp';

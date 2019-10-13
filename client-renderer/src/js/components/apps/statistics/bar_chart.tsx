@@ -148,7 +148,9 @@ export class BarChart extends React.Component<BarChartProps> {
         ? {
             color: Palette.White,
           }
-        : barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
+        : // Sorry, I don't remember what this 40 correspond to
+        // tslint:disable-next-line:no-magic-numbers
+        barDataSets.length === 0 || barDataSets.length * barDataSets[0].data.length > 40
         ? {
             rotation: -90,
             anchor: 'start' as 'start',

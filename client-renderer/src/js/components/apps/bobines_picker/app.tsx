@@ -44,6 +44,8 @@ import {
   Schedule,
 } from '@shared/models';
 
+const DEFAULT_SPEED = 180;
+
 // tslint:disable-next-line:no-any
 type AnyColumns = ColumnMetadata<BobineFilleWithMultiPose & {start: number}, any>[];
 
@@ -185,7 +187,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
               const searchBarHeight = theme.table.searchBarHeight;
               const availableWidth = width;
 
-              const planProduction = asPlanProduction(planProd, id, 180);
+              const planProduction = asPlanProduction(planProd, id, DEFAULT_SPEED);
               const emulatedSchedule =
                 planProduction &&
                 this.scheduleStore.emulateWithPlan(planProduction, planProd.index);

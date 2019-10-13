@@ -55,7 +55,7 @@ export class StatsSummaryTable extends React.Component<StatsSummaryTableProps> {
                     filter
                   );
                   return (
-                    <tr>
+                    <tr key={filter.name}>
                       <FilterLabelCell style={{backgroundColor: filter.color}}>
                         {filter.label}
                       </FilterLabelCell>

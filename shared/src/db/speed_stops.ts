@@ -24,12 +24,12 @@ export async function createSpeedStopsTable(db: knex): Promise<void> {
         .integer(SpeedStopsColumn.Start)
         .notNullable()
         .primary();
-      table.integer(SpeedStopsColumn.End);
-      table.text(SpeedStopsColumn.StopType);
-      table.text(SpeedStopsColumn.StopInfo);
-      table.integer(SpeedStopsColumn.PlanProdId);
-      table.integer(SpeedStopsColumn.MaintenanceId);
-      table.text(SpeedStopsColumn.Title);
+      table.integer(SpeedStopsColumn.End).nullable();
+      table.text(SpeedStopsColumn.StopType).nullable();
+      table.text(SpeedStopsColumn.StopInfo).nullable();
+      table.integer(SpeedStopsColumn.PlanProdId).nullable();
+      table.integer(SpeedStopsColumn.MaintenanceId).nullable();
+      table.text(SpeedStopsColumn.Title).nullable();
     });
   }
 }

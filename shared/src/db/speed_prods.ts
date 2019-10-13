@@ -20,9 +20,9 @@ export async function createSpeedProdsTable(db: knex): Promise<void> {
         .integer(SpeedProdsColumn.Start)
         .notNullable()
         .primary();
-      table.integer(SpeedProdsColumn.End);
-      table.integer(SpeedProdsColumn.AvgSpeed);
-      table.integer(SpeedProdsColumn.PlanProdId);
+      table.integer(SpeedProdsColumn.End).nullable();
+      table.integer(SpeedProdsColumn.AvgSpeed).nullable();
+      table.integer(SpeedProdsColumn.PlanProdId).nullable();
     });
   }
 }

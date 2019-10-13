@@ -20,7 +20,7 @@ interface PlanProdPopupProps {
 
 export class PlanProdPopup extends React.Component<PlanProdPopupProps> {
   public static displayName = 'PlanProdPopup';
-  private readonly childrenRef = React.createRef<any>();
+  private readonly childrenRef = React.createRef<HTMLElement>();
   private showViewerTimeout: number | undefined;
 
   private getViewerWidthHeightRatio(callback: (ratio: number) => void): void {

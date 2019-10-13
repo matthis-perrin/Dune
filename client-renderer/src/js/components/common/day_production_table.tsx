@@ -49,7 +49,7 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
       const bobines = s.planProd.data.bobines;
       const meters = s.doneProdMeters + s.plannedProdMeters;
       const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
-      const tour = meters / longueurFirstBobine;
+      const tour = Math.round(meters / longueurFirstBobine);
       if (tour > 0) {
         bobines.forEach(b => {
           const pose = getPoseSize(b.pose);

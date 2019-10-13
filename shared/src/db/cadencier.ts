@@ -26,8 +26,8 @@ export async function createCadencierTable(db: knex, truncateGescom: boolean): P
       table.integer(CadencierColumns.TYPE_COLUMN).notNullable();
       table.integer(CadencierColumns.VENTE_QUANTITE_COLUMN).notNullable();
       table.dateTime(CadencierColumns.VENTE_QUANTITE_DATE_COLUMN).notNullable();
-      table.dateTime(CadencierColumns.LAST_UPDATE_COLUMN);
-      table.dateTime(CadencierColumns.LOCAL_UPDATE_COLUMN);
+      table.dateTime(CadencierColumns.LAST_UPDATE_COLUMN).nullable();
+      table.dateTime(CadencierColumns.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
   if (truncateGescom) {

@@ -31,21 +31,21 @@ export async function createClichesTable(db: knex, truncateGescom: boolean): Pro
         .string(ClichesColumn.REF_COLUMN)
         .notNullable()
         .primary();
-      table.string(ClichesColumn.DESIGNATION_COLUMN);
-      table.integer(ClichesColumn.NOMBRE_POSES_A_COLUMN);
-      table.integer(ClichesColumn.NOMBRE_POSES_B_COLUMN);
-      table.integer(ClichesColumn.NOMBRE_POSES_C_COLUMN);
-      table.integer(ClichesColumn.NOMBRE_POSES_D_COLUMN);
-      table.string(ClichesColumn.COULEUR_1_COLUMN);
-      table.string(ClichesColumn.COULEUR_2_COLUMN);
-      table.string(ClichesColumn.COULEUR_3_COLUMN);
-      table.string(ClichesColumn.COULEUR_4_COLUMN);
-      table.string(ClichesColumn.COULEUR_5_COLUMN);
-      table.string(ClichesColumn.COULEUR_6_COLUMN);
-      table.boolean(ClichesColumn.IMPORTANCE_ORDRE_COULEURS_COLUMN);
-      table.boolean(ClichesColumn.SOMMEIL_COLUMN);
-      table.dateTime(ClichesColumn.LAST_UPDATE_COLUMN);
-      table.dateTime(ClichesColumn.LOCAL_UPDATE_COLUMN);
+      table.string(ClichesColumn.DESIGNATION_COLUMN).nullable();
+      table.integer(ClichesColumn.NOMBRE_POSES_A_COLUMN).nullable();
+      table.integer(ClichesColumn.NOMBRE_POSES_B_COLUMN).nullable();
+      table.integer(ClichesColumn.NOMBRE_POSES_C_COLUMN).nullable();
+      table.integer(ClichesColumn.NOMBRE_POSES_D_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_1_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_2_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_3_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_4_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_5_COLUMN).nullable();
+      table.string(ClichesColumn.COULEUR_6_COLUMN).nullable();
+      table.boolean(ClichesColumn.IMPORTANCE_ORDRE_COULEURS_COLUMN).nullable();
+      table.boolean(ClichesColumn.SOMMEIL_COLUMN).nullable();
+      table.dateTime(ClichesColumn.LAST_UPDATE_COLUMN).nullable();
+      table.dateTime(ClichesColumn.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
   if (truncateGescom) {

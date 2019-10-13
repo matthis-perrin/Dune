@@ -28,8 +28,8 @@ export async function createStocksTable(db: knex, truncateGescom: boolean): Prom
       table.integer(StockColumns.REEL_COLUMN).notNullable();
       table.integer(StockColumns.COMMANDE_COLUMN).notNullable();
       table.integer(StockColumns.RESERVE_COLUMN).notNullable();
-      table.dateTime(StockColumns.LAST_UPDATE_COLUMN);
-      table.dateTime(StockColumns.LOCAL_UPDATE_COLUMN);
+      table.dateTime(StockColumns.LAST_UPDATE_COLUMN).nullable();
+      table.dateTime(StockColumns.LOCAL_UPDATE_COLUMN).nullable();
     });
   }
   if (truncateGescom) {

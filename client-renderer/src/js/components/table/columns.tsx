@@ -227,7 +227,20 @@ export const PISTES_COLUMN: ColumnMetadata<{pistes: number}, number> = {
   shouldRerender: (row1, row2) => row1.pistes !== row2.pistes,
 };
 
-export const LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
+export const LONGUEUR_COLUMN: ColumnMetadata<{longueurDesignation?: number}, number> = {
+  title: 'LONG',
+  width: 64,
+  renderCell: ({longueurDesignation}) => renderNumber(longueurDesignation),
+  justifyContent: 'center',
+  sortFunction: (row1, row2) =>
+    optionalNumberSort(row1.longueurDesignation, row2.longueurDesignation),
+  filter: {
+    getValue: (row: {longueurDesignation?: number}) => row.longueurDesignation || 0,
+  },
+  shouldRerender: (row1, row2) => row1.longueurDesignation !== row2.longueurDesignation,
+};
+
+export const REAL_LONGUEUR_COLUMN: ColumnMetadata<{longueur?: number}, number> = {
   title: 'LONG',
   width: 64,
   renderCell: ({longueur}) => renderNumber(longueur),

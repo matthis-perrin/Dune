@@ -59,7 +59,9 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
                 <BarFilter
                   barTypes={statsMetric.filters}
                   checked={selectedMetricFilterNames}
-                  onChange={selectedMetricFilterNames => this.setState({selectedMetricFilterNames})}
+                  onChange={newFilterName =>
+                    this.setState({selectedMetricFilterNames: newFilterName})
+                  }
                 />
               </BarFilterWrapper>
               <BarChartWrapper>

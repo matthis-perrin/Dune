@@ -45,7 +45,8 @@ export function getMidDay(schedule: Schedule, day: number): number {
     ).getTime();
     return midTime;
   }
-  return dateAtHour(date, 12).getTime();
+  const NOON_HOUR = 12;
+  return dateAtHour(date, NOON_HOUR).getTime();
 }
 
 export function computeStatsData(schedule: Schedule): StatsData {
@@ -178,15 +179,15 @@ export function processStatsData(
 ): number[] {
   const dateGroups = period.xAxis(statsData, prodHours, date);
   return dateGroups.map(dateGroup => {
-    const values = dateGroup.map(date => {
-      const dayStats = statsData.days.get(date);
+    const values = dateGroup.map(d => {
+      const dayStats = statsData.days.get(d);
       if (!dayStats) {
         return [];
       }
-      const values = dayStats.map(planDayStats =>
+      const dayValue = dayStats.map(planDayStats =>
         metric.yAxis(filter.name, planDayStats, operations, constants)
       );
-      return values;
+      return dayValue;
     });
     const flatValues = flatten(flatten(values));
     return flatValues.length === 0

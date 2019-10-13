@@ -74,7 +74,9 @@ export async function handleCommand(
   // Listing commands
   if (command === BridgeCommands.ListBobinesFilles) {
     const {localUpdate} = asMap(params);
-    return {data: await listBobinesFilles(SQLITE_DB.Gescom, asNumber(localUpdate, 0))};
+    return {
+      data: await listBobinesFilles(SQLITE_DB.Gescom, SQLITE_DB.Params, asNumber(localUpdate, 0)),
+    };
   }
   if (command === BridgeCommands.ListBobinesMeres) {
     const {localUpdate} = asMap(params);

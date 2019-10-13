@@ -163,7 +163,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
       const meters = s.doneProdMeters + s.plannedProdMeters;
       totalMeters += meters;
       const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
-      const tour = meters / longueurFirstBobine;
+      const tour = Math.round(meters / longueurFirstBobine);
       if (tour > 0) {
         bobines.forEach(b => {
           const pose = getPoseSize(b.pose);
@@ -230,6 +230,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
                     <BlockTitle>Production du jour</BlockTitle>
                     <BlockContent>
                       {this.renderProductionTable(
+                        // tslint:disable-next-line:no-magic-numbers
                         width - scheduleSize - 3 * blockSpacing - 4 * blockPadding + SCROLLBAR_WIDTH
                       )}
                     </BlockContent>

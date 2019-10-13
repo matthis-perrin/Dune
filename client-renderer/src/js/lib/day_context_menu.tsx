@@ -40,16 +40,13 @@ export function showDayContextMenu(
       .open([
         {
           label: `Nouveau plan de production le ${date.toLocaleDateString('fr')}`,
-          callback: () => {
+          callback: async () => {
             const planProdIndex = getNewPlanProdIndexForDate(schedule, date);
             const start = startOfDay(date).getTime();
             const end = endOfDay(date).getTime();
-            bridge
-              .createNewPlanProduction(planProdIndex)
-              .then(({id}) => {
-                bridge.openPlanProdEditorApp(id, start, end, true).catch(console.error);
-              })
-              .catch(err => console.error(err));
+            return bridge.createNewPlanProduction(planProdIndex).then(async ({id}) => {
+              return bridge.openPlanProdEditorApp(id, start, end, true);
+            });
           },
         },
         {
@@ -67,12 +64,14 @@ export function showDayContextMenu(
       ])
       .catch(console.error);
   } else {
-    contextMenuManager.open([
-      {
-        label: `Imprimer les plans de production du ${date.toLocaleDateString('fr')}`,
-        callback: () => bridge.openApp(ClientAppType.PlanProdPrinterApp, {day: date.getTime()}),
-      },
-    ]);
+    contextMenuManager
+      .open([
+        {
+          label: `Imprimer les plans de production du ${date.toLocaleDateString('fr')}`,
+          callback: () => bridge.openApp(ClientAppType.PlanProdPrinterApp, {day: date.getTime()}),
+        },
+      ])
+      .catch(console.error);
   }
 }
 

@@ -100,7 +100,7 @@ class WindowManager {
   public async saveAsPDF(
     windowInfo: WindowInfo,
     filePath: string,
-    failSafe = false
+    failSafe: boolean = false
   ): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
       windowInfo.browserWindow.webContents.printToPDF(

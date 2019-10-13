@@ -411,7 +411,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
 
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
     const {schedule, day, onPlanProdRefreshNeeded, withContextMenu} = this.props;
-    if (event.type === 'contextmenu' && schedule !== undefined && withContextMenu) {
+    if (event.type === 'contextmenu' && withContextMenu) {
       showDayContextMenu(schedule, day, onPlanProdRefreshNeeded);
     }
   };

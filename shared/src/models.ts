@@ -16,6 +16,7 @@ export interface BobineFille {
   designationOperateur?: string;
   laize?: number;
   longueur?: number;
+  longueurDesignation?: number;
   couleurPapier?: string;
   grammage?: number;
   refCliche1?: string;
@@ -540,4 +541,10 @@ export interface Constants {
   maxSpeed: number; // 180
   maxSpeedRatio: number; // 0.82
   reglageRepriseProdMs: number; // 20 * 60 * 1000
+}
+
+export interface Longueurs {
+  longueur: number;
+  colorRef?: string;
+  realLongueur: number;
 }

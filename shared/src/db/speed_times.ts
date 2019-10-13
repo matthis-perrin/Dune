@@ -17,7 +17,7 @@ export async function createSpeedTimesTable(db: knex): Promise<void> {
         .integer(SpeedTimesColumn.Time)
         .notNullable()
         .primary();
-      table.integer(SpeedTimesColumn.Speed);
+      table.integer(SpeedTimesColumn.Speed).nullable();
     });
   }
 }
