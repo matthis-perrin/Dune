@@ -8,7 +8,7 @@
     "chartjs-plugin-datalabels": "^0.6.0",
     "core-js": "^3.0.0",
     "d3": "^5.9.2",
-    "lodash-es": "^4.17.11",
+    "lodash-es": "^4.17.14",
     "plottable": "^3.8.6",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
