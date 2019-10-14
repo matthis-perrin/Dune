@@ -56,8 +56,14 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   private plot: Plottable.Components.Table | undefined = undefined;
   private lastData: Datum[] = [];
   private lastEvents: SpeedChartEvent[] = [];
+
   private barDataset: Plottable.Dataset | undefined = undefined;
   private eventDataset: Plottable.Dataset | undefined = undefined;
+  private pziXAxis: Plottable.Interactions.PanZoom | undefined = undefined;
+  private xAxis: Plottable.Axes.Time | undefined = undefined;
+  private bars: Plottable.Plots.Rectangle<Date, number> | undefined = undefined;
+  private previousStart: Date | undefined = undefined;
+  private previousEnd: Date | undefined = undefined;
 
   public componentDidMount(): void {
     window.addEventListener('resize', this.handleResize);
@@ -190,6 +196,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     // Scales
     const firstDate = data[0].start;
     const lastDate = data[data.length - 1].start;
+    this.previousStart = firstDate;
+    this.previousEnd = lastDate;
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
     const yScale = new Plottable.Scales.Linear().domain(PLOT_SPEED_RANGE);
     yScale.defaultTicks = () => PLOT_SPEED_TICKS;
@@ -206,7 +214,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Bars
     this.barDataset = new Plottable.Dataset(data);
-    const bars = new Plottable.Plots.Rectangle<Date, number>()
+    this.bars = new Plottable.Plots.Rectangle<Date, number>()
       .addDataset(this.barDataset)
       .x((d: Datum) => d.start, xScale)
       .x2((d: Datum) => d.end)
@@ -228,7 +236,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Axis
     const hourSplit = 10;
-    const xAxis = new Plottable.Axes.Time(xScale, 'bottom').axisConfigurations([
+    this.xAxis = new Plottable.Axes.Time(xScale, 'bottom').axisConfigurations([
       [
         {
           interval: 'second',
@@ -275,17 +283,17 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const gridline = new Plottable.Components.Gridlines(xScale, yScale);
 
     // Final Plot
-    const center = new Plottable.Components.Group([events, gridline, bars]);
-    this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, xAxis]]);
+    const center = new Plottable.Components.Group([events, gridline, this.bars]);
+    this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, this.xAxis]]);
 
     // Gesture
-    const pziXAxis = new Plottable.Interactions.PanZoom();
-    pziXAxis
+    this.pziXAxis = new Plottable.Interactions.PanZoom();
+    this.pziXAxis
       .addXScale(xScale)
       .minDomainValue(xScale, firstDate.getTime())
       .maxDomainValue(xScale, lastDate.getTime());
-    pziXAxis.attachTo(xAxis);
-    pziXAxis.attachTo(bars);
+    this.pziXAxis.attachTo(this.xAxis);
+    this.pziXAxis.attachTo(this.bars);
 
     // Rendering
     chartElement.innerHTML = '';
@@ -297,11 +305,23 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       const data = this.normalizeSpeeds();
       const firstDate = data[0].start;
       const lastDate = data[data.length - 1].start;
-      const filteredEvents = this.props.events.filter(
-        e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
-      );
-      this.barDataset.data(data);
-      this.eventDataset.data(filteredEvents);
+
+      if (
+        this.previousStart !== undefined &&
+        this.previousEnd !== undefined &&
+        this.previousStart.getTime() === firstDate.getTime() &&
+        this.previousEnd.getTime() === lastDate.getTime()
+      ) {
+        this.previousStart = firstDate;
+        this.previousEnd = lastDate;
+        const filteredEvents = this.props.events.filter(
+          e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
+        );
+        this.barDataset.data(data);
+        this.eventDataset.data(filteredEvents);
+      } else {
+        this.createChart();
+      }
     }
   }
 

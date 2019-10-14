@@ -207,7 +207,10 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
               if (!constants) {
                 return <LoadingIndicator size="large" />;
               }
-              const scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
+              let scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
+              if (width === 430) {
+                scale = 0.59;
+              }
               const scalingStyles: React.CSSProperties = {
                 transformOrigin: 'left top',
                 transform: `scale(${scale})`,
@@ -241,6 +244,9 @@ const ReportWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: solid 2px ${Colors.PrimaryDark};
+  @media print {
+    width: 100%;
+  }
 `;
 
 const ReportSectionTitle = styled.div`

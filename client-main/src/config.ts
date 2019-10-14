@@ -6,7 +6,7 @@ import {Config} from '@shared/models';
 
 let config: Config = {
   hasGestionPlan: true,
-  hasStopPopups: true,
+  hasStopPopups: false,
   hasGestionPage: true,
   hasGescomPage: true,
   hasProductionPage: true,

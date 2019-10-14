@@ -111,6 +111,8 @@ export class ViewBobineApp extends React.Component<Props, State> {
     if (!bobine || !stocks) {
       return <LoadingIndicator size="medium" />;
     }
+    const designationOperateur =
+      bobine.designationOperateur === undefined ? '' : bobine.designationOperateur;
     return (
       <React.Fragment>
         <CardHeader>
@@ -119,6 +121,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
         <BasicInfo
           data={[
             {title: 'Désignation', value: bobine.designation},
+            {title: 'Désignation Opérateur', value: designationOperateur},
             {title: 'Laize', value: bobine.laize},
             {title: 'Couleur Papier', value: bobine.couleurPapier},
             {title: 'Grammage', value: `${bobine.grammage}g`},
@@ -330,7 +333,7 @@ export class ViewBobineApp extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {bobineRef} = this.props;
     const {bobine} = this.state;
-    const barcode = bobine ? <C39>{bobine.ref}</C39> : <React.Fragment />;
+    const barcode = bobine ? <C39>{`*${bobine.ref}*`}</C39> : <React.Fragment />;
 
     return (
       <AppWrapper>

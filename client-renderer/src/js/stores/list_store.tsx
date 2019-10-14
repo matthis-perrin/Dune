@@ -151,7 +151,7 @@ class StocksStore extends ListStore<Stock> {
     return bridge.listStocks(this.getLastUpdate());
   }
   public getId(element: Stock): string {
-    return element.ref;
+    return element.id;
   }
   public getStockIndex(): Map<string, Stock[]> | undefined {
     const stocks = this.getData();

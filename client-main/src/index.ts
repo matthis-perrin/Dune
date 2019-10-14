@@ -33,11 +33,12 @@ function getArg(name: string): string | undefined {
 }
 
 async function postStart(): Promise<void> {
-  const action = getArg('action');
-  const archive = getArg('archive');
-  const user = getArg('user');
-  const password = getArg('password');
-  const dest = getArg('dest');
+  log.info('Starting with params', process.argv.slice(1));
+  const action = getArg('-action');
+  const archive = getArg('-archive');
+  const user = getArg('-user');
+  const password = getArg('-password');
+  const dest = getArg('-dest');
   if (
     action === 'report' &&
     archive !== undefined &&
@@ -45,7 +46,9 @@ async function postStart(): Promise<void> {
     password !== undefined &&
     dest !== undefined
   ) {
+    log.info('Mode report. Creating the report window');
     const reportWindow = await windowManager.openWindow({type: ClientAppType.ReportsPrinterApp});
+    log.info('Created. Waiting a bit...');
     setTimeout(() => {
       const archiveDir = path.resolve(archive);
       const today = new Date();
@@ -55,13 +58,14 @@ async function postStart(): Promise<void> {
       )}`;
       const filename = `Rapport ${todayStr}.pdf`;
       let filePath = path.join(archiveDir, filename);
+      log.info(`Will save the report to ${filePath}`);
       if (fs.existsSync(filePath)) {
         filePath = path.join(
           archiveDir,
           `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), 4)}.pdf`
         );
+        log.info(`File already exists. Will save to ${filePath}`);
       }
-      log.info(`Saving report to ${filePath}`);
       windowManager
         .saveAsPDF(reportWindow, filePath, true)
         .then(data => {
@@ -104,9 +108,9 @@ async function postStart(): Promise<void> {
     }, 2000);
 
     return;
+  } else {
+    await windowManager.openWindow({type: ClientAppType.MainApp});
   }
-
-  await windowManager.openWindow({type: ClientAppType.MainApp});
 }
 
 app.on('ready', () => {

@@ -163,7 +163,9 @@ export abstract class GescomWatcher {
             })
             .catch(err => {
               addError(
-                `Erreur lors de l'insertion de ${chunk.length} ligne(s) dans la table ${this.tableName}. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
+                `Erreur lors de l'insertion de ${chunk.length} ligne(s) dans la table ${
+                  this.tableName
+                }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
                 errorAsString(err)
               );
               setTimeout(() => this.insertBatch(localDate, lines, offset), this.WAIT_ON_ERROR_MS);
@@ -171,7 +173,9 @@ export abstract class GescomWatcher {
         })
         .catch(err => {
           addError(
-            `Erreur lors de la suppression de ${chunk.length} ligne(s) dans la table ${this.tableName}. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
+            `Erreur lors de la suppression de ${chunk.length} ligne(s) dans la table ${
+              this.tableName
+            }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
             errorAsString(err)
           );
           setTimeout(() => this.insertBatch(localDate, lines, offset), this.WAIT_ON_ERROR_MS);
@@ -220,7 +224,9 @@ export abstract class GescomWatcher {
                     })
                     .catch(err => {
                       addError(
-                        `Erreur lors de la mise à jour de la table de synchronisation pour la table ${this.tableName}. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
+                        `Erreur lors de la mise à jour de la table de synchronisation pour la table ${
+                          this.tableName
+                        }. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
                         errorAsString(err)
                       );
                       setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
@@ -234,7 +240,9 @@ export abstract class GescomWatcher {
                 .then(() => this.fetchNextBatch())
                 .catch(err => {
                   addError(
-                    `Erreur lors de la mise à jour de la table de synchronisation pour la table ${this.tableName}. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
+                    `Erreur lors de la mise à jour de la table de synchronisation pour la table ${
+                      this.tableName
+                    }. Ignoré, mais délais la prochaine requête de ${this.WAIT_ON_ERROR_MS}ms.`,
                     errorAsString(err)
                   );
                   setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
@@ -243,7 +251,9 @@ export abstract class GescomWatcher {
           })
           .catch(err => {
             addError(
-              `Erreur lors de la récupération des ${this.tableName}. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
+              `Erreur lors de la récupération des ${this.tableName}. Réessaie dans ${
+                this.WAIT_ON_ERROR_MS
+              }ms.`,
               errorAsString(err)
             );
             setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);
@@ -251,7 +261,9 @@ export abstract class GescomWatcher {
       })
       .catch(err => {
         addError(
-          `Erreur lors de la récupération des données de syncronisation pour la table ${this.tableName}. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
+          `Erreur lors de la récupération des données de syncronisation pour la table ${
+            this.tableName
+          }. Réessaie dans ${this.WAIT_ON_ERROR_MS}ms.`,
           errorAsString(err)
         );
         setTimeout(() => this.fetchNextBatch(), this.WAIT_ON_ERROR_MS);

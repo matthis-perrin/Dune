@@ -51,7 +51,7 @@ export async function listStocks(db: knex, sinceLocalUpdate: number): Promise<St
       const s = asMap(stockLine);
       return {
         id: asString(s.id, ''),
-        numDepot: asNumber(s.reel, 0),
+        numDepot: asNumber(s.numDepot, 0),
         ref: asString(s.ref, ''),
         reel: asNumber(s.reel, 0),
         commande: asNumber(s.commande, 0),

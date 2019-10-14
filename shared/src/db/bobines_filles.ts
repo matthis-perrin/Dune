@@ -62,7 +62,9 @@ function getRealLongueur(
   if (longueur === undefined) {
     return undefined;
   }
-  const matchingLongueurs = longueurMapping.filter(l => l.longueur === longueur);
+  const matchingLongueurs = longueurMapping.filter(
+    l => l.longueur === longueur && (l.colorRef === undefined || l.colorRef === '')
+  );
   const matchingLongueursAndColors = matchingLongueurs.filter(l => l.colorRef === couleurPapier);
   if (matchingLongueursAndColors.length > 0) {
     return matchingLongueursAndColors[0].realLongueur;

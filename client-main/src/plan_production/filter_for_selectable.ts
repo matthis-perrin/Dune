@@ -249,7 +249,9 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
     log.debug(
-      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${dropped.length} BobinesFilles`
+      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
+        dropped.length
+      } BobinesFilles`
     );
     printDebugBobine(dropped);
   }
@@ -348,7 +350,9 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(
-      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${dropped.length} Papier`
+      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
+        dropped.length
+      } Papier`
     );
     console.log(selectablePapiers.map(p => p.ref));
     console.log(dropped.map(p => p.ref));

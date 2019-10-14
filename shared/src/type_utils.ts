@@ -22,6 +22,10 @@ export function asNumber<T>(value: any, defaultValue: T): T | number {
       return defaultValue;
     }
   }
+  // tslint:disable-next-line:no-unsafe-any
+  if (typeof value === 'object' && value !== null && typeof value.getTime === 'function') {
+    return (value as Date).getTime();
+  }
   return defaultValue;
 }
 
