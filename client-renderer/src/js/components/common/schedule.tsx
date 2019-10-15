@@ -374,7 +374,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       contextMenuManager
         .open([
           {
-            label: 'Supprimer cette zone de non production',
+            label: 'Supprimer cette période sans opérateurs',
             callback: () =>
               bridge
                 .deleteNonProd(nonProd.id)
@@ -667,6 +667,42 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     });
   }
 
+  private renderFloatingMaintenanceAndNonProds(): JSX.Element[] {
+    const {schedule} = this.props;
+    if (!schedule) {
+      return [];
+    }
+
+    const {start, end} = this.getProdHours();
+    const maintenances = schedule.maintenances.filter(m => m.start >= start && m.start < end);
+    const nonProds = schedule.nonProds.filter(np => np.start >= start && np.start < end);
+
+    const usedMaintenancesId: number[] = [];
+    const usedNonProdsStart: number[] = [];
+
+    schedule.plans.forEach(p =>
+      p.schedulePerDay.forEach(s =>
+        s.stops.concat(s.plannedStops).forEach(stop => {
+          if (stop.stopType === StopType.Maintenance) {
+            usedMaintenancesId.push(stop.maintenanceId || 0);
+          }
+          if (stop.stopType === StopType.NotProdHours) {
+            usedNonProdsStart.push(stop.start);
+          }
+        })
+      )
+    );
+
+    const floatingMaintenances = maintenances
+      .filter(m => usedMaintenancesId.indexOf(m.id) === -1)
+      .map(m => ({...m, stopType: StopType.Maintenance}));
+    const floatingNonProds = nonProds
+      .filter(np => usedNonProdsStart.indexOf(np.start) === -1)
+      .map(m => ({...m, stopType: StopType.NotProdHours}));
+
+    return this.renderNonProds(floatingMaintenances.concat(floatingNonProds));
+  }
+
   private renderCurrentTimeIndicator(): JSX.Element {
     const {schedule, day} = this.props;
     const {start, end} = this.getProdHours();
@@ -707,6 +743,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       <ScheduleWrapper style={this.props.style} ref={this.scheduleWrapperRef}>
         {this.renderHours()}
         {this.renderPlanProds()}
+        {this.renderFloatingMaintenanceAndNonProds()}
         {this.renderCurrentTimeIndicator()}
       </ScheduleWrapper>
     );

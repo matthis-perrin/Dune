@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
 import {PlanProdTile} from '@root/components/apps/main/gestion/plan_prod_tile';
@@ -8,9 +9,11 @@ import {showDayContextMenu} from '@root/lib/day_context_menu';
 import {bobinesQuantitiesStore} from '@root/stores/data_store';
 import {stocksStore, cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
+import {FontWeight, Palette} from '@root/theme';
 
-import {startOfDay} from '@shared/lib/utils';
-import {Stock, BobineQuantities, Schedule, Config} from '@shared/models';
+import {dateAtHour} from '@shared/lib/time';
+import {startOfDay, padNumber} from '@shared/lib/utils';
+import {Stock, BobineQuantities, Schedule, Config, ProdRange, StopType, Stop} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -103,30 +106,110 @@ export class GestionPage extends React.Component<Props, State> {
     this.scheduleStore.refresh();
   };
 
-  public renderDay(date: Date): JSX.Element {
+  private getProdRange(
+    date: Date,
+    prodHours: Map<string, ProdRange>
+  ): {start: number; end: number} {
+    const dayOfWeek = date.toLocaleString('fr-FR', {weekday: 'long'});
+    const prodRange = prodHours.get(dayOfWeek);
+    if (!prodRange) {
+      const defaultStartHour = 1;
+      const defaultEndHour = 23;
+      return {
+        start: dateAtHour(date, defaultStartHour).getTime(),
+        end: dateAtHour(date, defaultEndHour).getTime(),
+      };
+    }
+    return {
+      start: dateAtHour(date, prodRange.startHour, prodRange.startMinute).getTime(),
+      end: dateAtHour(date, prodRange.endHour, prodRange.endMinute).getTime(),
+    };
+  }
+
+  private renderSmallDuration(start: number, end: number): string {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const duration = end - start;
+    const durationHours = Math.floor(duration / (3600 * 1000));
+    const durationMinutes = Math.round((duration - durationHours * 3600 * 1000) / (60 * 1000));
+    return `de ${startDate.getHours()}h${padNumber(
+      startDate.getMinutes(),
+      2
+    )} à ${endDate.getHours()}h${padNumber(endDate.getMinutes(), 2)} (${durationHours}h${padNumber(
+      durationMinutes,
+      2
+    )})`;
+  }
+
+  private renderMaintenance(id: number, title: string, start: number, end: number): JSX.Element {
+    return (
+      <MaintenanceTile>
+        <div>{`Maintenance (${title})`}</div>
+        <div>{this.renderSmallDuration(start, end)}</div>
+      </MaintenanceTile>
+    );
+  }
+
+  private renderNonProd(id: number, title: string, start: number, end: number): JSX.Element {
+    return (
+      <NonProdTile>
+        <div>{`Période sans équipes (${title})`}</div>
+        <div>{this.renderSmallDuration(start, end)}</div>
+      </NonProdTile>
+    );
+  }
+
+  private renderDay(date: Date): JSX.Element {
     const {config} = this.props;
     const {stocks, cadencier, bobineQuantities, schedule} = this.state;
     if (!stocks || !cadencier || !bobineQuantities || !schedule) {
       return <div />;
     }
-    const start = startOfDay(date).getTime();
+    const dayStart = startOfDay(date).getTime();
+    const {start, end} = this.getProdRange(date, schedule.prodHours);
+
+    const maintenances = schedule.maintenances.filter(m => m.start >= start && m.start < end);
+    const nonProds = schedule.nonProds.filter(np => np.start >= start && np.start < end);
+
+    const headerTiles = new Map<number, JSX.Element>();
+
+    maintenances.forEach(m =>
+      headerTiles.set(
+        m.start,
+        this.renderMaintenance(m.id, m.title || '', m.start, m.end || m.start)
+      )
+    );
+    nonProds.forEach(np =>
+      headerTiles.set(
+        np.start,
+        this.renderNonProd(np.id, np.title || '', np.start, np.end || np.start)
+      )
+    );
+
     return (
       <React.Fragment>
-        {schedule.plans
-          .filter(planSchedule => planSchedule.schedulePerDay.has(start))
-          .map(plan => (
-            <PlanProdTile
-              config={config}
-              key={plan.planProd.id}
-              date={date}
-              planSchedule={plan}
-              schedule={schedule}
-              stocks={stocks}
-              cadencier={cadencier}
-              bobineQuantities={bobineQuantities}
-              onPlanProdRefreshNeeded={this.handlePlanProdRefreshNeeded}
-            />
-          ))}
+        <div>
+          {Array.from(headerTiles.entries())
+            .sort((a, b) => a[0] - b[0])
+            .map(e => e[1])}
+        </div>
+        <div>
+          {schedule.plans
+            .filter(planSchedule => planSchedule.schedulePerDay.has(dayStart))
+            .map(plan => (
+              <PlanProdTile
+                config={config}
+                key={plan.planProd.id}
+                date={date}
+                planSchedule={plan}
+                schedule={schedule}
+                stocks={stocks}
+                cadencier={cadencier}
+                bobineQuantities={bobineQuantities}
+                onPlanProdRefreshNeeded={this.handlePlanProdRefreshNeeded}
+              />
+            ))}
+        </div>
       </React.Fragment>
     );
   }
@@ -149,3 +232,23 @@ export class GestionPage extends React.Component<Props, State> {
     );
   }
 }
+
+const hMargin = 4;
+const vMargin = 8;
+
+const TileWrapper = styled.div`
+  position: relative;
+  width: calc(100% - ${2 * hMargin}px);
+  box-sizing: border-box;
+  margin: 0 ${hMargin}px ${vMargin}px ${hMargin}px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  border: solid 1px black;
+  font-weight: ${FontWeight.SemiBold};
+  background-color: ${Palette.Silver};
+`;
+
+const MaintenanceTile = styled(TileWrapper)``;
+const NonProdTile = styled(TileWrapper)``;

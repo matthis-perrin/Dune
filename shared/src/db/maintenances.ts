@@ -64,6 +64,7 @@ export async function createMaintenance(
   title: string
 ): Promise<void> {
   return db(MAINTENANCE_TABLE_NAME).insert({
+    [MaintenanceColumns.ID]: Math.round(Math.random() * 1e9),
     [MaintenanceColumns.TITLE]: title,
     [MaintenanceColumns.START_TIME]: start,
     [MaintenanceColumns.END_TIME]: end,

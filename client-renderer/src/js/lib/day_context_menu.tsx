@@ -33,9 +33,9 @@ export function showDayContextMenu(
   date: Date,
   onRefreshNeeded: () => void
 ): void {
-  console.log('showDayContextMenu');
+  const dayEnd = endOfDay(date).getTime();
   const minEventTime = schedule.lastSpeedTime ? schedule.lastSpeedTime.time : Date.now();
-  if (date.getTime() > minEventTime) {
+  if (dayEnd > minEventTime) {
     contextMenuManager
       .open([
         {
@@ -54,7 +54,7 @@ export function showDayContextMenu(
           callback: () => showMaintenanceModal(date, onRefreshNeeded),
         },
         {
-          label: `Créer une période de non production le ${date.toLocaleDateString('fr')}`,
+          label: `Créer une période sans opérateurs le ${date.toLocaleDateString('fr')}`,
           callback: () => showNonProdModal(date, onRefreshNeeded),
         },
         {

@@ -55,19 +55,19 @@ export const PLANNED_STOP_FILTER = {
 
 export const NON_PROD_STOP_FILTER = {
   name: 'non-prod',
-  label: 'Non prod',
+  label: 'Périodes sans opérateurs',
   color: Palette.Asbestos,
 };
 
 export const MAINTENANCE_STOP_FILTER = {
   name: 'maintenance',
-  label: 'Maintenance',
+  label: 'Maintenances',
   color: Palette.Asbestos,
 };
 
 export const MAINTENANCE_AND_NON_PROD_STOP_FILTER = {
   name: 'maintenance-and-non-prod',
-  label: 'Maintenance & Non prod',
+  label: 'Maintenance & Périodes sans opérateurs',
   color: Palette.Asbestos,
 };
 
@@ -276,7 +276,7 @@ export const METRAGE_METRIC: StatsMetric = {
   yAxis: (metricFilter: string, dayStats: PlanDayStats) => {
     return getMetrages(dayStats, metricFilter as TeamTypes);
   },
-  renderY: (value: number): string => `${numberWithSeparator(value)} m`,
+  renderY: (value: number): string => `${numberWithSeparator(Math.round(value))} m`,
   filters: MORNING_AFTERNOON_FILTERS,
   initialFilter: ['all'],
   aggregation: 'sum',

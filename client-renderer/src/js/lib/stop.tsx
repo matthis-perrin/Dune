@@ -29,13 +29,13 @@ export function getLabelForStopType(
 
 const colorForStopType = new Map<StopType, string>([
   [StopType.ChangePlanProd, Palette.Carrot],
-  [StopType.ReglagesAdditionel, Palette.PeterRiver],
-  [StopType.ReprisePlanProd, Palette.PeterRiver],
+  [StopType.ReglagesAdditionel, Palette.Carrot],
+  [StopType.ReprisePlanProd, Palette.Carrot],
   [StopType.ChangeBobinePapier, Palette.PeterRiver],
   [StopType.ChangeBobinePolypro, Palette.PeterRiver],
   [StopType.ChangeBobinePapierAndPolypro, Palette.PeterRiver],
-  [StopType.EndOfDayEndProd, Palette.PeterRiver],
-  [StopType.EndOfDayPauseProd, Palette.PeterRiver],
+  [StopType.EndOfDayEndProd, Palette.Amethyst],
+  [StopType.EndOfDayPauseProd, Palette.Amethyst],
   [StopType.Unplanned, Colors.Danger],
   [StopType.Maintenance, Palette.Asbestos],
 ]);
