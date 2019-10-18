@@ -225,13 +225,6 @@ export function getDelays(
     }
   }
 
-  // Unplanned delays
-  if (type === 'unplanned' || type === 'all') {
-    values = values.concat(
-      stopsToCheck.filter(s => UnplannedStopTypes.indexOf(s.type) !== -1).map(s => s.duration)
-    );
-  }
-
   // Change Bobines Papier
   if (type === 'change-bobine' || type === 'all') {
     const planChangeBobinePapierTime = sum(

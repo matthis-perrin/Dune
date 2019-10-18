@@ -14,6 +14,8 @@ export const PlansProductionColumn = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
+type DebugFn = (...params: any[]) => void;
+
 export async function createPlansProductionTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(PLANS_PRODUCTION_TABLE_NAME);
   if (!hasTable) {
@@ -37,14 +39,18 @@ export async function createPlanProduction(
   index: number,
   operationAtStartOfDay: boolean,
   productionAtStartOfDay: boolean,
-  data: string
+  data: string,
+  debug: DebugFn
 ): Promise<void> {
+  debug('createPlanProduction', id, index);
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
       const indexesToUpdate = (query: knex.QueryBuilder) =>
         query.where(PlansProductionColumn.INDEX_COLUMN, '>=', index);
-      updateIndexInDay(db, tx, indexesToUpdate, 1)
+      debug('updateIndexInDay');
+      updateIndexInDay(db, tx, indexesToUpdate, 1, debug)
         .then(() => {
+          debug('insert');
           db(PLANS_PRODUCTION_TABLE_NAME)
             .transacting(tx)
             .insert({
@@ -56,15 +62,18 @@ export async function createPlanProduction(
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
             })
             .then(() => {
+              debug('success');
               tx.commit();
               resolve();
             })
             .catch(err => {
+              debug('error 2', err);
               tx.rollback();
               reject(err);
             });
         })
         .catch(err => {
+          debug('error 1', err);
           tx.rollback();
           reject(err);
         });
@@ -99,8 +108,10 @@ export async function movePlanProduction(
   db: knex,
   id: number,
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
+  debug: DebugFn
 ): Promise<void> {
+  debug('movePlanProduction', id, fromIndex, toIndex);
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
       const isMovingForward = fromIndex < toIndex;
@@ -108,8 +119,10 @@ export async function movePlanProduction(
         query
           .where(PlansProductionColumn.INDEX_COLUMN, isMovingForward ? '>' : '<', fromIndex)
           .andWhere(PlansProductionColumn.INDEX_COLUMN, isMovingForward ? '<=' : '>=', toIndex);
-      updateIndexInDay(db, tx, indexesToUpdate, isMovingForward ? -1 : 1)
+      debug('updateIndexInDay');
+      updateIndexInDay(db, tx, indexesToUpdate, isMovingForward ? -1 : 1, debug)
         .then(() => {
+          debug('update');
           db(PLANS_PRODUCTION_TABLE_NAME)
             .transacting(tx)
             .where(PlansProductionColumn.ID_COLUMN, '=', id)
@@ -118,15 +131,18 @@ export async function movePlanProduction(
               [PlansProductionColumn.LOCAL_UPDATE_COLUMN]: new Date(),
             })
             .then(() => {
+              debug('success');
               tx.commit();
               resolve();
             })
             .catch(err => {
+              debug('error 2', err);
               tx.rollback();
               reject(err);
             });
         })
         .catch(err => {
+          debug('error 1', err);
           tx.rollback();
           reject(err);
         });
@@ -134,9 +150,11 @@ export async function movePlanProduction(
   });
 }
 
-export async function deletePlanProduction(db: knex, index: number): Promise<void> {
+export async function deletePlanProduction(db: knex, index: number, debug: DebugFn): Promise<void> {
+  debug('deletePlanProduction', index);
   return new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
+      debug('delete', index);
       db(PLANS_PRODUCTION_TABLE_NAME)
         .transacting(tx)
         .where(PlansProductionColumn.INDEX_COLUMN, '=', index)
@@ -144,17 +162,21 @@ export async function deletePlanProduction(db: knex, index: number): Promise<voi
         .then(() => {
           const indexesToUpdate = (query: knex.QueryBuilder) =>
             query.where(PlansProductionColumn.INDEX_COLUMN, '>', index);
-          updateIndexInDay(db, tx, indexesToUpdate, -1)
+          debug('updateIndexInDay');
+          updateIndexInDay(db, tx, indexesToUpdate, -1, debug)
             .then(() => {
+              debug('success');
               tx.commit();
               resolve();
             })
             .catch(err => {
+              debug('error 2', err);
               tx.rollback();
               reject(err);
             });
         })
         .catch(err => {
+          debug('error 1', err);
           tx.rollback();
           reject(err);
         });
@@ -166,15 +188,24 @@ async function updateIndexInDay(
   db: knex,
   tx: knex.Transaction,
   selector: (query: knex.QueryBuilder) => knex.QueryBuilder,
-  offset: number
+  offset: number,
+  debug: DebugFn
 ): Promise<void> {
+  debug('updateIndexInDay', offset);
   return new Promise<void>((resolve, reject) => {
-    const localUpdate = Date.now();
+    const localUpdate = new Date();
     selector(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
       .then(data => {
+        debug('select done', data);
         Promise.all(
           asArray(data).map(async line => {
             const lineData = asMap(line);
+            debug(
+              'update',
+              lineData[PlansProductionColumn.ID_COLUMN],
+              'to',
+              asNumber(lineData[PlansProductionColumn.INDEX_COLUMN], 0) + offset
+            );
             await db(PLANS_PRODUCTION_TABLE_NAME)
               .transacting(tx)
               .where(
@@ -190,10 +221,19 @@ async function updateIndexInDay(
           })
         )
           // tslint:disable-next-line:no-unnecessary-callback-wrapper
-          .then(() => resolve())
-          .catch(reject);
+          .then(() => {
+            debug('success');
+            resolve();
+          })
+          .catch(err => {
+            debug('error 2', err);
+            reject(err);
+          });
       })
-      .catch(reject);
+      .catch(err => {
+        debug('error 1', err);
+        reject(err);
+      });
   });
 }
 
@@ -255,7 +295,8 @@ export async function getNotStartedPlanProds(db: knex): Promise<PlanProductionRa
 export async function getStartedPlanProdsInRange(
   db: knex,
   start: number,
-  end: number
+  end: number,
+  debug: DebugFn
 ): Promise<PlanProductionRaw[]> {
   const speedStartColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.Start}`;
   const speedEndColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.End}`;

@@ -6,11 +6,17 @@ import {asMap, asString, errorAsString} from '@shared/type_utils';
 
 // tslint:disable-next-line:no-any
 function sendResponse(browserWindow: BrowserWindow, id: string, response: any): void {
-  sendMessage(browserWindow, JSON.stringify({id, response}));
+  try {
+    sendMessage(browserWindow, JSON.stringify({id, response}));
+  } catch (err) {
+    log.error(err);
+  }
 }
 
-function sendError(browserWindow: BrowserWindow, id: string, error: string | undefined): void {
-  sendMessage(browserWindow, JSON.stringify({id, error}));
+// tslint:disable-next-line:no-any
+function sendError(browserWindow: BrowserWindow, id: string, error: any): void {
+  log.error(error);
+  sendMessage(browserWindow, JSON.stringify({id, error: errorAsString(error)}));
 }
 
 function sendMessage(browserWindow: BrowserWindow, message: string): void {
@@ -52,12 +58,12 @@ export function setupBridge(
         }
         const command = asString(msgJSON.command, undefined) as BridgeCommand;
         if (!command) {
-          sendError(browserWindow, id, 'Invalid message command');
+          sendError(browserWindow, id, new Error('Invalid message command'));
           return;
         }
         handleCommand(browserWindow, command, msgJSON.data)
           .then(result => sendResponse(browserWindow, id, result))
-          .catch(err => sendError(browserWindow, id, errorAsString(err)));
+          .catch(err => sendError(browserWindow, id, err));
       } catch {
         log.error(`Received invalid bridge message (message is not a valid JSON): ${data}`);
         return;

@@ -20,7 +20,7 @@ export function getConfig(): Config {
 
 export async function loadConfig(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    const configPath = path.join(app.getPath('userData'), 'config_audric.txt');
+    const configPath = path.join(app.getPath('userData'), 'config_audric_windows.txt');
     console.log(configPath);
     fs.exists(configPath, exists => {
       if (!exists) {
@@ -58,12 +58,12 @@ function configToConfigFile(config: Config): string {
     `ACCESS_PAGE_PRODUCTION=${booleanToConfigValue(config.hasProductionPage)}`,
     `ACCESS_PAGE_STATISTIQUES=${booleanToConfigValue(config.hasStatsPage)}`,
     `ACCESS_PAGE_RAPPORTS=${booleanToConfigValue(config.hasRapportPage)}`,
-  ].join('\n');
+  ].join('\r\n');
 }
 
 function configFileToConfig(configFile: string): Config {
   const values = new Map<string, boolean>();
-  configFile.split('\n').forEach(line => {
+  configFile.split('\r\n').forEach(line => {
     const fragments = line.split('=');
     if (fragments.length === 2) {
       const [name, value] = fragments;

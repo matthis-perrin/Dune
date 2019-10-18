@@ -141,4 +141,4 @@ class AutomateWatcher {
   }
 }
 
-export const automateWatcher = new AutomateWatcher(false);
+export const automateWatcher = new AutomateWatcher(true);

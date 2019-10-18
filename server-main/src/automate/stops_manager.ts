@@ -84,6 +84,10 @@ class StopsManager {
       lastProdEndTime = Math.max(lastStop.end, lastProdEndTime);
     }
 
+    if (lastProdEndTime === 0 && lastStop) {
+      lastProdEndTime = lastStop.end ? lastStop.end : lastStop.start;
+    }
+
     const nextProdStart = await firstSpeedTimeMatchingBetween(
       SQLITE_DB.Prod,
       lastProdEndTime,

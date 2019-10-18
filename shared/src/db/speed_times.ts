@@ -111,7 +111,7 @@ export async function insertOrUpdateSpeedTimes(
           const deleteCount = asNumber(res, 0);
           if (deleteCount > 0) {
             console.warn(
-              `Updating ${deleteCount} time_speeds. This should not happend.`,
+              `Updating ${deleteCount} time_speeds. This should not happen unless this is the first run.`,
               timeSpeeds,
               res
             );

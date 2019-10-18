@@ -139,7 +139,8 @@ export async function handleCommand(
     debugLog();
     const {type, data} = asMap(params);
     const appType = asString(type, '') as ClientAppType;
-    return windowManager.openWindow({type: appType, data});
+    await windowManager.openWindow({type: appType, data});
+    return Promise.resolve();
   }
   if (command === BridgeCommands.CloseApp) {
     debugLog();
@@ -174,7 +175,7 @@ export async function handleCommand(
   if (command === BridgeCommands.DeletePlanProduction) {
     debugLog();
     const {index} = asMap(params);
-    await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0));
+    await deletePlanProduction(SQLITE_DB.Prod, asNumber(index, 0), log.debug);
   }
   if (command === BridgeCommands.MovePlanProduction) {
     debugLog();
@@ -183,7 +184,8 @@ export async function handleCommand(
       SQLITE_DB.Prod,
       asNumber(id, 0),
       asNumber(fromIndex, 0),
-      asNumber(toIndex, 0)
+      asNumber(toIndex, 0),
+      log.debug
     );
   }
   if (command === BridgeCommands.SaveNewPlanProduction) {
@@ -195,7 +197,8 @@ export async function handleCommand(
       asNumber(index, 0),
       asBoolean(operationAtStartOfDay),
       asBoolean(productionAtStartOfDay),
-      asString(data, '{}')
+      asString(data, '{}'),
+      log.debug
     );
   }
   if (command === BridgeCommands.UpdatePlanProduction) {
@@ -344,7 +347,7 @@ export async function handleCommand(
         getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
         getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
         needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
-        getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd),
+        getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd, log.debug),
         getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
         getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       ]
