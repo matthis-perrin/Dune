@@ -570,6 +570,23 @@ function getStartTime(
   previousPlan: ScheduledPlanProd | undefined,
   supportData: ScheduleSupportData
 ): number {
+  const endTimes: number[] = [];
+  currentSchedules.forEach(s => {
+    s.plannedProds
+      .concat(s.plannedStops)
+      .concat(s.prods)
+      .concat(s.stops)
+      .forEach(e => {
+        if (e.end !== undefined) {
+          endTimes.push(e.end);
+        }
+      });
+  });
+  const maxEnd = max(endTimes);
+  if (maxEnd !== undefined) {
+    return maxEnd;
+  }
+
   const lastSchedule = getLastSchedule(currentSchedules);
   if (lastSchedule) {
     const lastPlanEvent = getLastPlanEvent(lastSchedule);
