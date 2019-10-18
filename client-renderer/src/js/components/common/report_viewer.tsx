@@ -8,6 +8,7 @@ import {DayStats} from '@root/components/common/day_stats';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {WithConstants} from '@root/components/core/with_constants';
+import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {isProdHourNonProd, getMidDay, computeStatsData, aggregate} from '@root/lib/statistics/data';
 import {
   MORNING_TEAM_FILTER,
@@ -26,6 +27,7 @@ import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay, numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Colors, Palette, FontWeight} from '@root/theme';
 
+import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {capitalize, startOfDay} from '@shared/lib/utils';
 import {ProdInfo, Schedule, Operation, StopType, Stock, Constants} from '@shared/models';
@@ -82,12 +84,31 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const perf =
       activePeriodMetrage > 0 ? Math.round((1000 * metrageDone) / activePeriodMetrage) / 10 : 0;
 
+    let totalBobines = 0;
+    const schedules = getSchedulesForDay(schedule, new Date(day));
+    schedules.forEach(s => {
+      const bobines = s.planProd.data.bobines;
+      const meters = s.doneProdMeters + s.plannedProdMeters;
+      const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
+      const tour = Math.round(meters / longueurFirstBobine);
+      if (tour > 0) {
+        bobines.forEach(b => {
+          const pose = getPoseSize(b.pose);
+
+          totalBobines += pose * tour;
+        });
+      }
+    });
+
     return (
       <SummaryContainer>
         <SummaryValue>{`Perf: ${perf}%`}</SummaryValue>
         <SummaryValue>{`Métrage Linéaire: ${numberWithSeparator(
           Math.round(metrageDone)
         )} m`}</SummaryValue>
+        <SummaryValue>{`Production théorique: ${numberWithSeparator(
+          Math.round(totalBobines)
+        )} bobines`}</SummaryValue>
         <SummaryValue>{`Retard: ${formatDuration(delays)}`}</SummaryValue>
       </SummaryContainer>
     );
