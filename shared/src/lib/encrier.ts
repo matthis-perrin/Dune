@@ -347,8 +347,8 @@ export function generateAllAcceptableColorsOrder(
     // (i.e. as close as possible to the end of the array).
     const firstEmptyIndex1 = indexFirstEmptyEncrier(a1);
     const firstEmptyIndex2 = indexFirstEmptyEncrier(a2);
-    return firstEmptyIndex1 - firstEmptyIndex2;
+    return firstEmptyIndex2 - firstEmptyIndex1;
   });
 
-  return sorted;
+  return sorted.map(e => e.reverse());
 }
