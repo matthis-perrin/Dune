@@ -32,6 +32,36 @@ function getArg(name: string): string | undefined {
   return matchingArgs.slice(name.length + 1);
 }
 
+async function sendEmailAsync(
+  user: string,
+  password: string,
+  dest: string,
+  subject: string,
+  attachments: {filename: string; content: Buffer}[]
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    log.info(`Sending email to ${dest}`);
+    sendEmail({
+      auth: {
+        user,
+        pass: password,
+      },
+      from: user,
+      to: dest,
+      subject,
+      attachments,
+      onError: err => {
+        log.error(err);
+        reject(err);
+      },
+      onSuccess: data => {
+        log.info(`Success sending to ${dest}`, data);
+        resolve();
+      },
+    });
+  });
+}
+
 async function postStart(): Promise<void> {
   log.info('Starting with params', process.argv.slice(1));
   const action = getArg('-action');
@@ -69,36 +99,29 @@ async function postStart(): Promise<void> {
       windowManager
         .saveAsPDF(reportWindow, filePath, true)
         .then(data => {
-          log.info(`Sending email to ${dest}`);
-          sendEmail({
-            auth: {
-              user,
-              pass: password,
+          const emails = dest.split(',');
+          const subject = `Rapport de production du ${today.toLocaleDateString('fr', {
+            month: 'long',
+            day: '2-digit',
+            year: 'numeric',
+          })}`;
+          const attachments = [
+            {
+              filename: `Rapport ${todayStr}.pdf`,
+              content: data,
             },
-            from: user,
-            to: dest,
-            subject: `Rapport de production du ${today.toLocaleDateString('fr', {
-              month: 'long',
-              day: '2-digit',
-              year: 'numeric',
-            })}`,
-            attachments: [
-              {
-                filename: `Rapport ${todayStr}.pdf`,
-                content: data,
-              },
-            ],
-            onError: err => {
-              log.error(err);
+          ];
+          Promise.all(
+            emails.map(email => sendEmailAsync(user, password, email, subject, attachments))
+          )
+            .then(() => {
               windowManager.closeWindow(reportWindow.id);
               process.exit();
-            },
-            onSuccess: i => {
-              log.info('Success, closing window and exiting', i);
+            })
+            .catch(() => {
               windowManager.closeWindow(reportWindow.id);
               process.exit();
-            },
-          });
+            });
         })
         .catch(err => {
           log.error(err);
