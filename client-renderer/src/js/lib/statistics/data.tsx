@@ -16,6 +16,7 @@ import {
   ProdRange,
   Operation,
   Constants,
+  SpeedTime,
 } from '@shared/models';
 
 const prodHourStartStopRegex = /^Production démarre à [0-9]+h[0-9]+$/;
@@ -62,7 +63,14 @@ export function computeStatsData(schedule: Schedule): StatsData {
         planDayStats = [];
         days.set(day, planDayStats);
       }
-      planDayStats.push(computePlanDayStats(planDaySchedule, planOperationTime * 1000, midDay));
+      planDayStats.push(
+        computePlanDayStats(
+          planDaySchedule,
+          planOperationTime * 1000,
+          midDay,
+          schedule.lastSpeedTime
+        )
+      );
     });
   });
   return {days};
@@ -86,7 +94,8 @@ export function aggregate(
 function computePlanDayStats(
   planDaySchedule: PlanProdSchedule,
   planOperationTime: number,
-  midDay: number
+  midDay: number,
+  lastSpeedTime: SpeedTime | undefined
 ): PlanDayStats {
   const planTotalOperationPlanned = planOperationTime;
   let planTotalOperationDone = 0;
@@ -98,16 +107,29 @@ function computePlanDayStats(
 
   let isChangeProd = false;
 
-  planDaySchedule.prods.forEach(({start, end, avgSpeed}) => {
-    if (avgSpeed !== undefined && end !== undefined) {
-      const {morning, afternoon} = getDuration(start, end, midDay);
+  const prodInProgress = lastSpeedTime
+    ? planDaySchedule.plannedProds
+        .filter(
+          prod =>
+            lastSpeedTime &&
+            prod.start < lastSpeedTime.time &&
+            (prod.end === undefined || prod.end > lastSpeedTime.time)
+        )
+        .map(prod => ({...prod, end: lastSpeedTime.time}))
+    : [];
+
+  planDaySchedule.prods.concat(prodInProgress).forEach(({start, end, avgSpeed}) => {
+    const realEnd = end === undefined && lastSpeedTime !== undefined ? lastSpeedTime.time : end;
+    if (avgSpeed !== undefined && realEnd !== undefined) {
+      const {morning, afternoon} = getDuration(start, realEnd, midDay);
       morningProds.push({metrage: (avgSpeed * morning) / (60 * 1000), duration: morning});
       afternoonProds.push({metrage: (avgSpeed * afternoon) / (60 * 1000), duration: afternoon});
     }
   });
   planDaySchedule.stops.forEach(({start, end, stopType, title}) => {
-    if (stopType !== undefined && end !== undefined) {
-      const {morning, afternoon} = getDuration(start, end, midDay);
+    const realEnd = end === undefined && lastSpeedTime !== undefined ? lastSpeedTime.time : end;
+    if (stopType !== undefined && realEnd !== undefined) {
+      const {morning, afternoon} = getDuration(start, realEnd, midDay);
       if (stopType === StopType.ChangePlanProd) {
         isChangeProd = true;
         planTotalOperationDone += morning + afternoon;

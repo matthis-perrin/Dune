@@ -88,7 +88,12 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       ? emptyOption
       : this.renderOption(StopType.ReglagesAdditionel);
 
-    const reprisePlanProdOption = this.renderOption(StopType.ReprisePlanProd);
+    const previousStopType = previousStop && previousStop.stopType;
+
+    const reprisePlanProdOption =
+      previousStopType === StopType.Maintenance
+        ? this.renderOption(StopType.ReprisePlanProd)
+        : emptyOption;
     const changeBobinePapierOption = this.renderOption(StopType.ChangeBobinePapier);
     const changeBobinePolyproOption = this.renderOption(StopType.ChangeBobinePolypro);
     const changeBobinePapierAndPolyproOption = this.renderOption(
@@ -105,14 +110,9 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
 
-    const previousStopType = previousStop && previousStop.stopType;
-
     if (previousStopType === StopType.EndOfDayEndProd) {
       return <OptionWrapper>{changePlanProdOption}</OptionWrapper>;
     }
-
-    console.log(previousStop);
-    console.log(stop);
 
     if (
       previousStopType === StopType.EndOfDayPauseProd ||
@@ -125,6 +125,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       <OptionWrapper>
         {changePlanProdOption}
         {reglagesAdditionel}
+        {reprisePlanProdOption}
         {changeBobinePapierOption}
         {changeBobinePolyproOption}
         {changeBobinePapierAndPolyproOption}

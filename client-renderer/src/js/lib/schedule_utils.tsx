@@ -218,9 +218,7 @@ function getAllStops(schedule: Schedule): Stop[] {
 
 export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefined {
   const allStops = getAllStops(schedule).filter(
-    s =>
-      s.stopType !== undefined &&
-      [StopType.NotProdHours, StopType.Maintenance].indexOf(s.stopType) === -1
+    s => s.stopType !== undefined && [StopType.NotProdHours].indexOf(s.stopType) === -1
   );
   return allStops.filter(s => s.start < stop.start).sort((s1, s2) => s2.start - s1.start)[0];
 }
