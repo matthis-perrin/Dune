@@ -195,7 +195,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Scales
     const firstDate = data[0].start;
-    const lastDate = data[data.length - 1].start;
+    const lastDate = data[data.length - 1].end;
     this.previousStart = firstDate;
     this.previousEnd = lastDate;
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
@@ -304,7 +304,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     if (this.barDataset && this.eventDataset) {
       const data = this.normalizeSpeeds();
       const firstDate = data[0].start;
-      const lastDate = data[data.length - 1].start;
+      const lastDate = data[data.length - 1].end;
 
       if (
         this.previousStart !== undefined &&
