@@ -208,8 +208,8 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
                 return <LoadingIndicator size="large" />;
               }
               let scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
-              if (width === 430) {
-                scale = 0.59;
+              if (width < 600) {
+                scale = 0.88; // 0.59
               }
               const scalingStyles: React.CSSProperties = {
                 transformOrigin: 'left top',

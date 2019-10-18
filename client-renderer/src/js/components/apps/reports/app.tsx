@@ -221,20 +221,12 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
 const iconSize = 16;
 
 const AppWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   flex-direction: column;
   background-color: ${Palette.Clouds};
   @media print {
     background-color: ${Palette.White};
-    overflow-x: hidden;
-    overflow-y: hidden;
   }
-  overflow-y: scroll;
 `;
 
 const TopBar = styled.div`
