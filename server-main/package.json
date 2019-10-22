@@ -15,7 +15,8 @@
     "// --- DEV COMMANDS ---": "",
     "build:dev": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts",
     "build:dev:lint": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts --lintAutoFix",
-    "start": "electron --inspect dist/index.js"
+    "start": "electron --inspect dist/index.js",
+    "emulator": "node emulator.js"
   },
   "main": "dist/index.js",
   "build": {

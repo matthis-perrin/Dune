@@ -6,6 +6,7 @@ import {sendCommand, CONNECT_COMMAND, GET_SPEED_COMMAND} from '@root/automate/co
 import {addError} from '@root/state';
 
 const AUTOMATE_IP = '192.168.0.50';
+// const AUTOMATE_IP = '127.0.0.1';
 const AUTOMATE_PORT = 9600;
 const WAIT_ON_ERROR = 2000;
 const WAIT_ON_SUCCESS = 500;
@@ -141,4 +142,4 @@ class AutomateWatcher {
   }
 }
 
-export const automateWatcher = new AutomateWatcher(true);
+export const automateWatcher = new AutomateWatcher(false);

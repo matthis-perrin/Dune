@@ -128,7 +128,7 @@ async function postStart(): Promise<void> {
           windowManager.closeWindow(reportWindow.id);
           process.exit();
         });
-    }, 2000);
+    }, 10000);
 
     return;
   } else {

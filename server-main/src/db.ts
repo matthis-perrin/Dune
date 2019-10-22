@@ -1,4 +1,6 @@
+import log from 'electron-log';
 import knex from 'knex';
+
 import {GESCOM_DB, PARAMS_DB, PROD_DB} from '@shared/db/database_names';
 
 const GESCOM_USER = 'ProDune';
@@ -32,4 +34,8 @@ export const gescomDB = knex({
     password: GESCOM_PASSWORD,
     database: GESCOM_DATABASE,
   },
+});
+
+gescomDB.on('query', (query: any) => {
+  log.info(`GESCOM QUERY: ${query.sql} | PARAMS: ${query.bindings}`);
 });
