@@ -44,8 +44,6 @@ class AutomateWatcher {
         log.error('Failure top parse automate response.', err, buffer);
       }
     });
-    this.socket.on('close', () => this.restart());
-    this.socket.on('end', () => this.restart());
     this.socket.on('error', (err: Error) => this.handleError(err.message));
     this.socket.on('timeout', () => this.handleError('timeout'));
   }
@@ -104,6 +102,7 @@ class AutomateWatcher {
   }
 
   private handleError(error: string): void {
+    this.isStarting = false;
     addError('Erreur automate', error);
     setTimeout(() => this.restart(), WAIT_ON_ERROR);
   }
