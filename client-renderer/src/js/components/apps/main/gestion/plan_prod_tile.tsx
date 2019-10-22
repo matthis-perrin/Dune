@@ -83,11 +83,16 @@ export class PlanProdTile extends React.Component<Props> {
     event.stopPropagation();
     const {planSchedule, schedule, onPlanProdRefreshNeeded, config} = this.props;
     const planType = getPlanStatus(planSchedule);
-    if (planType === PlanProductionStatus.PLANNED && config.hasGestionPlan) {
-      showPlanContextMenu(schedule, planSchedule.planProd.id, () => {
-        this.removeViewer();
-        onPlanProdRefreshNeeded();
-      });
+    if (config.hasGestionPlan) {
+      showPlanContextMenu(
+        schedule,
+        planSchedule.planProd.id,
+        planType === PlanProductionStatus.PLANNED,
+        () => {
+          this.removeViewer();
+          onPlanProdRefreshNeeded();
+        }
+      );
       this.removeViewer();
     }
   };
@@ -96,7 +101,6 @@ export class PlanProdTile extends React.Component<Props> {
     event.preventDefault();
     event.stopPropagation();
     const {planSchedule, schedule, config} = this.props;
-    const planType = getPlanStatus(planSchedule);
     const planStart = getPlanStart(planSchedule);
     const planEnd = getPlanEnd(planSchedule);
     const start =
@@ -111,7 +115,7 @@ export class PlanProdTile extends React.Component<Props> {
         : schedule.lastSpeedTime !== undefined
         ? schedule.lastSpeedTime.time
         : 0;
-    if (planType === PlanProductionStatus.PLANNED && config.hasGestionPlan) {
+    if (config.hasGestionPlan) {
       bridge
         .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
         .catch(console.error);

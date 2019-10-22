@@ -90,6 +90,7 @@ function movePlanProd(
 export function showPlanContextMenu(
   schedule: Schedule,
   planId: number,
+  allOptions: boolean,
   onRefreshNeeded: () => void
 ): void {
   const allPlanned = getAllPlannedSchedules(schedule);
@@ -116,64 +117,63 @@ export function showPlanContextMenu(
       : schedule.lastSpeedTime !== undefined
       ? schedule.lastSpeedTime.time
       : 0;
-  if (planType === PlanProductionStatus.PLANNED) {
-    menus.push({
-      label: 'Modifier',
-      callback: () =>
-        bridge
-          .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
-          .catch(console.error),
-    });
-  }
+  menus.push({
+    label: 'Modifier',
+    callback: () =>
+      bridge
+        .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
+        .catch(console.error),
+  });
 
   const planIndex = getPlanIndex(schedule, planSchedule);
-
-  menus.push({
-    label: 'Nouveau plan de production avant',
-    callback: () => newPlanProd(planSchedule, true, onRefreshNeeded),
-  });
-  menus.push({
-    label: 'Nouveau plan de production après',
-    callback: () => newPlanProd(planSchedule, false, onRefreshNeeded),
-  });
-  menus.push({
-    label: `Déplacer le plan ${getShortPlanProdTitle(planSchedule.planProd.id)}`,
-    submenus: allPlanned.map((plan, index) => ({
-      label:
-        index < planIndex
-          ? `avant le plan ${getShortPlanProdTitle(plan.planProd.id)}`
-          : index > planIndex
-          ? `après le plan ${getShortPlanProdTitle(plan.planProd.id)}`
-          : '—',
-      disabled: index !== planIndex,
-      callback: () => movePlanProd(planSchedule, plan.planProd.index, onRefreshNeeded),
-    })),
-  });
-  if (planSchedule.planProd.operationAtStartOfDay) {
+  if (allOptions) {
     menus.push({
-      label: 'Ne pas forcer les réglages en début de journée',
-      callback: () => setOperationAtStartOfDay(planSchedule, false, onRefreshNeeded),
+      label: 'Nouveau plan de production avant',
+      callback: () => newPlanProd(planSchedule, true, onRefreshNeeded),
     });
-  } else {
     menus.push({
-      label: 'Forcer les réglages en début de journée',
-      callback: () => setOperationAtStartOfDay(planSchedule, true, onRefreshNeeded),
+      label: 'Nouveau plan de production après',
+      callback: () => newPlanProd(planSchedule, false, onRefreshNeeded),
+    });
+    menus.push({
+      label: `Déplacer le plan ${getShortPlanProdTitle(planSchedule.planProd.id)}`,
+      submenus: allPlanned.map((plan, index) => ({
+        label:
+          index < planIndex
+            ? `avant le plan ${getShortPlanProdTitle(plan.planProd.id)}`
+            : index > planIndex
+            ? `après le plan ${getShortPlanProdTitle(plan.planProd.id)}`
+            : '—',
+        disabled: index !== planIndex,
+        callback: () => movePlanProd(planSchedule, plan.planProd.index, onRefreshNeeded),
+      })),
+    });
+    if (planSchedule.planProd.operationAtStartOfDay) {
+      menus.push({
+        label: 'Ne pas forcer les réglages en début de journée',
+        callback: () => setOperationAtStartOfDay(planSchedule, false, onRefreshNeeded),
+      });
+    } else {
+      menus.push({
+        label: 'Forcer les réglages en début de journée',
+        callback: () => setOperationAtStartOfDay(planSchedule, true, onRefreshNeeded),
+      });
+    }
+    if (planSchedule.planProd.productionAtStartOfDay) {
+      menus.push({
+        label: 'Ne pas forcer la production en début de journée',
+        callback: () => setProductionAtStartOfDay(planSchedule, false, onRefreshNeeded),
+      });
+    } else {
+      menus.push({
+        label: 'Forcer la production en début de journée',
+        callback: () => setProductionAtStartOfDay(planSchedule, true, onRefreshNeeded),
+      });
+    }
+    menus.push({
+      label: 'Supprimer ce plan de production',
+      callback: () => deletePlanProd(planSchedule, onRefreshNeeded),
     });
   }
-  if (planSchedule.planProd.productionAtStartOfDay) {
-    menus.push({
-      label: 'Ne pas forcer la production en début de journée',
-      callback: () => setProductionAtStartOfDay(planSchedule, false, onRefreshNeeded),
-    });
-  } else {
-    menus.push({
-      label: 'Forcer la production en début de journée',
-      callback: () => setProductionAtStartOfDay(planSchedule, true, onRefreshNeeded),
-    });
-  }
-  menus.push({
-    label: 'Supprimer ce plan de production',
-    callback: () => deletePlanProd(planSchedule, onRefreshNeeded),
-  });
   contextMenuManager.open(menus).catch(console.error);
 }
