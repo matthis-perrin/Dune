@@ -709,7 +709,7 @@ function finishPlanProd(
     // Finish the last prod if still in progress
     const lastProdEvent = getLastEvent(lastSchedule.prods);
     if (lastProdEvent !== undefined && lastProdEvent.end === undefined) {
-      const endTime = getStartTime(currentSchedules, previousPlan, supportData);
+      const endTime = supportData.currentTime;
       const prodDuration = endTime - lastProdEvent.start;
       lastProdEvent.end = endTime;
       lastSchedule.doneProdMs += prodDuration;

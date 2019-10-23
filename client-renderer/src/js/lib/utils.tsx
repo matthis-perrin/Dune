@@ -1,4 +1,5 @@
 import {memoize} from 'lodash-es';
+import {number} from 'prop-types';
 
 import {getWeekDay, dateAtHour} from '@shared/lib/time';
 import {capitalize, padNumber} from '@shared/lib/utils';
@@ -21,7 +22,13 @@ export function formatMonthCount(monthCount: number): string {
   return `${yearStr} et ${monthCountWithoutYear} mois`;
 }
 
-export const numberWithSeparator = memoize((value: number): string => value.toLocaleString('fr'));
+export const numberWithSeparator = (value: number): string => {
+  if (value >= 1000 || value <= -1000) {
+    return value.toLocaleString('fr');
+  }
+  return value.toString();
+};
+
 export const roundedToDigit = (value: number, digit: number): string => {
   const divider = Math.pow(10, digit);
   return numberWithSeparator(Math.round(value * divider) / divider);

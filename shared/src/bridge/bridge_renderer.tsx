@@ -12,15 +12,16 @@ const uniqueId = (prefix: string): string =>
     .toUpperCase();
 
 export class BridgeTransport {
-  private readonly pendingCommands: {
-    [id: string]: {
+  private readonly pendingCommands = new Map<
+    string,
+    {
       // tslint:disable-next-line:no-any
       resolve(response: any): void;
       // tslint:disable-next-line:no-any
       reject(err: any): void;
       timeout: number;
-    };
-  } = {};
+    }
+  >();
 
   // tslint:disable-next-line:no-any
   constructor(private readonly eventHandler: (event: BridgeEvent, data: any) => void) {
@@ -46,20 +47,20 @@ export class BridgeTransport {
     data?: any,
     timeoutMs: number = DEFAULT_COMMAND_TIMEOUT_MS
   ): Promise<T> {
-    console.debug('BRIDGE', command, data);
+    // console.debug('BRIDGE', command, data);
     return new Promise<T>((resolve, reject) => {
       const id = uniqueId(`command-${command}`);
       const timeout = (setTimeout(() => {
         this.handleCommandTimingOut(id);
       }, timeoutMs) as unknown) as number;
-      this.pendingCommands[id] = {resolve, reject, timeout};
+      this.pendingCommands.set(id, {resolve, reject, timeout});
       const message = {id, command, data};
       window.postMessage({sender: 'web', data: JSON.stringify(message)}, '*');
     });
   }
 
   private handleCommandError(id: string, error: string): void {
-    const pendingCommand = this.pendingCommands[id];
+    const pendingCommand = this.pendingCommands.get(id);
     if (!pendingCommand) {
       console.error(`Bridge command errored (${error}), but no pending command found (${id})`);
       return;
@@ -67,11 +68,12 @@ export class BridgeTransport {
     const {reject, timeout} = pendingCommand;
     clearTimeout(timeout);
     reject(error);
+    this.pendingCommands.delete(id);
   }
 
   // tslint:disable-next-line:no-any
   private handleCommandResponse(id: string, response: any): void {
-    const pendingCommand = this.pendingCommands[id];
+    const pendingCommand = this.pendingCommands.get(id);
     if (!pendingCommand) {
       console.error(
         `Bridge command successful (${response}), but no pending command found (${id})`
@@ -80,8 +82,9 @@ export class BridgeTransport {
     }
     const {resolve, timeout} = pendingCommand;
     clearTimeout(timeout);
-    console.debug('BRIDGE', id, response);
+    // console.debug('BRIDGE', id, response);
     resolve(response);
+    this.pendingCommands.delete(id);
   }
 
   // tslint:disable-next-line:no-any

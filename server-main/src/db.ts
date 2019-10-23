@@ -36,6 +36,6 @@ export const gescomDB = knex({
   },
 });
 
-gescomDB.on('query', (query: any) => {
-  log.info(`GESCOM QUERY: ${query.sql} | PARAMS: ${query.bindings}`);
-});
+// gescomDB.on('query', (query: any) => {
+//   log.info(`GESCOM QUERY: ${query.sql} | PARAMS: ${query.bindings}`);
+// });

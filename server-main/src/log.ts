@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 export function configureLogs(): void {
-  const dbPath = path.resolve(process.env.SQLITE_DATABASE_PATH || '.');
+  const dbPath = path.resolve('.');
   const logFolderPath = path.join(dbPath, '../logs');
   if (!fs.existsSync(logFolderPath)) {
     fs.mkdirSync(logFolderPath);

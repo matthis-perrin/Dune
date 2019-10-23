@@ -10,6 +10,7 @@ import {
   STOCK_NUM_DEPOT,
   STOCK_REEL,
   STOCK_COMMANDE,
+  STOCK_PREPARE,
   STOCK_RESERVE,
 } from '@root/gescom/common';
 
@@ -23,6 +24,7 @@ const STOCK_COLUMNS = [
   STOCK_REEL,
   STOCK_COMMANDE,
   STOCK_RESERVE,
+  STOCK_PREPARE,
   LAST_UPDATE_COLUMN,
 ];
 
@@ -49,7 +51,8 @@ export class GescomWatcherStocks extends GescomWatcher {
       [StockColumns.REF_COLUMN]: asString(data[ARTICLE_REF_COLUMN], undefined),
       [StockColumns.NUM_DEPOT]: asNumber(data[STOCK_NUM_DEPOT], undefined),
       [StockColumns.REEL_COLUMN]: asNumber(data[STOCK_REEL], 0),
-      [StockColumns.RESERVE_COLUMN]: asNumber(data[STOCK_RESERVE], 0),
+      [StockColumns.RESERVE_COLUMN]:
+        asNumber(data[STOCK_RESERVE], 0) + asNumber(data[STOCK_PREPARE], 0),
       [StockColumns.COMMANDE_COLUMN]: asNumber(data[STOCK_COMMANDE], 0),
       [StockColumns.LAST_UPDATE_COLUMN]: asDate(data[LAST_UPDATE_COLUMN]),
       [StockColumns.LOCAL_UPDATE_COLUMN]: localDate,
