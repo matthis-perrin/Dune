@@ -118,7 +118,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       previousStopType === StopType.EndOfDayPauseProd ||
       (previousStop && !isSameDay(new Date(previousStop.start), new Date(stop.start)))
     ) {
-      return <OptionWrapper>{reprisePlanProdOption}</OptionWrapper>;
+      return <OptionWrapper>{this.renderOption(StopType.ReprisePlanProd)}</OptionWrapper>;
     }
 
     return (

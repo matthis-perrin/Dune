@@ -50,7 +50,7 @@ export function getStockDiff(
   const pistes = bobines
     .filter(b => b.ref === ref)
     .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
-  return pistes * (prodMeters / longueurFirstBobine);
+  return pistes * Math.round(prodMeters / longueurFirstBobine);
 }
 
 export function getStockPrevisionel(
