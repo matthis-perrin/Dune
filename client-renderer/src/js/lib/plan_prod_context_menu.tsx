@@ -102,7 +102,6 @@ export function showPlanContextMenu(
 
   const menus: ContextMenu[] = [];
 
-  const planType = getPlanStatus(planSchedule);
   const planStart = getPlanStart(planSchedule);
   const planEnd = getPlanEnd(planSchedule);
   const start =

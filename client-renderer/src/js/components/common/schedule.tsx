@@ -323,7 +323,12 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     }
     const planType = getPlanStatus(planSchedule);
     if (planType === PlanProductionStatus.PLANNED) {
-      showPlanContextMenu(schedule, planSchedule.planProd.id, onPlanProdRefreshNeeded);
+      showPlanContextMenu(
+        schedule,
+        planSchedule.planProd.id,
+        planType === PlanProductionStatus.PLANNED,
+        onPlanProdRefreshNeeded
+      );
     }
   };
 
@@ -490,10 +495,23 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     const positionStyles = this.getPositionStyleForDates(new Date(stop.start), new Date(stop.end));
 
     const labelTextStyles = this.getTextStyleForDates(new Date(stop.start), new Date(stop.end));
+
+    let contextMenuHandler = this.handleContextMenuForNonProd(stop.end);
+    if (stop.maintenanceId !== undefined) {
+      const {schedule} = this.props;
+      if (schedule) {
+        const currentTime =
+          schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
+        if (stop.start > currentTime) {
+          contextMenuHandler = this.handleContextMenuForMaintenance(stop.maintenanceId);
+        }
+      }
+    }
+
     return (
       <StopWrapper
         key={`non-prod-${stop.start}-${stop.end || 0}`}
-        onContextMenu={this.handleContextMenuForNonProd(stop.end)}
+        onContextMenu={contextMenuHandler}
         style={{
           ...positionStyles,
           left: 0,
@@ -693,10 +711,10 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
       )
     );
 
-    const floatingMaintenances = maintenances
+    const floatingMaintenances: Stop[] = maintenances
       .filter(m => usedMaintenancesId.indexOf(m.id) === -1)
-      .map(m => ({...m, stopType: StopType.Maintenance}));
-    const floatingNonProds = nonProds
+      .map(m => ({...m, stopType: StopType.Maintenance, maintenanceId: m.id}));
+    const floatingNonProds: Stop[] = nonProds
       .filter(np => usedNonProdsStart.indexOf(np.start) === -1)
       .map(m => ({...m, stopType: StopType.NotProdHours}));
 

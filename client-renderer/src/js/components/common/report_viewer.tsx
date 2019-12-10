@@ -84,21 +84,20 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const perf =
       activePeriodMetrage > 0 ? Math.round((1000 * metrageDone) / activePeriodMetrage) / 10 : 0;
 
-    let totalBobines = 0;
-    const schedules = getSchedulesForDay(schedule, new Date(day));
-    schedules.forEach(s => {
-      const bobines = s.planProd.data.bobines;
-      const meters = s.doneProdMeters + s.plannedProdMeters;
-      const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
-      const tour = Math.round(meters / longueurFirstBobine);
-      if (tour > 0) {
-        bobines.forEach(b => {
-          const pose = getPoseSize(b.pose);
-
-          totalBobines += pose * tour;
-        });
-      }
-    });
+    // let totalBobines = 0;
+    // const schedules = getSchedulesForDay(schedule, new Date(day));
+    // schedules.forEach(s => {
+    //   const bobines = s.planProd.data.bobines;
+    //   const meters = s.doneProdMeters + s.plannedProdMeters;
+    //   const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
+    //   const tour = Math.round(meters / longueurFirstBobine);
+    //   if (tour > 0) {
+    //     bobines.forEach(b => {
+    //       const pose = getPoseSize(b.pose);
+    //       totalBobines += pose * tour;
+    //     });
+    //   }
+    // });
 
     return (
       <SummaryContainer>
@@ -106,9 +105,9 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
         <SummaryValue>{`Métrage Linéaire: ${numberWithSeparator(
           Math.round(metrageDone)
         )} m`}</SummaryValue>
-        <SummaryValue>{`Production théorique: ${numberWithSeparator(
+        {/* <SummaryValue>{`Production théorique: ${numberWithSeparator(
           Math.round(totalBobines)
-        )} bobines`}</SummaryValue>
+        )} bobines`}</SummaryValue> */}
         <SummaryValue>{`Retard: ${formatDuration(delays)}`}</SummaryValue>
       </SummaryContainer>
     );
@@ -246,8 +245,8 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
                   {this.renderPerfs()}
                   <ReportSectionTitle>Détail des arrêts</ReportSectionTitle>
                   {this.renderStops()}
-                  <ReportSectionTitle>Production de la journée (théorique)</ReportSectionTitle>
-                  {this.renderProductionTable()}
+                  {/* <ReportSectionTitle>Production de la journée (théorique)</ReportSectionTitle>
+                  {this.renderProductionTable()} */}
                 </ReportWrapper>
               );
             }}

@@ -95,7 +95,15 @@ class StopsManager {
       '>=',
       SPEED_THRESHOLD_FOR_STOP
     );
-    return nextProdStart && nextProdStart.time;
+
+    // TODO - Have the same logic for `getNextStopStart`?
+    if (nextProdStart === undefined) {
+      return undefined;
+    }
+    if (lastStop && lastStop.start > nextProdStart.time) {
+      return undefined;
+    }
+    return nextProdStart.time;
   }
 
   private getLastPlanProdId(
