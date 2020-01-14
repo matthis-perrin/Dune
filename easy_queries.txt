@@ -1,0 +1,56 @@
+*** Visualiser 10 premières et dernières vitesses > 0 d'une journée ***
+
+(SELECT time, speed, FROM_UNIXTIME(time / 1000)
+FROM herisson_prod.speeds
+WHERE speed > 0 AND time >= UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000 AND time <= UNIX_TIMESTAMP('2019-10-21 23:59:59') * 1000
+ORDER BY time
+LIMIT 10)
+UNION
+(SELECT time, speed, FROM_UNIXTIME(time / 1000)
+FROM herisson_prod.speeds
+WHERE speed > 0 AND time >= UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000 AND time <= UNIX_TIMESTAMP('2019-10-21 23:59:59') * 1000
+ORDER BY time DESC
+LIMIT 10)
+ORDER BY time;
+
+
+*** Visualiser 10 premières et dernières vitesses à NULL d'une journée ***
+
+(SELECT time, speed, FROM_UNIXTIME(time / 1000)
+FROM herisson_prod.speeds
+WHERE speed IS NULL AND time >= UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000 AND time <= UNIX_TIMESTAMP('2019-10-21 23:59:59') * 1000
+ORDER BY time
+LIMIT 10)
+UNION
+(SELECT time, speed, FROM_UNIXTIME(time / 1000)
+FROM herisson_prod.speeds
+WHERE speed IS NULL AND time >= UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000 AND time <= UNIX_TIMESTAMP('2019-10-21 23:59:59') * 1000
+ORDER BY time DESC
+LIMIT 10)
+ORDER BY time;
+
+
+*** Visualiser les dernières vitesses à NULL ***
+
+SELECT time, speed, FROM_UNIXTIME(time / 1000) FROM herisson_prod.speeds ORDER BY time desc;
+
+
+*** Mettre à 0 toutes les vitesses à NULL entre deux dates ***
+
+UPDATE speeds SET speed = 0
+WHERE speed IS NULL AND time >= UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000 AND time <= UNIX_TIMESTAMP('2019-10-21 23:59:59') * 1000;
+
+
+*** Visualiser les stops avec les timestamps en dates ***
+
+SELECT *, from_unixtime(start / 1000), from_unixtime(end / 1000) FROM herisson_prod.stops;
+
+
+*** Visualiser les prods avec les timestamps en dates ***
+
+SELECT *, from_unixtime(start / 1000), from_unixtime(end / 1000) FROM herisson_prod.prods;
+
+
+*** Convertir une date en timestamp ***
+
+SELECT UNIX_TIMESTAMP('2019-10-21 00:00:00') * 1000

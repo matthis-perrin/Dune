@@ -116,9 +116,7 @@ export function getAllPlannedMaintenances(schedule: Schedule): Maintenance[] {
       });
     });
   });
-  return schedule.maintenances
-    .filter(m => plannedMaintenanceIds.has(m.id))
-    .sort((m1, m2) => m1.start - m2.start);
+  return schedule.maintenances.sort((m1, m2) => m1.start - m2.start);
 }
 
 export function getScheduleStarts(schedule: PlanProdSchedule): number[] {
