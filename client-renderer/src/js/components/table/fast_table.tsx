@@ -1,6 +1,7 @@
 import {range, isEqual, memoize} from 'lodash-es';
 import * as React from 'react';
 import styled from 'styled-components';
+// import styled from 'styled-components/native';
 
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme';
@@ -10,13 +11,19 @@ interface FastTableProps<T extends {ref: string}> {
   height: number;
   rowHeight: number;
   renderColumn?(index: number): JSX.Element;
-  // style?: React.CSSProperties;
+  style?: React.CSSProperties;
   // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
   rowStyles?(element: T): React.CSSProperties;
   data: T[];
   onRowClick?(row: T, event: React.MouseEvent): void;
 }
+
+// width: ${(props) => props.width}px;
+const ColumnContainer = styled.div`
+  display: flex;
+  background-color: ${theme.table.headerBackgroundColor};
+`;
 
 const getStringHash = memoize((value: string): number => {
   let hash = 0;
@@ -31,6 +38,7 @@ const getStringHash = memoize((value: string): number => {
     // tslint:disable-next-line:no-bitwise no-magic-numbers
     hash = hash & hash; // Convert to 32bit integer
   }
+
   return hash;
 });
 
@@ -75,11 +83,11 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   }
 
   private getFixedColumnsWidthCount(): number {
-    return this.props.columns.filter(col => col.width !== undefined).length;
+    return this.props.columns.filter((col) => col.width !== undefined).length;
   }
 
   private getVariableColumnWidthCount(): number {
-    return this.props.columns.filter(col => col.width === undefined).length;
+    return this.props.columns.filter((col) => col.width === undefined).length;
   }
 
   private readonly getColumnWidth = (
@@ -138,7 +146,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       this.getFixedColumnsWidthSum() + theme.table.minSizeForVariableColumns,
       width
     );
-    const columnWidths = range(columnCount).map(index =>
+    const columnWidths = range(columnCount).map((index) =>
       this.getColumnWidth(index, adjustedWidth, shouldAssumeScrollbar)
     );
 
@@ -150,7 +158,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const lastVisibleRowIndex = firstVisibleRowIndex + Math.ceil(height / rowHeight);
     const header = renderColumn ? (
       <ColumnContainer width={adjustedWidth}>
-        {range(columnCount).map(i => (
+        {range(columnCount).map((i) => (
           <div
             key={`column-${i}`}
             style={{width: this.getColumnWidth(i, adjustedWidth, shouldAssumeScrollbar)}}
@@ -230,17 +238,11 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   }
 }
 
-const ColumnContainer = styled.div<{width: number}>`
-  display: flex;
-  width: ${props => props.width}px;
-  background-color: ${theme.table.headerBackgroundColor};
-`;
-
 const RowContainer = styled.div<{background: string}>`
   display: flex;
   position: absolute;
   top: -1000px;
-  background-color: ${props => props.background};
+  background-color: ${(props) => props.background};
   transition: background-color 100ms ease-in-out
   &:hover {
     background-color: ${theme.table.rowBackgroundColorHovered};
@@ -302,7 +304,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
     const {columns, data, columnWidths, rowHeight} = this.props;
     return (
       <React.Fragment>
-        {range(columns.length).map(columnIndex => {
+        {range(columns.length).map((columnIndex) => {
           const columnWidth = columnWidths[columnIndex];
           const isFirst = columnIndex === 0;
           const isLast = columnIndex === columns.length - 1;

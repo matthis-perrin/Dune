@@ -1,6 +1,5 @@
 {
   "extends": ["tslint-react"],
-  "rulesDirectory": "linter-rules/dist",
   "rules": {
     "adjacent-overload-signatures": true,
     "align": true,
@@ -31,7 +30,6 @@
     "deprecation": true,
     "encoding": true,
     "eofline": true,
-    "event-handler-name": true,
     "file-header": false,
     "file-name-casing": [true, "snake-case"],
     "forin": true,
@@ -58,9 +56,7 @@
     "jsx-space-before-trailing-slash": false,
     "jsx-use-translation-function": false,
     "jsx-wrap-multiline": false,
-    "key-in-map": true,
     "label-position": true,
-    "linebreak-style": [true, "CRLF"],
     "match-default-export-name": false,
     "max-classes-per-file": false,
     "max-file-line-count": false,
