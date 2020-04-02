@@ -68,6 +68,7 @@ export async function createNonProd(
   title: string
 ): Promise<void> {
   return db(NON_PROD_TABLE_NAME).insert({
+    // tslint:disable-next-line: no-magic-numbers
     [NonProdColumns.ID]: Math.round(Math.random() * 1e9),
     [NonProdColumns.TITLE]: title,
     [NonProdColumns.START_TIME]: start,

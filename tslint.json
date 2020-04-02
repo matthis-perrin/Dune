@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint-react", "tslint-plugin-prettier"],
+  "extends": ["tslint-react"],
   "rulesDirectory": "linter-rules/dist",
   "rules": {
     "adjacent-overload-signatures": true,
@@ -27,7 +27,6 @@
     "comment-type": false,
     "completed-docs": false,
     "curly": true,
-    "custom-ordered-import": [true, ["@fortawesome"]],
     "cyclomatic-complexity": false,
     "deprecation": true,
     "encoding": true,
@@ -166,7 +165,6 @@
     "prefer-switch": false,
     "prefer-template": true,
     "prefer-while": false,
-    "prettier": true,
     "promise-function-async": true,
     "quotemark": [true, "single", "jsx-double", "avoid-template", "avoid-escape"],
     "radix": true,

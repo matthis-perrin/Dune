@@ -14,6 +14,7 @@ export const PlansProductionColumn = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
+// tslint:disable-next-line: no-any
 type DebugFn = (...params: any[]) => void;
 
 export async function createPlansProductionTable(db: knex): Promise<void> {
@@ -260,10 +261,12 @@ export async function getClosestPlanProdBefore(
   index: number
 ): Promise<PlanProductionRaw | undefined> {
   if (index > 0) {
-    return (await db(PLANS_PRODUCTION_TABLE_NAME)
-      .select()
-      .where(PlansProductionColumn.INDEX_COLUMN, '=', index - 1)
-      .map(mapLineToPlanProductionRaw))[0];
+    return (
+      await db(PLANS_PRODUCTION_TABLE_NAME)
+        .select()
+        .where(PlansProductionColumn.INDEX_COLUMN, '=', index - 1)
+        .map(mapLineToPlanProductionRaw)
+    )[0];
   }
   const latestStopWithPlanId = await getLatestStopWithPlanIdBefore(db, Date.now() * 2);
   if (!latestStopWithPlanId || !latestStopWithPlanId.planProdId) {
@@ -273,10 +276,12 @@ export async function getClosestPlanProdBefore(
 }
 
 export async function getPlanProd(db: knex, id: number): Promise<PlanProductionRaw | undefined> {
-  return (await db(PLANS_PRODUCTION_TABLE_NAME)
-    .select()
-    .where(PlansProductionColumn.ID_COLUMN, '=', id)
-    .map(mapLineToPlanProductionRaw))[0];
+  return (
+    await db(PLANS_PRODUCTION_TABLE_NAME)
+      .select()
+      .where(PlansProductionColumn.ID_COLUMN, '=', id)
+      .map(mapLineToPlanProductionRaw)
+  )[0];
 }
 
 export async function getNotStartedPlanProds(db: knex): Promise<PlanProductionRaw[]> {

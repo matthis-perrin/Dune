@@ -26,6 +26,7 @@ async function startApp(): Promise<void> {
 function getArg(name: string): string | undefined {
   const args = process.argv.slice(1);
   const matchingArgs = args.filter(arg => arg.startsWith(`${name}=`))[0];
+  // tslint:disable-next-line: strict-type-predicates
   if (matchingArgs === undefined) {
     return undefined;
   }
@@ -50,11 +51,13 @@ async function sendEmailAsync(
       to: dest,
       subject,
       attachments,
-      onError: err => {
+      // tslint:disable-next-line: no-any
+      onError: (err: any) => {
         log.error(err);
         reject(err);
       },
-      onSuccess: data => {
+      // tslint:disable-next-line: no-any
+      onSuccess: (data: any) => {
         log.info(`Success sending to ${dest}`, data);
         resolve();
       },
@@ -69,6 +72,7 @@ async function postStart(): Promise<void> {
   const user = getArg('-user');
   const password = getArg('-password');
   const dest = getArg('-dest');
+  const tempoChargementUI = 10000;
   if (
     action === 'report' &&
     archive !== undefined &&
@@ -92,6 +96,7 @@ async function postStart(): Promise<void> {
       if (fs.existsSync(filePath)) {
         filePath = path.join(
           archiveDir,
+          // tslint:disable-next-line: no-magic-numbers
           `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), 4)}.pdf`
         );
         log.info(`File already exists. Will save to ${filePath}`);
@@ -128,7 +133,7 @@ async function postStart(): Promise<void> {
           windowManager.closeWindow(reportWindow.id);
           process.exit();
         });
-    }, 10000);
+    }, tempoChargementUI);
 
     return;
   } else {

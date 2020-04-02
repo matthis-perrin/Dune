@@ -16,7 +16,7 @@
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.1",
     "reactjs-popup": "^1.4.1",
-    "styled-components": "^4.2.0"
+    "styled-components": "^4.4.1"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.56",
@@ -27,7 +27,7 @@
     "@types/react-router-dom": "^4.3.1",
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.0",
-    "@types/styled-components": "^4.1.14",
+    "@types/styled-components": "^4.4.3",
     "chart.js": "^2.8.0"
   },
   "version": "1.0.0",

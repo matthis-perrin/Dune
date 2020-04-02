@@ -10,7 +10,7 @@ interface FastTableProps<T extends {ref: string}> {
   height: number;
   rowHeight: number;
   renderColumn?(index: number): JSX.Element;
-  style?: React.CSSProperties;
+  // style?: React.CSSProperties;
   // tslint:disable-next-line:no-any
   columns: ColumnMetadata<T, any>[];
   rowStyles?(element: T): React.CSSProperties;
@@ -18,23 +18,21 @@ interface FastTableProps<T extends {ref: string}> {
   onRowClick?(row: T, event: React.MouseEvent): void;
 }
 
-const getStringHash = memoize(
-  (value: string): number => {
-    let hash = 0;
-    const l = value.length;
-    if (l === 0) {
-      return hash;
-    }
-    for (let i = 0; i < l; i++) {
-      const char = value.charCodeAt(i);
-      // tslint:disable-next-line:no-bitwise no-magic-numbers
-      hash = (hash << 5) - hash + char;
-      // tslint:disable-next-line:no-bitwise no-magic-numbers
-      hash = hash & hash; // Convert to 32bit integer
-    }
+const getStringHash = memoize((value: string): number => {
+  let hash = 0;
+  const l = value.length;
+  if (l === 0) {
     return hash;
   }
-);
+  for (let i = 0; i < l; i++) {
+    const char = value.charCodeAt(i);
+    // tslint:disable-next-line:no-bitwise no-magic-numbers
+    hash = (hash << 5) - hash + char;
+    // tslint:disable-next-line:no-bitwise no-magic-numbers
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+});
 
 export class FastTable<T extends {ref: string}> extends React.Component<FastTableProps<T>> {
   public static displayName = 'FastTable';

@@ -64,6 +64,7 @@ export async function createMaintenance(
   title: string
 ): Promise<void> {
   return db(MAINTENANCE_TABLE_NAME).insert({
+    // tslint:disable-next-line: no-magic-numbers
     [MaintenanceColumns.ID]: Math.round(Math.random() * 1e9),
     [MaintenanceColumns.TITLE]: title,
     [MaintenanceColumns.START_TIME]: start,
