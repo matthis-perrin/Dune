@@ -144,7 +144,7 @@ export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
 
 export function getStartForPlanIndex(schedule: Schedule, index: number): number {
   const planSchedule = maxBy(
-    schedule.plans.filter(p => p.planProd.index <= index),p => p.planProd.index
+    schedule.plans.filter(p => p.planProd.index <= index), p => p.planProd.index
   );
   if (planSchedule) {
     const planStart =

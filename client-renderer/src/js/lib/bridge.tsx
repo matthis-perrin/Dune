@@ -50,7 +50,7 @@ export class Bridge {
   >();
 
   private handleEvent(event: BridgeCommands.BridgeEvent, data: EventData): void {
-    (this.eventListeners.get(event) || []).forEach((listener) => listener(data));
+    (this.eventListeners.get(event) || []).forEach(listener => listener(data));
   }
 
   public addEventListener(

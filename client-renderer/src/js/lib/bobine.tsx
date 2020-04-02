@@ -186,19 +186,18 @@ export function getBobinePoseState(
   start: number
 ): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
-    .filter(
-      (b) =>
+    .filter(b =>
         [BobineState.Rupture, BobineState.Alerte].indexOf(
           getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, schedule, start).state
         ) !== -1
     )
-    .map((b) => b.ref)[0];
+    .map(b => b.ref)[0];
   const usedPoses = sum(
-    selectedBobines.filter((b) => b.ref === ref).map((b) => getPoseSize(b.pose))
+    selectedBobines.filter(b => b.ref === ref).map(b => getPoseSize(b.pose))
   );
 
   return poses
-    .map((pose) => {
+    .map(pose => {
       const totalPose = usedPoses + getPoseSize(pose);
       const additionalStock = tourCount ? totalPose * tourCount : 0;
       const {quantity, state, yearSell, stock} = getBobineState(

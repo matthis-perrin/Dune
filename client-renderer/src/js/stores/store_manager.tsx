@@ -41,7 +41,7 @@ export class StoreManager {
   constructor(private readonly stores: Refreshable[]) {}
 
   public start(): void {
-    this.stores.forEach((store) => {
+    this.stores.forEach(store => {
       this.refreshStore(store);
     });
   }

@@ -96,7 +96,7 @@ function mergeTwoOverlappingSequence<T>(
   if (allOverlaps.length === 0) {
     return sequence1.concat(sequence2);
   }
-  return minBy(allOverlaps,overlap => overlap.length) || sequence1.concat(sequence2);
+  return minBy(allOverlaps, overlap => overlap.length) || sequence1.concat(sequence2);
 }
 
 function mergeOverlappingSequences<T>(

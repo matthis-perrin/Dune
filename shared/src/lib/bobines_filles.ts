@@ -22,7 +22,7 @@ export function getBobineFilleImportanceOrdreCouleurs(
 
 export function dedupePoseNeutre(poses: number[]): number[] {
   const hasNeutre = poses.indexOf(POSE_NEUTRE) !== -1;
-  const filteredPoses = poses.filter((p) => p !== POSE_NEUTRE);
+  const filteredPoses = poses.filter(p => p !== POSE_NEUTRE);
   if (hasNeutre) {
     filteredPoses.unshift(POSE_NEUTRE);
   }

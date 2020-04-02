@@ -27,7 +27,7 @@ function getStockValue(stock: Stock, type: StockType): number {
 
 export function getStock(ref: string, stocks: Map<string, Stock[]>, type: StockType): number {
   const stock = stocks.get(ref) || [];
-  return sum(stock.map((s) => getStockValue(s, type)));
+  return sum(stock.map(s => getStockValue(s, type)));
 }
 
 export function getStockDiff(
@@ -48,7 +48,7 @@ export function getStockDiff(
     return -prodMeters / (polypro.longueur || 1);
   }
   const pistes = bobines
-    .filter((b) => b.ref === ref)
+    .filter(b => b.ref === ref)
     .reduce((acc, curr) => acc + getPoseSize(curr.pose), 0);
   return pistes * Math.round(prodMeters / longueurFirstBobine);
 }
@@ -62,7 +62,7 @@ export function getStockPrevisionel(
 ): number {
   const startStock = getStock(ref, stocks, type);
   const futurSchedules = getSchedulesFromStartOfDayUpTo(schedule, atTime);
-  const stockDiffs = futurSchedules.map((s) =>
+  const stockDiffs = futurSchedules.map(s =>
     getStockDiff(ref, s.planProd.data, s.doneProdMeters + s.plannedProdMeters)
   );
   const totalDiff = stockDiffs.reduce((acc, curr) => acc + curr, 0);

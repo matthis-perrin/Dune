@@ -11,7 +11,7 @@ export function getRefenteLaizes(refente: Refente): number[] {
     laize6 = 0,
     laize7 = 0,
   } = refente;
-  return [laize1, laize2, laize3, laize4, laize5, laize6, laize7].filter((l) => l > 0);
+  return [laize1, laize2, laize3, laize4, laize5, laize6, laize7].filter(l => l > 0);
 }
 
 export function getRefenteSize(refente: Refente): number {
@@ -23,7 +23,7 @@ export function getRefenteSize(refente: Refente): number {
 
 export function getRefenteLabel(refente: Refente): string {
   const laizes = getRefenteLaizes(refente);
-  const refenteValues = laizes.map((l) => `${Math.round(l)}`);
+  const refenteValues = laizes.map(l => `${Math.round(l)}`);
   if (refente.chute) {
     refenteValues.push(`(${refente.chute})`);
   }
@@ -100,7 +100,7 @@ export function firstBobinePlacementAvailableOnRefente(
   bobines: BobineFilleWithPose[],
   refente: Refente
 ): (BobineFilleWithPose | number)[] {
-  const laizes = getRefenteLaizes(refente).map((l) => Math.round(l));
+  const laizes = getRefenteLaizes(refente).map(l => Math.round(l));
   // Check first if the provided order of bobines works
   const res = applyBobinesOnLaizes(bobines, laizes);
   if (res) {

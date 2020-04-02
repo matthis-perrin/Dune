@@ -17,10 +17,10 @@ export class ContextMenuManager {
   private readonly contextMenuCallbacks = new Map<string, Map<string, (() => void) | undefined>>();
 
   public constructor() {
-    bridge.addEventListener(ContextMenuClosed, (data) =>
+    bridge.addEventListener(ContextMenuClosed, data =>
       this.menuClosed(asString(asMap(data).menuId, ''))
     );
-    bridge.addEventListener(ContextMenuClicked, (data) => {
+    bridge.addEventListener(ContextMenuClicked, data => {
       const dataMap = asMap(data);
       this.menuItemClicked(asString(dataMap.menuId, ''), asString(dataMap.menuItemId, ''));
     });
@@ -29,7 +29,7 @@ export class ContextMenuManager {
   public async open(menus: ContextMenu[]): Promise<void> {
     const menuId = uniqueId('menu-');
     const callbacks = new Map<string, (() => void) | undefined>();
-    const menuForBridge = menus.map((menu) => this.createMenuAndFillCallbackMap(callbacks, menu));
+    const menuForBridge = menus.map(menu => this.createMenuAndFillCallbackMap(callbacks, menu));
     this.contextMenuCallbacks.set(menuId, callbacks);
     await bridge.openContextMenu(menuId, menuForBridge);
   }
@@ -45,7 +45,7 @@ export class ContextMenuManager {
       label: menu.label,
       disabled: menu.disabled,
       submenus:
-        menu.submenus && menu.submenus.map((m) => this.createMenuAndFillCallbackMap(callbacks, m)),
+        menu.submenus && menu.submenus.map(m => this.createMenuAndFillCallbackMap(callbacks, m)),
     };
   }
 

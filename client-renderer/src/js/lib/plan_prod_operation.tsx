@@ -77,7 +77,7 @@ function makeClichePosePositions(
 ): Map<string, ClichePosition[]> {
   const clichePosePositions = new Map<string, ClichePosition[]>();
   let distance = 0;
-  bobines.forEach((b) => {
+  bobines.forEach(b => {
     const {refCliche1, refCliche2, pose} = b;
     const poseSize = getPoseSize(pose);
     const processCliche = (clicheRef?: string): void => {
@@ -120,7 +120,7 @@ export function countClicheDiff(before: PlanProdStateLight, after: PlanProdState
 
   let retraitClicheCount = 0;
   beforeClichePosePositions.forEach((positions, clichePose) => {
-    positions.forEach((position) => {
+    positions.forEach(position => {
       const afterPositions = afterClichePosePositions.get(clichePose);
       if (!afterPositions || !hasPosition(afterPositions, position)) {
         retraitClicheCount++;
@@ -160,7 +160,7 @@ function convertPosePositionsToPositionsByDistance(
 ): Map<number, string[]> {
   const positionsByDistance = new Map<number, string[]>();
   posePositions.forEach((positions, clichePose) => {
-    positions.forEach((position) => {
+    positions.forEach(position => {
       const positionsForDistance = positionsByDistance.get(position.distance);
       const additionalPosition = `${position.encrierIndex}_${position.color}_${clichePose}`;
       if (!positionsForDistance) {
@@ -189,7 +189,7 @@ export function countNewMultiCouleursCliches(
   let newMultiCouleursClichesCount = 0;
   afterPositionsByDistance.forEach((positions, distance) => {
     const beforePositionsForDistance = beforePositionsByDistance.get(distance) || [];
-    const alreadyHereCount = positions.filter((p) => beforePositionsForDistance.indexOf(p) !== -1)
+    const alreadyHereCount = positions.filter(p => beforePositionsForDistance.indexOf(p) !== -1)
       .length;
     const extraMultiCouleursCount = positions.length - Math.max(alreadyHereCount - 1, 0) - 1;
     newMultiCouleursClichesCount += extraMultiCouleursCount;
@@ -247,19 +247,18 @@ export function splitOperations(
   const conducteurSplit: OperationSplit = {total: 0, operations: []};
   const aideConducteurSplit: OperationSplit = {total: 0, operations: []};
 
-  const conducteurOperations = operations.filter((o) => o.group === OperationGroup.Conducteur);
+  const conducteurOperations = operations.filter(o => o.group === OperationGroup.Conducteur);
   const aideConducteurOperations = operations
-    .filter((o) => o.group === OperationGroup.Aide)
+    .filter(o => o.group === OperationGroup.Aide)
     .sort((o1, o2) => {
       const o1Quantity = constraints.get(o1.constraint) || 0;
       const o2Quantity = constraints.get(o2.constraint) || 0;
       return o2Quantity * o2.duration - o1Quantity * o1.duration;
     });
-  const repartissableOperations = operations.filter(
-    (o) => o.group === OperationGroup.Repartissable
+  const repartissableOperations = operations.filter(o => o.group === OperationGroup.Repartissable
   );
 
-  conducteurOperations.forEach((o) => {
+  conducteurOperations.forEach(o => {
     const quantity = constraints.get(o.constraint) || 0;
     if (quantity > 0) {
       conducteurSplit.total += o.duration * quantity;
@@ -272,7 +271,7 @@ export function splitOperations(
     }
   });
 
-  aideConducteurOperations.forEach((o) => {
+  aideConducteurOperations.forEach(o => {
     const quantity = constraints.get(o.constraint) || 0;
     if (quantity > 0) {
       const operationDetail = {
@@ -291,7 +290,7 @@ export function splitOperations(
     }
   });
 
-  repartissableOperations.forEach((o) => {
+  repartissableOperations.forEach(o => {
     const quantity = constraints.get(o.constraint) || 0;
     if (quantity > 0) {
       const operationDetail = {
@@ -320,8 +319,8 @@ export function splitOperations(
 
   const chauffeRefenteSplit: OperationSplit = {total: 0, operations: []};
   operations
-    .filter((o) => o.group === OperationGroup.ChauffeRefente)
-    .forEach((o) => {
+    .filter(o => o.group === OperationGroup.ChauffeRefente)
+    .forEach(o => {
       const quantity = constraints.get(o.constraint) || 0;
       if (quantity > 0) {
         chauffeRefenteSplit.total += quantity * o.duration;
@@ -336,8 +335,8 @@ export function splitOperations(
 
   const chauffePerfoSplit: OperationSplit = {total: 0, operations: []};
   operations
-    .filter((o) => o.group === OperationGroup.ChauffePerfo)
-    .forEach((o) => {
+    .filter(o => o.group === OperationGroup.ChauffePerfo)
+    .forEach(o => {
       const quantity = constraints.get(o.constraint) || 0;
       if (quantity > 0) {
         chauffePerfoSplit.total += quantity * o.duration;
@@ -367,6 +366,6 @@ export function getOperationTime(
   const operationsSplits = splitOperations(operations, constraints);
   const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = operationsSplits;
   return (
-    max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map((split) => split.total)) || 0
+    max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) || 0
   );
 }
