@@ -140,8 +140,7 @@ export function getStops(
   }
   if (stopFilter === PLANNED_STOP_FILTER.name) {
     return stopsToCheck
-      .filter(
-        s =>
+      .filter(s =>
           [
             StopType.ChangePlanProd,
             StopType.ReprisePlanProd,
@@ -154,7 +153,9 @@ export function getStops(
       .map(s => s.duration);
   }
   if (stopFilter === UNPLANNED_STOP_FILTER.name) {
-    return stopsToCheck.filter(s => UnplannedStopTypes.indexOf(s.type) !== -1).map(s => s.duration);
+    return stopsToCheck
+      .filter(s => UnplannedStopTypes.indexOf(s.type) !== -1)
+      .map(s => s.duration);
   }
   if (stopFilter === MAINTENANCE_AND_NON_PROD_STOP_FILTER.name) {
     return stopsToCheck
@@ -221,7 +222,9 @@ export function getDelays(
     const repriseTotalTime = sum(repriseStops.map(s => s.duration));
     if (repriseTotalTime > 0) {
       const repriseDelay = repriseTotalTime - constants.reglageRepriseProdMs;
-      values = values.concat(repriseStops.map(p => (repriseDelay * p.duration) / repriseTotalTime));
+      values = values.concat(
+        repriseStops.map(p => (repriseDelay * p.duration) / repriseTotalTime)
+      );
     }
   }
 

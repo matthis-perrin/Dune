@@ -1,7 +1,7 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {isEqual, sum} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {PlottableStatsCSS} from '@root/components/charts/plottable_css';
@@ -187,7 +187,7 @@ export class BarChart extends React.Component<BarChartProps> {
             ...datalabelsConf,
             font: {family: 'Segoe UI', weight: FontWeight.SemiBold},
             formatter: chartConfig.renderY,
-            display: a => ((a.dataset.data || [])[a.dataIndex] || 0) !== 0,
+            display:a => ((a.dataset.data || [])[a.dataIndex] || 0) !== 0,
           },
         },
         elements: {

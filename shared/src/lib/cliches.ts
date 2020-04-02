@@ -26,7 +26,7 @@ export function getPoseSize(pose: number): number {
 export function getPosesForCliche(cliche: Cliche): number[] {
   const poses: number[] = [];
   [cliche.nombrePosesA, cliche.nombrePosesB, cliche.nombrePosesC, cliche.nombrePosesD].forEach(
-    p => {
+    (p) => {
       if (p !== undefined && p > 0) {
         poses.push(p);
       }
@@ -78,14 +78,14 @@ function getMatchingPosesInCombi(poses: number[], sortedAvailablePoses: number[]
 
 function posesAsMap(poses: number[]): Map<number, number> {
   const res = new Map<number, number>();
-  poses.forEach(pose => res.set(pose, 1 + (res.get(pose) || 0)));
+  poses.forEach((pose) => res.set(pose, 1 + (res.get(pose) || 0)));
   return res;
 }
 
 function getUsablePosesInCombi(poses: number[], availablePoses: number[]): Map<number, number> {
   const res = new Map<number, number>();
   const sortedAvailablePoses = [...availablePoses].sort();
-  permutations(poses).forEach(permutation => {
+  permutations(poses).forEach((permutation) => {
     const matchingPoses = posesAsMap(getMatchingPosesInCombi(permutation, sortedAvailablePoses));
     Array.from(matchingPoses.entries()).forEach(([pose, count]) =>
       res.set(pose, Math.max(count, res.get(pose) || 0))
@@ -190,7 +190,7 @@ export function getCouleursForCliche(cliche?: Cliche): BobineColors {
     cliche.couleur4,
     cliche.couleur5,
     cliche.couleur6,
-  ].forEach(c => {
+  ].forEach((c) => {
     if (c !== undefined && c !== '') {
       couleurs.push({color: c, refCliche: cliche.ref});
     }

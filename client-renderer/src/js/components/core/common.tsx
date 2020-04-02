@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {css} from 'styled-components';
 
 import {Omit} from '@shared/type_utils';
@@ -47,9 +47,11 @@ export function uiComponentMixin<T = {}>() {
       props.marginRight ? `margin-right: ${asPixelString(props.marginRight)}` : undefined};
     ${props =>
       props.marginBottom ? `margin-bottom: ${asPixelString(props.marginBottom)}` : undefined};
-    ${props => (props.marginLeft ? `margin-left: ${asPixelString(props.marginLeft)}` : undefined)};
+    ${props =>
+      props.marginLeft ? `margin-left: ${asPixelString(props.marginLeft)}` : undefined};
     ${props => (props.padding ? `padding: ${asPixelString(props.padding)}` : undefined)};
-    ${props => (props.paddingTop ? `padding-top: ${asPixelString(props.paddingTop)}` : undefined)};
+    ${props =>
+      props.paddingTop ? `padding-top: ${asPixelString(props.paddingTop)}` : undefined};
     ${props =>
       props.paddingRight ? `padding-right: ${asPixelString(props.paddingRight)}` : undefined};
     ${props =>

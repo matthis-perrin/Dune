@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {PlanProdPopup} from '@root/components/apps/main/gestion/plan_prod_popup';
@@ -102,8 +102,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         this.prodInfoStore = new ProdInfoStore(dayTs);
         this.prodInfoStore.addListener(this.handleProdInfoChanged);
       }
-      const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), currentDay));
-      stops.forEach(s => {
+      const stops = schedule.stops.filter((s) => isSameDay(new Date(s.start), currentDay));
+      stops.forEach((s) => {
         const hash = `${dayTs}-${s.start}`;
         if (
           s.stopType === undefined &&
@@ -202,8 +202,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     }
 
     const stops = schedule.stops
-      .filter(s => s.stopType !== StopType.NotProdHours)
-      .filter(s => isSameDay(new Date(s.start), currentDay))
+      .filter((s) => s.stopType !== StopType.NotProdHours)
+      .filter((s) => isSameDay(new Date(s.start), currentDay))
       .sort((s1, s2) => s1.start - s2.start);
 
     return <StopList schedule={schedule} lastMinute={lastMinute} stops={stops} />;
@@ -331,9 +331,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     };
 
     const events: SpeedChartEvent[] = [];
-    schedule.plans.forEach(p =>
-      p.schedulePerDay.forEach(s =>
-        s.stops.forEach(stop => {
+    schedule.plans.forEach((p) =>
+      p.schedulePerDay.forEach((s) =>
+        s.stops.forEach((stop) => {
           const eventEnd =
             stop.end !== undefined
               ? stop.end
@@ -398,7 +398,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     }
     return (
       <TeamPerfContainer>
-        {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+        {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map((team) => (
           <TeamPerfoBlock key={team.name}>
             <StatsTitle>{team.label}</StatsTitle>
             <DayStats

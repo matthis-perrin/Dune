@@ -1,4 +1,4 @@
-import * as log from 'electron-log';
+import log from 'electron-log';
 import fs from 'fs';
 import path from 'path';
 

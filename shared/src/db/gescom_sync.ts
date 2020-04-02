@@ -15,11 +15,8 @@ export interface GescomSyncData {
 export async function createGescomSyncTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(GESCOM_SYNC_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(GESCOM_SYNC_TABLE_NAME, table => {
-      table
-        .string(TABLE_NAME_COLUMN)
-        .notNullable()
-        .primary();
+    await db.schema.createTable(GESCOM_SYNC_TABLE_NAME,table => {
+      table.string(TABLE_NAME_COLUMN).notNullable().primary();
       table.dateTime(LAST_UPDATED_COLUMN).notNullable();
       table.dateTime(LAST_CHECKED_COLUMN).notNullable();
     });
@@ -54,13 +51,7 @@ export async function getTableRowCount(
   let rowCountSommeil: number | undefined;
   if (tablesWithSommeil.indexOf(tableName) !== -1) {
     rowCountSommeil = asNumber(
-      asMap(
-        asArray(
-          await db(tableName)
-            .where('sommeil', '=', '1')
-            .count()
-        )[0]
-      )['count(*)'],
+      asMap(asArray(await db(tableName).where('sommeil', '=', '1').count())[0])['count(*)'],
       undefined
     );
   }

@@ -62,6 +62,6 @@ export function getNextNonProd(
   const prodRangesNonProd = convertProdRangesToNonProd(date, prodRanges);
   return nonProds
     .concat(prodRangesNonProd)
-    .filter(nonProd => nonProd.start >= date.getTime())
+    .filter((nonProd) => nonProd.start >= date.getTime())
     .sort((np1, np2) => np1.start - np2.start)[0];
 }

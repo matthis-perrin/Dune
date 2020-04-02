@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {Picker} from '@root/components/common/picker';
 import {LoadingScreen} from '@root/components/core/loading_screen';
@@ -89,11 +89,11 @@ export class PolyproPickerApp extends React.Component<Props, State> {
     return (
       <Picker<BobineMere>
         id={id}
-        getHash={r => r.ref}
-        getSelectable={p => p.selectablePolypros}
+        getHash={(r) => r.ref}
+        getSelectable={(p) => p.selectablePolypros}
         store={bobinesMeresStore}
         title="Choix du polypro"
-        dataFilter={p => p.couleurPapier === 'POLYPRO'}
+        dataFilter={(p) => p.couleurPapier === 'POLYPRO'}
         searchColumns={columns}
       >
         {(elements, isSelectionnable, planProd, header, footer) => (
@@ -116,7 +116,7 @@ export class PolyproPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     onRowClick={this.handlePolyproSelected}
-                    rowStyles={polypro => {
+                    rowStyles={(polypro) => {
                       const selectable = isSelectionnable(polypro);
                       return {
                         opacity: selectable ? 1 : theme.table.disabledOpacity,

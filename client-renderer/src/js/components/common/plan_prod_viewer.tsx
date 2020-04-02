@@ -1,5 +1,5 @@
 import {max} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {StaticBobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';
@@ -109,7 +109,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
 
     const papierBlock = (
       <WithColor color={papier.couleurPapier}>
-        {color => (
+        {(color) => (
           <Bobine
             size={papier.laize || 0}
             pixelPerMM={pixelPerMM}
@@ -132,7 +132,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
 
     const polyproBlock = (
       <WithColor color={polypro.couleurPapier}>
-        {color => (
+        {(color) => (
           <Bobine
             size={polypro.laize || 0}
             pixelPerMM={pixelPerMM}
@@ -191,7 +191,7 @@ export class PlanProdViewer extends React.Component<PlanProdViewerProps> {
     const prodTime = getProdTime(schedule);
     const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = schedule.operations;
     const operationTime =
-      max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)) ||
+      max([aideConducteur, conducteur, chauffePerfo, chauffeRefente].map((split) => split.total)) ||
       0;
 
     return (
@@ -245,7 +245,7 @@ const PlanProdEditorContainer = styled.div<{nonInteractive?: boolean}>`
   margin: 0 auto;
   background-color: ${theme.planProd.contentBackgroundColor};
   input {
-    pointer-events: ${props => (props.nonInteractive ? 'none' : 'initial')};
+    pointer-events: ${(props) => (props.nonInteractive ? 'none' : 'initial')};
   }
 `;
 

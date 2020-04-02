@@ -1,5 +1,5 @@
 import {range} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
@@ -108,7 +108,7 @@ export class OrderableBobines extends React.Component<
   ): BobineFilleWithPose[] {
     let lastValidBobinesOrder = bobines;
     const shiftSign = shift < 0 ? -1 : 1;
-    range(shift).forEach(s => {
+    range(shift).forEach((s) => {
       const newBobines = [...bobines];
       const from = draggedBobineIndex;
       const to = from + s + shiftSign;

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {Button, ButtonMode} from '@root/components/core/button';
 import {getBobinePoseState} from '@root/lib/bobine';
@@ -67,7 +67,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
     });
 
     const usedPosesNeutres = planProd.selectedBobines.filter(
-      b => b.ref === bobine.ref && b.pose === POSE_NEUTRE
+      (b) => b.ref === bobine.ref && b.pose === POSE_NEUTRE
     ).length;
     const usedPosesNeutresButton =
       usedPosesNeutres > 0 ? (
@@ -83,7 +83,7 @@ export class AddPoseButtons extends React.Component<AddPoseButtonsProps> {
       );
 
     const usedPoses = planProd.selectedBobines
-      .filter(b => b.ref === bobine.ref && b.pose !== POSE_NEUTRE)
+      .filter((b) => b.ref === bobine.ref && b.pose !== POSE_NEUTRE)
       .sort((b1, b2) => b2.pose - b1.pose)
       .map(({ref, pose}, index) => (
         <Button

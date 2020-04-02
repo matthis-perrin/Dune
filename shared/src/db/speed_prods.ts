@@ -15,11 +15,8 @@ export const SpeedProdsColumn = {
 export async function createSpeedProdsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_PRODS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(SPEED_PRODS_TABLE_NAME, table => {
-      table
-        .integer(SpeedProdsColumn.Start)
-        .notNullable()
-        .primary();
+    await db.schema.createTable(SPEED_PRODS_TABLE_NAME,table => {
+      table.integer(SpeedProdsColumn.Start).notNullable().primary();
       table.integer(SpeedProdsColumn.End).nullable();
       table.integer(SpeedProdsColumn.AvgSpeed).nullable();
       table.integer(SpeedProdsColumn.PlanProdId).nullable();
@@ -40,10 +37,7 @@ function lineAsProd(lineData: any): Prod {
 
 export async function getLastProd(db: knex): Promise<Prod | undefined> {
   const res = asArray(
-    await db(SPEED_PRODS_TABLE_NAME)
-      .select()
-      .orderBy(SpeedProdsColumn.Start, 'desc')
-      .limit(1)
+    await db(SPEED_PRODS_TABLE_NAME).select().orderBy(SpeedProdsColumn.Start, 'desc').limit(1)
   );
   if (res.length === 0) {
     return undefined;

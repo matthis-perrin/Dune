@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {PlanProdViewer} from '@root/components/common/plan_prod_viewer';
@@ -82,7 +82,7 @@ export class PlanProdPrinterApp extends React.Component<
     }
 
     const plans: ScheduledPlanProd[] = [];
-    schedule.plans.forEach(p => {
+    schedule.plans.forEach((p) => {
       for (const time of Array.from(p.schedulePerDay.keys())) {
         if (isSameDay(new Date(time), new Date(day))) {
           plans.push(p);
@@ -94,7 +94,7 @@ export class PlanProdPrinterApp extends React.Component<
     return (
       <div>
         {arrayJoin(
-          plans.map(p => (
+          plans.map((p) => (
             <PlanProdViewer
               bobineQuantities={bobineQuantities}
               cadencier={cadencier}

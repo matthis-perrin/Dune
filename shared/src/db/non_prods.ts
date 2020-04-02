@@ -14,11 +14,8 @@ export const NonProdColumns = {
 export async function createNonProdsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(NON_PROD_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(NON_PROD_TABLE_NAME, table => {
-      table
-        .integer(NonProdColumns.ID)
-        .primary()
-        .notNullable();
+    await db.schema.createTable(NON_PROD_TABLE_NAME,table => {
+      table.integer(NonProdColumns.ID).primary().notNullable();
       table.text(NonProdColumns.TITLE).notNullable();
       table.integer(NonProdColumns.START_TIME).notNullable();
       table.integer(NonProdColumns.END_TIME).notNullable();
@@ -50,15 +47,11 @@ export async function getNonProdsBetween(db: knex, start: number, end: number): 
 }
 
 export async function deleteNonProd(db: knex, id: number): Promise<void> {
-  return db(NON_PROD_TABLE_NAME)
-    .where(NonProdColumns.ID, id)
-    .del();
+  return db(NON_PROD_TABLE_NAME).where(NonProdColumns.ID, id).del();
 }
 
 export async function listNonProds(db: knex): Promise<NonProd[]> {
-  return db(NON_PROD_TABLE_NAME)
-    .select()
-    .map(mapLineToNonProd);
+  return db(NON_PROD_TABLE_NAME).select().map(mapLineToNonProd);
 }
 
 export async function createNonProd(

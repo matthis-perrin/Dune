@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {AutoFontWeight} from '@root/components/core/auto_font_weight';

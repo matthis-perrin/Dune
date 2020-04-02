@@ -5,11 +5,7 @@ const DEFAULT_COMMAND_TIMEOUT_MS = 10000;
 
 const ALPHA_NUM_COUNT = 36;
 const uniqueId = (prefix: string): string =>
-  prefix +
-  Math.random()
-    .toString(ALPHA_NUM_COUNT)
-    .substr(2)
-    .toUpperCase();
+  prefix + Math.random().toString(ALPHA_NUM_COUNT).substr(2).toUpperCase();
 
 export class BridgeTransport {
   private readonly pendingCommands = new Map<
@@ -27,7 +23,7 @@ export class BridgeTransport {
   constructor(private readonly eventHandler: (event: BridgeEvent, data: any) => void) {
     window.addEventListener(
       'message',
-      event => {
+      (event) => {
         if (event.source !== window) {
           console.error(
             'Received "message" event with a source different than window: ',

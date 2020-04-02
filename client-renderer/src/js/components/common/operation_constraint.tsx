@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {OperationConstraint as OperationConstraintModel} from '@shared/models';
 
 interface OperationConstraintProps {

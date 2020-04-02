@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {clichesStore} from '@root/stores/list_store';
 import {Cliche} from '@shared/models';
 

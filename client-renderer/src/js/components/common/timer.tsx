@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {AutoRefresh} from '@root/components/common/auto_refresh';
 import {formatDuration} from '@root/lib/utils';

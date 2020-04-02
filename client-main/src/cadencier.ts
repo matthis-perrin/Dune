@@ -1,4 +1,4 @@
-import * as log from 'electron-log';
+import log from 'electron-log';
 import {sum} from 'lodash';
 
 import {SQLITE_DB} from '@root/db';

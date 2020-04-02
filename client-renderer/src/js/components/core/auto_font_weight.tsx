@@ -1,5 +1,5 @@
 import {omit} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 
 import {ReactProps} from '@root/components/core/common';
 import {FontWeight} from '@root/theme';

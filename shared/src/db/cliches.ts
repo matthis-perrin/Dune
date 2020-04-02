@@ -27,10 +27,7 @@ export async function createClichesTable(db: knex, truncateGescom: boolean): Pro
   const hasTable = await db.schema.hasTable(CLICHES_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(CLICHES_TABLE_NAME, table => {
-      table
-        .string(ClichesColumn.REF_COLUMN)
-        .notNullable()
-        .primary();
+      table.string(ClichesColumn.REF_COLUMN).notNullable().primary();
       table.string(ClichesColumn.DESIGNATION_COLUMN).nullable();
       table.integer(ClichesColumn.NOMBRE_POSES_A_COLUMN).nullable();
       table.integer(ClichesColumn.NOMBRE_POSES_B_COLUMN).nullable();
@@ -54,9 +51,7 @@ export async function createClichesTable(db: knex, truncateGescom: boolean): Pro
 }
 
 export async function deleteCliches(db: knex, refs: string[]): Promise<void> {
-  return db(CLICHES_TABLE_NAME)
-    .whereIn(ClichesColumn.REF_COLUMN, refs)
-    .delete();
+  return db(CLICHES_TABLE_NAME).whereIn(ClichesColumn.REF_COLUMN, refs).delete();
 }
 
 export async function listCliches(db: knex, sinceLocalUpdate: number): Promise<Cliche[]> {

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {StopTile} from '@root/components/apps/production/stop_tile';
@@ -35,9 +35,9 @@ export class StopList extends React.Component<StopListProps> {
     const end = endOfDay(new Date(lastStop.start)).getTime();
 
     const doneMaintenances = new Map<number, void>();
-    schedule.plans.forEach(p =>
-      p.schedulePerDay.forEach(s =>
-        s.stops.forEach(stop => {
+    schedule.plans.forEach((p) =>
+      p.schedulePerDay.forEach((s) =>
+        s.stops.forEach((stop) => {
           if (stop.maintenanceId !== undefined) {
             doneMaintenances.set(stop.maintenanceId);
           }
@@ -46,8 +46,8 @@ export class StopList extends React.Component<StopListProps> {
     );
 
     const todaysMaintenances = schedule.maintenances
-      .filter(m => m.start >= start && m.start < end)
-      .filter(m => !doneMaintenances.has(m.id))
+      .filter((m) => m.start >= start && m.start < end)
+      .filter((m) => !doneMaintenances.has(m.id))
       .sort((m1, m2) => m1.start - m2.start);
 
     return todaysMaintenances[0];

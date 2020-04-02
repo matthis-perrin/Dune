@@ -126,7 +126,7 @@ function filterAllOnce(
       filtered.selectableBobinesFilles = [];
     } else {
       const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(
-        b => bobinesFilles.indexOf(b) === -1
+        (b) => bobinesFilles.indexOf(b) === -1
       );
       if (newSelectableBobinesFilles.length !== filtered.selectableBobinesFilles.length) {
         filtered.selectableBobinesFilles = newSelectableBobinesFilles;

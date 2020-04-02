@@ -14,11 +14,8 @@ export const UnplannedStopColumns = {
 export async function createUnplannedStopTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(UNPLANNED_STOPS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(UNPLANNED_STOPS_TABLE_NAME, table => {
-      table
-        .text(UnplannedStopColumns.NAME)
-        .primary()
-        .notNullable();
+    await db.schema.createTable(UNPLANNED_STOPS_TABLE_NAME,table => {
+      table.text(UnplannedStopColumns.NAME).primary().notNullable();
       table.text(UnplannedStopColumns.LABEL).notNullable();
       table.text(UnplannedStopColumns.GROUP).notNullable();
       table.text(UnplannedStopColumns.ORDER).notNullable();

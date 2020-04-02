@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {getWeekDay, getWeekDays} from '@shared/lib/time';
 import {capitalize, padNumber} from '@shared/lib/utils';

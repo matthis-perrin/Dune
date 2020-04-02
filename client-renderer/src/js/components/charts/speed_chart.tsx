@@ -1,6 +1,6 @@
 import {isEqual, sum} from 'lodash-es';
-import * as Plottable from 'plottable';
-import * as React from 'react';
+import Plottable from 'plottable';
+import React from 'react';
 import styled from 'styled-components';
 
 import {PlottableSpeedCSS} from '@root/components/charts/plottable_css';
@@ -203,8 +203,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     yScale.defaultTicks = () => PLOT_SPEED_TICKS;
 
     // Check if we should recreate the chart
-    const filteredEvents = this.props.events.filter(
-      e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
+    const filteredEvents = this.props.events.filter(e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
     );
     if (isEqual(this.lastData, data) && isEqual(this.lastEvents, filteredEvents)) {
       return;
@@ -284,7 +283,10 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Final Plot
     const center = new Plottable.Components.Group([events, gridline, this.bars]);
-    this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, this.xAxis]]);
+    this.plot = new Plottable.Components.Table([
+      [yAxis, center],
+      [undefined, this.xAxis],
+    ]);
 
     // Gesture
     this.pziXAxis = new Plottable.Interactions.PanZoom();
@@ -314,8 +316,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       ) {
         this.previousStart = firstDate;
         this.previousEnd = lastDate;
-        const filteredEvents = this.props.events.filter(
-          e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
+        const filteredEvents = this.props.events.filter(e => e.start >= firstDate.getTime() && e.end <= lastDate.getTime()
         );
         this.barDataset.data(data);
         this.eventDataset.data(filteredEvents);

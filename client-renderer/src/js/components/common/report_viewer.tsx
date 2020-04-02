@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {StopList} from '@root/components/apps/production/stop_list';
@@ -57,7 +57,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const dataDay = startOfDay(new Date(day)).getTime();
     const statsData = computeStatsData(schedule);
 
-    const metrageDone = aggregate(statsData, dataDay, 'sum', dayStatsData =>
+    const metrageDone = aggregate(statsData, dataDay, 'sum',dayStatsData =>
       getMetrages(dayStatsData, 'all')
     );
 
@@ -68,7 +68,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
       NON_PROD_STOP_FILTER.name,
       PROD_STOP_FILTER.name,
     ].map(stopFilter =>
-      aggregate(statsData, dataDay, 'sum', dayStatsData =>
+      aggregate(statsData, dataDay, 'sum',dayStatsData =>
         getStops(dayStatsData, 'all', stopFilter)
       )
     );
@@ -77,7 +77,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const activePeriod = stopDone + prodDone;
     const activePeriodMetrage = (activePeriod * constants.maxSpeed) / (60 * 1000);
 
-    const delays = aggregate(statsData, dataDay, 'sum', dayStatsData =>
+    const delays = aggregate(statsData, dataDay, 'sum',dayStatsData =>
       getDelays(dayStatsData, operations, constants, 'all', 'all')
     );
 

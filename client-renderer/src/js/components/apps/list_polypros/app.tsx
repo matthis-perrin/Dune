@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {AdminTable} from '@root/components/table/admin_table';
@@ -43,7 +43,7 @@ export class ListPolyprosApp extends React.Component<Props, State> {
 
   private readonly handleBobinesMeresChange = (): void => {
     const bobineMeres = bobinesMeresStore.getData();
-    const polypros = bobineMeres && bobineMeres.filter(b => b.couleurPapier === 'POLYPRO');
+    const polypros = bobineMeres && bobineMeres.filter((b) => b.couleurPapier === 'POLYPRO');
     document.title = `Liste des polypros (${polypros ? polypros.length : 0})`;
     this.setState({polypros});
   };

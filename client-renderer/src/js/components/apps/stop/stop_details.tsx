@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Select, Option} from '@root/components/core/select';
@@ -74,10 +74,10 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     const {availablePlanProds, onPlanProdIdChanged} = this.props;
     return (
       <PlanProdSelect
-        onChange={event => onPlanProdIdChanged(parseFloat(event.target.value))}
+        onChange={(event) => onPlanProdIdChanged(parseFloat(event.target.value))}
         value={selectedPlanProdId}
       >
-        {availablePlanProds.map(p => (
+        {availablePlanProds.map((p) => (
           <PlanProdOption value={p.planProd.id}>{getPlanProdTitle(p.planProd.id)}</PlanProdOption>
         ))}
       </PlanProdSelect>
@@ -88,10 +88,10 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     const {availableMaintenances, onMaintenanceIdChanged} = this.props;
     return (
       <MaintenanceSelect
-        onChange={event => onMaintenanceIdChanged(parseFloat(event.target.value))}
+        onChange={(event) => onMaintenanceIdChanged(parseFloat(event.target.value))}
         value={selectedMaintenanceId}
       >
-        {availableMaintenances.map(m => (
+        {availableMaintenances.map((m) => (
           <MaintenanceOption value={m.id}>{m.title}</MaintenanceOption>
         ))}
       </MaintenanceSelect>
@@ -147,9 +147,11 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     return (
       <Wrapper>
         {this.renderType(type)}
-        {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
+        {unplannedStops
+          .sort((r1, r2) => r1.order - r2.order)
+          .map((r) => this.renderUnplannedStop(r))}
         {comments.map((comment, index) => this.renderComment(comment, index))}
-        {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
+        {cleanings.sort((c1, c2) => c1.order - c2.order).map((c) => this.renderCleaning(c))}
       </Wrapper>
     );
   }

@@ -12,11 +12,8 @@ export const SpeedTimesColumn = {
 export async function createSpeedTimesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_TIMES_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(SPEED_TIMES_TABLE_NAME, table => {
-      table
-        .integer(SpeedTimesColumn.Time)
-        .notNullable()
-        .primary();
+    await db.schema.createTable(SPEED_TIMES_TABLE_NAME,table => {
+      table.integer(SpeedTimesColumn.Time).notNullable().primary();
       table.integer(SpeedTimesColumn.Speed).nullable();
     });
   }
@@ -150,28 +147,32 @@ export async function firstSpeedTimeMatchingBetween(
   operator: string,
   threshold: number
 ): Promise<SpeedTime | undefined> {
-  return (await db(SPEED_TIMES_TABLE_NAME)
-    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
-    .where(SpeedTimesColumn.Time, '>=', start)
-    .where(SpeedTimesColumn.Time, '<=', end)
-    .whereNotNull(SpeedTimesColumn.Speed)
-    .andWhere(SpeedTimesColumn.Speed, operator, threshold)
-    .orderBy(SpeedTimesColumn.Time, 'asc')
-    .limit(1)
-    .map(lineAsSpeedTime))[0];
+  return (
+    await db(SPEED_TIMES_TABLE_NAME)
+      .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
+      .where(SpeedTimesColumn.Time, '>=', start)
+      .where(SpeedTimesColumn.Time, '<=', end)
+      .whereNotNull(SpeedTimesColumn.Speed)
+      .andWhere(SpeedTimesColumn.Speed, operator, threshold)
+      .orderBy(SpeedTimesColumn.Time, 'asc')
+      .limit(1)
+      .map(lineAsSpeedTime)
+  )[0];
 }
 
 export async function nextDefinedSpeed(
   db: knex,
   start: number // not included
 ): Promise<SpeedTime | undefined> {
-  return (await db(SPEED_TIMES_TABLE_NAME)
-    .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
-    .where(SpeedTimesColumn.Time, '>', start)
-    .whereNotNull(SpeedTimesColumn.Speed)
-    .orderBy(SpeedTimesColumn.Time, 'asc')
-    .limit(1)
-    .map(lineAsSpeedTime))[0];
+  return (
+    await db(SPEED_TIMES_TABLE_NAME)
+      .select([SpeedTimesColumn.Time, SpeedTimesColumn.Speed])
+      .where(SpeedTimesColumn.Time, '>', start)
+      .whereNotNull(SpeedTimesColumn.Speed)
+      .orderBy(SpeedTimesColumn.Time, 'asc')
+      .limit(1)
+      .map(lineAsSpeedTime)
+  )[0];
 }
 
 export async function getAverageSpeedBetween(

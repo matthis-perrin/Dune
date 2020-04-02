@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
@@ -113,7 +113,7 @@ export class Calendar extends React.Component<CalendarProps, {}> {
             </td>
           </tr>
           <tr>
-            {firstWeek.map(date => (
+            {firstWeek.map((date) => (
               <td key={date.getTime()}>
                 <CalendarHeaderValue>
                   {date.toLocaleString('fr-FR', {weekday: 'long'})}
@@ -123,14 +123,14 @@ export class Calendar extends React.Component<CalendarProps, {}> {
           </tr>
         </CalendarHeader>
         <tbody>
-          {weeks.map(week => (
+          {weeks.map((week) => (
             <tr key={`week-${week[0].getTime()}`}>
-              {week.map(date => (
+              {week.map((date) => (
                 <CalendarCell
                   key={date.getTime()}
                   style={{opacity: this.isOtherMonth(date) ? OTHER_MONTH_OPACITY : 1}}
-                  onContextMenu={event => onDayContextMenu(event, date)}
-                  onDoubleClick={event => onDayDoubleClick(event, date)}
+                  onContextMenu={(event) => onDayContextMenu(event, date)}
+                  onDoubleClick={(event) => onDayDoubleClick(event, date)}
                 >
                   <CalendarCellHeader>{this.renderDayCircle(date)}</CalendarCellHeader>
                   {children(date)}

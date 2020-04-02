@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {constantsStore} from '@root/stores/data_store';
 import {Constants} from '@shared/models';
 

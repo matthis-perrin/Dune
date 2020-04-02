@@ -13,7 +13,7 @@ export const LongueursColumn = {
 export async function createLongueursTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(LONGUEURS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(LONGUEURS_TABLE_NAME, table => {
+    await db.schema.createTable(LONGUEURS_TABLE_NAME,table => {
       table.string(LongueursColumn.LONGUEUR_COLUMN).notNullable();
       table.string(LongueursColumn.COLOR_REF_COLUMN).nullable();
       table.string(LongueursColumn.REAL_LONGUEUR_COLUMN).notNullable();

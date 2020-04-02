@@ -172,8 +172,7 @@ export function filterBobinesFillesForSelectablePapiers(
   const availableCouleursGrammages = uniq(
     selectablePapiers.map(p => `${p.couleurPapier}-${p.grammage}`)
   );
-  const newBobinesFilles = selectableBobinesFilles.filter(
-    p => availableCouleursGrammages.indexOf(`${p.couleurPapier}-${p.grammage}`) !== -1
+  const newBobinesFilles = selectableBobinesFilles.filter(p => availableCouleursGrammages.indexOf(`${p.couleurPapier}-${p.grammage}`) !== -1
   );
   if (newBobinesFilles.length === selectableBobinesFilles.length) {
     return selectableBobinesFilles;
@@ -195,8 +194,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
 ): BobineFilleClichePose[] {
   const compatibleBobinesFillesHashes = new Map<string, void>();
   // No need to check the refente that are fully filled.
-  const refenteToCheck = selectableRefentes.filter(
-    refente => compatibilityExists(selectedBobinesFilles, [], refente, nbEncriers) === undefined
+  const refenteToCheck = selectableRefentes.filter(refente => compatibilityExists(selectedBobinesFilles, [], refente, nbEncriers) === undefined
   );
   for (const bobine of selectableBobinesFilles) {
     if (compatibleBobinesFillesHashes.has(`${bobine.hash}_C-${bobine.couleurPapier}`)) {
@@ -207,8 +205,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
         continue;
       }
       const newSelectedBobinesFilles = selectedBobinesFilles.concat([bobine]);
-      const newSelectableBobinesFilles = without(selectableBobinesFilles, bobine).filter(
-        b => b.couleurPapier === bobine.couleurPapier && b.grammage === bobine.grammage
+      const newSelectableBobinesFilles = without(selectableBobinesFilles, bobine).filter(b => b.couleurPapier === bobine.couleurPapier && b.grammage === bobine.grammage
       );
       const res = compatibilityExists(
         newSelectedBobinesFilles,
@@ -219,8 +216,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
       if (res !== undefined) {
         // Ensure that there is a Papier that works when we select this refente
         if (
-          selectablePapier.filter(
-            p =>
+          selectablePapier.filter(p =>
               p.couleurPapier === bobine.couleurPapier &&
               p.grammage === bobine.grammage &&
               p.laize === refente.laize
@@ -249,9 +245,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
     log.debug(
-      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
-        dropped.length
-      } BobinesFilles`
+      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${dropped.length} BobinesFilles`
     );
     printDebugBobine(dropped);
   }
@@ -292,12 +286,8 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
       return r1.laizes.length - r2.laizes.length; // Less laizes is better
     }
     // Count by number of laize of the same size
-    const r1Count = Object.values(countBy(r1.laizes))
-      .sort()
-      .reverse();
-    const r2Count = Object.values(countBy(r2.laizes))
-      .sort()
-      .reverse();
+    const r1Count = Object.values(countBy(r1.laizes)).sort().reverse();
+    const r2Count = Object.values(countBy(r2.laizes)).sort().reverse();
     while (r1Count.length > 0 && r2Count.length > 0) {
       const firstR1Count = r1Count.shift() || 0;
       const firstR2Count = r2Count.shift() || 0;
@@ -350,9 +340,7 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(
-      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
-        dropped.length
-      } Papier`
+      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${dropped.length} Papier`
     );
     console.log(selectablePapiers.map(p => p.ref));
     console.log(dropped.map(p => p.ref));

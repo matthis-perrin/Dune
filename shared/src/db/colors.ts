@@ -17,11 +17,8 @@ export const ColorsColumn = {
 export async function createColorsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(COLORS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(COLORS_TABLE_NAME, table => {
-      table
-        .string(ColorsColumn.REF_COLUMN)
-        .notNullable()
-        .primary();
+    await db.schema.createTable(COLORS_TABLE_NAME,table => {
+      table.string(ColorsColumn.REF_COLUMN).notNullable().primary();
       table.string(ColorsColumn.NAME_COLUMN).notNullable();
       table.string(ColorsColumn.BACKGROUND_HEX_COLUMN).notNullable();
       table.string(ColorsColumn.TEXT_HEX_COLUMN).notNullable();

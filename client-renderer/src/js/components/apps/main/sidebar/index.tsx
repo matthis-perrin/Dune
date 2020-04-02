@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Herisson} from '@root/components/apps/main/sidebar/herisson';
@@ -146,7 +146,7 @@ const SidebarSelectedIndicator = styled.div<{index: number}>`
   margin-top: ${(theme.sidebar.itemHeight - theme.sidebar.indicatorHeight) / 2}px;
   margin-right: ${theme.sidebar.indicatorSpacing}px;
   margin-left: ${-theme.sidebar.indicatorSpacing - theme.sidebar.indicatorWidth}px;
-  transform: ${props => `translateY(${theme.sidebar.itemHeight * props.index}px)}`};
+  transform: ${(props) => `translateY(${theme.sidebar.itemHeight * props.index}px)}`};
   transition: transform 100ms ease-in-out;
   background-color: ${theme.sidebar.selectedColor};
 `;

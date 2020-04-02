@@ -1,5 +1,5 @@
 import {max} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Duration} from '@root/components/common/duration';
@@ -201,7 +201,7 @@ export class TopBar extends React.Component<TopBarProps> {
         const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = planSchedule.operations;
         operationTime =
           max(
-            [aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)
+            [aideConducteur, conducteur, chauffePerfo, chauffeRefente].map((split) => split.total)
           ) || 0;
       }
     }

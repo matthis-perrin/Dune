@@ -54,7 +54,7 @@ export function getLastMonth(): number {
 
 export function aggregateByYear(cadencier: Vente[]): Map<number, Vente[]> {
   const data = new Map<number, Vente[]>();
-  cadencier.forEach(v => {
+  cadencier.forEach((v) => {
     const ts = roundToYear(v.date);
     const current = data.get(ts);
     if (!current) {
@@ -68,7 +68,7 @@ export function aggregateByYear(cadencier: Vente[]): Map<number, Vente[]> {
 
 export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
   const data = new Map<number, Vente[]>();
-  cadencier.forEach(v => {
+  cadencier.forEach((v) => {
     const ts = roundToMonth(v.date);
     const current = data.get(ts);
     if (!current) {
@@ -82,7 +82,7 @@ export function aggregateByMonth(cadencier: Vente[]): Map<number, Vente[]> {
 
 export function aggregateByDay(cadencier: Vente[]): Map<number, Vente[]> {
   const data = new Map<number, Vente[]>();
-  cadencier.forEach(v => {
+  cadencier.forEach((v) => {
     const ts = roundToDay(v.date);
     const current = data.get(ts);
     if (!current) {

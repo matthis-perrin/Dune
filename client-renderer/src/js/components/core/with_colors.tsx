@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {colorsStore} from '@root/stores/data_store';
 import {Color} from '@shared/models';
 

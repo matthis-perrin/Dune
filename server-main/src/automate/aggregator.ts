@@ -9,15 +9,17 @@ import {
 import {SpeedTime} from '@shared/models';
 
 function min<T>(values: T[]): T | undefined {
-  return values.reduce((acc, curr) => (acc === undefined || curr < acc ? curr : acc), undefined as
-    | T
-    | undefined);
+  return values.reduce(
+    (acc, curr) => (acc === undefined || curr < acc ? curr : acc),
+    undefined as T | undefined
+  );
 }
 
 function max<T>(values: T[]): T | undefined {
-  return values.reduce((acc, curr) => (acc === undefined || curr > acc ? curr : acc), undefined as
-    | T
-    | undefined);
+  return values.reduce(
+    (acc, curr) => (acc === undefined || curr > acc ? curr : acc),
+    undefined as T | undefined
+  );
 }
 
 function find<T>(values: T[], predicate: (v: T) => boolean): T | undefined {
@@ -59,9 +61,7 @@ class Aggregator {
     this.updateQueries()
       .then(() => {
         if (this.queries.size > 0) {
-          const timesToInsert = Array.from(this.queries.keys())
-            .sort()
-            .slice(0, INSERT_BATCH_SIZE);
+          const timesToInsert = Array.from(this.queries.keys()).sort().slice(0, INSERT_BATCH_SIZE);
           const speedByTime = new Map<number, number | undefined>();
           timesToInsert.forEach(m => speedByTime.set(m, this.queries.get(m)));
           insertOrUpdateSpeedTimes(SQLITE_DB.Prod, speedByTime)

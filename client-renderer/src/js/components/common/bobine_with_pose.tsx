@@ -1,5 +1,5 @@
 import {range, omit} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Bobine, CURVE_EXTRA_SPACE} from '@root/components/common/bobine';
@@ -57,7 +57,7 @@ export class BobineWithPose extends React.Component<BobineWithPoseProps> {
 
     return (
       <WithColor color={bobine.couleurPapier}>
-        {papierColor => {
+        {(papierColor) => {
           const bobineElements = range(poseSize).map((pose, i) => (
             <Bobine
               key={i}
@@ -117,6 +117,6 @@ const ClosableWithHover = styled(Closable)`
   transition: all 100ms ease-in-out;
   &:hover {
     transform: scale(${1 + hoverZoomEffectRatio})
-      translate(${props => `${(-((props.size as number) || 0) * hoverZoomEffectRatio) / 2}px`}, 0);
+      translate(${(props) => `${(-((props.size as number) || 0) * hoverZoomEffectRatio) / 2}px`}, 0);
   }
 `;

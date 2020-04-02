@@ -1,5 +1,5 @@
 import {find} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 

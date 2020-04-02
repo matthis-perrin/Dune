@@ -1,5 +1,5 @@
 import {omit} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';

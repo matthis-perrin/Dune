@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Colors, Palette} from '@root/theme';
@@ -28,8 +28,9 @@ export class Gauge extends React.Component<GaugeProps> {
     const {ratio, ratioMax} = this.props;
     return (
       <GaugeWrapper>
-        <GaugeMax style={{left: `calc(${100 * ratioMax}%)`}}>{`${100 *
-          ratioMax}% (Max.)`}</GaugeMax>
+        <GaugeMax style={{left: `calc(${100 * ratioMax}%)`}}>{`${
+          100 * ratioMax
+        }% (Max.)`}</GaugeMax>
         <GaugeContent
           style={{right: `calc(${100 * (1 - ratio)}%)`, backgroundColor: this.getRatioColor(ratio)}}
         />

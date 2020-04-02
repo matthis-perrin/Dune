@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Select, Option} from '@root/components/core/select';
@@ -19,7 +19,9 @@ export class StatsMetricDropdown extends React.Component<StatsMetricDropdownProp
     return (
       <StyledSelect
         style={{width: 180}}
-        onChange={event => onChange(statsMetrics.filter(sp => sp.name === event.target.value)[0])}
+        onChange={event =>
+          onChange(statsMetrics.filter(sp => sp.name === event.target.value)[0])
+        }
         value={selected.name}
       >
         {statsMetrics.map(statsMetric => (

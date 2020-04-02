@@ -3,7 +3,7 @@ import {without} from 'lodash-es';
 import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
-import * as BridgeCommands from '@shared/bridge/commands';
+import BridgeCommands from '@shared/bridge/commands';
 import {
   BobineFille,
   BobineMere,
@@ -50,7 +50,7 @@ export class Bridge {
   >();
 
   private handleEvent(event: BridgeCommands.BridgeEvent, data: EventData): void {
-    (this.eventListeners.get(event) || []).forEach(listener => listener(data));
+    (this.eventListeners.get(event) || []).forEach((listener) => listener(data));
   }
 
   public addEventListener(

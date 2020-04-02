@@ -31,8 +31,7 @@ export function compatibilityExists(
   // Optimization #1
   // Ensure that each selected bobines filles can be placed somewhere on the refente, otherwise we
   // can already return undefined
-  const incompatibleSelectedBobines = selectedBobines.filter(
-    b => applyBobinesOnRefente([b], refente) === RefenteStatus.INCOMPATIBLE
+  const incompatibleSelectedBobines = selectedBobines.filter(b => applyBobinesOnRefente([b], refente) === RefenteStatus.INCOMPATIBLE
   );
   if (selectedBobines.length > 0 && incompatibleSelectedBobines.length > 0) {
     return undefined;
@@ -56,8 +55,7 @@ export function compatibilityExists(
   // Optimization #3
   // Filter the selectable bobines filles to make sure we only keep the ones that have at least
   // one valid place on the refente
-  const compatibleSelectableBobines = selectableBobines.filter(
-    b => applyBobinesOnRefente([b], refente) !== RefenteStatus.INCOMPATIBLE
+  const compatibleSelectableBobines = selectableBobines.filter(b => applyBobinesOnRefente([b], refente) !== RefenteStatus.INCOMPATIBLE
   );
 
   // Optimization #4
@@ -147,7 +145,10 @@ export function analyseLaizesLeftOnRefente(
 }
 
 function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[], nbEncrier: number): boolean {
-  return validColorCombinaison(bobines.map(b => b.couleursImpression), nbEncrier);
+  return validColorCombinaison(
+    bobines.map(b => b.couleursImpression),
+    nbEncrier
+  );
 }
 
 // Same as `compatibilityExists` but without trying all permutation of `selectedBobines`
@@ -161,8 +162,7 @@ function compatibilityExistsForOrderedBobines(
   if (!laizesLeft) {
     return undefined;
   }
-  const compatibleSelectableBobines = selectableBobines.filter(
-    b => laizesLeft.get(b.laize) || 0 >= getPoseSize(b.pose)
+  const compatibleSelectableBobines = selectableBobines.filter(b => laizesLeft.get(b.laize) || 0 >= getPoseSize(b.pose)
   );
 
   // First we check if the selected bobines can be applied on the refente
@@ -204,13 +204,13 @@ function compatibilityExistsForOrderedBobines(
 }
 
 export function uniqByLaizePoseAndColor(bobines: BobineFilleClichePose[]): BobineFilleClichePose[] {
-  return uniqBy(bobines, b => b.hash);
+  return uniqBy(bobines,b => b.hash);
 }
 
 export function getSelectedBobinesCombinaison(
   selectedBobines: BobineFilleClichePose[]
 ): BobineFilleClichePose[][] {
-  return uniqBy(permutations(selectedBobines), b =>
+  return uniqBy(permutations(selectedBobines),b =>
     b.map(bb => `${bb.laize}_${getPoseSize(bb.pose)}`).join('-')
   );
 }

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {DayProductionTable} from '@root/components/common/day_production_table';
@@ -158,14 +158,14 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     let totalMeters = 0;
 
     const schedules = getSchedulesForDay(schedule, new Date(day));
-    schedules.forEach(s => {
+    schedules.forEach((s) => {
       const bobines = s.planProd.data.bobines;
       const meters = s.doneProdMeters + s.plannedProdMeters;
       totalMeters += meters;
       const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
       const tour = Math.round(meters / longueurFirstBobine);
       if (tour > 0) {
-        bobines.forEach(b => {
+        bobines.forEach((b) => {
           const pose = getPoseSize(b.pose);
 
           totalBobines += pose * tour;
@@ -191,7 +191,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     const {schedule, day} = this.state;
     return (
       <SizeMonitor>
-        {width => (
+        {(width) => (
           <AppWrapper>
             <TopBar>
               <NavigationIcon onClick={this.handlePreviousClick}>
@@ -213,7 +213,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
               </LeftColumn>
               <RightColumn>
                 <RightColumnInner>
-                  {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map(team => (
+                  {[MORNING_TEAM_FILTER, AFTERNOON_TEAM_FILTER, ALL_TEAM_FILTER].map((team) => (
                     <Block>
                       <BlockTitle>{team.label}</BlockTitle>
                       <BlockContent>

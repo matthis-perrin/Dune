@@ -22,11 +22,11 @@ const DEBUG_BOBINE: string | undefined = undefined;
 
 function printDebugBobine(dropped: BobineFilleClichePose[]): void {
   if (DEBUG_BOBINE) {
-    const debugBobineDropped = dropped.filter(d => d.ref === DEBUG_BOBINE);
+    const debugBobineDropped = dropped.filter((d) => d.ref === DEBUG_BOBINE);
     if (debugBobineDropped.length > 0) {
       log.debug(
         `including dropping bobine ${DEBUG_BOBINE} for poses: ${debugBobineDropped
-          .map(b => b.pose)
+          .map((b) => b.pose)
           .join(', ')}`
       );
     }
@@ -37,7 +37,7 @@ export function filterPolyprosForSelectedPapier(
   selectablePolypros: BobineMerePolypro[],
   selectedPapier: BobineMerePapier
 ): BobineMerePolypro[] {
-  const newPolypros = selectablePolypros.filter(p => p.laize === selectedPapier.laize);
+  const newPolypros = selectablePolypros.filter((p) => p.laize === selectedPapier.laize);
   if (newPolypros.length === selectablePolypros.length) {
     return selectablePolypros;
   }
@@ -53,7 +53,7 @@ export function filterPolyprosForSelectedRefente(
   selectablePolypros: BobineMerePolypro[],
   selectedRefente: Refente
 ): BobineMerePolypro[] {
-  const newPolypros = selectablePolypros.filter(p => p.laize === selectedRefente.laize);
+  const newPolypros = selectablePolypros.filter((p) => p.laize === selectedRefente.laize);
   if (newPolypros.length === selectablePolypros.length) {
     return selectablePolypros;
   }
@@ -69,7 +69,7 @@ export function filterPapiersForSelectedPolypro(
   selectablePapiers: BobineMerePapier[],
   selectedPolypro: BobineMerePolypro
 ): BobineMerePapier[] {
-  const newPapiers = selectablePapiers.filter(p => p.laize === selectedPolypro.laize);
+  const newPapiers = selectablePapiers.filter((p) => p.laize === selectedPolypro.laize);
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
   }
@@ -85,7 +85,7 @@ export function filterPapiersForSelectedRefente(
   selectablePapiers: BobineMerePapier[],
   selectedRefente: Refente
 ): BobineMerePapier[] {
-  const newPapiers = selectablePapiers.filter(p => p.laize === selectedRefente.laize);
+  const newPapiers = selectablePapiers.filter((p) => p.laize === selectedRefente.laize);
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
   }
@@ -101,7 +101,7 @@ export function filterRefentesForSelectedPerfo(
   selectableRefentes: Refente[],
   selectedPerfo: Perfo
 ): Refente[] {
-  const newRefentes = selectableRefentes.filter(r => r.refPerfo === selectedPerfo.ref);
+  const newRefentes = selectableRefentes.filter((r) => r.refPerfo === selectedPerfo.ref);
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
@@ -117,7 +117,7 @@ export function filterRefentesForSelectedPapier(
   selectableRefentes: Refente[],
   selectedPapier: BobineMerePapier
 ): Refente[] {
-  const newRefentes = selectableRefentes.filter(r => r.laize === selectedPapier.laize);
+  const newRefentes = selectableRefentes.filter((r) => r.laize === selectedPapier.laize);
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
@@ -133,7 +133,7 @@ export function filterRefentesForSelectedPolypro(
   selectableRefentes: Refente[],
   selectedPolypro: BobineMerePolypro
 ): Refente[] {
-  const newRefentes = selectableRefentes.filter(r => r.laize === selectedPolypro.laize);
+  const newRefentes = selectableRefentes.filter((r) => r.laize === selectedPolypro.laize);
   if (newRefentes.length === selectableRefentes.length) {
     return selectableRefentes;
   }
@@ -149,7 +149,7 @@ export function filterPerfosForSelectedRefente(
   selectablePerfos: Perfo[],
   selectedRefente: Refente
 ): Perfo[] {
-  const newPerfos = selectablePerfos.filter(p => p.ref === selectedRefente.refPerfo);
+  const newPerfos = selectablePerfos.filter((p) => p.ref === selectedRefente.refPerfo);
   if (newPerfos.length === selectablePerfos.length) {
     return selectablePerfos;
   }
@@ -167,7 +167,7 @@ export function filterBobinesFillesForSelectedPapier(
   debug: boolean = true
 ): BobineFilleClichePose[] {
   const newBobinesFilles = selectableBobinesFilles.filter(
-    bobineFille =>
+    (bobineFille) =>
       bobineFille.couleurPapier === selectedPapier.couleurPapier &&
       bobineFille.grammage === selectedPapier.grammage
   );
@@ -186,20 +186,20 @@ export function filterPapiersForSelectedBobinesFilles(
   selectablePapiers: BobineMerePapier[],
   selectedBobinesFilles: BobineFilleClichePose[]
 ): BobineMerePapier[] {
-  const couleursBobinesFilles = uniq(selectedBobinesFilles.map(b => b.couleurPapier));
-  const grammagesBobinesFilles = uniq(selectedBobinesFilles.map(b => b.grammage));
+  const couleursBobinesFilles = uniq(selectedBobinesFilles.map((b) => b.couleurPapier));
+  const grammagesBobinesFilles = uniq(selectedBobinesFilles.map((b) => b.grammage));
 
   if (couleursBobinesFilles.length > 1) {
     throw new Error(
       `Plusieurs bobines filles avec une couleur papier differentes: ${selectedBobinesFilles
-        .map(b => `${b.ref}(${b.couleurPapier})`)
+        .map((b) => `${b.ref}(${b.couleurPapier})`)
         .join(', ')}`
     );
   }
   if (grammagesBobinesFilles.length > 1) {
     throw new Error(
       `Plusieurs bobines filles avec un grammage different: ${selectedBobinesFilles
-        .map(b => `${b.ref}(${b.grammage})`)
+        .map((b) => `${b.ref}(${b.grammage})`)
         .join(', ')}`
     );
   }
@@ -208,7 +208,7 @@ export function filterPapiersForSelectedBobinesFilles(
   const grammage = grammagesBobinesFilles[0];
 
   const newPapiers = selectablePapiers.filter(
-    p => p.couleurPapier === couleurPapier && p.grammage === grammage
+    (p) => p.couleurPapier === couleurPapier && p.grammage === grammage
   );
   if (newPapiers.length === selectablePapiers.length) {
     return selectablePapiers;
@@ -225,7 +225,7 @@ function addBobineToPosesByCliche(
   posesByCliche: Map<string, number[]>
 ): void {
   if (bobine.pose !== POSE_NEUTRE) {
-    bobine.refsCliches.forEach(refCliche => {
+    bobine.refsCliches.forEach((refCliche) => {
       const poses = posesByCliche.get(refCliche) || [];
       posesByCliche.set(refCliche, poses.concat([bobine.pose]));
     });
@@ -238,11 +238,11 @@ export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
   cliches: Map<string, Cliche>
 ): BobineFilleClichePose[] {
   const selectedPosesByCliche = new Map<string, number[]>();
-  selectedBobinesFilles.forEach(b => {
+  selectedBobinesFilles.forEach((b) => {
     addBobineToPosesByCliche(b, selectedPosesByCliche);
   });
 
-  const newBobinesFilles = selectableBobinesFilles.filter(b => {
+  const newBobinesFilles = selectableBobinesFilles.filter((b) => {
     const usedPosesByCliche = new Map<string, number[]>(selectedPosesByCliche.entries());
     addBobineToPosesByCliche(b, usedPosesByCliche);
     for (const [ref, poses] of Array.from(usedPosesByCliche.entries())) {
@@ -264,9 +264,7 @@ export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
     log.debug(
-      `filterBobinesFillesForSelectedBobinesFillesAndCliches dropping ${
-        dropped.length
-      } BobinesFilles`
+      `filterBobinesFillesForSelectedBobinesFillesAndCliches dropping ${dropped.length} BobinesFilles`
     );
     printDebugBobine(dropped);
   }
@@ -281,7 +279,7 @@ export function filterBobinesFillesForSelectedBobinesFilles(
 ): BobineFilleClichePose[] {
   const newBobinesFilles = selectableBobinesFilles.filter((b, i) => {
     return validColorCombinaison(
-      selectedBobinesFilles.concat([b]).map(bb => bb.couleursImpression),
+      selectedBobinesFilles.concat([b]).map((bb) => bb.couleursImpression),
       MAX_COULEURS_IMPRESSIONS
     );
   });
@@ -333,7 +331,9 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
     if (res === undefined) {
       notCompatibleBobinesFillesHashes.set(bobine.hash);
     } else {
-      const selectedBobineHashes = getBobineHashCombinaison(selectedBobinesFilles.map(b => b.hash));
+      const selectedBobineHashes = getBobineHashCombinaison(
+        selectedBobinesFilles.map((b) => b.hash)
+      );
       const compatibleSelectableHashes = substractCombinaisons(res, selectedBobineHashes);
       for (const hash of compatibleSelectableHashes.keys()) {
         compatibleBobinesFillesHashes.set(hash);
@@ -343,7 +343,7 @@ export function filterBobinesFillesForSelectedRefenteAndBobines(
 
   // Once all the bobines have been checked, we filter the array of selectable bobines and only keep the bobines
   // whose hash is in `compatibleBobinesFillesHashes`
-  const compatibleBobinesFilles = selectableBobinesFilles.filter(b =>
+  const compatibleBobinesFilles = selectableBobinesFilles.filter((b) =>
     compatibleBobinesFillesHashes.has(b.hash)
   );
   if (compatibleBobinesFilles.length === selectableBobinesFilles.length) {

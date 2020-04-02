@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {
   LAIZE_COLUMN,
@@ -71,7 +71,7 @@ export class ProductionTable extends React.Component<ProductionTableProps> {
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
     const selectedPistesSum = new Map<string, number>();
-    planProduction.selectedBobines.forEach(b => {
+    planProduction.selectedBobines.forEach((b) => {
       const piste = selectedPistesSum.get(b.ref) || 0;
       selectedPistesSum.set(b.ref, piste + getPoseSize(b.pose));
       selectedBobines.set(b.ref, b);
@@ -193,7 +193,7 @@ export class SimpleProductionTable extends React.Component<SimpleProductionTable
 
     const selectedBobines = new Map<string, BobineFilleWithPose>();
     const selectedPistesSum = new Map<string, number>();
-    planProduction.selectedBobines.forEach(b => {
+    planProduction.selectedBobines.forEach((b) => {
       const piste = selectedPistesSum.get(b.ref) || 0;
       selectedPistesSum.set(b.ref, piste + getPoseSize(b.pose));
       selectedBobines.set(b.ref, b);

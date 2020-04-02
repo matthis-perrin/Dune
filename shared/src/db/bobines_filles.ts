@@ -24,11 +24,8 @@ export const BobineFilleColumns = {
 export async function createBobinesFillesTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(BOBINES_FILLES_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(BOBINES_FILLES_TABLE_NAME, table => {
-      table
-        .string(BobineFilleColumns.REF_COLUMN)
-        .notNullable()
-        .primary();
+    await db.schema.createTable(BOBINES_FILLES_TABLE_NAME,table => {
+      table.string(BobineFilleColumns.REF_COLUMN).notNullable().primary();
       table.string(BobineFilleColumns.DESIGNATION_COLUMN).nullable();
       table.string(BobineFilleColumns.DESIGNATION_OPERATEUR_COLUMN).nullable();
       table.integer(BobineFilleColumns.LAIZE_COLUMN).nullable();
@@ -49,9 +46,7 @@ export async function createBobinesFillesTable(db: knex, truncateGescom: boolean
 }
 
 export async function deleteBobinesFilles(db: knex, refs: string[]): Promise<void> {
-  return db(BOBINES_FILLES_TABLE_NAME)
-    .whereIn(BobineFilleColumns.REF_COLUMN, refs)
-    .delete();
+  return db(BOBINES_FILLES_TABLE_NAME).whereIn(BobineFilleColumns.REF_COLUMN, refs).delete();
 }
 
 function getRealLongueur(
@@ -62,8 +57,7 @@ function getRealLongueur(
   if (longueur === undefined) {
     return undefined;
   }
-  const matchingLongueurs = longueurMapping.filter(
-    l => l.longueur === longueur && (l.colorRef === undefined || l.colorRef === '')
+  const matchingLongueurs = longueurMapping.filter(l => l.longueur === longueur && (l.colorRef === undefined || l.colorRef === '')
   );
   const matchingLongueursAndColors = matchingLongueurs.filter(l => l.colorRef === couleurPapier);
   if (matchingLongueursAndColors.length > 0) {

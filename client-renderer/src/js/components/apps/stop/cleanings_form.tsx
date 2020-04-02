@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Checkbox} from '@root/components/core/checkbox';
@@ -47,8 +47,7 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
     const {allCleanings = []} = this.state;
     if (event.target.checked) {
       const newCleanings = [...cleanings];
-      const checked: Cleaning | undefined = allCleanings.filter(
-        cleaning => cleaning.name === name
+      const checked: Cleaning | undefined = allCleanings.filter(cleaning => cleaning.name === name
       )[0];
       newCleanings.push(checked);
       onChange(newCleanings);

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Perfo as PerfoComponent} from '@root/components/common/perfo';
@@ -36,8 +36,8 @@ export class PerfoPickerApp extends React.Component<Props> {
     return (
       <Picker<Perfo>
         id={id}
-        getHash={r => r.ref}
-        getSelectable={p => p.selectablePerfos}
+        getHash={(r) => r.ref}
+        getSelectable={(p) => p.selectablePerfos}
         store={perfosStore}
         title="Choix de la perfo"
       >
@@ -52,7 +52,7 @@ export class PerfoPickerApp extends React.Component<Props> {
                 <React.Fragment>
                   {header}
                   <PerfoList style={{height: availableHeight}}>
-                    {elements.map(r => {
+                    {elements.map((r) => {
                       const enabled = isSelectionnable(r);
                       return (
                         <PerfoWrapper

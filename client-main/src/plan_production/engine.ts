@@ -102,8 +102,7 @@ export class PlanProductionEngine {
     this.originalRefentesByRef = new Map<string, RefenteModel>();
     refentes.forEach(r => isValidRefente(r) && this.originalRefentesByRef.set(r.ref, r));
     this.originalBobinesFillesByRef = new Map<string, BobineFille>();
-    bobinesFilles.forEach(
-      b => isValidBobineFille(b) && this.originalBobinesFillesByRef.set(b.ref, b)
+    bobinesFilles.forEach(b => isValidBobineFille(b) && this.originalBobinesFillesByRef.set(b.ref, b)
     );
 
     this.allBobinesFillesPosesByRef = new Map<string, number[]>();
@@ -227,8 +226,7 @@ export class PlanProductionEngine {
     if (this.isComputing) {
       return;
     }
-    const firstSelectableBobine = this.selectables.selectableBobinesFilles.filter(
-      b => b.ref === ref && b.pose === pose
+    const firstSelectableBobine = this.selectables.selectableBobinesFilles.filter(b => b.ref === ref && b.pose === pose
     )[0];
     if (firstSelectableBobine) {
       this.planProduction.bobinesFilles.push(firstSelectableBobine);
@@ -243,8 +241,7 @@ export class PlanProductionEngine {
       return;
     }
     if (pose) {
-      const matchingBobines = this.planProduction.bobinesFilles.filter(
-        b => b.ref === ref && b.pose === pose
+      const matchingBobines = this.planProduction.bobinesFilles.filter(b => b.ref === ref && b.pose === pose
       );
       if (matchingBobines.length > 0) {
         const toRemove = matchingBobines[matchingBobines.length - 1];
@@ -253,8 +250,7 @@ export class PlanProductionEngine {
         this.recalculate();
       }
     } else {
-      this.planProduction.bobinesFilles = this.planProduction.bobinesFilles.filter(
-        b => b.ref !== ref
+      this.planProduction.bobinesFilles = this.planProduction.bobinesFilles.filter(b => b.ref !== ref
       );
       this.recalculate();
     }
@@ -279,8 +275,7 @@ export class PlanProductionEngine {
 
     this.planProduction.bobinesFilles = removeUndefined(
       bobines.map(b =>
-        this.originalSelectables.selectableBobinesFilles.find(
-          sb => sb.ref === b.ref && sb.pose === b.pose
+        this.originalSelectables.selectableBobinesFilles.find(sb => sb.ref === b.ref && sb.pose === b.pose
         )
       )
     );

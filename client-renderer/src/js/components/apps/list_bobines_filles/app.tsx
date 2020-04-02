@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {LoadingScreen} from '@root/components/core/loading_screen';
 import {AdminTable} from '@root/components/table/admin_table';

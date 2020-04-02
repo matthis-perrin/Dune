@@ -117,7 +117,7 @@ class WindowManager {
             reject(printError);
             return;
           }
-          fs.writeFile(filePath, data, saveError => {
+          fs.writeFile(filePath, data,saveError => {
             if (saveError) {
               if (failSafe) {
                 resolve(data);
@@ -154,7 +154,7 @@ class WindowManager {
             'AcroRd32.exe'
           );
           const cmd = `"${AdobeReaderPath}" /p ${tempFilePath}`;
-          child_process.exec(cmd, error => {
+          child_process.exec(cmd,error => {
             if (error) {
               reject(error.message);
               return;
@@ -175,8 +175,7 @@ class WindowManager {
       }
       dialog.showSaveDialog(
         windowInfo.browserWindow,
-        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
-        filename => {
+        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},filename => {
           if (!filename) {
             resolve();
             return;

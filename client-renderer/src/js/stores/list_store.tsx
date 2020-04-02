@@ -27,7 +27,7 @@ export abstract class ListStore<T extends {localUpdate: number}> extends BaseSto
       this.lastCheck = Date.now();
       const newData = new Map<string, T>();
       let latestLocalUpdate = 0;
-      data.forEach(element => {
+      data.forEach((element) => {
         element.localUpdate = element.localUpdate;
         const localUpdateTimestamp = element.localUpdate;
         if (localUpdateTimestamp > latestLocalUpdate) {
@@ -216,10 +216,10 @@ class BobinesFillesWithMultiPoseStore extends ListStore<BobineFilleWithMultiPose
     const bobinesFillesWithMultiPose: BobineFilleWithMultiPose[] = [];
     const clichesByRef = new Map<string, Cliche>();
     if (cliches) {
-      cliches.forEach(c => clichesByRef.set(c.ref, c));
+      cliches.forEach((c) => clichesByRef.set(c.ref, c));
     }
     if (bobinesFilles) {
-      bobinesFilles.forEach(b => {
+      bobinesFilles.forEach((b) => {
         const cliche1 = b.refCliche1 === undefined ? undefined : clichesByRef.get(b.refCliche1);
         const cliche2 = b.refCliche2 === undefined ? undefined : clichesByRef.get(b.refCliche2);
         const poses = getPosesForCliches(cliche1, cliche2);

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {SVGIcon} from '@root/components/core/svg_icon';
@@ -99,7 +99,7 @@ const ModalCloseButton = styled.button`
   width: ${theme.modal.padding}px;
   height: ${theme.modal.padding}px;
   display: flex;
-  align-item: center;
+  align-items: center;
   justify-content: center;
   position: absolute;
   top: 0;

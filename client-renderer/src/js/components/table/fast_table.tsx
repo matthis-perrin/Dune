@@ -1,7 +1,6 @@
 import {range, isEqual, memoize} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
-// import styled from 'styled-components/native';
 
 import {ColumnMetadata} from '@root/components/table/sortable_table';
 import {theme} from '@root/theme';
@@ -19,9 +18,9 @@ interface FastTableProps<T extends {ref: string}> {
   onRowClick?(row: T, event: React.MouseEvent): void;
 }
 
-// width: ${(props) => props.width}px;
-const ColumnContainer = styled.div`
+const ColumnContainer = styled.div<{width: number}>`
   display: flex;
+  width: ${props => props.width}px;
   background-color: ${theme.table.headerBackgroundColor};
 `;
 
@@ -83,11 +82,11 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
   }
 
   private getFixedColumnsWidthCount(): number {
-    return this.props.columns.filter((col) => col.width !== undefined).length;
+    return this.props.columns.filter(col => col.width !== undefined).length;
   }
 
   private getVariableColumnWidthCount(): number {
-    return this.props.columns.filter((col) => col.width === undefined).length;
+    return this.props.columns.filter(col => col.width === undefined).length;
   }
 
   private readonly getColumnWidth = (
@@ -146,7 +145,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
       this.getFixedColumnsWidthSum() + theme.table.minSizeForVariableColumns,
       width
     );
-    const columnWidths = range(columnCount).map((index) =>
+    const columnWidths = range(columnCount).map(index =>
       this.getColumnWidth(index, adjustedWidth, shouldAssumeScrollbar)
     );
 
@@ -158,7 +157,7 @@ export class FastTable<T extends {ref: string}> extends React.Component<FastTabl
     const lastVisibleRowIndex = firstVisibleRowIndex + Math.ceil(height / rowHeight);
     const header = renderColumn ? (
       <ColumnContainer width={adjustedWidth}>
-        {range(columnCount).map((i) => (
+        {range(columnCount).map(i => (
           <div
             key={`column-${i}`}
             style={{width: this.getColumnWidth(i, adjustedWidth, shouldAssumeScrollbar)}}
@@ -242,8 +241,8 @@ const RowContainer = styled.div<{background: string}>`
   display: flex;
   position: absolute;
   top: -1000px;
-  background-color: ${(props) => props.background};
-  transition: background-color 100ms ease-in-out
+  background-color: ${props => props.background};
+  transition: background-color 100ms ease-in-out;
   &:hover {
     background-color: ${theme.table.rowBackgroundColorHovered};
   }
@@ -304,7 +303,7 @@ export class FastTableRow<T extends {ref: string}> extends React.Component<FastT
     const {columns, data, columnWidths, rowHeight} = this.props;
     return (
       <React.Fragment>
-        {range(columns.length).map((columnIndex) => {
+        {range(columns.length).map(columnIndex => {
           const columnWidth = columnWidths[columnIndex];
           const isFirst = columnIndex === 0;
           const isLast = columnIndex === columns.length - 1;

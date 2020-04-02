@@ -1,4 +1,4 @@
-import * as log from 'electron-log';
+import log from 'electron-log';
 import {Socket} from 'net';
 
 import {aggregator} from '@root/automate/aggregator';

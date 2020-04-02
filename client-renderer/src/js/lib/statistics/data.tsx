@@ -52,10 +52,10 @@ export function getMidDay(schedule: Schedule, day: number): number {
 
 export function computeStatsData(schedule: Schedule): StatsData {
   const days = new Map<number, PlanDayStats[]>();
-  schedule.plans.forEach(plan => {
+  schedule.plans.forEach((plan) => {
     const {aideConducteur, chauffePerfo, chauffeRefente, conducteur} = plan.operations;
     const planOperationTime =
-      max([aideConducteur, chauffePerfo, chauffeRefente, conducteur].map(o => o.total)) || 0;
+      max([aideConducteur, chauffePerfo, chauffeRefente, conducteur].map((o) => o.total)) || 0;
     plan.schedulePerDay.forEach((planDaySchedule, day) => {
       const midDay = getMidDay(schedule, day);
       let planDayStats = days.get(day);
@@ -110,12 +110,12 @@ function computePlanDayStats(
   const prodInProgress = lastSpeedTime
     ? planDaySchedule.plannedProds
         .filter(
-          prod =>
+          (prod) =>
             lastSpeedTime &&
             prod.start < lastSpeedTime.time &&
             (prod.end === undefined || prod.end > lastSpeedTime.time)
         )
-        .map(prod => ({...prod, end: lastSpeedTime.time}))
+        .map((prod) => ({...prod, end: lastSpeedTime.time}))
     : [];
 
   planDaySchedule.prods.concat(prodInProgress).forEach(({start, end, avgSpeed}) => {
@@ -200,13 +200,13 @@ export function processStatsData(
   filter: MetricFilter
 ): number[] {
   const dateGroups = period.xAxis(statsData, prodHours, date);
-  return dateGroups.map(dateGroup => {
-    const values = dateGroup.map(d => {
+  return dateGroups.map((dateGroup) => {
+    const values = dateGroup.map((d) => {
       const dayStats = statsData.days.get(d);
       if (!dayStats) {
         return [];
       }
-      const dayValue = dayStats.map(planDayStats =>
+      const dayValue = dayStats.map((planDayStats) =>
         metric.yAxis(filter.name, planDayStats, operations, constants)
       );
       return dayValue;

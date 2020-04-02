@@ -20,7 +20,7 @@ import {asNumber, asMap} from '@shared/type_utils';
 
 function getPlanIndex(schedule: Schedule, planSchedule: ScheduledPlanProd): number {
   const allPlanned = getAllPlannedSchedules(schedule);
-  return findIndex(allPlanned, p => p.planProd.id === planSchedule.planProd.id);
+  return findIndex(allPlanned, (p) => p.planProd.id === planSchedule.planProd.id);
 }
 
 function newPlanProd(
@@ -30,7 +30,7 @@ function newPlanProd(
 ): void {
   bridge
     .createNewPlanProduction((planSchedule.planProd.index || -1) + (before ? 0 : 1))
-    .then(data => {
+    .then((data) => {
       onRefreshNeeded();
       const id = asNumber(asMap(data).id, 0);
       const planStart = getPlanStart(planSchedule);
@@ -95,7 +95,7 @@ export function showPlanContextMenu(
 ): void {
   const allPlanned = getAllPlannedSchedules(schedule);
 
-  const planSchedule = find(schedule.plans, p => p.planProd.id === planId);
+  const planSchedule = find(schedule.plans, (p) => p.planProd.id === planId);
   if (!planSchedule) {
     return;
   }

@@ -1,5 +1,5 @@
 import {isEqual} from 'lodash-es';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {BobinesForm} from '@root/components/apps/plan_prod_editor/bobines_form';

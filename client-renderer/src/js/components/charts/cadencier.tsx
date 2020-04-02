@@ -1,5 +1,5 @@
-import * as Plottable from 'plottable';
-import * as React from 'react';
+import Plottable from 'plottable';
+import React from 'react';
 import styled from 'styled-components';
 
 import {createChartTooltip, CHART_TOOLTIP_ID} from '@root/components/charts/chart_tooltip';
@@ -97,7 +97,7 @@ export class BobineCadencierChart extends React.Component<BobineCadencierChartPr
     const {ref} = bobine;
     bridge
       .listCadencierForBobine(ref)
-      .then(cadencier => this.createPlot(bobine, cadencier))
+      .then((cadencier) => this.createPlot(bobine, cadencier))
       .catch(console.error);
   }
 
@@ -155,7 +155,10 @@ export class BobineCadencierChart extends React.Component<BobineCadencierChartPr
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
 
     // Final Plot
-    this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
+    this.plot = new Plottable.Components.Table([
+      [yAxis, bars],
+      [undefined, xAxis],
+    ]);
 
     // Tooltips
     const tooltip = document.getElementById(CHART_TOOLTIP_ID);

@@ -187,16 +187,18 @@ export function getBobinePoseState(
 ): {pose: number; mode: ButtonMode; reason?: string}[] {
   const firstRuptureOrAlertBobine: string | undefined = selectedBobines
     .filter(
-      b =>
+      (b) =>
         [BobineState.Rupture, BobineState.Alerte].indexOf(
           getBobineState(b.ref, stocks, cadencier, bobineQuantities, 0, schedule, start).state
         ) !== -1
     )
-    .map(b => b.ref)[0];
-  const usedPoses = sum(selectedBobines.filter(b => b.ref === ref).map(b => getPoseSize(b.pose)));
+    .map((b) => b.ref)[0];
+  const usedPoses = sum(
+    selectedBobines.filter((b) => b.ref === ref).map((b) => getPoseSize(b.pose))
+  );
 
   return poses
-    .map(pose => {
+    .map((pose) => {
       const totalPose = usedPoses + getPoseSize(pose);
       const additionalStock = tourCount ? totalPose * tourCount : 0;
       const {quantity, state, yearSell, stock} = getBobineState(
@@ -226,8 +228,9 @@ export function getBobinePoseState(
       if (!tourCount) {
         return {pose, mode: ButtonMode.Neutral};
       }
-      const reason = `Ajouter cette bobine en pose ${poseStr} amènera la quantité produite à ${tourCount *
-        totalPose} (Objectif: ${quantity})`;
+      const reason = `Ajouter cette bobine en pose ${poseStr} amènera la quantité produite à ${
+        tourCount * totalPose
+      } (Objectif: ${quantity})`;
       if (tourCount * totalPose === quantity) {
         return {pose, mode: ButtonMode.Success, reason};
       }

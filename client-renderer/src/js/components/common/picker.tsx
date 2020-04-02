@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {FilterBar} from '@root/components/common/filter_bar';
 import {SearchBar} from '@root/components/common/search_bar';
@@ -52,11 +52,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     if (!planProd) {
       return false;
     }
-    return (
-      getSelectable(planProd)
-        .map(getHash)
-        .indexOf(getHash(value)) !== -1
-    );
+    return getSelectable(planProd).map(getHash).indexOf(getHash(value)) !== -1;
   };
 
   private readonly shouldShowSelectionnable = (v: T, e: boolean): boolean => {
@@ -108,14 +104,14 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     const selectables = getSelectable(planProd);
     document.title = `${title} (${selectables.length})`;
     const selectableHashes = selectables.map(getHash);
-    const mappedElements = allElements.map(e => {
+    const mappedElements = allElements.map((e) => {
       const index = selectableHashes.indexOf(getHash(e));
       return index === -1 ? e : selectables[index];
     });
 
     return (
       <FilterBar
-        data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
+        data={mappedElements.filter((e) => !e.sommeil && (!dataFilter || dataFilter(e)))}
         filters={[
           {
             enableByDefault: true,

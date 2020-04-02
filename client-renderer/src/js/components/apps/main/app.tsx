@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {AdministrationPage} from '@root/components/apps/main/administration/page';
 import {GestionPage} from '@root/components/apps/main/gestion/page';

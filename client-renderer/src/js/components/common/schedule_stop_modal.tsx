@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Button} from '@root/components/core/button';
@@ -47,9 +47,7 @@ export class ScheduleStopModal extends React.Component<
     }
     const {start, end, title} = formData;
     const {onSave, onDone} = this.props;
-    onSave(start, end, title)
-      .then(onDone)
-      .catch(console.error);
+    onSave(start, end, title).then(onDone).catch(console.error);
   };
 
   private getFormData(): {start: number; end: number; title: string} | undefined {
@@ -115,7 +113,7 @@ export class ScheduleStopModal extends React.Component<
                 <Input
                   focusOnMount
                   value={this.state.title}
-                  onChange={event => this.setState({title: event.target.value})}
+                  onChange={(event) => this.setState({title: event.target.value})}
                 />
               </FormValue>
             </FormLine>
@@ -124,7 +122,7 @@ export class ScheduleStopModal extends React.Component<
               <FormValue>
                 <Input
                   value={this.state.start}
-                  onChange={event => this.setState({start: event.target.value})}
+                  onChange={(event) => this.setState({start: event.target.value})}
                 />
               </FormValue>
             </FormLine>
@@ -133,7 +131,7 @@ export class ScheduleStopModal extends React.Component<
               <FormValue>
                 <Input
                   value={this.state.end}
-                  onChange={event => this.setState({end: event.target.value})}
+                  onChange={(event) => this.setState({end: event.target.value})}
                 />
               </FormValue>
             </FormLine>

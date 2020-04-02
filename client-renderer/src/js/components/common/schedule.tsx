@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {PlanProdPopup} from '@root/components/apps/main/gestion/plan_prod_popup';
@@ -381,10 +381,7 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
           {
             label: 'Supprimer cette période sans opérateurs',
             callback: () =>
-              bridge
-                .deleteNonProd(nonProd.id)
-                .then(onPlanProdRefreshNeeded)
-                .catch(console.error),
+              bridge.deleteNonProd(nonProd.id).then(onPlanProdRefreshNeeded).catch(console.error),
           },
         ])
         .catch(console.error);
@@ -632,7 +629,9 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
               .concat(planSchedule.stops.map(s => this.renderStop(s, planId, color, false)))
               .concat(planSchedule.plannedStops.map(s => this.renderStop(s, planId, color, true)))
               .concat(planSchedule.prods.map(p => this.renderProd(p, planId, color, false)))
-              .concat(planSchedule.plannedProds.map(p => this.renderProd(p, planId, color, true)))}
+              .concat(
+                planSchedule.plannedProds.map(p => this.renderProd(p, planId, color, true))
+              )}
             <PlanProdBorder
               key="plan-border"
               style={{

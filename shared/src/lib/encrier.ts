@@ -96,7 +96,7 @@ function mergeTwoOverlappingSequence<T>(
   if (allOverlaps.length === 0) {
     return sequence1.concat(sequence2);
   }
-  return minBy(allOverlaps, overlap => overlap.length) || sequence1.concat(sequence2);
+  return minBy(allOverlaps,overlap => overlap.length) || sequence1.concat(sequence2);
 }
 
 function mergeOverlappingSequences<T>(
@@ -163,8 +163,7 @@ function allSmallestArrangementsFromOrderedColors(
       smallest = colorSequence;
     }
   });
-  const allSmallest = mergedOrderedColorsSequences.filter(
-    colorSequence => colorSequence.length === smallest.length
+  const allSmallest = mergedOrderedColorsSequences.filter(colorSequence => colorSequence.length === smallest.length
   );
   const dedupingMap = new Map<string, EncrierColor[]>();
   allSmallest.forEach(seq => dedupingMap.set(seq.map(v => v.color).join(','), seq));
@@ -311,8 +310,7 @@ export function generateAllAcceptableColorsOrder(
     const res = integrateNonOrderedInOrdered(arrangement, nonOrdered);
     const reminaingNonOrdered = res.nonOrdered;
     const allOrdered = res.ordered;
-    const nonOrderedAsArrangements: EncrierColor[] = Array.from(reminaingNonOrdered.entries()).map(
-      entry => ({
+    const nonOrderedAsArrangements: EncrierColor[] = Array.from(reminaingNonOrdered.entries()).map(entry => ({
         color: entry[0],
         refsCliche: entry[1],
       })

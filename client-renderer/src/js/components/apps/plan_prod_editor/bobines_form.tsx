@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {OrderableBobines} from '@root/components/apps/plan_prod_editor/orderable_bobines';
@@ -73,7 +73,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
           key="orderable-bobines"
           planId={planId}
           bobines={
-            (placement.filter(p => typeof p !== 'number') as unknown) as BobineFilleWithPose[]
+            (placement.filter((p) => typeof p !== 'number') as unknown) as BobineFilleWithPose[]
           }
           refente={refente}
           pixelPerMM={pixelPerMM}

@@ -14,7 +14,7 @@ export const BobinesQuantitiesColumns = {
 export async function createBobinesQuantitiesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(BOBINES_QUANTITIES_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(BOBINES_QUANTITIES_TABLE_NAME, table => {
+    await db.schema.createTable(BOBINES_QUANTITIES_TABLE_NAME, (table) => {
       table.integer(BobinesQuantitiesColumns.SOLD_MIN).notNullable();
       table.integer(BobinesQuantitiesColumns.SOLD_MAX).notNullable();
       table.integer(BobinesQuantitiesColumns.THRESHOLD).notNullable();
@@ -26,7 +26,7 @@ export async function createBobinesQuantitiesTable(db: knex): Promise<void> {
 export async function listBobinesQuantities(db: knex): Promise<BobineQuantities[]> {
   return db(BOBINES_QUANTITIES_TABLE_NAME)
     .select()
-    .map(bobineQuantityLine => {
+    .map((bobineQuantityLine) => {
       const b = asMap(bobineQuantityLine);
       return {
         soldMin: asNumber(b[BobinesQuantitiesColumns.SOLD_MIN], 0),

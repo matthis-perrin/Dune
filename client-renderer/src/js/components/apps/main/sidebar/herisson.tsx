@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {HTMLImgProps} from '@root/components/core/common';
 
 const herissonBase64 =

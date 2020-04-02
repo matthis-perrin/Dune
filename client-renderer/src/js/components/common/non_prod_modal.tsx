@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {ScheduleStopModal} from '@root/components/common/schedule_stop_modal';
 import {bridge} from '@root/lib/bridge';

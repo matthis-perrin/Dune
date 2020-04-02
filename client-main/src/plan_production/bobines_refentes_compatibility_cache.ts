@@ -92,7 +92,9 @@ class CompatibilityCache {
     const compatibilities = compatibilitiesForRefente.compatibilityBySelected.get(
       selectedBobinesSortedHash
     );
-    const selectableHashCombinaisons = getBobineHashCombinaison(selectableBobines.map(b => b.hash));
+    const selectableHashCombinaisons = getBobineHashCombinaison(
+      selectableBobines.map(b => b.hash)
+    );
     if (compatibilities) {
       for (const compatibility of compatibilities) {
         if (combinaisonIsContained(compatibility, selectableHashCombinaisons)) {

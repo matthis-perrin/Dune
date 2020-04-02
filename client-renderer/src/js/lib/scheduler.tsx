@@ -103,8 +103,7 @@ function getLastPlanEvent(planEvents: PlanEvents): AutomateEvent | undefined {
 
 function getAllStopsOrdered(schedulePerDay: Map<number, PlanProdSchedule>): Stop[] {
   let stops: Stop[] = [];
-  schedulePerDay.forEach(
-    planSchedule => (stops = stops.concat(planSchedule.stops).concat(planSchedule.plannedStops))
+  schedulePerDay.forEach(planSchedule => (stops = stops.concat(planSchedule.stops).concat(planSchedule.plannedStops))
   );
   return stops.sort(eventsOrder);
 }
@@ -129,8 +128,7 @@ function getTotalOperationTimeDoneAndPlanned(
   schedulePerDay: Map<number, PlanProdSchedule>
 ): number {
   let total = 0;
-  schedulePerDay.forEach(
-    schedule => (total += schedule.doneOperationsMs + schedule.plannedOperationsMs)
+  schedulePerDay.forEach(schedule => (total += schedule.doneOperationsMs + schedule.plannedOperationsMs)
   );
   return total;
 }
@@ -285,14 +283,12 @@ function lastValidConsecutiveFreeTime(time: number, supportData: ScheduleSupport
 }
 
 function getNextMaintenance(time: number, maintenances: Maintenance[]): Maintenance | undefined {
-  return maintenances.filter(
-    m => m.start >= time && isSameDay(new Date(time), new Date(m.start))
+  return maintenances.filter(m => m.start >= time && isSameDay(new Date(time), new Date(m.start))
   )[0];
 }
 
 function getCurrentMaintenance(time: number, maintenances: Maintenance[]): Maintenance | undefined {
-  return maintenances.filter(
-    m => m.start <= time && (m.end > time || isSameDay(new Date(time), new Date(m.start)))
+  return maintenances.filter(m => m.start <= time && (m.end > time || isSameDay(new Date(time), new Date(m.start)))
   )[0];
 }
 
@@ -311,8 +307,7 @@ function shouldCreateRestartProdStop(
   if (
     schedule.stops
       .concat(schedule.plannedStops)
-      .filter(
-        s =>
+      .filter(s =>
           s.stopType === StopType.ChangePlanProd ||
           s.stopType === StopType.ReprisePlanProd ||
           s.stopType === StopType.ReglagesAdditionel
@@ -654,14 +649,12 @@ function finishPlanProd(
         }
       } else if (lastStopEventType === StopType.Maintenance) {
         if (lastStopEvent.maintenanceId !== undefined) {
-          const maintenance = supportData.maintenances.filter(
-            m => m.id === lastStopEvent.maintenanceId
+          const maintenance = supportData.maintenances.filter(m => m.id === lastStopEvent.maintenanceId
           )[0];
           if (maintenance) {
             stopLeft = maintenance.end - maintenance.start - (endTime - lastStopEvent.start);
           }
-          supportData.maintenances = supportData.maintenances.filter(
-            m => m.id !== lastStopEvent.maintenanceId
+          supportData.maintenances = supportData.maintenances.filter(m => m.id !== lastStopEvent.maintenanceId
           );
         }
       }
@@ -788,11 +781,9 @@ function schedulePlanProd(
   // Except for the last schedule that could still be in progress
   // i.e the next plan has not started yet and there is no end of day stops
   if (lastSchedule && !hasNextPlanStarted) {
-    const endOfDayEndProdStops = lastSchedule.stops.filter(
-      s => s.stopType === StopType.EndOfDayEndProd
+    const endOfDayEndProdStops = lastSchedule.stops.filter(s => s.stopType === StopType.EndOfDayEndProd
     );
-    const endOfDayPauseProdStops = lastSchedule.stops.filter(
-      s => s.stopType === StopType.EndOfDayPauseProd
+    const endOfDayPauseProdStops = lastSchedule.stops.filter(s => s.stopType === StopType.EndOfDayPauseProd
     );
     const lastEvent = getLastPlanEvent(lastSchedule);
     if (

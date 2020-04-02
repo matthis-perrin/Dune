@@ -1,5 +1,5 @@
 import {BrowserWindow} from 'electron';
-import * as log from 'electron-log';
+import log from 'electron-log';
 
 import {cadencier} from '@root/cadencier';
 import {openContextMenu} from '@root/context_menu';
@@ -317,8 +317,7 @@ export async function handleCommand(
     openContextMenu(
       browserWindow,
       (menuForBridge as unknown) as ContextMenuForBridge[],
-      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),
-      id =>
+      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),id =>
         sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClicked, {menuId, menuItemId: id})
     );
   }
@@ -342,16 +341,21 @@ export async function handleCommand(
 
     const needNotStartedPlanProd = lastSpeedTime === undefined || rangeEnd > lastSpeedTime.time;
 
-    const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await Promise.all(
-      [
-        getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-        getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-        needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
-        getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd, log.debug),
-        getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-        getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      ]
-    );
+    const [
+      stops,
+      prods,
+      notStartedPlans,
+      startedPlans,
+      maintenances,
+      nonProds,
+    ] = await Promise.all([
+      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
+      getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd, log.debug),
+      getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+    ]);
     const res: ScheduleInfo = {
       stops,
       prods,

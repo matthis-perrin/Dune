@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import {Calendar} from '@root/components/apps/main/gestion/calendar';
@@ -168,18 +168,18 @@ export class GestionPage extends React.Component<Props, State> {
     const dayStart = startOfDay(date).getTime();
     const {start, end} = this.getProdRange(date, schedule.prodHours);
 
-    const maintenances = schedule.maintenances.filter(m => m.start >= start && m.start < end);
-    const nonProds = schedule.nonProds.filter(np => np.start >= start && np.start < end);
+    const maintenances = schedule.maintenances.filter((m) => m.start >= start && m.start < end);
+    const nonProds = schedule.nonProds.filter((np) => np.start >= start && np.start < end);
 
     const headerTiles = new Map<number, JSX.Element>();
 
-    maintenances.forEach(m =>
+    maintenances.forEach((m) =>
       headerTiles.set(
         m.start,
         this.renderMaintenance(m.id, m.title || '', m.start, m.end || m.start)
       )
     );
-    nonProds.forEach(np =>
+    nonProds.forEach((np) =>
       headerTiles.set(
         np.start,
         this.renderNonProd(np.id, np.title || '', np.start, np.end || np.start)
@@ -191,12 +191,12 @@ export class GestionPage extends React.Component<Props, State> {
         <div>
           {Array.from(headerTiles.entries())
             .sort((a, b) => a[0] - b[0])
-            .map(e => e[1])}
+            .map((e) => e[1])}
         </div>
         <div>
           {schedule.plans
-            .filter(planSchedule => planSchedule.schedulePerDay.has(dayStart))
-            .map(plan => (
+            .filter((planSchedule) => planSchedule.schedulePerDay.has(dayStart))
+            .map((plan) => (
               <PlanProdTile
                 config={config}
                 key={plan.planProd.id}

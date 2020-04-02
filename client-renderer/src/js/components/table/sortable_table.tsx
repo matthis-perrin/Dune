@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import {ColumnHeader, ColumnSortMode} from '@root/components/table/column';
 import {FilterState} from '@root/components/table/column_filters';
@@ -109,7 +109,7 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
   }
 
   private filterData(sortedData: T[]): T[] {
-    return sortedData.filter(row => {
+    return sortedData.filter((row) => {
       for (const {filterFn} of this.columnFilters.values()) {
         if (!filterFn(row)) {
           return false;
