@@ -1,0 +1,14 @@
+{
+  "name": "dune",
+  "devDependencies": {
+    "prettier": "^2.0.2",
+    "source-map-support": "^0.5.16",
+    "tslint": "^6.1.1",
+    "tslint-plugin-prettier": "^2.3.0",
+    "tslint-react": "^4.2.0",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "install-all": "npm install && cd webpack && npm install && npm run webpack:prod && cd .. && cd client-main && npm install && cd .. && cd client-renderer && npm install && cd .. && cd server-main && npm install && cd .. && cd server-renderer && npm install && cd .. && cd linter-rules && npm install && cd .. && cd shared && npm install && cd .."
+  }
+}

@@ -6,13 +6,10 @@
     "_webpack": "node ../webpack/index --target=node --ts=src/*Rule.ts --lib --noLint"
   },
   "dependencies": {
-    "path": "^0.12.7",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.6"
+    "path": "^0.12.7"
   },
   "devDependencies": {
-    "@types/node": "^10.12.9",
-    "tsc": "^1.20150623.0"
+    "@types/node": "^10.12.9"
   },
   "private": true
 }

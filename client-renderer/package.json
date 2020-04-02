@@ -5,22 +5,20 @@
     "build:dev": "node ../webpack/index --mode=development --target=web --ts=src/js/index.tsx --hbs=src/index.hbs --dist=../client-main/dist/renderer --noDevServer --lintAutoFix"
   },
   "dependencies": {
-    "@types/styled-components": "^5.0.1",
+    "@types/styled-components": "^4.1.14",
     "chartjs-plugin-datalabels": "^0.6.0",
     "core-js": "^3.0.0",
     "d3": "^5.9.2",
     "lodash-es": "^4.17.11",
     "plottable": "^3.8.6",
-    "prettier": "^2.0.2",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "polished": "^1.9.3",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5",
     "react-router-dom": "^4.3.1",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.1",
     "reactjs-popup": "^1.4.1",
-    "styled-components": "^5.0.1",
-    "tslint": "^6.1.1",
-    "tslint-react": "^4.2.0"
+    "styled-components": "^4.2.0"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.56",
