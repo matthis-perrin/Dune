@@ -39,7 +39,7 @@ export async function getNonProdsBetween(db: knex, start: number, end: number): 
     .select()
     .where(NonProdColumns.START_TIME, '>=', start)
     .andWhere(NonProdColumns.START_TIME, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(NonProdColumns.END_TIME, '>=', start).andWhere(NonProdColumns.END_TIME, '<', end);
     })

@@ -43,7 +43,7 @@ export async function getMaintenancesBetween(
     .select()
     .where(MaintenanceColumns.START_TIME, '>=', start)
     .andWhere(MaintenanceColumns.START_TIME, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(MaintenanceColumns.END_TIME, '>=', start).andWhere(
         MaintenanceColumns.END_TIME,

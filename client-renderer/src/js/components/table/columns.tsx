@@ -40,7 +40,7 @@ function getStocksSortFunction<T extends {ref: string}>(
   stocks: Map<string, Stock[]>,
   type: StockType
 ): (d1: T, d2: T) => number {
-  return function(data1: T, data2: T): number {
+  return function (data1: T, data2: T): number {
     const s1 = getStock(data1.ref, stocks, type);
     const s2 = getStock(data2.ref, stocks, type);
     return s1 - s2;

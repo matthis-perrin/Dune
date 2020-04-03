@@ -101,7 +101,7 @@ export async function getSpeedProdBetween(db: knex, start: number, end: number):
     .select()
     .where(SpeedProdsColumn.Start, '>=', start)
     .andWhere(SpeedProdsColumn.Start, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(SpeedProdsColumn.End, '>=', start).andWhere(SpeedProdsColumn.End, '<', end);
     })
