@@ -16,6 +16,7 @@ import {ProductionApp} from '@root/components/apps/production/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ReportsApp} from '@root/components/apps/reports/app';
 import {StatisticsApp} from '@root/components/apps/statistics/app';
+import {GiaveApp} from '@root/components/apps/GIAVE/app';
 import {StopApp} from '@root/components/apps/stop/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
 import {ViewDayApp} from '@root/components/apps/view_day_app/app';
@@ -169,7 +170,9 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.StatisticsApp) {
       return [operationsStore, constantsStore];
     }
-
+    if (type === ClientAppType.GiaveApp) {
+      return [];
+    }
     if (type === ClientAppType.ReportsApp || type === ClientAppType.ReportsPrinterApp) {
       return [
         colorsStore,
@@ -268,6 +271,10 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.StatisticsApp) {
       return <StatisticsApp />;
+    }
+
+    if (type === ClientAppType.GiaveApp) {
+      return <GiaveApp />;
     }
 
     if (type === ClientAppType.ReportsApp) {

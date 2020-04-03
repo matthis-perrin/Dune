@@ -1,4 +1,4 @@
-import Plottable from 'plottable';
+import * as Plottable from 'plottable';
 import React from 'react';
 import styled from 'styled-components';
 

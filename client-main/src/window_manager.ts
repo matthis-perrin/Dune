@@ -175,7 +175,8 @@ class WindowManager {
       }
       dialog.showSaveDialog(
         windowInfo.browserWindow,
-        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]}, filename => {
+        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
+        filename => {
           if (!filename) {
             resolve();
             return;
@@ -233,12 +234,10 @@ class WindowManager {
     if (appInfo.type === ClientAppType.ListClichesApp) {
       return {id: 'list-cliches-app', size: listAppSize};
     }
-
     if (appInfo.type === ClientAppType.ViewBobineApp) {
       const {bobineRef = ''} = asMap(appInfo.data);
       return {id: `view-bobine-app--${bobineRef}`, size: {width: 1300, height: 750}};
     }
-
     if (appInfo.type === ClientAppType.PlanProductionEditorApp) {
       const {id} = asMap(appInfo.data);
       return {id: PLAN_PROD_EDITOR_APP_ID(asNumber(id, 0)), size: {width: 1250, minWidth: 1050}};
@@ -263,11 +262,9 @@ class WindowManager {
       const {id} = asMap(appInfo.data);
       return {id: POLYPRO_PICKER_APP_ID(asNumber(id, 0)), size: {width: 1000, height: 450}};
     }
-
     if (appInfo.type === ClientAppType.ViewDayApp) {
       return {id: `view-day-app--${Date.now()}`, size: {}};
     }
-
     if (appInfo.type === ClientAppType.ProductionApp) {
       return {id: 'production', size: {}};
     }
@@ -275,11 +272,12 @@ class WindowManager {
       const {day, stopStart} = asMap(appInfo.data);
       return {id: `stop-${day}-${stopStart}`, size: {width: 1200}};
     }
-
     if (appInfo.type === ClientAppType.StatisticsApp) {
       return {id: 'statistics', size: {}};
     }
-
+    if (appInfo.type === ClientAppType.GiaveApp) {
+      return {id: 'GIAVE', size: {}};
+    }
     if (appInfo.type === ClientAppType.ReportsApp) {
       return {id: 'reports', size: {}};
     }
@@ -289,7 +287,6 @@ class WindowManager {
     if (appInfo.type === ClientAppType.PlanProdPrinterApp) {
       return {id: 'plan-prod-printer', size: {width: 1100}, forPrinting: true};
     }
-
     return {id: 'unknown-app', size: {width: 400, height: 700}};
   }
 

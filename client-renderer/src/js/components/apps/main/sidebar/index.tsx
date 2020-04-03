@@ -129,6 +129,18 @@ export class Sidebar extends React.Component<Props, State> {
             ) : (
               <React.Fragment />
             )}
+            {config.hasStatsPage ? (
+              <SidebarItem
+                key={'GIAVE'}
+                title={'GIAVE'}
+                isSelected={false}
+                onClick={() => {
+                  bridge.openApp(ClientAppType.GiaveApp).catch(console.error);
+                }}
+              />
+            ) : (
+              <React.Fragment />
+            )}
           </SidebarItemContainer>
         </FlexParent>
       </SidebarContainer>

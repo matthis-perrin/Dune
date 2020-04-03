@@ -1,5 +1,5 @@
 import {min, max} from 'lodash-es';
-import Plottable from 'plottable';
+import * as Plottable from 'plottable';
 import React from 'react';
 
 import {BobineCadencierChart, VenteDatum} from '@root/components/charts/cadencier';
