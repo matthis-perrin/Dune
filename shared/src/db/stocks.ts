@@ -18,7 +18,7 @@ export const StockColumns = {
 export async function createStocksTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(STOCKS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(STOCKS_TABLE_NAME,table => {
+    await db.schema.createTable(STOCKS_TABLE_NAME, table => {
       table.string(StockColumns.ID_COLUMN).notNullable().primary();
       table.string(StockColumns.REF_COLUMN).notNullable();
       table.integer(StockColumns.NUM_DEPOT).notNullable();

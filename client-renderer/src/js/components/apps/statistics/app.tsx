@@ -90,12 +90,12 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
           <StatsMetricDropdown
             statsMetrics={[METRAGE_METRIC, STOP_METRIC, DELAY_METRIC]}
             selected={statsMetric}
-            onChange={(newStatsMetric) => this.setState({statsMetric: newStatsMetric})}
+            onChange={newStatsMetric => this.setState({statsMetric: newStatsMetric})}
           />
           <StatsPeriodDropdown
             statsPeriods={[WEEK_STATS_PERIOD, MONTH_STATS_PERIOD, YEAR_STATS_PERIOD]}
             selected={statsPeriod}
-            onChange={(newStatsPeriod) => this.setState({statsPeriod: newStatsPeriod})}
+            onChange={newStatsPeriod => this.setState({statsPeriod: newStatsPeriod})}
           />
         </DropdownBlock>
         <Block>

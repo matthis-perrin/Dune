@@ -67,7 +67,7 @@ export class PlanProdTile extends React.Component<Props> {
 
     Array.from(planProd.schedulePerDay.values())
       .reduce((starts, schedule) => starts.concat(getScheduleStarts(schedule)), [] as number[])
-      .forEach((start) => {
+      .forEach(start => {
         if (start < currentDayStart) {
           top = false;
         } else if (startOfDay(new Date(start)).getTime() > currentDayStart) {
@@ -171,8 +171,8 @@ export class PlanProdTile extends React.Component<Props> {
     const endStr = new Date(end).toLocaleTimeString('fr');
 
     const bobines: {ref: string; count: number}[] = [];
-    planProd.data.bobines.forEach((b) => {
-      const index = bobines.map((bb) => bb.ref).indexOf(b.ref);
+    planProd.data.bobines.forEach(b => {
+      const index = bobines.map(bb => bb.ref).indexOf(b.ref);
       const prod = getPoseSize(b.pose) * tourCount;
       if (index === -1) {
         bobines.push({ref: b.ref, count: prod});
@@ -183,7 +183,7 @@ export class PlanProdTile extends React.Component<Props> {
 
     return (
       <WithColor color={planSchedule.planProd.data.papier.couleurPapier}>
-        {(color) => {
+        {color => {
           const indicator = this.renderIndicator(schedule);
           const pinIcon = this.renderPinIcon(planSchedule, color.textHex);
           const halves = this.getHalves(planSchedule);
@@ -197,7 +197,7 @@ export class PlanProdTile extends React.Component<Props> {
           const content = halves.top ? (
             <TileBobineGrid>
               {bobines.map(({ref, count}) => (
-                <React.Fragment>
+                <React.Fragment key={ref}>
                   <TileBobineRef>
                     <RefLink
                       style={{justifyContent: 'flex-start'}}

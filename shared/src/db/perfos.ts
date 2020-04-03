@@ -28,7 +28,7 @@ export const PerfosColumn = {
 export async function createPerfosTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(PERFOS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(PERFOS_TABLE_NAME,table => {
+    await db.schema.createTable(PERFOS_TABLE_NAME, table => {
       table.string(PerfosColumn.REF_COLUMN).notNullable().primary();
       table.integer(PerfosColumn.DECALAGE_INITIAL_COLUMN).notNullable();
       table.integer(PerfosColumn.CALE_1_COLUMN).nullable();

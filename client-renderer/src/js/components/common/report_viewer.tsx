@@ -3,12 +3,10 @@ import styled from 'styled-components';
 
 import {StopList} from '@root/components/apps/production/stop_list';
 import {SpeedChartEvent, SpeedChart} from '@root/components/charts/speed_chart';
-import {DayProductionTable} from '@root/components/common/day_production_table';
 import {DayStats} from '@root/components/common/day_stats';
 import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SizeMonitor} from '@root/components/core/size_monitor';
 import {WithConstants} from '@root/components/core/with_constants';
-import {getSchedulesForDay} from '@root/lib/schedule_utils';
 import {isProdHourNonProd, getMidDay, computeStatsData, aggregate} from '@root/lib/statistics/data';
 import {
   MORNING_TEAM_FILTER,
@@ -27,7 +25,6 @@ import {getColorForStopType} from '@root/lib/stop';
 import {isSameDay, numberWithSeparator, formatDuration} from '@root/lib/utils';
 import {Colors, Palette, FontWeight} from '@root/theme';
 
-import {getPoseSize} from '@shared/lib/cliches';
 import {getWeekDay} from '@shared/lib/time';
 import {capitalize, startOfDay} from '@shared/lib/utils';
 import {ProdInfo, Schedule, Operation, StopType, Stock, Constants} from '@shared/models';
@@ -57,7 +54,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const dataDay = startOfDay(new Date(day)).getTime();
     const statsData = computeStatsData(schedule);
 
-    const metrageDone = aggregate(statsData, dataDay, 'sum',dayStatsData =>
+    const metrageDone = aggregate(statsData, dataDay, 'sum', dayStatsData =>
       getMetrages(dayStatsData, 'all')
     );
 
@@ -68,7 +65,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
       NON_PROD_STOP_FILTER.name,
       PROD_STOP_FILTER.name,
     ].map(stopFilter =>
-      aggregate(statsData, dataDay, 'sum',dayStatsData =>
+      aggregate(statsData, dataDay, 'sum', dayStatsData =>
         getStops(dayStatsData, 'all', stopFilter)
       )
     );
@@ -77,7 +74,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     const activePeriod = stopDone + prodDone;
     const activePeriodMetrage = (activePeriod * constants.maxSpeed) / (60 * 1000);
 
-    const delays = aggregate(statsData, dataDay, 'sum',dayStatsData =>
+    const delays = aggregate(statsData, dataDay, 'sum', dayStatsData =>
       getDelays(dayStatsData, operations, constants, 'all', 'all')
     );
 
@@ -209,14 +206,14 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
     );
   }
 
-  private renderProductionTable(): JSX.Element {
-    const {day, schedule, stocks} = this.props;
-    return (
-      <ProductionTableContainer>
-        <DayProductionTable day={day} schedule={schedule} stocks={stocks} width={600} />
-      </ProductionTableContainer>
-    );
-  }
+  // private renderProductionTable(): JSX.Element {
+  //   const {day, schedule, stocks} = this.props;
+  //   return (
+  //     <ProductionTableContainer>
+  //       <DayProductionTable day={day} schedule={schedule} stocks={stocks} width={600} />
+  //     </ProductionTableContainer>
+  //   );
+  // }
 
   public render(): JSX.Element {
     return (
@@ -228,7 +225,9 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
                 return <LoadingIndicator size="large" />;
               }
               let scale = width < REPORT_WIDTH ? width / REPORT_WIDTH : 1;
+              // tslint:disable-next-line: no-magic-numbers
               if (width < 600) {
+                // tslint:disable-next-line: no-magic-numbers
                 scale = 0.88; // 0.59
               }
               const scalingStyles: React.CSSProperties = {
@@ -345,8 +344,8 @@ const StopBlockTitle = styled.div`
 `;
 const StopBlockContent = styled.div``;
 
-const ProductionTableContainer = styled(Container)`
-  display: flex;
-  justify-content: center;
-  padding: 16px;
-`;
+// const ProductionTableContainer = styled(Container)`
+//   display: flex;
+//   justify-content: center;
+//   padding: 16px;
+// `;

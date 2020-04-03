@@ -149,7 +149,7 @@ export class OrderableEncrier extends React.Component<
     // We shift the encrier one by one and save the position if it is valid
     let lastValidEncrierOrder = encrierOrder;
 
-    range(newIndex - draggedEncrierIndex + offsetSign).forEach((i) => {
+    range(newIndex - draggedEncrierIndex + offsetSign).forEach(i => {
       const destinationIndex = draggedEncrierIndex + i;
       const newEncriersOrder = [...encrierOrder];
       newEncriersOrder.splice(

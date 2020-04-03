@@ -82,7 +82,7 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
       return newInfos;
     }
     const {getValue, render} = column.filter;
-    data.forEach((row) => {
+    data.forEach(row => {
       const value = getValue(row);
       const newInfo = newInfos.get(value);
       if (!newInfo) {
@@ -171,7 +171,7 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
   }
 
   private setAll(value: boolean): void {
-    this.state.groups.forEach((info) => (info.isSelected = value));
+    this.state.groups.forEach(info => (info.isSelected = value));
     this.forceUpdate();
     this.notifyHandler();
   }

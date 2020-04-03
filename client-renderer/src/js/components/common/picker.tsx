@@ -104,14 +104,14 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     const selectables = getSelectable(planProd);
     document.title = `${title} (${selectables.length})`;
     const selectableHashes = selectables.map(getHash);
-    const mappedElements = allElements.map((e) => {
+    const mappedElements = allElements.map(e => {
       const index = selectableHashes.indexOf(getHash(e));
       return index === -1 ? e : selectables[index];
     });
 
     return (
       <FilterBar
-        data={mappedElements.filter((e) => !e.sommeil && (!dataFilter || dataFilter(e)))}
+        data={mappedElements.filter(e => !e.sommeil && (!dataFilter || dataFilter(e)))}
         filters={[
           {
             enableByDefault: true,

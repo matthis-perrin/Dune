@@ -7,14 +7,12 @@ import {
   getAllPlannedSchedules,
   getPlanStart,
   getPlanEnd,
-  getPlanStatus,
 } from '@root/lib/schedule_utils';
 
 import {
   Schedule,
   ScheduledPlanProd,
   PlanProductionInfo,
-  PlanProductionStatus,
 } from '@shared/models';
 import {asNumber, asMap} from '@shared/type_utils';
 

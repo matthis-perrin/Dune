@@ -25,7 +25,7 @@ export class PlanProdPopup extends React.Component<PlanProdPopupProps> {
 
   private getViewerWidthHeightRatio(callback: (ratio: number) => void): void {
     const VIEWER_TEST_WIDTH = 2000;
-    this.createViewer(VIEWER_TEST_WIDTH, (height) => {
+    this.createViewer(VIEWER_TEST_WIDTH, height => {
       callback(VIEWER_TEST_WIDTH / height || 0);
     });
   }
@@ -88,7 +88,7 @@ export class PlanProdPopup extends React.Component<PlanProdPopupProps> {
     if (this.showViewerTimeout) {
       clearTimeout(this.showViewerTimeout);
     }
-    this.getViewerWidthHeightRatio((ratio) => {
+    this.getViewerWidthHeightRatio(ratio => {
       const element = this.childrenRef.current;
       if (!element) {
         return;
@@ -109,11 +109,10 @@ export class PlanProdPopup extends React.Component<PlanProdPopupProps> {
       ];
 
       const best = maxBy(
-        spaces.map((space) => ({
+        spaces.map(space => ({
           position: space.position,
           ...this.getMaxViewerDimension(space.width, space.height, ratio),
-        })),
-        (space) => space.width
+        })), space => space.width
       );
       if (!best) {
         return;

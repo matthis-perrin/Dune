@@ -17,7 +17,7 @@ export const CadencierColumns = {
 export async function createCadencierTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(CADENCIER_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(CADENCIER_TABLE_NAME,table => {
+    await db.schema.createTable(CADENCIER_TABLE_NAME, table => {
       table.string(CadencierColumns.ID_COLUMN).notNullable().primary();
       table.string(CadencierColumns.BOBINE_REF_COLUMN).notNullable();
       table.integer(CadencierColumns.TYPE_COLUMN).notNullable();

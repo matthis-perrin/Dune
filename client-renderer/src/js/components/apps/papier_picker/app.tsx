@@ -89,11 +89,11 @@ export class PapierPickerApp extends React.Component<Props, State> {
     return (
       <Picker<BobineMere>
         id={id}
-        getHash={(r) => r.ref}
-        getSelectable={(p) => p.selectablePapiers}
+        getHash={r => r.ref}
+        getSelectable={p => p.selectablePapiers}
         store={bobinesMeresStore}
         title="Choix du papier"
-        dataFilter={(p) => p.couleurPapier !== 'POLYPRO'}
+        dataFilter={p => p.couleurPapier !== 'POLYPRO'}
         searchColumns={columns}
       >
         {(elements, isSelectionnable, planProd, header, footer) => (
@@ -115,7 +115,7 @@ export class PapierPickerApp extends React.Component<Props, State> {
                       asc: true,
                     }}
                     onRowClick={this.handlePapierSelected}
-                    rowStyles={(papier) => {
+                    rowStyles={papier => {
                       const selectable = isSelectionnable(papier);
                       return {
                         opacity: selectable ? 1 : theme.table.disabledOpacity,

@@ -69,6 +69,7 @@ export class BarChart extends React.Component<BarChartProps> {
     }
 
     if (this.chart) {
+      // tslint:disable-next-line: no-inferred-empty-object-type
       this.chart.destroy();
     }
 
@@ -187,7 +188,7 @@ export class BarChart extends React.Component<BarChartProps> {
             ...datalabelsConf,
             font: {family: 'Segoe UI', weight: FontWeight.SemiBold},
             formatter: chartConfig.renderY,
-            display:a => ((a.dataset.data || [])[a.dataIndex] || 0) !== 0,
+            display: a => ((a.dataset.data || [])[a.dataIndex] || 0) !== 0,
           },
         },
         elements: {

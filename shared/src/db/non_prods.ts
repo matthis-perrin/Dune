@@ -14,7 +14,7 @@ export const NonProdColumns = {
 export async function createNonProdsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(NON_PROD_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(NON_PROD_TABLE_NAME,table => {
+    await db.schema.createTable(NON_PROD_TABLE_NAME, table => {
       table.integer(NonProdColumns.ID).primary().notNullable();
       table.text(NonProdColumns.TITLE).notNullable();
       table.integer(NonProdColumns.START_TIME).notNullable();

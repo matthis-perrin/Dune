@@ -34,7 +34,7 @@ export class BobineCadencierChartByDay extends React.Component<BobineCadencierCh
     const firstTs = min(allTs) || Date.now();
     const lastTs = max(allTs) || Date.now();
 
-    const data = createDaysRange(firstTs, lastTs).map((ts) => ({
+    const data = createDaysRange(firstTs, lastTs).map(ts => ({
       time: new Date(ts),
       value: facturesByDay.get(ts) || [],
     }));
@@ -43,7 +43,7 @@ export class BobineCadencierChartByDay extends React.Component<BobineCadencierCh
 
   private tooltipRenderer(datum: VenteDatum): string | JSX.Element {
     const dateStr = new Date(datum.time).toLocaleDateString('fr');
-    const factures = datum.value.filter((d) => d.type === CadencierType.FACTURE_COMPTABILISEE);
+    const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);
     const facturesSum = factures.reduce((acc, curr) => acc + curr.quantity, 0);
     return (
       <div>
@@ -93,7 +93,7 @@ export class BobineCadencierChartByMonth extends React.Component<BobineCadencier
     const firstTs = min(allTs) || Date.now();
     const lastTs = max(allTs) || Date.now();
 
-    const data = createMonthsRange(firstTs, lastTs, true).map((ts) => ({
+    const data = createMonthsRange(firstTs, lastTs, true).map(ts => ({
       time: new Date(ts),
       value: facturesByMonth.get(ts) || [],
     }));
@@ -103,7 +103,7 @@ export class BobineCadencierChartByMonth extends React.Component<BobineCadencier
   private tooltipRenderer(datum: VenteDatum): string | JSX.Element {
     const monthStr = MONTHS_STRING[datum.time.getMonth()];
     const dateStr = `${monthStr} ${datum.time.getFullYear()}`;
-    const factures = datum.value.filter((d) => d.type === CadencierType.FACTURE_COMPTABILISEE);
+    const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);
     const facturesSum = factures.reduce((acc, curr) => acc + curr.quantity, 0);
     return (
       <div>
@@ -148,7 +148,7 @@ export class BobineCadencierChartByYear extends React.Component<BobineCadencierC
     const firstTs = min(allTs) || Date.now();
     const lastTs = max(allTs) || Date.now();
 
-    const data = createYearsRange(firstTs, lastTs).map((ts) => ({
+    const data = createYearsRange(firstTs, lastTs).map(ts => ({
       time: new Date(ts),
       value: facturesByYear.get(ts) || [],
     }));
@@ -157,7 +157,7 @@ export class BobineCadencierChartByYear extends React.Component<BobineCadencierC
 
   private tooltipRenderer(datum: VenteDatum): string | JSX.Element {
     const dateStr = datum.time.getFullYear();
-    const factures = datum.value.filter((d) => d.type === CadencierType.FACTURE_COMPTABILISEE);
+    const factures = datum.value.filter(d => d.type === CadencierType.FACTURE_COMPTABILISEE);
     const facturesSum = factures.reduce((acc, curr) => acc + curr.quantity, 0);
     return (
       <div>

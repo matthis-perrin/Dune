@@ -317,7 +317,7 @@ export async function handleCommand(
     openContextMenu(
       browserWindow,
       (menuForBridge as unknown) as ContextMenuForBridge[],
-      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),id =>
+      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}), id =>
         sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClicked, {menuId, menuItemId: id})
     );
   }

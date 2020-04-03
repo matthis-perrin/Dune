@@ -5,8 +5,6 @@ import {FilterState} from '@root/components/table/column_filters';
 import {FastTable} from '@root/components/table/fast_table';
 import {theme} from '@root/theme';
 
-// tslint:disable-next-line:no-null-keyword
-// const DONT_UPDATE_STATE = null;
 
 type SortFunction<T> = (val1: T, val2: T) => number;
 type FilterType = 'group';
@@ -109,7 +107,7 @@ export class SortableTable<T extends {ref: string}> extends React.PureComponent<
   }
 
   private filterData(sortedData: T[]): T[] {
-    return sortedData.filter((row) => {
+    return sortedData.filter(row => {
       for (const {filterFn} of this.columnFilters.values()) {
         if (!filterFn(row)) {
           return false;

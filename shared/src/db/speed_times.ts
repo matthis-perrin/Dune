@@ -12,7 +12,7 @@ export const SpeedTimesColumn = {
 export async function createSpeedTimesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_TIMES_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(SPEED_TIMES_TABLE_NAME,table => {
+    await db.schema.createTable(SPEED_TIMES_TABLE_NAME, table => {
       table.integer(SpeedTimesColumn.Time).notNullable().primary();
       table.integer(SpeedTimesColumn.Speed).nullable();
     });

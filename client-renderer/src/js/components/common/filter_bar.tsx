@@ -30,8 +30,8 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
   public constructor(props: FilterBarProps<T>) {
     super(props);
     const enabledFilters = (props.filters || [])
-      .filter((f) => f.enableByDefault)
-      .map((f) => f.shouldShowElement);
+      .filter(f => f.enableByDefault)
+      .map(f => f.shouldShowElement);
     const filteredData = this.filterData(enabledFilters, props.data);
     this.state = {
       enabledFilters,
@@ -64,7 +64,7 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
   private filterData(enabledFilters: FilterFn<T>[], current: T[]): T[] {
     const {data, filters = []} = this.props;
 
-    const newData = data.filter((d) => {
+    const newData = data.filter(d => {
       for (const filter of filters) {
         if (filter.shouldShowElement(d, enabledFilters.indexOf(filter.shouldShowElement) !== -1)) {
           return true;
@@ -99,7 +99,7 @@ export class FilterBar<T> extends React.Component<FilterBarProps<T>, FilterState
       <FooterContainer>
         <FooterForm>
           {formTitle}
-          {filters.map((filter) => this.renderFilter(filter))}
+          {filters.map(filter => this.renderFilter(filter))}
         </FooterForm>
         <FooterStats>{`Total : ${filteredData.length}`}</FooterStats>
       </FooterContainer>,

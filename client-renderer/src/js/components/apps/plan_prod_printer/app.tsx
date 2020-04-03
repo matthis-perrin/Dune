@@ -82,7 +82,7 @@ export class PlanProdPrinterApp extends React.Component<
     }
 
     const plans: ScheduledPlanProd[] = [];
-    schedule.plans.forEach((p) => {
+    schedule.plans.forEach(p => {
       for (const time of Array.from(p.schedulePerDay.keys())) {
         if (isSameDay(new Date(time), new Date(day))) {
           plans.push(p);
@@ -94,8 +94,9 @@ export class PlanProdPrinterApp extends React.Component<
     return (
       <div>
         {arrayJoin(
-          plans.map((p) => (
+          plans.map(p => (
             <PlanProdViewer
+              key={p.planProd.id}
               bobineQuantities={bobineQuantities}
               cadencier={cadencier}
               hideOperationTable

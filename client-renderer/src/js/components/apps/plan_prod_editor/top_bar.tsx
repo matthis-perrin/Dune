@@ -201,7 +201,7 @@ export class TopBar extends React.Component<TopBarProps> {
         const {aideConducteur, conducteur, chauffePerfo, chauffeRefente} = planSchedule.operations;
         operationTime =
           max(
-            [aideConducteur, conducteur, chauffePerfo, chauffeRefente].map((split) => split.total)
+            [aideConducteur, conducteur, chauffePerfo, chauffeRefente].map(split => split.total)
           ) || 0;
       }
     }

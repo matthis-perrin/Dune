@@ -15,7 +15,7 @@ export const ProdHoursColumn = {
 export async function createProdHoursTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(PROD_HOURS);
   if (!hasTable) {
-    await db.schema.createTable(PROD_HOURS,table => {
+    await db.schema.createTable(PROD_HOURS, table => {
       table.string(ProdHoursColumn.DAY_COLUMN).notNullable().primary();
       table.integer(ProdHoursColumn.START_HOUR_COLUMN).notNullable();
       table.integer(ProdHoursColumn.START_MINUTE_COLUMN).notNullable();

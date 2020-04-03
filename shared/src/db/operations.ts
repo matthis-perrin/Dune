@@ -16,7 +16,7 @@ export const OperationsColumn = {
 export async function createOperationsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(OPERATIONS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(OPERATIONS_TABLE_NAME,table => {
+    await db.schema.createTable(OPERATIONS_TABLE_NAME, table => {
       table.integer(OperationsColumn.REF_COLUMN).primary().notNullable();
       table.string(OperationsColumn.DESCRIPTION_COLUMN).notNullable();
       table.boolean(OperationsColumn.REQUIRED_COLUMN).notNullable();

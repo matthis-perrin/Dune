@@ -49,13 +49,12 @@ export class UnplannedStopsForm extends React.Component<
     const {allUnplannedStops = []} = this.state;
     if (event.target.checked) {
       const newUnplannedStops = [...unplannedStops];
-      const checked: UnplannedStop | undefined = allUnplannedStops.filter(
-        (stop) => stop.name === name
+      const checked: UnplannedStop | undefined = allUnplannedStops.filter(stop => stop.name === name
       )[0];
       newUnplannedStops.push(checked);
       onChange(newUnplannedStops);
     } else {
-      onChange(unplannedStops.filter((stop) => stop.name !== name));
+      onChange(unplannedStops.filter(stop => stop.name !== name));
     }
   };
 
@@ -65,7 +64,7 @@ export class UnplannedStopsForm extends React.Component<
       return [];
     }
     const byGroup = new Map<string, {stops: UnplannedStop[]; minOrder: number}>();
-    allUnplannedStops.forEach((unplannedStop) => {
+    allUnplannedStops.forEach(unplannedStop => {
       const groupReasons = byGroup.get(unplannedStop.group);
       if (!groupReasons) {
         byGroup.set(unplannedStop.group, {stops: [unplannedStop], minOrder: unplannedStop.order});
@@ -79,7 +78,7 @@ export class UnplannedStopsForm extends React.Component<
 
     return Array.from(byGroup.values())
       .sort((g1, g2) => g1.minOrder - g2.minOrder)
-      .map((group) => group.stops.sort((s1, s2) => s1.order - s2.order));
+      .map(group => group.stops.sort((s1, s2) => s1.order - s2.order));
   }
 
   private renderGroup(group: UnplannedStop[]): JSX.Element {
@@ -89,14 +88,14 @@ export class UnplannedStopsForm extends React.Component<
     return (
       <Group>
         <GroupTitle>{group[0].group}</GroupTitle>
-        {group.map((stop) => this.renderStopReason(stop))}
+        {group.map(stop => this.renderStopReason(stop))}
       </Group>
     );
   }
 
   private renderStopReason(stop: UnplannedStop): JSX.Element {
     const {unplannedStops} = this.props;
-    const isChecked = unplannedStops.map((r) => r.name).indexOf(stop.name) !== -1;
+    const isChecked = unplannedStops.map(r => r.name).indexOf(stop.name) !== -1;
     return (
       <CheckboxLabel key={stop.name}>
         <StyledCheckbox
@@ -110,7 +109,7 @@ export class UnplannedStopsForm extends React.Component<
   }
 
   public render(): JSX.Element {
-    return <Wrapper>{this.orderStopsByGroup().map((group) => this.renderGroup(group))}</Wrapper>;
+    return <Wrapper>{this.orderStopsByGroup().map(group => this.renderGroup(group))}</Wrapper>;
   }
 }
 

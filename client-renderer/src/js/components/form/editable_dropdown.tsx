@@ -72,7 +72,7 @@ export class EditableDropdown<T> extends React.Component<
         onMouseOut={this.handleMouseOut}
         value={valueLabel}
       >
-        {values.map((v) => (
+        {values.map(v => (
           <Option key={v.label} value={v.label}>
             {v.label}
           </Option>

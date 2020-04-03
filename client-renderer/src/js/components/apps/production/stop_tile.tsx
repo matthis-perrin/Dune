@@ -41,7 +41,7 @@ export class StopTile extends React.Component<StopTileProps> {
   private renderType(stop: Stop): JSX.Element {
     let defaultLabel = stop.title;
     if (stop.maintenanceId !== undefined) {
-      const maintenance = this.props.maintenances.find((m) => m.id === stop.maintenanceId);
+      const maintenance = this.props.maintenances.find(m => m.id === stop.maintenanceId);
       if (maintenance) {
         defaultLabel = `Maintenance : ${maintenance.title}`;
       }
@@ -76,9 +76,9 @@ export class StopTile extends React.Component<StopTileProps> {
         {this.renderType(stop)}
         {unplannedStops
           .sort((r1, r2) => r1.order - r2.order)
-          .map((r) => this.renderUnplannedStop(r))}
+          .map(r => this.renderUnplannedStop(r))}
         {comments.map((comment, index) => this.renderComment(comment, index))}
-        {cleanings.sort((c1, c2) => c1.order - c2.order).map((c) => this.renderCleaning(c))}
+        {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
       </React.Fragment>
     );
   }

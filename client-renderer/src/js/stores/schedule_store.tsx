@@ -117,7 +117,7 @@ export class ScheduleStore {
       nonProds,
     } = this.prodData;
 
-    const newNotStartedPlans = notStartedPlans.filter((p) => p.index < atIndex).concat([planProd]);
+    const newNotStartedPlans = notStartedPlans.filter(p => p.index < atIndex).concat([planProd]);
 
     return createSchedule(
       this.operations,
@@ -179,13 +179,13 @@ export class ScheduleStore {
 
   private makeProdRanges(prodHours: ProdHours[]): Map<string, ProdRange> {
     const prodRanges = new Map<string, ProdRange>();
-    prodHours.forEach((prodHour) => prodRanges.set(prodHour.day, prodHour));
+    prodHours.forEach(prodHour => prodRanges.set(prodHour.day, prodHour));
     return prodRanges;
   }
 
   private transformPlanProdRaw(plans: PlanProductionRaw[]): PlanProduction[] {
     return removeUndefined(
-      plans.map((planProd) => {
+      plans.map(planProd => {
         const data = this.parsePlanProdData(planProd.data);
         if (!data) {
           return undefined;

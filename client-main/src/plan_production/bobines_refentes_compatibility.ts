@@ -204,13 +204,13 @@ function compatibilityExistsForOrderedBobines(
 }
 
 export function uniqByLaizePoseAndColor(bobines: BobineFilleClichePose[]): BobineFilleClichePose[] {
-  return uniqBy(bobines,b => b.hash);
+  return uniqBy(bobines, b => b.hash);
 }
 
 export function getSelectedBobinesCombinaison(
   selectedBobines: BobineFilleClichePose[]
 ): BobineFilleClichePose[][] {
-  return uniqBy(permutations(selectedBobines),b =>
+  return uniqBy(permutations(selectedBobines), b =>
     b.map(bb => `${bb.laize}_${getPoseSize(bb.pose)}`).join('-')
   );
 }

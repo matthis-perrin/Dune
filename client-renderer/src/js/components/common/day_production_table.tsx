@@ -45,13 +45,13 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
     const firstScheduleStart = schedules.map(getScheduleStart).sort()[0];
 
     const refs = new Map<string, {laize?: number; prod: number}>();
-    schedules.forEach((s) => {
+    schedules.forEach(s => {
       const bobines = s.planProd.data.bobines;
       const meters = s.doneProdMeters + s.plannedProdMeters;
       const longueurFirstBobine = bobines.length > 0 ? bobines[0].longueur || 0 : 0;
       const tour = Math.round(meters / longueurFirstBobine);
       if (tour > 0) {
-        bobines.forEach((b) => {
+        bobines.forEach(b => {
           const pose = getPoseSize(b.pose);
           const bData = refs.get(b.ref);
           if (bData === undefined) {
@@ -66,7 +66,7 @@ export class DayProductionTable extends React.Component<DayProductionTableProps>
     const data: RowData[] = removeUndefined(
       Array.from(refs.keys())
         .sort()
-        .map((ref) => {
+        .map(ref => {
           const bData = refs.get(ref);
           if (!bData) {
             return undefined;

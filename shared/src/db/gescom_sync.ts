@@ -15,7 +15,7 @@ export interface GescomSyncData {
 export async function createGescomSyncTable(db: knex, truncateGescom: boolean): Promise<void> {
   const hasTable = await db.schema.hasTable(GESCOM_SYNC_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(GESCOM_SYNC_TABLE_NAME,table => {
+    await db.schema.createTable(GESCOM_SYNC_TABLE_NAME, table => {
       table.string(TABLE_NAME_COLUMN).notNullable().primary();
       table.dateTime(LAST_UPDATED_COLUMN).notNullable();
       table.dateTime(LAST_CHECKED_COLUMN).notNullable();

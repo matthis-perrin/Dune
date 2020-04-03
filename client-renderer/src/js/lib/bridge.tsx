@@ -3,7 +3,7 @@ import {without} from 'lodash-es';
 import {getWindowId} from '@root/lib/window_utils';
 
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
-import BridgeCommands from '@shared/bridge/commands';
+import * as BridgeCommands from '@shared/bridge/commands';
 import {
   BobineFille,
   BobineMere,

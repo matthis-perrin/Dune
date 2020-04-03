@@ -74,7 +74,7 @@ export class Encrier extends React.Component<EncrierProps> {
     }
     return (
       <WithColor color={encrierColor.color} key={`cliche-${refCliche}-${pose}-${index}`}>
-        {(color) => (
+        {color => (
           <EncrierClicheSpot
             style={{
               width: size * pixelPerMM,

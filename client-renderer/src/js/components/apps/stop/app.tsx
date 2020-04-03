@@ -47,8 +47,8 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
     if (!schedule) {
       return;
     }
-    const stops = schedule.stops.filter((s) => isSameDay(new Date(s.start), new Date(day)));
-    const stop = stops.filter((s) => s.start === stopStart)[0];
+    const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), new Date(day)));
+    const stop = stops.filter(s => s.start === stopStart)[0];
     this.setState({schedule, stop}, () => this.updateWindowTitle());
   };
 

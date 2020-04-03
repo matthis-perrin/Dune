@@ -19,7 +19,7 @@ export const SpeedStopsColumn = {
 export async function createSpeedStopsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_STOPS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(SPEED_STOPS_TABLE_NAME,table => {
+    await db.schema.createTable(SPEED_STOPS_TABLE_NAME, table => {
       table.integer(SpeedStopsColumn.Start).notNullable().primary();
       table.integer(SpeedStopsColumn.End).nullable();
       table.text(SpeedStopsColumn.StopType).nullable();

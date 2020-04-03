@@ -21,7 +21,7 @@ export class ViewerTopBar extends React.Component<Props> {
     }
     return (
       <WithColor color={color}>
-        {(colorData) => (
+        {colorData => (
           <SommeilIndicator>
             <SVGIcon name="zzz" width={16} height={16} />
             <SommeilIndicatorText style={{color: colorData.textHex}}>
@@ -37,7 +37,7 @@ export class ViewerTopBar extends React.Component<Props> {
     const {children, color} = this.props;
     return (
       <WithColor color={color}>
-        {(colorData) => (
+        {colorData => (
           <ViewerTopBarWrapper
             style={{color: colorData.textHex, backgroundColor: colorData.backgroundHex}}
           >

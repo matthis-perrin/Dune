@@ -154,7 +154,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
       return this.lastRowStyles;
     }
     this.lastIsSelectionnable = isSelectionnable;
-    this.lastRowStyles = (bobine) => {
+    this.lastRowStyles = bobine => {
       const selectable = isSelectionnable(bobine);
       return {
         opacity: selectable ? 1 : theme.table.disabledOpacity,
@@ -176,8 +176,8 @@ export class BobinesPickerApp extends React.Component<Props, State> {
         {(width, height) => (
           <Picker<BobineFilleWithMultiPose>
             id={id}
-            getHash={(r) => r.ref}
-            getSelectable={(p) => p.selectableBobines}
+            getHash={r => r.ref}
+            getSelectable={p => p.selectableBobines}
             store={bobinesFillesWithMultiPoseStore}
             title="Choix des bobines"
             searchColumns={[BOBINE_FILLE_REF_COLUMN, DESIGNATION_COLUMN, COULEUR_PAPIER_COLUMN]}
@@ -237,7 +237,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
                   <SortableTable
                     width={availableWidth}
                     height={selectableTableHeight}
-                    data={elements.map((e) => ({...e, start}))}
+                    data={elements.map(e => ({...e, start}))}
                     columns={columns}
                     initialSort={{
                       index: columns.length - 1,

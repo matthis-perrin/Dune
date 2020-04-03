@@ -153,7 +153,7 @@ export const REFERENCE_COLUMN = (width: number): ColumnMetadata<{ref: string}, s
   title: 'REFERENCE',
   width,
   renderCell: ({ref}) => renderString(ref),
-  getSearchValue:row => row.ref,
+  getSearchValue: row => row.ref,
   sortFunction: (row1, row2) => stringSort(row1.ref, row2.ref),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 });
@@ -175,7 +175,7 @@ export const BOBINE_FILLE_REF_COLUMN: ColumnMetadata<{ref: string}, string> = {
       {ref}
     </RefLink>
   ),
-  getSearchValue:row => row.ref || '',
+  getSearchValue: row => row.ref || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.ref, row2.ref),
   shouldRerender: (row1, row2) => row1.ref !== row2.ref,
 };
@@ -185,7 +185,7 @@ export const ID_COLUMN = (width: number): ColumnMetadata<{id: number}, number> =
   width,
   renderCell: ({id}) => renderNumber(id),
   justifyContent: 'center',
-  getSearchValue:row => String(row.id),
+  getSearchValue: row => String(row.id),
   sortFunction: (row1, row2) => numberSort(row1.id, row2.id),
   shouldRerender: (row1, row2) => row1.id !== row2.id,
 });
@@ -193,7 +193,7 @@ export const ID_COLUMN = (width: number): ColumnMetadata<{id: number}, number> =
 export const DESIGNATION_COLUMN: ColumnMetadata<{designation?: string}, string> = {
   title: 'DESIGNATION',
   renderCell: ({designation}) => renderString(designation),
-  getSearchValue:row => row.designation || '',
+  getSearchValue: row => row.designation || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.designation, row2.designation),
   shouldRerender: (row1, row2) => row1.designation !== row2.designation,
 };
@@ -201,7 +201,7 @@ export const DESIGNATION_COLUMN: ColumnMetadata<{designation?: string}, string> 
 export const DESCRIPTION_COLUMN: ColumnMetadata<{description?: string}, string> = {
   title: 'DESCRIPTION',
   renderCell: ({description}) => renderString(description),
-  getSearchValue:row => row.description || '',
+  getSearchValue: row => row.description || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.description, row2.description),
   shouldRerender: (row1, row2) => row1.description !== row2.description,
 };
@@ -257,7 +257,7 @@ export const COULEUR_PAPIER_COLUMN: ColumnMetadata<{couleurPapier?: string}, str
   width: 100,
   renderCell: ({couleurPapier}) =>
     couleurPapier ? <Color color={couleurPapier} /> : <React.Fragment />,
-  getSearchValue:row => row.couleurPapier || '',
+  getSearchValue: row => row.couleurPapier || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleurPapier, row2.couleurPapier),
   filter: {
     getValue: (row: {couleurPapier?: string}) => row.couleurPapier || '?',
@@ -319,7 +319,7 @@ const STOCK_COLUMN = (
 ): ColumnMetadata<{ref: string}, number> => ({
   title,
   width,
-  renderCell:row => {
+  renderCell: row => {
     const stock = getStock(row.ref, stocks, type);
     const color = stock < 0 ? Colors.Danger : undefined;
     const fontWeight = stock < 0 ? FontWeight.Bold : undefined;
@@ -382,7 +382,7 @@ export const TYPE_IMPRESSION_COLUMN: ColumnMetadata<{typeImpression?: string}, s
   title: 'IMP',
   width: 64,
   renderCell: ({typeImpression}) => renderString(typeImpression),
-  getSearchValue:row => row.typeImpression || '-',
+  getSearchValue: row => row.typeImpression || '-',
   sortFunction: (row1, row2) => optionalStringSort(row1.typeImpression, row2.typeImpression),
   shouldRerender: (row1, row2) => row1.typeImpression !== row2.typeImpression,
   filter: {
@@ -394,7 +394,7 @@ export const REF_CLICHE1_COLUMN: ColumnMetadata<{refCliche1?: string}, string> =
   title: 'REF CLICHÉ 1',
   width: 95,
   renderCell: ({refCliche1}) => renderString(refCliche1),
-  getSearchValue:row => row.refCliche1 || '',
+  getSearchValue: row => row.refCliche1 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.refCliche1, row2.refCliche1),
   shouldRerender: (row1, row2) => row1.refCliche1 !== row2.refCliche1,
 };
@@ -403,7 +403,7 @@ export const REF_CLICHE2_COLUMN: ColumnMetadata<{refCliche2?: string}, string> =
   title: 'REF CLICHÉ 2',
   width: 95,
   renderCell: ({refCliche2}) => renderString(refCliche2),
-  getSearchValue:row => row.refCliche2 || '',
+  getSearchValue: row => row.refCliche2 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.refCliche2, row2.refCliche2),
   shouldRerender: (row1, row2) => row1.refCliche2 !== row2.refCliche2,
 };
@@ -412,7 +412,7 @@ export const COULEUR1_CLICHE_COLUMN: ColumnMetadata<{couleur1?: string}, string>
   title: 'COULEUR 1',
   width: 110,
   renderCell: ({couleur1}) => (couleur1 ? <Color color={couleur1} /> : renderString(couleur1)),
-  getSearchValue:row => row.couleur1 || '',
+  getSearchValue: row => row.couleur1 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur1, row2.couleur1),
   filter: {
     getValue: ({couleur1}) => couleur1 || '',
@@ -424,7 +424,7 @@ export const COULEUR2_CLICHE_COLUMN: ColumnMetadata<{couleur2?: string}, string>
   title: 'COULEUR 2',
   width: 110,
   renderCell: ({couleur2}) => (couleur2 ? <Color color={couleur2} /> : renderString(couleur2)),
-  getSearchValue:row => row.couleur2 || '',
+  getSearchValue: row => row.couleur2 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur2, row2.couleur2),
   filter: {
     getValue: ({couleur2}) => couleur2 || '',
@@ -436,7 +436,7 @@ export const COULEUR3_CLICHE_COLUMN: ColumnMetadata<{couleur3?: string}, string>
   title: 'COULEUR 3',
   width: 110,
   renderCell: ({couleur3}) => (couleur3 ? <Color color={couleur3} /> : renderString(couleur3)),
-  getSearchValue:row => row.couleur3 || '',
+  getSearchValue: row => row.couleur3 || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.couleur3, row2.couleur3),
   filter: {
     getValue: ({couleur3}) => couleur3 || '',
@@ -588,7 +588,7 @@ export const MULTI_POSE_COLUMN = (
   return {
     title: 'POSES',
     width: 180,
-    renderCell:bobine => (
+    renderCell: bobine => (
       <AddPoseButtons
         id={id}
         bobine={bobine}
@@ -788,7 +788,7 @@ export const REF_PERFO_COLUMN: ColumnMetadata<{refPerfo: string}, string> = {
   title: 'REF PERFO',
   width: 70,
   renderCell: ({refPerfo}) => renderString(refPerfo),
-  getSearchValue:row => row.refPerfo || '',
+  getSearchValue: row => row.refPerfo || '',
   sortFunction: (row1, row2) => optionalStringSort(row1.refPerfo, row2.refPerfo),
   shouldRerender: (row1, row2) => row1.refPerfo !== row2.refPerfo,
 };
@@ -1093,7 +1093,7 @@ export function CLOSE_COLUMN<T>(onClose: (row: T) => void): ColumnMetadata<T, vo
   return {
     title: '',
     width: 30,
-    renderCell:row => (
+    renderCell: row => (
       <CloseButton onClick={() => onClose(row)}>
         <SVGIcon name="cross" width={12} height={12} />
       </CloseButton>
@@ -1109,7 +1109,7 @@ export function MINIMUM_COLUMN<T extends {ref: string; minimum: number}>(
   return {
     title: 'MINI',
     width: 50,
-    renderCell:row => (
+    renderCell: row => (
       <Input
         style={{padding: 4, textAlign: 'center', height: 26, lineHeight: 26}}
         value={row.minimum}
@@ -1127,7 +1127,7 @@ export function MAXIMUM_COLUMN<T extends {ref: string; maximum: number}>(
   return {
     title: 'MAX',
     width: 50,
-    renderCell:row => (
+    renderCell: row => (
       <Input
         style={{padding: 4, textAlign: 'center', height: 26, lineHeight: 26}}
         value={row.maximum || ''}

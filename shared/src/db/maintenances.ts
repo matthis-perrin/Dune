@@ -14,7 +14,7 @@ export const MaintenanceColumns = {
 export async function createMaintenancesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(MAINTENANCE_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(MAINTENANCE_TABLE_NAME,table => {
+    await db.schema.createTable(MAINTENANCE_TABLE_NAME, table => {
       table.integer(MaintenanceColumns.ID).primary().notNullable();
       table.text(MaintenanceColumns.TITLE).notNullable();
       table.integer(MaintenanceColumns.START_TIME).notNullable();

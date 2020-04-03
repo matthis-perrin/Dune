@@ -84,8 +84,8 @@ export class AdministrationPage extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {bobinesFilles, bobinesMeres, cliches} = this.state;
 
-    const papiers = bobinesMeres && bobinesMeres.filter((b) => b.couleurPapier !== 'POLYPRO');
-    const polypros = bobinesMeres && bobinesMeres.filter((b) => b.couleurPapier === 'POLYPRO');
+    const papiers = bobinesMeres && bobinesMeres.filter(b => b.couleurPapier !== 'POLYPRO');
+    const polypros = bobinesMeres && bobinesMeres.filter(b => b.couleurPapier === 'POLYPRO');
 
     return (
       <Page>

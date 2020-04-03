@@ -97,7 +97,7 @@ export class BobineCadencierChart extends React.Component<BobineCadencierChartPr
     const {ref} = bobine;
     bridge
       .listCadencierForBobine(ref)
-      .then((cadencier) => this.createPlot(bobine, cadencier))
+      .then(cadencier => this.createPlot(bobine, cadencier))
       .catch(console.error);
   }
 

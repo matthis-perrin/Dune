@@ -22,7 +22,7 @@ export async function loadConfig(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const configPath = path.join(app.getPath('userData'), 'config_audric_windows.txt');
     console.log(configPath);
-    fs.stat(configPath,error => {
+    fs.stat(configPath, error => {
       if (error !== null) {
         fs.writeFile(configPath, configToConfigFile(config), () => {
           resolve();

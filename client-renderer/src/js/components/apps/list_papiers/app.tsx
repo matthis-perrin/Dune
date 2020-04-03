@@ -44,7 +44,7 @@ export class ListPapiersApp extends React.Component<Props, State> {
 
   private readonly handleBobinesMeresChange = (): void => {
     const bobineMeres = bobinesMeresStore.getData();
-    const papiers = bobineMeres && bobineMeres.filter((b) => b.couleurPapier !== 'POLYPRO');
+    const papiers = bobineMeres && bobineMeres.filter(b => b.couleurPapier !== 'POLYPRO');
     document.title = `Liste des papiers (${papiers ? papiers.length : 0})`;
     this.setState({papiers});
   };

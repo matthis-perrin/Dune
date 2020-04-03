@@ -23,7 +23,7 @@ export const RefentesColumn = {
 export async function createRefentesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(REFENTES_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(REFENTES_TABLE_NAME,table => {
+    await db.schema.createTable(REFENTES_TABLE_NAME, table => {
       table.string(RefentesColumn.REF_COLUMN).notNullable().primary();
       table.string(RefentesColumn.REF_PERFO_COLUMN).notNullable();
       table.integer(RefentesColumn.DECALAGE_COLUMN).notNullable();

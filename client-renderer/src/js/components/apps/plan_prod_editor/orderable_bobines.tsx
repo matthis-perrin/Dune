@@ -108,7 +108,7 @@ export class OrderableBobines extends React.Component<
   ): BobineFilleWithPose[] {
     let lastValidBobinesOrder = bobines;
     const shiftSign = shift < 0 ? -1 : 1;
-    range(shift).forEach((s) => {
+    range(shift).forEach(s => {
       const newBobines = [...bobines];
       const from = draggedBobineIndex;
       const to = from + s + shiftSign;

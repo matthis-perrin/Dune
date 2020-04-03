@@ -20,7 +20,7 @@ type DebugFn = (...params: any[]) => void;
 export async function createPlansProductionTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(PLANS_PRODUCTION_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(PLANS_PRODUCTION_TABLE_NAME,table => {
+    await db.schema.createTable(PLANS_PRODUCTION_TABLE_NAME, table => {
       table.integer(PlansProductionColumn.ID_COLUMN).notNullable().primary();
       table.integer(PlansProductionColumn.INDEX_COLUMN).nullable();
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY).nullable();

@@ -63,7 +63,7 @@ export class DayStats extends React.Component<DayStatsProps> {
     const dataDay = startOfDay(new Date(day)).getTime();
     const statsData = computeStatsData(schedule);
 
-    const metrageDone = aggregate(statsData, dataDay, 'sum',dayStatsData =>
+    const metrageDone = aggregate(statsData, dataDay, 'sum', dayStatsData =>
       getMetrages(dayStatsData, team.name as TeamTypes)
     );
 
@@ -74,7 +74,7 @@ export class DayStats extends React.Component<DayStatsProps> {
       NON_PROD_STOP_FILTER.name,
       PROD_STOP_FILTER.name,
     ].map(stopFilter =>
-      aggregate(statsData, dataDay, 'sum',dayStatsData =>
+      aggregate(statsData, dataDay, 'sum', dayStatsData =>
         getStops(dayStatsData, team.name as TeamTypes, stopFilter)
       )
     );
@@ -89,7 +89,7 @@ export class DayStats extends React.Component<DayStatsProps> {
           const activePeriod = stopDone + prodDone;
           const activePeriodMetrage = (activePeriod * constants.maxSpeed) / (60 * 1000);
 
-          const delays = aggregate(statsData, dataDay, 'sum',dayStatsData =>
+          const delays = aggregate(statsData, dataDay, 'sum', dayStatsData =>
             getDelays(dayStatsData, operations, constants, team.name as TeamTypes, 'all')
           );
           return (

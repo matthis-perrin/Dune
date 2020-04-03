@@ -49,7 +49,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
     const {selectedMetricFilterNames} = this.state;
     return (
       <WithConstants>
-        {(constants) => {
+        {constants => {
           if (!constants) {
             return <LoadingIndicator size="large" />;
           }
@@ -59,7 +59,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
                 <BarFilter
                   barTypes={statsMetric.filters}
                   checked={selectedMetricFilterNames}
-                  onChange={(newFilterName) =>
+                  onChange={newFilterName =>
                     this.setState({selectedMetricFilterNames: newFilterName})
                   }
                 />
@@ -76,8 +76,7 @@ export class StatsChartForm extends React.Component<StatsChartFormProps, StatsCh
                     renderY: statsMetric.renderY,
                     xAxis: statsPeriod.xAxis,
                     yAxis: (dayStats: PlanDayStats) =>
-                      this.getSelectedMetricFilters(selectedMetricFilterNames).map(
-                        (metricFilter) => ({
+                      this.getSelectedMetricFilters(selectedMetricFilterNames).map(metricFilter => ({
                           values: statsMetric.yAxis(
                             metricFilter.name,
                             dayStats,

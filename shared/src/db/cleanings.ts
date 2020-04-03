@@ -13,7 +13,7 @@ export const CleaningColumns = {
 export async function createCleaningTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(CLEANINGS_TABLE_NAME);
   if (!hasTable) {
-    await db.schema.createTable(CLEANINGS_TABLE_NAME,table => {
+    await db.schema.createTable(CLEANINGS_TABLE_NAME, table => {
       table.text(CleaningColumns.NAME).primary().notNullable();
       table.text(CleaningColumns.LABEL).notNullable();
       table.text(CleaningColumns.ORDER).notNullable();

@@ -114,11 +114,11 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   };
 
   private readonly handleRemoveUnplannedStop = (name: string): void => {
-    this.setState({unplannedStops: this.state.unplannedStops.filter((s) => s.name !== name)});
+    this.setState({unplannedStops: this.state.unplannedStops.filter(s => s.name !== name)});
   };
 
   private readonly handleRemoveCleaning = (name: string): void => {
-    this.setState({cleanings: this.state.cleanings.filter((s) => s.name !== name)});
+    this.setState({cleanings: this.state.cleanings.filter(s => s.name !== name)});
   };
 
   private readonly handleRemoveComment = (index: number): void => {
@@ -148,7 +148,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       const planProd = getPlanProd(schedule, stop.planProdId);
       if (
         planProd &&
-        availablePlanProds.map((p) => p.planProd.id).indexOf(planProd.planProd.id) === -1
+        availablePlanProds.map(p => p.planProd.id).indexOf(planProd.planProd.id) === -1
       ) {
         availablePlanProds.unshift(planProd);
       }
@@ -161,7 +161,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     const availableMaintenances = getAllPlannedMaintenances(schedule);
     if (stop.maintenanceId !== undefined && stop.stopType === StopType.Maintenance) {
       const maintenance = getMaintenance(schedule, stop.maintenanceId);
-      if (maintenance && availableMaintenances.map((m) => m.id).indexOf(maintenance.id) === -1) {
+      if (maintenance && availableMaintenances.map(m => m.id).indexOf(maintenance.id) === -1) {
         availableMaintenances.unshift(maintenance);
       }
     }
@@ -241,7 +241,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       currentPlanSchedule === undefined
         ? []
         : currentPlanSchedule.prods.concat(currentPlanSchedule.plannedProds);
-    const prodsBeforeStop = prods.filter((p) => p.start < stop.start);
+    const prodsBeforeStop = prods.filter(p => p.start < stop.start);
     const hadProd = prodsBeforeStop.length > 0;
     const currentPlanId = currentPlanSchedule && currentPlanSchedule.planProd.id;
     const previousStop = getPreviousStop(schedule, stop);

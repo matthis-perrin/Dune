@@ -125,8 +125,7 @@ function filterAllOnce(
       // console.log('Empty selectable Bobines Filles because the refente is filled');
       filtered.selectableBobinesFilles = [];
     } else {
-      const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(
-        (b) => bobinesFilles.indexOf(b) === -1
+      const newSelectableBobinesFilles = filtered.selectableBobinesFilles.filter(b => bobinesFilles.indexOf(b) === -1
       );
       if (newSelectableBobinesFilles.length !== filtered.selectableBobinesFilles.length) {
         filtered.selectableBobinesFilles = newSelectableBobinesFilles;
