@@ -4,6 +4,7 @@ import {getLatestStopWithPlanIdBefore, SpeedStopsColumn} from '@shared/db/speed_
 import {PLANS_PRODUCTION_TABLE_NAME, SPEED_STOPS_TABLE_NAME} from '@shared/db/table_names';
 import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
 import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 export const PlansProductionColumn = {
   ID_COLUMN: 'id',
@@ -195,7 +196,7 @@ async function updateIndexInDay(
     selector(db(PLANS_PRODUCTION_TABLE_NAME).transacting(tx))
       .then(data => {
         debug('select done', data);
-        Promise.all(
+        AllPromise(
           asArray(data).map(async line => {
             const lineData = asMap(line);
             debug(
@@ -313,11 +314,11 @@ export async function getStartedPlanProdsInRange(
       speedPlanIdColumn
     )
     .whereNotNull(speedPlanIdColumn)
-    .andWhere(function(): void {
+    .andWhere(function (): void {
       // tslint:disable:no-invalid-this
       this.where(speedStartColumn, '>=', start)
         .andWhere(speedStartColumn, '<', end)
-        .orWhere(function(): void {
+        .orWhere(function (): void {
           this.where(speedEndColumn, '>=', start).andWhere(speedEndColumn, '<', end);
         });
       // tslint:enable:no-invalid-this

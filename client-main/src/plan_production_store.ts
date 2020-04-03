@@ -12,6 +12,7 @@ import {
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {PlanProductionData, PlanProduction} from '@shared/models';
+import { AllPromise } from '@shared/promise_utils';
 
 class PlanProductionStore {
   private readonly engines = new Map<number, PlanProductionEngine>();
@@ -34,7 +35,7 @@ class PlanProductionStore {
       perfos,
       refentes,
       previousPlanProdRaw,
-    ] = await Promise.all([
+    ] = await AllPromise([
       listBobinesFilles(SQLITE_DB.Gescom, SQLITE_DB.Params, 0),
       listBobinesMeres(SQLITE_DB.Gescom, 0),
       listCliches(SQLITE_DB.Gescom, 0),

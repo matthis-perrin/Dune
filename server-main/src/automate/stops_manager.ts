@@ -23,6 +23,7 @@ import {
 } from '@shared/db/speed_times';
 import {getCurrentNonProd, getNextNonProd} from '@shared/lib/prod_hours';
 import {Stop, Prod, StopType} from '@shared/models';
+import {AllPromise} from '@shared/promise_utils';
 
 const WAIT_BETWEEN_PROCESS = 1000;
 const SPEED_THRESHOLD_FOR_STOP = 50;
@@ -149,7 +150,7 @@ class StopsManager {
       lastStopWithPlanProdId,
       lastProdWithPlanProdId,
       lastTime,
-    ] = await Promise.all([
+    ] = await AllPromise([
       getLastStop(SQLITE_DB.Prod),
       getLastProd(SQLITE_DB.Prod),
       getLastStopWithPlanProdId(SQLITE_DB.Prod),
@@ -265,7 +266,7 @@ class StopsManager {
       }
     }
     if (nonProdTrackingPromises.length > 0) {
-      await Promise.all(nonProdTrackingPromises);
+      await AllPromise(nonProdTrackingPromises);
       return true;
     }
 
@@ -276,15 +277,15 @@ class StopsManager {
 
     // Part 2 - Check if there are any stop or prod in progress. If so we end them if we need to,
     // and create a new prod or stop.
-    const [newStopStartTime, newProdStartTime, nextNonProd] = await Promise.all([
+    const [newStopStartTime, newProdStartTime] = await AllPromise([
       this.getNextStopStart(lastStop, lastProd, lastTime.time),
       this.getNextProdStart(lastProd, lastStop, lastTime.time),
-      getNextNonProd(
-        new Date(lastUsedTime || 0),
-        prodHoursStore.getProdRanges(),
-        prodHoursStore.getNonProds()
-      ),
     ]);
+    const nextNonProd = getNextNonProd(
+      new Date(lastUsedTime || 0),
+      prodHoursStore.getProdRanges(),
+      prodHoursStore.getNonProds()
+    );
     const lastPlanProdId = this.getLastPlanProdId(lastStopWithPlanProdId, lastProdWithPlanProdId);
     const newStopOrProdPromise: Promise<void>[] = [];
     let prodEnded = false;
@@ -353,7 +354,7 @@ class StopsManager {
     }
 
     if (newStopOrProdPromise.length > 0) {
-      await Promise.all(newStopOrProdPromise);
+      await AllPromise(newStopOrProdPromise);
     }
 
     // Part 3 - If there is a prod in progress, we update its average speed

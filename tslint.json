@@ -170,7 +170,7 @@
     "space-before-function-paren": [
       true,
       {
-        "anonymous": "never",
+        "anonymous": "always",
         "asyncArrow": "always",
         "constructor": "never",
         "method": "never",

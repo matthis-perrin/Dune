@@ -5,6 +5,7 @@ import {getLastSpeedTime} from '@shared/db/speed_times';
 import {SPEED_STOPS_TABLE_NAME, SPEED_PRODS_TABLE_NAME} from '@shared/db/table_names';
 import {Stop, StopStatus, StopInfo, StopType} from '@shared/models';
 import {asNumber, asMap, asArray, asString, asParsedJSON} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 export const SpeedStopsColumn = {
   Start: 'start',
@@ -139,7 +140,7 @@ export async function getSpeedStopBetween(db: knex, start: number, end: number):
     .select()
     .where(SpeedStopsColumn.Start, '>=', start)
     .andWhere(SpeedStopsColumn.Start, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(SpeedStopsColumn.End, '>=', start).andWhere(SpeedStopsColumn.End, '<', end);
     })
@@ -225,7 +226,7 @@ export async function updateFollowingEventsOfPlanProd(
       .andWhere(SpeedProdsColumn.Start, '<', nextEndOfProdStop.start)
       .andWhereNot(SpeedStopsColumn.StopType, StopType.NotProdHours);
   }
-  await Promise.all([
+  await AllPromise([
     stopsUpdateQuery.update({
       [SpeedStopsColumn.PlanProdId]: newPlanId,
     }),
@@ -313,7 +314,7 @@ export async function getMaintenanceStop(
 }
 
 export async function startMaintenanceStop(db: knex, maintenanceId: number): Promise<void> {
-  const [lastStop, lastSpeed] = await Promise.all([getLastStop(db), getLastSpeedTime(db, true)]);
+  const [lastStop, lastSpeed] = await AllPromise([getLastStop(db), getLastSpeedTime(db, true)]);
   if (!lastStop || lastStop.end !== undefined) {
     throw new Error('No stop in progress');
   }
@@ -381,7 +382,7 @@ export async function deleteMaintenanceStop(db: knex, maintenanceId: number): Pr
 }
 
 export async function endMaintenanceStop(db: knex, maintenanceId: number): Promise<void> {
-  const [maintenanceStop, lastSpeed] = await Promise.all([
+  const [maintenanceStop, lastSpeed] = await AllPromise([
     getMaintenanceStop(db, maintenanceId),
     getLastSpeedTime(db, true),
   ]);

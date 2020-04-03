@@ -59,6 +59,7 @@ import {
   ProdInfo,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -348,7 +349,7 @@ export async function handleCommand(
       startedPlans,
       maintenances,
       nonProds,
-    ] = await Promise.all([
+    ] = await AllPromise([
       getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
       needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
@@ -373,7 +374,7 @@ export async function handleCommand(
     const {start, end} = asMap(params);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
-    const [speedTimes] = await Promise.all([
+    const [speedTimes] = await AllPromise([
       getSpeedTimesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
     ]);
     const res: ProdInfo = {speedTimes};

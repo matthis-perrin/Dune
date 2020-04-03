@@ -10,6 +10,7 @@ import {windowManager} from '@root/window_manager';
 
 import {padNumber} from '@shared/lib/utils';
 import {ClientAppType} from '@shared/models';
+import {AllPromise} from '@shared/promise_utils';
 
 async function startApp(): Promise<void> {
   if (session.defaultSession) {
@@ -116,7 +117,7 @@ async function postStart(): Promise<void> {
               content: data,
             },
           ];
-          Promise.all(
+          AllPromise(
             emails.map(email => sendEmailAsync(user, password, email, subject, attachments))
           )
             .then(() => {

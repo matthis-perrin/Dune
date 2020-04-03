@@ -2,6 +2,7 @@ import knex from 'knex';
 
 import {GESCOM_SYNC_TABLE_NAME} from '@shared/db/table_names';
 import {asDate, asArray, asMap, asString, asNumber} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 const TABLE_NAME_COLUMN = 'table_name';
 const LAST_UPDATED_COLUMN = 'last_updated';
@@ -35,7 +36,7 @@ export async function getStatus(
     lastUpdate: asNumber(asMap(d)[LAST_CHECKED_COLUMN], 0),
     name: asString(asMap(d)[TABLE_NAME_COLUMN], ''),
   }));
-  const rowCounts = await Promise.all(promises);
+  const rowCounts = await AllPromise(promises);
   return rest.map((r, i) => ({
     ...r,
     rowCount: rowCounts[i].rowCount,

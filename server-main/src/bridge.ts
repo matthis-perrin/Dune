@@ -14,9 +14,10 @@ import {
 } from '@shared/db/speed_times';
 import {ServerStatus, ServiceStatus} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 async function getServerStatus(): Promise<ServerStatus> {
-  const [gescomData, speedStats, stopsStats] = await Promise.all([
+  const [gescomData, speedStats, stopsStats] = await AllPromise([
     getStatus(SQLITE_DB.Gescom),
     getSpeedStats(SQLITE_DB.Prod),
     getStopsStats(SQLITE_DB.Prod),

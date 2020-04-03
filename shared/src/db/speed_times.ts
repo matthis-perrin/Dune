@@ -3,6 +3,7 @@ import knex from 'knex';
 import {SPEED_TIMES_TABLE_NAME} from '@shared/db/table_names';
 import {SpeedTime, SpeedStatus} from '@shared/models';
 import {asNumber, asMap, asArray} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 export const SpeedTimesColumn = {
   Time: 'time',
@@ -67,7 +68,7 @@ export async function getRowCount(db: knex): Promise<number> {
 }
 
 export async function getStats(db: knex): Promise<SpeedStatus> {
-  const [firstMinute, lastMinute, rowCount] = await Promise.all([
+  const [firstMinute, lastMinute, rowCount] = await AllPromise([
     getFirstSpeedTime(db),
     getLastSpeedTime(db, true),
     getRowCount(db),

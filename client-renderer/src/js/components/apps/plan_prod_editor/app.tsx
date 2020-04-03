@@ -54,6 +54,7 @@ import {
   Constants,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 const MAX_PLAN_PROD_WIDTH = 1050;
 const ADJUSTED_WIDTH_WHEN_RENDERING_PDF = 1000;
@@ -193,7 +194,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
     const {id, isCreating} = this.props;
     document.title = getPlanProdTitle(id);
     if (!isCreating && initialLoad) {
-      Promise.all([bridge.getPlanProductionEngineInfo(id), bridge.getPlanProduction(id)])
+      AllPromise([bridge.getPlanProductionEngineInfo(id), bridge.getPlanProduction(id)])
         .then(([planProductionEngineInfo, planProduction]) => {
           const newState = {
             ...this.state,
