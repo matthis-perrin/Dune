@@ -8,6 +8,10 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
+    "cm": "cd client-main && npm run build:dev",
+    "cr": "cd client-renderer && npm run build:dev",
+    "sm": "cd server-main && npm run build:dev",
+    "sr": "cd server-renderer && npm run build:dev",
     "install-all": "npm install && cd webpack && npm install && cd ../client-main && npm install && cd ../client-renderer && npm install && cd ../server-main && npm install && cd ../server-renderer && npm install && cd .. && cd shared && npm install && cd ..",
     "pretty": "prettier --write \"./**/*.{ts,tsx}\""
   }
