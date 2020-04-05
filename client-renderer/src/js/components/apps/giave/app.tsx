@@ -5,7 +5,7 @@ import {LoadingIndicator} from '@root/components/core/loading_indicator';
 import {SVGIcon} from '@root/components/core/svg_icon';
 import {Colors, Palette} from '@root/theme';
 
-import {getWeekDay} from '@shared/lib/time';
+import {getWeekDay, isWeekDay} from '@shared/lib/time';
 import {startOfDay, capitalize} from '@shared/lib/utils';
 interface GiaveAppProps {
   initialDay?: number;
@@ -33,6 +33,9 @@ export class GiaveApp extends React.Component<GiaveAppProps, GiaveAppState> {
     if (currentDay) {
       const newDay = currentDay;
       newDay.setDate(currentDay.getDate() - 1);
+      while (!isWeekDay(newDay)) {
+        newDay.setDate(currentDay.getDate() - 1);
+      }
       this.setState({day: newDay});
     }
   };
@@ -42,6 +45,9 @@ export class GiaveApp extends React.Component<GiaveAppProps, GiaveAppState> {
     if (currentDay) {
       const newDay = currentDay;
       newDay.setDate(currentDay.getDate() + 1);
+      while (!isWeekDay(newDay)) {
+        newDay.setDate(currentDay.getDate() + 1);
+      }
       this.setState({day: newDay});
     }
   };
