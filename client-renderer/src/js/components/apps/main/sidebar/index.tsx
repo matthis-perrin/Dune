@@ -135,7 +135,9 @@ export class Sidebar extends React.Component<Props, State> {
                 title={'GIAVE'}
                 isSelected={false}
                 onClick={() => {
-                  bridge.openApp(ClientAppType.GiaveApp).catch(console.error);
+                  bridge
+                    .openApp(ClientAppType.GiaveApp, {initialDay: Date.now()})
+                    .catch(console.error);
                 }}
               />
             ) : (

@@ -274,7 +274,8 @@ export class AppManager extends React.Component<Props, State> {
     }
 
     if (type === ClientAppType.GiaveApp) {
-      return <GiaveApp />;
+      const {initialDay} = asMap(data);
+      return <GiaveApp initialDay={asNumber(initialDay, undefined)} />;
     }
 
     if (type === ClientAppType.ReportsApp) {
