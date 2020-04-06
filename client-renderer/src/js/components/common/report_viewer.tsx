@@ -150,6 +150,8 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
           prodRange={prodRange}
           speeds={prodInfo.speedTimes}
           events={events}
+          // AP
+          machine={'mondon'}
         />
       </CharContainer>
     );
