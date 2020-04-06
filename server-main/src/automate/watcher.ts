@@ -2,26 +2,32 @@ import log from 'electron-log';
 import {Socket} from 'net';
 
 import {aggregator} from '@root/automate/aggregator';
-import {sendCommand, CONNECT_COMMAND, GET_SPEED_COMMAND} from '@root/automate/command';
+//AP
+import {sendCommand, AutomateCommand} from '@root/automate/command';
 import {addError} from '@root/state';
 
-const AUTOMATE_IP = '192.168.0.50';
-// const AUTOMATE_IP = '127.0.0.1';
-const AUTOMATE_PORT = 9600;
 const WAIT_ON_ERROR = 2000;
 const WAIT_ON_SUCCESS = 500;
 const DURATION_BEFORE_RESTART = 10000;
 
-class AutomateWatcher {
+// AP
+export class AutomateWatcher {
   private socket = new Socket();
   private isStopping = false;
   private isStarting = false;
   private lastReceived = 0;
   private checkBlockedTimeout: NodeJS.Timeout | undefined;
-
-  public constructor(private readonly emulate: boolean = false) {
+  // AP
+  public constructor(
+    private readonly automateIP: string,
+    private readonly automatePort: number,
+    private readonly connectionID: string,
+    private readonly finsCommande: string,
+    private readonly emulate: boolean = false
+  ) {
     if (emulate) {
-      console.log('----- EMULATING AUTOMATE -----');
+      // AP
+      console.log(`----- EMULATING AUTOMATE ID${this.connectionID} -----`);
     }
   }
 
@@ -47,6 +53,13 @@ class AutomateWatcher {
     this.socket.on('error', (err: Error) => this.handleError(err.message));
     this.socket.on('timeout', () => this.handleError('timeout'));
   }
+  // AP
+  private getConnectCommande(): AutomateCommand {
+    return new AutomateCommand(
+      'CONNECT',
+      `46494E530000000C0000000000000000000000${this.connectionID}`
+    );
+  }
 
   private async connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -54,8 +67,9 @@ class AutomateWatcher {
         this.socket.destroy();
         this.socket = new Socket({allowHalfOpen: true});
         this.setupSocketEventHandlers();
-        this.socket.connect(AUTOMATE_PORT, AUTOMATE_IP, () => {
-          sendCommand(this.socket, CONNECT_COMMAND)
+        // AP
+        this.socket.connect(this.automatePort, this.automateIP, () => {
+          sendCommand(this.socket, this.getConnectCommande())
             .then(() => {
               resolve();
             })
@@ -126,6 +140,13 @@ class AutomateWatcher {
       this.restart();
     }
   }
+  // AP
+  private getSpeedCommande(): AutomateCommand {
+    return new AutomateCommand(
+      'GET_SPEED',
+      `46494E530000001A000000020000000080000300010000${this.connectionID}0007${this.finsCommande}`
+    );
+  }
 
   public fetchOnce(): void {
     if (this.emulate) {
@@ -135,10 +156,11 @@ class AutomateWatcher {
     }
     // tslint:disable-next-line:no-magic-numbers
     this.checkBlockedTimeout = setTimeout(() => this.checkBlocked(), DURATION_BEFORE_RESTART + 500);
-    sendCommand(this.socket, GET_SPEED_COMMAND).catch(err => {
+    // AP
+    sendCommand(this.socket, this.getSpeedCommande()).catch(err => {
       addError("Erreur lors de la récupération de la vitesse de l'automate", String(err));
     });
   }
 }
 
-export const automateWatcher = new AutomateWatcher(false);
+// export const automateWatcher = new AutomateWatcher(true);

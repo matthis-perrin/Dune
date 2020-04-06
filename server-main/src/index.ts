@@ -3,7 +3,7 @@ import log from 'electron-log';
 
 import {aggregator} from '@root/automate/aggregator';
 import {stopsManager} from '@root/automate/stops_manager';
-import {automateWatcher} from '@root/automate/watcher';
+import {AutomateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
 import {gescomDB, SQLITE_DB} from '@root/db';
 import {GescomWatcherBobinesFilles} from '@root/gescom/bobines_filles';
@@ -20,6 +20,23 @@ import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_
 configureLogs();
 const forceProdMode = false;
 const truncateGescom = process.env.MODE !== 'development' || forceProdMode;
+// AP
+const automateWatcherGiave = new AutomateWatcher(
+  '192.168.0.50',
+  // tslint:disable-next-line: no-magic-numbers
+  9600,
+  '04',
+  '0101B10014000001',
+  true
+);
+const automateWatcherMondon = new AutomateWatcher(
+  '192.168.0.50',
+  // tslint:disable-next-line: no-magic-numbers
+  9600,
+  '03',
+  '0101B10014000001',
+  true
+);
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
@@ -44,9 +61,12 @@ async function startServer(): Promise<void> {
     log.info('Starting Cadencier watcher');
     await gescomCadencier.start();
   }
-  if (process.env.MODE !== 'development' || forceProdMode) {
-    log.info('Starting Automate watcher');
-    automateWatcher.start();
+  //AP
+  if (process.env.MODE === 'development' || forceProdMode) {
+    log.info('Starting Automate watcher Mondon');
+    automateWatcherMondon.start();
+    log.info('Starting Automate watcher Giave');
+    automateWatcherGiave.start();
     log.info('Starting Automate aggregator');
     await aggregator.start();
   }
@@ -64,7 +84,8 @@ app.on('ready', () => {
   }
   const browserWindow = createBrowserWindow({
     width: 620,
-    height: 477,
+    // AP
+    height: 540,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
@@ -75,6 +96,8 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-  automateWatcher.stop();
+  // AP
+  automateWatcherMondon.stop();
+  automateWatcherGiave.stop();
   app.quit();
 });
