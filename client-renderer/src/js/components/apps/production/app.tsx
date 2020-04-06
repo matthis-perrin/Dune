@@ -358,6 +358,8 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         prodRange={prodRange}
         speeds={prodInfo.speedTimes}
         events={events}
+        // AP
+        machine="mondon"
       />
     );
   }

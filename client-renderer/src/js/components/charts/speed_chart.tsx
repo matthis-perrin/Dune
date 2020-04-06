@@ -23,6 +23,8 @@ interface SpeedChartProps {
   prodRange: ProdRange;
   lastTimeSpeed: SpeedTime | undefined;
   events: SpeedChartEvent[];
+  // AP
+  machine: string;
 }
 
 interface Datum {
@@ -32,22 +34,47 @@ interface Datum {
   isNow: boolean;
 }
 
+interface Param {
+  plotSpeedRange: number[];
+  plotSpeedTicks: number[];
+  // Those should be extracted it in the constant file shared with the server
+  speedAggregationTimeMs: number;
+  speedStopThreshold: number;
+  eventFakeSpeed: number;
+  eventsOpacity: number;
+  nullSpeedHeight: number;
+  thresholdSpreadForMinuteDetails: number;
+}
+
+// AP
+const mondonOption: Param = {
+  // tslint:disable:no-magic-numbers
+  plotSpeedRange: [0, 200],
+  plotSpeedTicks: [0, 50, 100, 150, 180],
+  speedAggregationTimeMs: 5000,
+  speedStopThreshold: 50,
+  eventFakeSpeed: 50,
+  eventsOpacity: 0.5,
+  nullSpeedHeight: 10,
+  thresholdSpreadForMinuteDetails: 15,
+  // tslint:enable:no-magic-numbers
+};
+
+// AP
+const giaveOption: Param = {
+  // tslint:disable:no-magic-numbers
+  plotSpeedRange: [0, 200],
+  plotSpeedTicks: [0, 50, 100, 150, 180],
+  speedAggregationTimeMs: 5000,
+  speedStopThreshold: 50,
+  eventFakeSpeed: 50,
+  eventsOpacity: 0.5,
+  nullSpeedHeight: 10,
+  thresholdSpreadForMinuteDetails: 15,
+  // tslint:enable:no-magic-numbers
+};
+
 const BAR_THICKNESS_RATIO = 1.05;
-const EVENTS_OPACITY = 0.5;
-const NULL_SPEED_HEIGHT = 10;
-const THRESHOLD_SPREAD_FOR_MINUTE_DETAILS = 15;
-
-// Those should be extracted it in the constant file shared with the server
-const SPEED_AGGREGATION_TIME_MS = 5000;
-const SPEED_STOP_THRESHOLD = 50;
-const EVENT_FAKE_SPEED = 50;
-
-// tslint:disable:no-magic-numbers
-const PLOT_SPEED_MAX = 200;
-const PLOT_SPEED_RANGE = [0, PLOT_SPEED_MAX];
-const PLOT_SPEED_TICKS = [0, 50, 100, 150, 180];
-// tslint:enable:no-magic-numbers
-
 Plottable.Plots.Bar._BAR_THICKNESS_RATIO = BAR_THICKNESS_RATIO;
 
 export class SpeedChart extends React.Component<SpeedChartProps> {
@@ -80,6 +107,14 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     }
   }
 
+  // AP
+  private getOption(machine: string): Param {
+    if (machine === 'mondon') {
+      return mondonOption;
+    }
+    return giaveOption;
+  }
+
   private readonly handleResize = (): void => {
     if (!this.plot) {
       return;
@@ -88,6 +123,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   };
 
   private shouldDisplayMinuteDetail(minute: SpeedTime[]): boolean {
+    // AP
+    const option = this.getOption(this.props.machine);
     let hasNull = false;
     let hasZero = false;
     let hasPositive = false;
@@ -110,10 +147,13 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     if (!hasPositive) {
       return false;
     }
-    return max - min > THRESHOLD_SPREAD_FOR_MINUTE_DETAILS;
+    // AP
+    return max - min > option.thresholdSpreadForMinuteDetails;
   }
 
   private normalizeSpeeds(): Datum[] {
+    // AP
+    const option = this.getOption(this.props.machine);
     const {day, speeds, prodRange, lastTimeSpeed} = this.props;
 
     const speedMap = new Map<number, number | undefined>();
@@ -140,7 +180,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     const data: Datum[] = [];
     let currentMinute = Math.floor(rangeStart / (60 * 1000));
     let currentSpeeds: SpeedTime[] = [];
-    for (let time = rangeStart; time <= rangeEnd; time += SPEED_AGGREGATION_TIME_MS) {
+    // AP
+    for (let time = rangeStart; time <= rangeEnd; time += option.speedAggregationTimeMs) {
       const loopMinute = Math.floor(time / (60 * 1000));
       const loopSpeed = speedMap.get(time);
       if (loopMinute === currentMinute) {
@@ -152,7 +193,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
           currentSpeeds.forEach(s =>
             data.push({
               start: new Date(s.time),
-              end: new Date(s.time + SPEED_AGGREGATION_TIME_MS),
+              // AP
+              end: new Date(s.time + option.speedAggregationTimeMs),
               speed: s.speed,
               isNow: lastTimeSpeed !== undefined && s.time === lastTimeSpeed.time,
             })
@@ -175,14 +217,19 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 
   private getColorForSpeed(speed: number | undefined): string {
+    // AP
+    const option = this.getOption(this.props.machine);
     return speed === undefined
       ? Palette.Asbestos
-      : speed < SPEED_STOP_THRESHOLD
+      : // AP
+      speed < option.speedStopThreshold
       ? Palette.Alizarin
       : Palette.Nephritis;
   }
 
   private createChart(): void {
+    // AP
+    const option = this.getOption(this.props.machine);
     // Check this is a good time to render
     const chartElement = this.chartRef.current;
     if (!chartElement) {
@@ -199,8 +246,9 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     this.previousStart = firstDate;
     this.previousEnd = lastDate;
     const xScale = new Plottable.Scales.Time().domain([new Date(firstDate), new Date(lastDate)]);
-    const yScale = new Plottable.Scales.Linear().domain(PLOT_SPEED_RANGE);
-    yScale.defaultTicks = () => PLOT_SPEED_TICKS;
+    // AP
+    const yScale = new Plottable.Scales.Linear().domain(option.plotSpeedRange);
+    yScale.defaultTicks = () => option.plotSpeedTicks;
 
     // Check if we should recreate the chart
     const filteredEvents = this.props.events.filter(
@@ -219,7 +267,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .x((d: Datum) => d.start, xScale)
       .x2((d: Datum) => d.end)
       .y(() => 0, yScale)
-      .y2((d: Datum) => (d.speed !== undefined ? d.speed : NULL_SPEED_HEIGHT))
+      // AP
+      .y2((d: Datum) => (d.speed !== undefined ? d.speed : option.nullSpeedHeight))
       .attr('fill', (d: Datum) => this.getColorForSpeed(d.speed))
       .attr('stroke', (d: Datum) => (d.isNow ? this.getColorForSpeed(d.speed) : 'transparent'));
 
@@ -230,9 +279,11 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
       .x((s: SpeedChartEvent) => new Date(s.start), xScale)
       .x2((s: SpeedChartEvent) => new Date(s.end))
       .y(() => 0, yScale)
-      .y2(() => EVENT_FAKE_SPEED)
+      // AP
+      .y2(() => option.eventFakeSpeed)
       .attr('fill', (s: SpeedChartEvent) => s.color)
-      .attr('opacity', EVENTS_OPACITY);
+      // AP
+      .attr('opacity', option.eventsOpacity);
 
     // Axis
     const hourSplit = 10;
