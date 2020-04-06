@@ -1,4 +1,3 @@
-import {SQLITE_DB} from '@root/db';
 import {addError} from '@root/state';
 
 import {
@@ -7,6 +6,7 @@ import {
   insertOrUpdateSpeedTimes,
 } from '@shared/db/speed_times';
 import {SpeedTime} from '@shared/models';
+import Knex from 'knex';
 
 function min<T>(values: T[]): T | undefined {
   return values.reduce(
@@ -39,7 +39,9 @@ export const AGGREGATION_SIZE_MS = 5000;
 const WAIT_BETWEEN_BUFFER_PROCESS_ATTEMPT = 500;
 const INSERT_BATCH_SIZE = 500;
 
-class Aggregator {
+export class Aggregator {
+  // AP
+  public constructor(private readonly db: Knex) {}
   private lastSpeed: SpeedTime | undefined;
   private readonly queries = new Map<number, number | undefined>();
   private readonly buffers = new Map<number, number[]>();
@@ -47,7 +49,8 @@ class Aggregator {
   private processBufferTimeout: NodeJS.Timeout | undefined;
 
   public async start(): Promise<void> {
-    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod, true);
+    // AP
+    const lastSpeedTime = await getLastSpeedTime(this.db, true);
     const lastMinute = lastSpeedTime === undefined ? this.getStartOfDay() : lastSpeedTime.time;
     this.lastInsertedTime = lastMinute;
     this.processBuffersIfNeeded();
@@ -64,7 +67,8 @@ class Aggregator {
           const timesToInsert = Array.from(this.queries.keys()).sort().slice(0, INSERT_BATCH_SIZE);
           const speedByTime = new Map<number, number | undefined>();
           timesToInsert.forEach(m => speedByTime.set(m, this.queries.get(m)));
-          insertOrUpdateSpeedTimes(SQLITE_DB.Prod, speedByTime)
+          // AP
+          insertOrUpdateSpeedTimes(this.db, speedByTime)
             .then(() => {
               this.lastInsertedTime = max(Array.from(speedByTime.keys())) || 0;
               speedByTime.forEach((speed, time) => {
@@ -107,7 +111,8 @@ class Aggregator {
     const times = Array.from(this.buffers.keys());
     const start = Math.min(this.lastInsertedTime, min(times) || this.lastInsertedTime);
     const currentTime = this.getCurrentTime();
-    const valuesInDB = await getSpeedTimesSince(SQLITE_DB.Prod, start);
+    // AP
+    const valuesInDB = await getSpeedTimesSince(this.db, start);
     const timesToProcess = this.allTimesInRange(start, currentTime);
     timesToProcess.forEach(m => {
       const timeBuffer = this.buffers.get(m);
@@ -173,5 +178,3 @@ class Aggregator {
     }
   }
 }
-
-export const aggregator = new Aggregator();

@@ -1,8 +1,7 @@
 import log from 'electron-log';
 import {Socket} from 'net';
 
-import {aggregator} from '@root/automate/aggregator';
-//AP
+import {Aggregator} from '@root/automate/aggregator';
 import {sendCommand, AutomateCommand} from '@root/automate/command';
 import {addError} from '@root/state';
 
@@ -23,6 +22,7 @@ export class AutomateWatcher {
     private readonly automatePort: number,
     private readonly connectionID: string,
     private readonly finsCommande: string,
+    private readonly aggregator: Aggregator,
     private readonly emulate: boolean = false
   ) {
     if (emulate) {
@@ -127,7 +127,8 @@ export class AutomateWatcher {
     }
     if (value !== 1) {
       this.lastReceived = Date.now();
-      aggregator.addSpeed(value);
+      // AP
+      this.aggregator.addSpeed(value);
     }
     setTimeout(() => {
       this.fetchOnce();
@@ -162,5 +163,3 @@ export class AutomateWatcher {
     });
   }
 }
-
-// export const automateWatcher = new AutomateWatcher(true);

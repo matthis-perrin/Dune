@@ -1,9 +1,7 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
-import {aggregator} from '@root/automate/aggregator';
 import {stopsManager} from '@root/automate/stops_manager';
-import {AutomateWatcher} from '@root/automate/watcher';
 import {handleCommand} from '@root/bridge';
 import {gescomDB, SQLITE_DB} from '@root/db';
 import {GescomWatcherBobinesFilles} from '@root/gescom/bobines_filles';
@@ -16,27 +14,16 @@ import {configureLogs} from '@root/log';
 import {prodHoursStore, constantsStore} from '@root/prod_hours_store';
 
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
+import {
+  automateWatcherMondon,
+  automateWatcherGiave,
+  aggregatorMondon,
+  aggregatorGiave,
+} from '@root/machines';
 
 configureLogs();
 const forceProdMode = false;
 const truncateGescom = process.env.MODE !== 'development' || forceProdMode;
-// AP
-const automateWatcherGiave = new AutomateWatcher(
-  '192.168.0.50',
-  // tslint:disable-next-line: no-magic-numbers
-  9600,
-  '04',
-  '0101B10014000001',
-  true
-);
-const automateWatcherMondon = new AutomateWatcher(
-  '192.168.0.50',
-  // tslint:disable-next-line: no-magic-numbers
-  9600,
-  '03',
-  '0101B10014000001',
-  true
-);
 
 async function startServer(): Promise<void> {
   log.info('Setting up sqlite database');
@@ -61,14 +48,16 @@ async function startServer(): Promise<void> {
     log.info('Starting Cadencier watcher');
     await gescomCadencier.start();
   }
-  //AP
+  // AP
   if (process.env.MODE === 'development' || forceProdMode) {
     log.info('Starting Automate watcher Mondon');
     automateWatcherMondon.start();
     log.info('Starting Automate watcher Giave');
     automateWatcherGiave.start();
-    log.info('Starting Automate aggregator');
-    await aggregator.start();
+    log.info('Starting Automate aggregator Mondon');
+    await aggregatorMondon.start();
+    log.info('Starting Automate aggregator Giave');
+    await aggregatorGiave.start();
   }
   log.info('Starting Stops manager');
   stopsManager.start();

@@ -357,7 +357,9 @@ export interface ServiceStatus {
 }
 
 export interface ServerStatus {
-  automate: AutomateStatus;
+  // AP
+  automateMondon: AutomateStatus;
+  automateGiave: AutomateStatus;
   gescom: {[key: string]: ServiceStatus};
   errors: ServerErrorData[];
   isDev: boolean;

@@ -1,6 +1,6 @@
 import {BrowserWindow} from 'electron';
 
-import {aggregator, AGGREGATION_SIZE_MS} from '@root/automate/aggregator';
+import {AGGREGATION_SIZE_MS} from '@root/automate/aggregator';
 import {SQLITE_DB} from '@root/db';
 import {getErrors} from '@root/state';
 
@@ -15,10 +15,15 @@ import {
 import {ServerStatus, ServiceStatus} from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 import {AllPromise} from '@shared/promise_utils';
+import {aggregatorMondon, aggregatorGiave} from '@root/machines';
 
 async function getServerStatus(): Promise<ServerStatus> {
   const [gescomData, speedStats, stopsStats] = await AllPromise([
     getStatus(SQLITE_DB.Gescom),
+    getSpeedStats(SQLITE_DB.Prod),
+    getStopsStats(SQLITE_DB.Prod),
+  ]);
+  const [speedStatsGiave, stopsStatsGiave] = await AllPromise([
     getSpeedStats(SQLITE_DB.Prod),
     getStopsStats(SQLITE_DB.Prod),
   ]);
@@ -28,7 +33,16 @@ async function getServerStatus(): Promise<ServerStatus> {
   });
 
   return {
-    automate: {...speedStats, ...stopsStats, lastReceived: aggregator.getLastReceivedSpeed()},
+    automateMondon: {
+      ...speedStats,
+      ...stopsStats,
+      lastReceived: aggregatorMondon.getLastReceivedSpeed(),
+    },
+    automateGiave: {
+      ...speedStatsGiave,
+      ...stopsStatsGiave,
+      lastReceived: aggregatorGiave.getLastReceivedSpeed(),
+    },
     gescom,
     errors: getErrors(),
     isDev: process.env.MODE === 'development',
@@ -52,7 +66,7 @@ export async function handleCommand(
     const last = await getLastSpeedTime(SQLITE_DB.Prod, true);
     const startTs = last
       ? last.time + AGGREGATION_SIZE_MS
-      : Date.now() % aggregator.getCurrentTime();
+      : Date.now() % aggregatorMondon.getCurrentTime();
     const timeSpeeds = new Map<number, number | undefined>();
     const parsedMinutes = asNumber(minutes, 0);
     const valueToInsert = Math.round(
