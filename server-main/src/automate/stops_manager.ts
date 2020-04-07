@@ -166,7 +166,6 @@ class StopsManager {
     if (lastUsedTime !== undefined && lastUsedTime > lastTime.time) {
       return false;
     }
-
     // Part 1 - Check if we are going in or out of a NonProd
     // If we are going in, we end the current prod/stop and start a NonProd stop
     // If we are going out, we end the current NonProd and start a new prod or stop
@@ -274,7 +273,6 @@ class StopsManager {
     if (nonProd) {
       return false;
     }
-
     // Part 2 - Check if there are any stop or prod in progress. If so we end them if we need to,
     // and create a new prod or stop.
     const [newStopStartTime, newProdStartTime] = await AllPromise([

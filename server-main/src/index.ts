@@ -70,7 +70,7 @@ app.on('ready', () => {
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
     log.error('Failure to setup the BrowserWindow', err)
   );
-  browserWindow.webContents.openDevTools({mode: 'detach'});
+  // browserWindow.webContents.openDevTools({mode: 'detach'});
   log.info('Started');
 });
 
