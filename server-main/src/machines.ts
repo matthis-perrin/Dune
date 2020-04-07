@@ -24,5 +24,5 @@ export const automateWatcherMondon = new AutomateWatcher(
   aggregatorMondon,
   true
 );
-export const stopsManagerMondon = new StopsManager(SQLITE_DB.Prod, 'Mondon');
-export const stopsManagerGiave = new StopsManager(SQLITE_DB.ProdGiave, 'Giave');
+export const stopsManagerMondon = new StopsManager(SQLITE_DB.Prod);
+export const stopsManagerGiave = new StopsManager(SQLITE_DB.ProdGiave);

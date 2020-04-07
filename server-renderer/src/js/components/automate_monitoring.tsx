@@ -126,7 +126,6 @@ export class AutomateMonitoring extends React.Component<Props> {
 
 const SectionTitle = styled.div`
   font-weight: 400;
-  display: inline-block;
   margin: 8px 0;
   font-size: 22px;
   padding: 4px 16px;

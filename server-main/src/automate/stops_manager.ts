@@ -30,7 +30,7 @@ const SPEED_THRESHOLD_FOR_STOP = 50;
 
 export class StopsManager {
   // AP
-  public constructor(private readonly db: Knex, private readonly dbName: string) {}
+  public constructor(private readonly db: Knex) {}
   // If a stop has started, returns the new stop start time, otherwise returns undefined
   private async getNextStopStart(
     lastStop: Stop | undefined,
@@ -162,19 +162,15 @@ export class StopsManager {
     const lastUsedTime = this.getLastUsedTime(lastStop, lastProd);
 
     if (lastTime === undefined) {
-      console.log('1');
       return false;
     }
 
     if (lastUsedTime !== undefined && lastUsedTime > lastTime.time) {
-      console.log('2');
       return false;
     }
-    console.log('3');
     // Part 1 - Check if we are going in or out of a NonProd
     // If we are going in, we end the current prod/stop and start a NonProd stop
     // If we are going out, we end the current NonProd and start a new prod or stop
-    console.log('Test', lastUsedTime);
     const nonProd =
       lastUsedTime &&
       getCurrentNonProd(
@@ -262,16 +258,13 @@ export class StopsManager {
     }
     if (nonProdTrackingPromises.length > 0) {
       await AllPromise(nonProdTrackingPromises);
-      console.log('4');
       return true;
     }
 
     // We wait for the end of the non prod before doing anything else
     if (nonProd) {
-      console.log('5');
       return false;
     }
-    console.log('6');
     // Part 2 - Check if there are any stop or prod in progress. If so we end them if we need to,
     // and create a new prod or stop.
     const [newStopStartTime, newProdStartTime] = await AllPromise([
@@ -361,7 +354,6 @@ export class StopsManager {
   }
 
   private process(): void {
-    console.log(`process() ${this.dbName}`);
     this.analyseStopsAndProds()
       .then(hasDoneSomething => {
         if (hasDoneSomething) {
