@@ -59,6 +59,12 @@ export async function setupSqliteDB(truncateGescom: boolean): Promise<void> {
     createSpeedTimesTable(SQLITE_DB.Prod),
     createSpeedStopsTable(SQLITE_DB.Prod),
     createSpeedProdsTable(SQLITE_DB.Prod),
+    // AP
+    createMaintenancesTable(SQLITE_DB.ProdGiave),
+    createNonProdsTable(SQLITE_DB.ProdGiave),
+    createSpeedTimesTable(SQLITE_DB.ProdGiave),
+    createSpeedStopsTable(SQLITE_DB.ProdGiave),
+    createSpeedProdsTable(SQLITE_DB.ProdGiave),
   ]);
 }
 

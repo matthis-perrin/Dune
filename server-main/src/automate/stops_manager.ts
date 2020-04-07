@@ -1,4 +1,3 @@
-import {SQLITE_DB} from '@root/db';
 import {prodHoursStore} from '@root/prod_hours_store';
 import {addError} from '@root/state';
 
@@ -24,11 +23,14 @@ import {
 import {getCurrentNonProd, getNextNonProd} from '@shared/lib/prod_hours';
 import {Stop, Prod, StopType} from '@shared/models';
 import {AllPromise} from '@shared/promise_utils';
+import Knex from 'knex';
 
 const WAIT_BETWEEN_PROCESS = 1000;
 const SPEED_THRESHOLD_FOR_STOP = 50;
 
-class StopsManager {
+export class StopsManager {
+  // AP
+  public constructor(private readonly db: Knex, private readonly dbName: string) {}
   // If a stop has started, returns the new stop start time, otherwise returns undefined
   private async getNextStopStart(
     lastStop: Stop | undefined,
@@ -53,7 +55,7 @@ class StopsManager {
     }
 
     const nextStopStart = await firstSpeedTimeMatchingBetween(
-      SQLITE_DB.Prod,
+      this.db,
       lastStopEndTime,
       lastTime,
       '<',
@@ -90,7 +92,7 @@ class StopsManager {
     }
 
     const nextProdStart = await firstSpeedTimeMatchingBetween(
-      SQLITE_DB.Prod,
+      this.db,
       lastProdEndTime,
       lastTime,
       '>=',
@@ -151,25 +153,28 @@ class StopsManager {
       lastProdWithPlanProdId,
       lastTime,
     ] = await AllPromise([
-      getLastStop(SQLITE_DB.Prod),
-      getLastProd(SQLITE_DB.Prod),
-      getLastStopWithPlanProdId(SQLITE_DB.Prod),
-      getLastProdWithPlanProdId(SQLITE_DB.Prod),
-      getLastSpeedTime(SQLITE_DB.Prod, true),
+      getLastStop(this.db),
+      getLastProd(this.db),
+      getLastStopWithPlanProdId(this.db),
+      getLastProdWithPlanProdId(this.db),
+      getLastSpeedTime(this.db, true),
     ]);
     const lastUsedTime = this.getLastUsedTime(lastStop, lastProd);
 
     if (lastTime === undefined) {
+      console.log('1');
       return false;
     }
 
     if (lastUsedTime !== undefined && lastUsedTime > lastTime.time) {
+      console.log('2');
       return false;
     }
-
+    console.log('3');
     // Part 1 - Check if we are going in or out of a NonProd
     // If we are going in, we end the current prod/stop and start a NonProd stop
     // If we are going out, we end the current NonProd and start a new prod or stop
+    console.log('Test', lastUsedTime);
     const nonProd =
       lastUsedTime &&
       getCurrentNonProd(
@@ -192,44 +197,36 @@ class StopsManager {
         if (nonProdStart < lastStop.start) {
           nonProdStart = lastTime.time;
         }
-        nonProdTrackingPromises.push(recordStopEnd(SQLITE_DB.Prod, lastStop.start, nonProdStart));
+        nonProdTrackingPromises.push(recordStopEnd(this.db, lastStop.start, nonProdStart));
         shouldRecordNonProdStart = true;
         planProdId = lastStop.planProdId;
       } else if (lastProd && lastProd.end === undefined) {
         if (nonProdStart < lastProd.start) {
           nonProdStart = lastTime.time;
         }
-        nonProdTrackingPromises.push(recordProdEnd(SQLITE_DB.Prod, lastProd.start, nonProdStart));
+        nonProdTrackingPromises.push(recordProdEnd(this.db, lastProd.start, nonProdStart));
         shouldRecordNonProdStart = true;
         planProdId = lastProd.planProdId;
       } else if (lastStop && lastProd) {
         if (lastStop.end === undefined) {
-          nonProdTrackingPromises.push(recordStopEnd(SQLITE_DB.Prod, lastStop.start, nonProd.end));
+          nonProdTrackingPromises.push(recordStopEnd(this.db, lastStop.start, nonProd.end));
         } else {
           const lastEvent = lastStop.end > (lastProd.end || 0) ? lastStop : lastProd;
           nonProdTrackingPromises.push(
             recordStopStart(
-              SQLITE_DB.Prod,
+              this.db,
               lastEvent.end || 0,
               lastEvent.planProdId,
               StopType.NotProdHours,
               nonProd.title
             )
           );
-          nonProdTrackingPromises.push(
-            recordStopEnd(SQLITE_DB.Prod, lastEvent.end || 0, nonProd.end)
-          );
+          nonProdTrackingPromises.push(recordStopEnd(this.db, lastEvent.end || 0, nonProd.end));
         }
       }
       if (shouldRecordNonProdStart) {
         nonProdTrackingPromises.push(
-          recordStopStart(
-            SQLITE_DB.Prod,
-            nonProdStart,
-            planProdId,
-            StopType.NotProdHours,
-            nonProd.title
-          )
+          recordStopStart(this.db, nonProdStart, planProdId, StopType.NotProdHours, nonProd.title)
         );
       }
     } else if (
@@ -246,20 +243,18 @@ class StopsManager {
           prodHoursStore.getNonProds()
         );
       if (currentNonProd && currentNonProd.end > lastStop.start) {
-        nonProdTrackingPromises.push(
-          recordStopEnd(SQLITE_DB.Prod, lastStop.start, currentNonProd.end)
-        );
-        const nextSpeed = await nextDefinedSpeed(SQLITE_DB.Prod, currentNonProd.end);
+        nonProdTrackingPromises.push(recordStopEnd(this.db, lastStop.start, currentNonProd.end));
+        const nextSpeed = await nextDefinedSpeed(this.db, currentNonProd.end);
         if (nextSpeed && nextSpeed.speed !== undefined) {
           if (nextSpeed.speed < SPEED_THRESHOLD_FOR_STOP) {
             // Start a new stop
             nonProdTrackingPromises.push(
-              recordStopStart(SQLITE_DB.Prod, currentNonProd.end, lastStop.planProdId)
+              recordStopStart(this.db, currentNonProd.end, lastStop.planProdId)
             );
           } else {
             // Start a new prod
             nonProdTrackingPromises.push(
-              recordProdStart(SQLITE_DB.Prod, currentNonProd.end, lastStop.planProdId)
+              recordProdStart(this.db, currentNonProd.end, lastStop.planProdId)
             );
           }
         }
@@ -267,14 +262,16 @@ class StopsManager {
     }
     if (nonProdTrackingPromises.length > 0) {
       await AllPromise(nonProdTrackingPromises);
+      console.log('4');
       return true;
     }
 
     // We wait for the end of the non prod before doing anything else
     if (nonProd) {
+      console.log('5');
       return false;
     }
-
+    console.log('6');
     // Part 2 - Check if there are any stop or prod in progress. If so we end them if we need to,
     // and create a new prod or stop.
     const [newStopStartTime, newProdStartTime] = await AllPromise([
@@ -298,7 +295,7 @@ class StopsManager {
       if (lastProd && lastProd.end === undefined) {
         newStopOrProdPromise.push(
           recordProdEnd(
-            SQLITE_DB.Prod,
+            this.db,
             lastProd.start,
             Math.min(newStopStartTime, (nextNonProd && nextNonProd.start) || newStopStartTime)
           )
@@ -308,7 +305,7 @@ class StopsManager {
       if (nextNonProd && nextNonProd.start < newStopStartTime) {
         newStopOrProdPromise.push(
           recordStopStart(
-            SQLITE_DB.Prod,
+            this.db,
             nextNonProd.start,
             lastPlanProdId,
             StopType.NotProdHours,
@@ -316,9 +313,7 @@ class StopsManager {
           )
         );
       } else {
-        newStopOrProdPromise.push(
-          recordStopStart(SQLITE_DB.Prod, newStopStartTime, lastPlanProdId)
-        );
+        newStopOrProdPromise.push(recordStopStart(this.db, newStopStartTime, lastPlanProdId));
       }
     }
 
@@ -330,7 +325,7 @@ class StopsManager {
       if (lastStop && lastStop.end === undefined) {
         newStopOrProdPromise.push(
           recordStopEnd(
-            SQLITE_DB.Prod,
+            this.db,
             lastStop.start,
             Math.min(newProdStartTime, (nextNonProd && nextNonProd.start) || newProdStartTime)
           )
@@ -339,7 +334,7 @@ class StopsManager {
       if (nextNonProd && nextNonProd.start < newProdStartTime) {
         newStopOrProdPromise.push(
           recordStopStart(
-            SQLITE_DB.Prod,
+            this.db,
             nextNonProd.start,
             lastPlanProdId,
             StopType.NotProdHours,
@@ -347,9 +342,7 @@ class StopsManager {
           )
         );
       } else {
-        newStopOrProdPromise.push(
-          recordProdStart(SQLITE_DB.Prod, newProdStartTime, lastPlanProdId)
-        );
+        newStopOrProdPromise.push(recordProdStart(this.db, newProdStartTime, lastPlanProdId));
       }
     }
 
@@ -359,19 +352,16 @@ class StopsManager {
 
     // Part 3 - If there is a prod in progress, we update its average speed
     if (!prodEnded && lastProd !== undefined && lastProd.end === undefined) {
-      const averageSpeed = await getAverageSpeedBetween(
-        SQLITE_DB.Prod,
-        lastProd.start,
-        lastTime.time
-      );
+      const averageSpeed = await getAverageSpeedBetween(this.db, lastProd.start, lastTime.time);
       if (averageSpeed !== lastProd.avgSpeed) {
-        await updateProdSpeed(SQLITE_DB.Prod, lastProd.start, averageSpeed);
+        await updateProdSpeed(this.db, lastProd.start, averageSpeed);
       }
     }
     return newStopOrProdPromise.length > 0;
   }
 
   private process(): void {
+    console.log(`process() ${this.dbName}`);
     this.analyseStopsAndProds()
       .then(hasDoneSomething => {
         if (hasDoneSomething) {
@@ -390,5 +380,3 @@ class StopsManager {
     this.process();
   }
 }
-
-export const stopsManager = new StopsManager();

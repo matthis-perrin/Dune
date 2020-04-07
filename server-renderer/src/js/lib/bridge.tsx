@@ -1,5 +1,5 @@
 import {BridgeTransport} from '@shared/bridge/bridge_renderer';
-import {ServerGetStatus, ServerSimulateAutomate} from '@shared/bridge/commands';
+import {ServerGetStatus, BridgeCommand} from '@shared/bridge/commands';
 import {ServerStatus} from '@shared/models';
 
 class Bridge {
@@ -8,11 +8,13 @@ class Bridge {
   public async getServerStatus(): Promise<ServerStatus> {
     return this.bridgeTransport.sendBridgeCommand(ServerGetStatus);
   }
+  // AP
   public async simulateAutomateSpeed(
     speed: number | undefined,
-    minutes: number
+    minutes: number,
+    serverSimulateAutomate: BridgeCommand
   ): Promise<ServerStatus> {
-    return this.bridgeTransport.sendBridgeCommand(ServerSimulateAutomate, {speed, minutes});
+    return this.bridgeTransport.sendBridgeCommand(serverSimulateAutomate, {speed, minutes});
   }
 }
 

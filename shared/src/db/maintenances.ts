@@ -17,8 +17,8 @@ export async function createMaintenancesTable(db: knex): Promise<void> {
     await db.schema.createTable(MAINTENANCE_TABLE_NAME, table => {
       table.integer(MaintenanceColumns.ID).primary().notNullable();
       table.text(MaintenanceColumns.TITLE).notNullable();
-      table.integer(MaintenanceColumns.START_TIME).notNullable();
-      table.integer(MaintenanceColumns.END_TIME).notNullable();
+      table.bigInteger(MaintenanceColumns.START_TIME).notNullable();
+      table.bigInteger(MaintenanceColumns.END_TIME).notNullable();
     });
   }
 }

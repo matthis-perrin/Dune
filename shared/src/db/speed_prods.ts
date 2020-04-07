@@ -16,8 +16,8 @@ export async function createSpeedProdsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_PRODS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(SPEED_PRODS_TABLE_NAME, table => {
-      table.integer(SpeedProdsColumn.Start).notNullable().primary();
-      table.integer(SpeedProdsColumn.End).nullable();
+      table.bigInteger(SpeedProdsColumn.Start).notNullable().primary();
+      table.bigInteger(SpeedProdsColumn.End).nullable();
       table.integer(SpeedProdsColumn.AvgSpeed).nullable();
       table.integer(SpeedProdsColumn.PlanProdId).nullable();
     });

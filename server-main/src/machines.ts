@@ -1,10 +1,11 @@
 import {AutomateWatcher} from '@root/automate/watcher';
 import {SQLITE_DB} from '@root/db';
 import {Aggregator} from '@root/automate/aggregator';
+import {StopsManager} from '@root/automate/stops_manager';
 
 // AP
-export const aggregatorGiave = new Aggregator(SQLITE_DB.Prod);
 export const aggregatorMondon = new Aggregator(SQLITE_DB.Prod);
+export const aggregatorGiave = new Aggregator(SQLITE_DB.ProdGiave);
 export const automateWatcherGiave = new AutomateWatcher(
   '192.168.0.50',
   // tslint:disable-next-line: no-magic-numbers
@@ -23,3 +24,5 @@ export const automateWatcherMondon = new AutomateWatcher(
   aggregatorMondon,
   true
 );
+export const stopsManagerMondon = new StopsManager(SQLITE_DB.Prod, 'Mondon');
+export const stopsManagerGiave = new StopsManager(SQLITE_DB.ProdGiave, 'Giave');

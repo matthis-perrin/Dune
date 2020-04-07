@@ -62,7 +62,9 @@ export const CreateOrUpdateOperateur = 'create-or-update-operateur' as BridgeCom
 export const ServerGetStatus = 'server-get-status' as BridgeCommand;
 export const ServerRequestRefresh = 'server-request-refresh' as BridgeCommand;
 export const ServerClearErrors = 'server-clear-errors' as BridgeCommand;
-export const ServerSimulateAutomate = 'server-simulate-automate' as BridgeCommand;
+// AP
+export const ServerSimulateAutomateMondon = 'server-simulate-automate-mondon' as BridgeCommand;
+export const ServerSimulateAutomateGiave = 'server-simulate-automate-giave' as BridgeCommand;
 
 export const OpenContextMenu = 'open-context-menu' as BridgeCommand;
 

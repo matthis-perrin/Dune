@@ -1,7 +1,6 @@
 import {app, session} from 'electron';
 import log from 'electron-log';
 
-import {stopsManager} from '@root/automate/stops_manager';
 import {handleCommand} from '@root/bridge';
 import {gescomDB, SQLITE_DB} from '@root/db';
 import {GescomWatcherBobinesFilles} from '@root/gescom/bobines_filles';
@@ -19,6 +18,8 @@ import {
   automateWatcherGiave,
   aggregatorMondon,
   aggregatorGiave,
+  stopsManagerMondon,
+  stopsManagerGiave,
 } from '@root/machines';
 
 configureLogs();
@@ -49,7 +50,7 @@ async function startServer(): Promise<void> {
     await gescomCadencier.start();
   }
   // AP
-  if (process.env.MODE === 'development' || forceProdMode) {
+  if (process.env.MODE !== 'development' || forceProdMode) {
     log.info('Starting Automate watcher Mondon');
     automateWatcherMondon.start();
     log.info('Starting Automate watcher Giave');
@@ -59,8 +60,10 @@ async function startServer(): Promise<void> {
     log.info('Starting Automate aggregator Giave');
     await aggregatorGiave.start();
   }
-  log.info('Starting Stops manager');
-  stopsManager.start();
+  log.info('Starting Stops manager Mondon');
+  stopsManagerMondon.start();
+  log.info('Starting Stops manager Giave');
+  stopsManagerGiave.start();
 }
 
 startServer().catch(log.error);
@@ -72,9 +75,9 @@ app.on('ready', () => {
     });
   }
   const browserWindow = createBrowserWindow({
-    width: 620,
+    width: 540,
     // AP
-    height: 540,
+    height: 950,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>

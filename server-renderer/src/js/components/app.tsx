@@ -3,11 +3,13 @@ import styled from 'styled-components';
 
 import {GlobalStyle} from '@root/components/global_styles';
 import {Herisson} from '@root/components/herisson';
-import {Monitoring} from '@root/components/monitoring';
+import {MonitoringGescom} from '@root/components/gescom_monitoring';
 import {SpeedSimulator} from '@root/components/speed_simulator';
 import {bridge} from '@root/lib/bridge';
 
 import {ServerStatus} from '@shared/models';
+import {ServerSimulateAutomateMondon, ServerSimulateAutomateGiave} from '@shared/bridge/commands';
+import {AutomateMonitoring} from '@root/components/automate_monitoring';
 
 const REFRESH_PERIOD_MS = 500;
 
@@ -49,20 +51,27 @@ export class App extends React.Component<Props, State> {
     }
     return (
       <AppWrapper>
-        {status.isDev ? <SpeedSimulator /> : <React.Fragment />}
-        <Monitoring automate={status.automate} gescom={status.gescom} />
-        <Herisson
-          style={{
-            width: 100,
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            borderRadius: 55,
-            background: 'white',
-            padding: ' 0 5px 10px 5px',
-            boxShadow: '0px 0px 33px 8px rgba(255,255,255,1)',
-          }}
+        <HerissonWrapper>
+          <Herisson
+            style={{
+              width: '20%',
+              height: '20%',
+              padding: '0px 0px 16px 0px',
+            }}
+          />
+        </HerissonWrapper>
+        <SpeedSimulator
+          serverSimulateAutomate={ServerSimulateAutomateMondon}
+          displayName={'Mondon'}
         />
+        <AutomateMonitoring automate={status.automateMondon} automateName={'MONDON'} />
+        <SpeedSimulator
+          serverSimulateAutomate={ServerSimulateAutomateGiave}
+          displayName={'Giave'}
+        />
+        <AutomateMonitoring automate={status.automateGiave} automateName={'GIAVE'} />
+        {/* AP */}
+        <MonitoringGescom gescom={status.gescom} />
         <GlobalStyle />
       </AppWrapper>
     );
@@ -72,4 +81,9 @@ export class App extends React.Component<Props, State> {
 const AppWrapper = styled.div`
   font-family: Segoe UI, sans-serif;
   padding: 16px;
+`;
+
+const HerissonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
 `;

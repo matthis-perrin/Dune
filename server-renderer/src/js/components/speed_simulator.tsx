@@ -2,8 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {bridge} from '@root/lib/bridge';
+import {BridgeCommand} from '@shared/bridge/commands';
 
-interface Props {}
+interface Props {
+  serverSimulateAutomate: BridgeCommand;
+  displayName: string;
+}
 
 export class SpeedSimulator extends React.Component<Props> {
   public static displayName = 'SpeedSimulator';
@@ -12,6 +16,7 @@ export class SpeedSimulator extends React.Component<Props> {
   private readonly minutesInputRef = React.createRef<HTMLInputElement>();
 
   private readonly handleClick = (): void => {
+    const {serverSimulateAutomate} = this.props;
     const speedInput = this.speedInputRef.current;
     const minutesInput = this.minutesInputRef.current;
     if (!speedInput || !minutesInput) {
@@ -23,13 +28,14 @@ export class SpeedSimulator extends React.Component<Props> {
     if ((speed !== undefined && isNaN(speed)) || isNaN(minutes)) {
       return;
     }
-    bridge.simulateAutomateSpeed(speed, minutes).catch(console.error);
+    // AP
+    bridge.simulateAutomateSpeed(speed, minutes, serverSimulateAutomate).catch(console.error);
   };
 
   public render(): JSX.Element {
     return (
       <Wrapper>
-        Simuler la vitesse
+        <TextInput>Simuler la vitesse {this.props.displayName}</TextInput>
         <Input ref={this.speedInputRef} type="text" defaultValue="0" />
         pendant
         <Input ref={this.minutesInputRef} type="text" defaultValue="1" />
@@ -45,6 +51,7 @@ const Wrapper = styled.div`
   align-items: center;
   color: white;
   margin-bottom: 8px;
+  margin-top: 8px;
 `;
 
 const Input = styled.input`
@@ -55,6 +62,10 @@ const Input = styled.input`
   border: solid 1px white;
   padding: 4px 0px;
   color: white;
+`;
+
+const TextInput = styled.div`
+  width: 200px;
 `;
 
 const Button = styled.button`
