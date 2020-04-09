@@ -67,10 +67,10 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
 
   public render(): JSX.Element {
     const {stop, schedule} = this.state;
-    console.log(stop, schedule);
+    const {machine} = this.props;
     if (!stop || !schedule) {
       return <LoadingScreen />;
     }
-    return <StopForm stop={stop} schedule={schedule} />;
+    return <StopForm machine={machine} stop={stop} schedule={schedule} />;
   }
 }

@@ -268,6 +268,7 @@ export class Bridge {
     });
   }
   public async updateStop(
+    machine: string,
     start: number,
     type: StopType,
     info: StopInfo,
@@ -275,6 +276,7 @@ export class Bridge {
     maintenanceId: number | undefined
   ): Promise<void> {
     return this.bridgeTransport.sendBridgeCommand<void>(BridgeCommands.UpdateStop, {
+      machine,
       start,
       type,
       info,

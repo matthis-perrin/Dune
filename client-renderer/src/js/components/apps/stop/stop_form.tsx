@@ -30,6 +30,7 @@ import {
 } from '@shared/models';
 
 interface StopFormProps {
+  machine: string;
   stop: Stop;
   schedule: Schedule;
 }
@@ -73,11 +74,12 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private readonly handleSave = (): void => {
-    const {stop} = this.props;
+    const {stop, machine} = this.props;
     const {stopType, unplannedStops, cleanings, comments, planProdId, maintenanceId} = this.state;
     if (stopType !== undefined && planProdId !== undefined) {
       bridge
         .updateStop(
+          machine,
           stop.start,
           stopType,
           {
@@ -393,10 +395,10 @@ const HeaderLeftEnd = styled.div`
 `;
 
 const HeaderLeftLabel = styled.div`
-    display: inline-block;
-    width: 48px;
-    font-size: 13px
-    color: ${Palette.Concrete}
+  display: inline-block;
+  width: 48px;
+  font-size: 13px;
+  color: ${Palette.Concrete};
 `;
 
 const HeaderLeftTimeValue = styled.div`

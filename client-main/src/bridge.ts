@@ -381,7 +381,6 @@ export async function handleCommand(
 
   if (command === BridgeCommands.GetProdInfo) {
     const {start, end, machine} = asMap(params);
-    console.log(start, end, machine);
     const db = getDbFromMachine(machine);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
@@ -392,9 +391,10 @@ export async function handleCommand(
 
   if (command === BridgeCommands.UpdateStop) {
     debugLog();
-    const {start, type, info, planProdId, maintenanceId} = asMap(params);
+    const {start, type, info, planProdId, maintenanceId, machine} = asMap(params);
+    const db = getDbFromMachine(machine);
     return updateStopInfo(
-      SQLITE_DB.Prod,
+      db,
       asNumber(start, 0),
       asString(type, '') as StopType,
       asMap(info) as StopInfo,
