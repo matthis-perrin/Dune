@@ -30,6 +30,7 @@ import {capitalize, startOfDay} from '@shared/lib/utils';
 import {ProdInfo, Schedule, Operation, StopType, Stock, Constants} from '@shared/models';
 
 interface ReportViewerProps {
+  machine: string;
   schedule: Schedule;
   operations: Operation[];
   day: number;
@@ -173,7 +174,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
   }
 
   private renderStops(): JSX.Element {
-    const {schedule, day} = this.props;
+    const {schedule, day, machine} = this.props;
     const lastMinute =
       (schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.time) || Date.now();
 
@@ -190,13 +191,20 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
         <StopsBlock>
           <StopBlockTitle>Stops du matin</StopBlockTitle>
           <StopBlockContent>
-            <StopList forReport schedule={schedule} lastMinute={lastMinute} stops={morningStops} />
+            <StopList
+              machine={machine}
+              forReport
+              schedule={schedule}
+              lastMinute={lastMinute}
+              stops={morningStops}
+            />
           </StopBlockContent>
         </StopsBlock>
         <StopsBlock>
           <StopBlockTitle>Stops du soir</StopBlockTitle>
           <StopBlockContent>
             <StopList
+              machine={machine}
               forReport
               schedule={schedule}
               lastMinute={lastMinute}

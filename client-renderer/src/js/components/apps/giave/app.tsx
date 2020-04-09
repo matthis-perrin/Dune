@@ -116,7 +116,7 @@ export class GiaveProductionApp extends React.Component<
           this.props.config.hasStopPopups
         ) {
           this.openedStops.set(hash);
-          bridge.openDayStopWindow(dayTs, s.start).catch(console.error);
+          bridge.openDayStopWindow(machine, dayTs, s.start).catch(console.error);
         }
       });
     }
@@ -199,6 +199,7 @@ export class GiaveProductionApp extends React.Component<
 
   private renderStops(): JSX.Element {
     const {schedule} = this.state;
+    const {machine} = this.props;
     const currentDay = this.getCurrentDay();
     const lastMinute =
       (schedule && schedule.lastSpeedTime && schedule.lastSpeedTime.time) || Date.now();
@@ -211,7 +212,7 @@ export class GiaveProductionApp extends React.Component<
       .filter(s => isSameDay(new Date(s.start), currentDay))
       .sort((s1, s2) => s1.start - s2.start);
 
-    return <StopList schedule={schedule} lastMinute={lastMinute} stops={stops} />;
+    return <StopList machine={machine} schedule={schedule} lastMinute={lastMinute} stops={stops} />;
   }
 
   private getDayStatus(): 'past' | 'current' | 'future' | 'unknown' {

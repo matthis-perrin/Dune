@@ -280,8 +280,15 @@ export class AppManager extends React.Component<Props, State> {
       );
     }
     if (type === ClientAppType.StopApp) {
-      const {day, stopStart} = asMap(data);
-      return <StopApp machine="Mondon" day={asNumber(day, 0)} stopStart={asNumber(stopStart, 0)} />;
+      const {day, stopStart, machine} = asMap(data);
+      const machineString = asString(machine, '');
+      return (
+        <StopApp
+          machine={machineString}
+          day={asNumber(day, 0)}
+          stopStart={asNumber(stopStart, 0)}
+        />
+      );
     }
 
     if (type === ClientAppType.StatisticsApp) {

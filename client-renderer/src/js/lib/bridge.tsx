@@ -247,8 +247,8 @@ export class Bridge {
     return this.openApp(ClientAppType.ViewDayApp, {initialDay: day});
   }
 
-  public async openDayStopWindow(day: number, stopStart: number): Promise<void> {
-    return this.openApp(ClientAppType.StopApp, {day, stopStart});
+  public async openDayStopWindow(machine: string, day: number, stopStart: number): Promise<void> {
+    return this.openApp(ClientAppType.StopApp, {machine, day, stopStart});
   }
 
   public async getScheduleInfo(

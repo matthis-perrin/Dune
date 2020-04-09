@@ -11,6 +11,7 @@ import {dateAtHour} from '@shared/lib/time';
 import {Stop, UnplannedStop, Cleaning, Maintenance, StopType} from '@shared/models';
 
 interface StopTileProps {
+  machine: string;
   stop: Stop;
   lastMinute: number;
   maintenances: Maintenance[];
@@ -26,9 +27,9 @@ export class StopTile extends React.Component<StopTileProps> {
   }
 
   private readonly handleClick = (): void => {
-    const {stop} = this.props;
+    const {stop, machine} = this.props;
     const day = dateAtHour(new Date(stop.start), 0).getTime();
-    bridge.openDayStopWindow(day, stop.start).catch(console.error);
+    bridge.openDayStopWindow(machine, day, stop.start).catch(console.error);
   };
 
   private renderStopLine(title: string, color: string): JSX.Element {
@@ -74,9 +75,7 @@ export class StopTile extends React.Component<StopTileProps> {
     return (
       <React.Fragment>
         {this.renderType(stop)}
-        {unplannedStops
-          .sort((r1, r2) => r1.order - r2.order)
-          .map(r => this.renderUnplannedStop(r))}
+        {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
         {comments.map((comment, index) => this.renderComment(comment, index))}
         {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
       </React.Fragment>
@@ -171,10 +170,10 @@ const StopTileEnd = styled.div`
 `;
 
 const StopTileLabel = styled.div`
-    display: inline-block;
-    width: 54px;
-    font-size: 13px
-    color: ${Palette.Asbestos}
+  display: inline-block;
+  width: 54px;
+  font-size: 13px;
+  color: ${Palette.Asbestos};
 `;
 
 const StopTileTimeValue = styled.div`

@@ -175,6 +175,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
 
   private renderReport(): JSX.Element {
     const {schedule, prodInfo, stocks} = this.state;
+    const {machine} = this.props;
     const day = this.getCurrentDay();
     const operations = this.scheduleStore.getOperations();
 
@@ -184,6 +185,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
 
     return (
       <ReportViewer
+        machine={machine}
         schedule={schedule}
         operations={operations}
         day={day.getTime()}

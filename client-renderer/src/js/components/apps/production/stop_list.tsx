@@ -11,6 +11,7 @@ import {startOfDay, endOfDay} from '@shared/lib/utils';
 import {Stop, Schedule, StopType, Maintenance} from '@shared/models';
 
 interface StopListProps {
+  machine: string;
   schedule: Schedule;
   stops: Stop[];
   lastMinute: number;
@@ -96,7 +97,7 @@ export class StopList extends React.Component<StopListProps> {
   };
 
   public render(): JSX.Element {
-    const {stops, lastMinute, schedule, forReport} = this.props;
+    const {stops, lastMinute, schedule, forReport, machine} = this.props;
     const sortedStops = stops.sort((s1, s2) => s1.start - s2.start);
     const startMaintenanceId = this.canStartMaintenance();
     const endMaintenanceId = this.canEndMaintenance();
@@ -107,6 +108,7 @@ export class StopList extends React.Component<StopListProps> {
           const stopView = (
             <StopTileWrapper key={`stop-${s.start}-${i}`}>
               <StopTile
+                machine={machine}
                 showBorder={forReport}
                 interactive={!forReport}
                 lastMinute={lastMinute}

@@ -29,6 +29,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
     const date = new Date(props.day);
     const start = startOfDay(date).getTime();
     const end = endOfDay(date).getTime();
+    console.log(props.machine);
     this.scheduleStore = new ScheduleStore(props.machine, {start, end});
     this.state = {};
     this.updateWindowTitle();
@@ -66,6 +67,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
 
   public render(): JSX.Element {
     const {stop, schedule} = this.state;
+    console.log(stop, schedule);
     if (!stop || !schedule) {
       return <LoadingScreen />;
     }
