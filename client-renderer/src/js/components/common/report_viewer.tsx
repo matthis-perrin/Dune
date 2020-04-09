@@ -151,7 +151,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
           speeds={prodInfo.speedTimes}
           events={events}
           // AP
-          machine={'mondon'}
+          machine={'Mondon'}
         />
       </CharContainer>
     );

@@ -21,7 +21,9 @@ import {Palette, Colors} from '@root/theme';
 import {getWeekDay} from '@shared/lib/time';
 import {Schedule, Operation} from '@shared/models';
 
-interface StatisticsAppProps {}
+interface StatisticsAppProps {
+  machine: string;
+}
 
 interface StatisticsAppState {
   day?: number;
@@ -45,7 +47,7 @@ export class StatisticsApp extends React.Component<StatisticsAppProps, Statistic
       statsPeriod: MONTH_STATS_PERIOD,
       statsMetric: METRAGE_METRIC,
     };
-    this.scheduleStore = new ScheduleStore({start: 0, end: Date.now() * 2});
+    this.scheduleStore = new ScheduleStore(props.machine, {start: 0, end: Date.now() * 2});
   }
 
   public componentDidMount(): void {

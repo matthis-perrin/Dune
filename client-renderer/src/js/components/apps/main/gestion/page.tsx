@@ -40,7 +40,7 @@ export class GestionPage extends React.Component<Props, State> {
     const month = new Date().getMonth();
     this.state = {month, year};
     const {start, end} = this.getProdStoreRange(year, month);
-    this.scheduleStore = new ScheduleStore({start, end});
+    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
   }
 
   public componentDidMount(): void {

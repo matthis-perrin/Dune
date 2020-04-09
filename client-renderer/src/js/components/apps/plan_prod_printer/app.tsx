@@ -35,7 +35,7 @@ export class PlanProdPrinterApp extends React.Component<
     const start = startOfDay(new Date(props.day)).getTime();
     const end = endOfDay(new Date(props.day)).getTime();
     this.state = {};
-    this.scheduleStore = new ScheduleStore({start, end});
+    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
   }
 
   public componentDidMount(): void {

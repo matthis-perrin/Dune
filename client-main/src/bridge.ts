@@ -57,9 +57,23 @@ import {
   StopType,
   ScheduleInfo,
   ProdInfo,
+  MachineType,
 } from '@shared/models';
 import {asMap, asNumber, asString, asBoolean} from '@shared/type_utils';
 import {AllPromise} from '@shared/promise_utils';
+import Knex from 'knex';
+
+// tslint:disable-next-line: no-any
+function getDbFromMachine(machine: any): Knex {
+  const machineString = asString(machine, '');
+  if (machineString === MachineType.Mondon) {
+    return SQLITE_DB.Prod;
+  }
+  if (machineString === MachineType.Giave) {
+    return SQLITE_DB.ProdGiave;
+  }
+  throw new Error('unknow machine');
+}
 
 export async function handleCommand(
   browserWindow: BrowserWindow,
@@ -318,22 +332,24 @@ export async function handleCommand(
     openContextMenu(
       browserWindow,
       (menuForBridge as unknown) as ContextMenuForBridge[],
-      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}), id =>
+      () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),
+      id =>
         sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClicked, {menuId, menuItemId: id})
     );
   }
 
   if (command === BridgeCommands.GetScheduleInfo) {
-    const {range} = asMap(params);
+    const {range, machine} = asMap(params);
+    const db = getDbFromMachine(machine);
     let rangeStart = asNumber(asMap(range).start, undefined);
     let rangeEnd = asNumber(asMap(range).end, undefined);
 
-    const lastSpeedTime = await getLastSpeedTime(SQLITE_DB.Prod, true);
+    const lastSpeedTime = await getLastSpeedTime(db, true);
     if (rangeStart === undefined) {
       rangeStart = lastSpeedTime ? startOfDay(new Date(lastSpeedTime.time)).getTime() : 0;
     }
 
-    const lastPlanProdChange = await getLastPlanProdChangeBefore(SQLITE_DB.Prod, rangeStart);
+    const lastPlanProdChange = await getLastPlanProdChangeBefore(db, rangeStart);
     rangeStart = lastPlanProdChange ? lastPlanProdChange.start : 0;
 
     if (rangeEnd === undefined) {
@@ -342,20 +358,13 @@ export async function handleCommand(
 
     const needNotStartedPlanProd = lastSpeedTime === undefined || rangeEnd > lastSpeedTime.time;
 
-    const [
-      stops,
-      prods,
-      notStartedPlans,
-      startedPlans,
-      maintenances,
-      nonProds,
-    ] = await AllPromise([
-      getSpeedStopBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getSpeedProdBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+    const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await AllPromise([
+      getSpeedStopBetween(db, rangeStart, rangeEnd),
+      getSpeedProdBetween(db, rangeStart, rangeEnd),
       needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
       getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd, log.debug),
-      getMaintenancesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-      getNonProdsBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
+      getMaintenancesBetween(db, rangeStart, rangeEnd),
+      getNonProdsBetween(db, rangeStart, rangeEnd),
     ]);
     const res: ScheduleInfo = {
       stops,
@@ -371,12 +380,12 @@ export async function handleCommand(
   }
 
   if (command === BridgeCommands.GetProdInfo) {
-    const {start, end} = asMap(params);
+    const {start, end, machine} = asMap(params);
+    console.log(start, end, machine);
+    const db = getDbFromMachine(machine);
     const rangeStart = asNumber(start, 0);
     const rangeEnd = asNumber(end, 0);
-    const [speedTimes] = await AllPromise([
-      getSpeedTimesBetween(SQLITE_DB.Prod, rangeStart, rangeEnd),
-    ]);
+    const [speedTimes] = await AllPromise([getSpeedTimesBetween(db, rangeStart, rangeEnd)]);
     const res: ProdInfo = {speedTimes};
     return res;
   }

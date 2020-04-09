@@ -1,5 +1,5 @@
 import knex from 'knex';
-import {GESCOM_DB, PARAMS_DB, PROD_DB} from '@shared/db/database_names';
+import {GESCOM_DB, PARAMS_DB, PROD_DB, PROD_GIAVE_DB} from '@shared/db/database_names';
 
 function createDB(dbName: string): knex {
   return knex({
@@ -17,4 +17,6 @@ export const SQLITE_DB = {
   Gescom: createDB(GESCOM_DB),
   Prod: createDB(PROD_DB),
   Params: createDB(PARAMS_DB),
+  // AP
+  ProdGiave: createDB(PROD_GIAVE_DB),
 };

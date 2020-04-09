@@ -31,6 +31,7 @@ import {startOfDay, endOfDay, capitalize} from '@shared/lib/utils';
 import {ProdInfo, Schedule, StopType, BobineQuantities, Stock, Config} from '@shared/models';
 
 interface ProductionAppProps {
+  machine: string;
   initialDay?: number;
   config: Config;
 }
@@ -61,7 +62,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     } else {
       this.state = {};
     }
-    this.scheduleStore = new ScheduleStore(range);
+    this.scheduleStore = new ScheduleStore(props.machine, range);
   }
 
   public componentDidMount(): void {
@@ -98,8 +99,9 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
     const currentDay = this.getCurrentDay();
     if (currentDay) {
       const dayTs = currentDay.getTime();
+      const {machine} = this.props;
       if (!this.prodInfoStore) {
-        this.prodInfoStore = new ProdInfoStore(dayTs);
+        this.prodInfoStore = new ProdInfoStore(dayTs, machine);
         this.prodInfoStore.addListener(this.handleProdInfoChanged);
       }
       const stops = schedule.stops.filter(s => isSameDay(new Date(s.start), currentDay));
@@ -359,7 +361,7 @@ export class ProductionApp extends React.Component<ProductionAppProps, Productio
         speeds={prodInfo.speedTimes}
         events={events}
         // AP
-        machine="mondon"
+        machine={this.props.machine}
       />
     );
   }

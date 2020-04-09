@@ -39,7 +39,10 @@ export class ScheduleStore {
 
   private schedule?: Schedule;
 
-  public constructor(private range?: {start: number; end: number}) {
+  public constructor(
+    private readonly machine: string,
+    private range?: {start: number; end: number}
+  ) {
     operationsStore.addListener(this.handleOperationsChanged);
     constantsStore.addListener(this.handleConstantsChanged);
   }
@@ -205,7 +208,7 @@ export class ScheduleStore {
       nonProds,
       prodHours,
       lastSpeedTime,
-    } = await bridge.getScheduleInfo(this.range);
+    } = await bridge.getScheduleInfo(this.machine, this.range);
     this.prodData = {
       startedPlans: this.transformPlanProdRaw(startedPlans),
       notStartedPlans: this.transformPlanProdRaw(notStartedPlans),

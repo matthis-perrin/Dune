@@ -63,8 +63,8 @@ const mondonOption: Param = {
 // AP
 const giaveOption: Param = {
   // tslint:disable:no-magic-numbers
-  plotSpeedRange: [0, 200],
-  plotSpeedTicks: [0, 50, 100, 150, 180],
+  plotSpeedRange: [0, 320],
+  plotSpeedTicks: [0, 50, 100, 150, 200, 250, 300],
   speedAggregationTimeMs: 5000,
   speedStopThreshold: 50,
   eventFakeSpeed: 50,
@@ -103,13 +103,14 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
   public componentDidUpdate(prevProps: SpeedChartProps): void {
     if (!isEqual(this.props, prevProps)) {
+      console.log('if (!isEqual(this.props, prevProps))');
       this.updateChart();
     }
   }
 
   // AP
   private getOption(machine: string): Param {
-    if (machine === 'mondon') {
+    if (machine === 'Mondon') {
       return mondonOption;
     }
     return giaveOption;
@@ -176,7 +177,9 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     if (lastSpeed && lastSpeed.time > rangeEnd) {
       rangeEnd = lastSpeed.time;
     }
-
+    console.log(rangeStart, rangeEnd);
+    console.log(speedMap);
+    console.log(firstSpeed, lastSpeed);
     const data: Datum[] = [];
     let currentMinute = Math.floor(rangeStart / (60 * 1000));
     let currentSpeeds: SpeedTime[] = [];
@@ -213,6 +216,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
         currentSpeeds = [{time, speed: loopSpeed}];
       }
     }
+    console.log(data);
     return data;
   }
 
@@ -355,8 +359,12 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 
   public updateChart(): void {
+    console.log(this.barDataset, this.eventDataset, 'test');
     if (this.barDataset && this.eventDataset) {
+      console.log('après if');
       const data = this.normalizeSpeeds();
+      console.log(data[0]);
+      console.log('après data[0]');
       const firstDate = data[0].start;
       const lastDate = data[data.length - 1].end;
 

@@ -99,7 +99,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment: '',
     };
     const {start, end} = props;
-    this.scheduleStore = new ScheduleStore({start, end});
+    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
   }
 
   public componentDidMount(): void {

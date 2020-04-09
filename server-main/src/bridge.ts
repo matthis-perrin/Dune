@@ -66,7 +66,7 @@ async function getTimeSpeedsForSimulate(
 ): Promise<Map<number, number | undefined>> {
   const {speed, minutes} = asMap(data);
   const last = await getLastSpeedTime(db, true);
-  const startTs = last ? last.time + AGGREGATION_SIZE_MS : Date.now() % aggregator.getCurrentTime();
+  const startTs = last ? last.time + AGGREGATION_SIZE_MS : aggregator.getCurrentTime();
   const timeSpeeds = new Map<number, number | undefined>();
   const parsedMinutes = asNumber(minutes, 0);
   const valueToInsert = Math.round(

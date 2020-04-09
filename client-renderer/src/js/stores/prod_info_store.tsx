@@ -12,7 +12,7 @@ export class ProdInfoStore extends BaseStore {
     speedTimes: [],
   };
 
-  public constructor(private day: number) {
+  public constructor(private day: number, private readonly machine: string) {
     super();
     this.refresh();
   }
@@ -46,7 +46,7 @@ export class ProdInfoStore extends BaseStore {
     const date = new Date(this.day);
     const start = startOfDay(date).getTime();
     const end = endOfDay(date).getTime();
-    this.prodInfo = await bridge.getProdInfo(start, end);
+    this.prodInfo = await bridge.getProdInfo(start, end, this.machine);
     this.emit();
   }
 }

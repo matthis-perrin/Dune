@@ -9,6 +9,7 @@ import {startOfDay, endOfDay} from '@shared/lib/utils';
 import {Stop, Schedule} from '@shared/models';
 
 interface StopAppProps {
+  machine: string;
   day: number;
   stopStart: number;
 }
@@ -28,7 +29,7 @@ export class StopApp extends React.Component<StopAppProps, StopAppState> {
     const date = new Date(props.day);
     const start = startOfDay(date).getTime();
     const end = endOfDay(date).getTime();
-    this.scheduleStore = new ScheduleStore({start, end});
+    this.scheduleStore = new ScheduleStore(props.machine, {start, end});
     this.state = {};
     this.updateWindowTitle();
   }

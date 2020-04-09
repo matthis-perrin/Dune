@@ -275,7 +275,7 @@ class WindowManager {
     if (appInfo.type === ClientAppType.StatisticsApp) {
       return {id: 'statistics', size: {}};
     }
-    if (appInfo.type === ClientAppType.GiaveApp) {
+    if (appInfo.type === ClientAppType.GiaveProductionApp) {
       return {id: 'GIAVE', size: {}};
     }
     if (appInfo.type === ClientAppType.ReportsApp) {

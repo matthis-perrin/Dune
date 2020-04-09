@@ -16,7 +16,7 @@ import {ProductionApp} from '@root/components/apps/production/app';
 import {RefentePickerApp} from '@root/components/apps/refente_picker/app';
 import {ReportsApp} from '@root/components/apps/reports/app';
 import {StatisticsApp} from '@root/components/apps/statistics/app';
-import {GiaveApp} from '@root/components/apps/GIAVE/app';
+import {GiaveProductionApp} from '@root/components/apps/GIAVE/app';
 import {StopApp} from '@root/components/apps/stop/app';
 import {ViewBobineApp} from '@root/components/apps/view_bobine/app';
 import {ViewDayApp} from '@root/components/apps/view_day_app/app';
@@ -170,8 +170,17 @@ export class AppManager extends React.Component<Props, State> {
     if (type === ClientAppType.StatisticsApp) {
       return [operationsStore, constantsStore];
     }
-    if (type === ClientAppType.GiaveApp) {
-      return [];
+    if (type === ClientAppType.GiaveProductionApp) {
+      return [
+        colorsStore,
+        stocksStore,
+        cadencierStore,
+        bobinesQuantitiesStore,
+        operationsStore,
+        unplannedStopsStore,
+        cleaningsStore,
+        constantsStore,
+      ];
     }
     if (type === ClientAppType.ReportsApp || type === ClientAppType.ReportsPrinterApp) {
       return [
@@ -257,34 +266,46 @@ export class AppManager extends React.Component<Props, State> {
 
     if (type === ClientAppType.ViewDayApp) {
       const {initialDay} = asMap(data);
-      return <ViewDayApp config={config} initialDay={asNumber(initialDay, 0)} />;
+      return <ViewDayApp machine="Mondon" config={config} initialDay={asNumber(initialDay, 0)} />;
     }
 
     if (type === ClientAppType.ProductionApp) {
       const {initialDay} = asMap(data);
-      return <ProductionApp config={config} initialDay={asNumber(initialDay, undefined)} />;
+      return (
+        <ProductionApp
+          machine="Mondon"
+          config={config}
+          initialDay={asNumber(initialDay, undefined)}
+        />
+      );
     }
     if (type === ClientAppType.StopApp) {
       const {day, stopStart} = asMap(data);
-      return <StopApp day={asNumber(day, 0)} stopStart={asNumber(stopStart, 0)} />;
+      return <StopApp machine="Mondon" day={asNumber(day, 0)} stopStart={asNumber(stopStart, 0)} />;
     }
 
     if (type === ClientAppType.StatisticsApp) {
-      return <StatisticsApp />;
+      return <StatisticsApp machine="Mondon" />;
     }
 
-    if (type === ClientAppType.GiaveApp) {
+    if (type === ClientAppType.GiaveProductionApp) {
       const {initialDay} = asMap(data);
-      return <GiaveApp initialDay={asNumber(initialDay, undefined)} />;
+      return (
+        <GiaveProductionApp
+          machine="Giave"
+          config={config}
+          initialDay={asNumber(initialDay, undefined)}
+        />
+      );
     }
 
     if (type === ClientAppType.ReportsApp) {
       const {initialDay} = asMap(data);
-      return <ReportsApp initialDay={asNumber(initialDay, undefined)} />;
+      return <ReportsApp machine="Mondon" initialDay={asNumber(initialDay, undefined)} />;
     }
 
     if (type === ClientAppType.ReportsPrinterApp) {
-      return <ReportsApp initialDay={Date.now()} />;
+      return <ReportsApp machine="Mondon" initialDay={Date.now()} />;
     }
 
     if (type === ClientAppType.PlanProdPrinterApp) {

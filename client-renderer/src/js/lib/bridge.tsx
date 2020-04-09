@@ -251,15 +251,20 @@ export class Bridge {
     return this.openApp(ClientAppType.StopApp, {day, stopStart});
   }
 
-  public async getScheduleInfo(range?: {start: number; end: number}): Promise<ScheduleInfo> {
+  public async getScheduleInfo(
+    machine: string,
+    range?: {start: number; end: number}
+  ): Promise<ScheduleInfo> {
     return this.bridgeTransport.sendBridgeCommand<ScheduleInfo>(BridgeCommands.GetScheduleInfo, {
       range,
+      machine,
     });
   }
-  public async getProdInfo(start: number, end: number): Promise<ProdInfo> {
+  public async getProdInfo(start: number, end: number, machine: string): Promise<ProdInfo> {
     return this.bridgeTransport.sendBridgeCommand<ProdInfo>(BridgeCommands.GetProdInfo, {
       start,
       end,
+      machine,
     });
   }
   public async updateStop(

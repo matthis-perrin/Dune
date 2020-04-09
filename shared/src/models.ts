@@ -401,7 +401,7 @@ export enum ClientAppType {
   ProductionApp = 'ProductionApp',
   StopApp = 'StopApp',
   StatisticsApp = 'StatisticsApp',
-  GiaveApp = 'GiaveApp',
+  GiaveProductionApp = 'GiaveProductionApp',
   ReportsApp = 'ReportsApp',
   ReportsPrinterApp = 'ReportsPrinterApp',
   PlanProdPrinterApp = 'PlanProdPrinterApp',
@@ -445,6 +445,11 @@ export interface StopInfo {
   unplannedStops: UnplannedStop[];
   cleanings: Cleaning[];
   comments: string[];
+}
+
+export enum MachineType {
+  Mondon = 'Mondon',
+  Giave = 'Giave',
 }
 
 export enum StopType {

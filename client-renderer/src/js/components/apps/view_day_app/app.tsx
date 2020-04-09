@@ -27,6 +27,7 @@ import {Stock, Schedule, BobineQuantities, Config} from '@shared/models';
 interface ViewDayAppProps {
   initialDay: number;
   config: Config;
+  machine: string;
 }
 
 interface ViewDayAppState {
@@ -45,7 +46,7 @@ export class ViewDayApp extends React.Component<ViewDayAppProps, ViewDayAppState
     super(props);
     this.state = {day: props.initialDay};
     const range = this.getDayRangeForDate(new Date(props.initialDay));
-    this.scheduleStore = new ScheduleStore(range);
+    this.scheduleStore = new ScheduleStore(props.machine, range);
     document.title = this.formatDay(props.initialDay);
   }
 

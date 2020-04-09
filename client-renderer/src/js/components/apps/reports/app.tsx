@@ -17,6 +17,7 @@ import {startOfDay, endOfDay, capitalize} from '@shared/lib/utils';
 import {ProdInfo, Schedule, BobineQuantities, Stock} from '@shared/models';
 
 interface ReportsAppProps {
+  machine: string;
   initialDay?: number;
 }
 
@@ -45,7 +46,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
     } else {
       this.state = {};
     }
-    this.scheduleStore = new ScheduleStore(range);
+    this.scheduleStore = new ScheduleStore(props.machine, range);
   }
 
   public componentDidMount(): void {
@@ -75,6 +76,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
 
   private readonly handleScheduleChanged = (): void => {
     const schedule = this.scheduleStore.getSchedule();
+    const {machine} = this.props;
     this.setState({schedule});
     if (!schedule) {
       return;
@@ -83,7 +85,7 @@ export class ReportsApp extends React.Component<ReportsAppProps, ReportsAppState
     if (currentDay) {
       const dayTs = currentDay.getTime();
       if (!this.prodInfoStore) {
-        this.prodInfoStore = new ProdInfoStore(dayTs);
+        this.prodInfoStore = new ProdInfoStore(dayTs, machine);
         this.prodInfoStore.addListener(this.handleProdInfoChanged);
       }
     }
