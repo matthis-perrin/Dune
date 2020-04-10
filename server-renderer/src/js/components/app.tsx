@@ -7,7 +7,7 @@ import {MonitoringGescom} from '@root/components/gescom_monitoring';
 import {SpeedSimulator} from '@root/components/speed_simulator';
 import {bridge} from '@root/lib/bridge';
 
-import {ServerStatus} from '@shared/models';
+import {ServerStatus, MachineType} from '@shared/models';
 import {ServerSimulateAutomateMondon, ServerSimulateAutomateGiave} from '@shared/bridge/commands';
 import {AutomateMonitoring} from '@root/components/automate_monitoring';
 
@@ -64,12 +64,12 @@ export class App extends React.Component<Props, State> {
           serverSimulateAutomate={ServerSimulateAutomateMondon}
           displayName={'Mondon'}
         />
-        <AutomateMonitoring automate={status.automateMondon} automateName={'MONDON'} />
+        <AutomateMonitoring automate={status.automateMondon} automateName={MachineType.Mondon} />
         <SpeedSimulator
           serverSimulateAutomate={ServerSimulateAutomateGiave}
           displayName={'Giave'}
         />
-        <AutomateMonitoring automate={status.automateGiave} automateName={'GIAVE'} />
+        <AutomateMonitoring automate={status.automateGiave} automateName={MachineType.Giave} />
         {/* AP */}
         <MonitoringGescom gescom={status.gescom} />
         <GlobalStyle />

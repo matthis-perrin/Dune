@@ -27,6 +27,8 @@ import {
   Schedule,
   ScheduledPlanProd,
   Maintenance,
+  MachineType,
+  PlanProduction,
 } from '@shared/models';
 
 interface StopFormProps {
@@ -143,9 +145,10 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
     return time === undefined ? 'en cours' : new Date(time).toLocaleTimeString('fr');
   }
 
-  private getAvailablePlanProds(): ScheduledPlanProd[] {
-    const {schedule, stop} = this.props;
-    const availablePlanProds = getAllPlannedSchedules(schedule);
+  private getAvailablePlanProds(): PlanProduction[] {
+    const {schedule, stop, machine} = this.props;
+    let availablePlanProds: ScheduledPlanProd[] = [];
+    availablePlanProds = getAllPlannedSchedules(schedule);
     if (stop.planProdId !== undefined && stop.stopType === StopType.ChangePlanProd) {
       const planProd = getPlanProd(schedule, stop.planProdId);
       if (
@@ -155,7 +158,9 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
         availablePlanProds.unshift(planProd);
       }
     }
-    return availablePlanProds;
+    return machine === MachineType.Mondon
+      ? availablePlanProds.map(s => s.planProd)
+      : schedule.notStartedPlans;
   }
 
   private getAvailableMaintenances(): Maintenance[] {

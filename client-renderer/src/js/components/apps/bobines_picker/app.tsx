@@ -42,6 +42,7 @@ import {
   PlanProductionState,
   PlanProductionInfo,
   Schedule,
+  MachineType,
 } from '@shared/models';
 
 const DEFAULT_SPEED = 180;
@@ -80,7 +81,7 @@ export class BobinesPickerApp extends React.Component<Props, State> {
     super(props);
     this.state = {};
     const {start, end} = props;
-    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
+    this.scheduleStore = new ScheduleStore(MachineType.Mondon, {start, end});
   }
 
   public componentDidMount(): void {

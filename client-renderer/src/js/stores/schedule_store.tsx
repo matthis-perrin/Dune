@@ -121,8 +121,8 @@ export class ScheduleStore {
     } = this.prodData;
 
     const newNotStartedPlans = notStartedPlans.filter(p => p.index < atIndex).concat([planProd]);
-
-    return createSchedule(
+    const res = createSchedule(
+      this.machine,
       this.operations,
       prodRanges,
       startedPlans,
@@ -134,6 +134,7 @@ export class ScheduleStore {
       this.constants,
       lastSpeedTime
     );
+    return res;
   }
 
   private recompute(): void {
@@ -151,6 +152,7 @@ export class ScheduleStore {
       nonProds,
     } = this.prodData;
     this.schedule = createSchedule(
+      this.machine,
       this.operations,
       prodRanges,
       startedPlans,

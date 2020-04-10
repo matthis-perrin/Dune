@@ -58,7 +58,8 @@ export function getPreviousSchedule(
 export function getScheduleOperationTime(schedule: ScheduledPlanProd): number {
   console.log(schedule);
   let operationTime = 0;
-  schedule.schedulePerDay.forEach(s => (operationTime += s.doneOperationsMs + s.plannedOperationsMs)
+  schedule.schedulePerDay.forEach(
+    s => (operationTime += s.doneOperationsMs + s.plannedOperationsMs)
   );
   return operationTime;
 }
@@ -144,7 +145,8 @@ export function getPlanStart(plan: ScheduledPlanProd): number | undefined {
 
 export function getStartForPlanIndex(schedule: Schedule, index: number): number {
   const planSchedule = maxBy(
-    schedule.plans.filter(p => p.planProd.index <= index), p => p.planProd.index
+    schedule.plans.filter(p => p.planProd.index <= index),
+    p => p.planProd.index
   );
   if (planSchedule) {
     const planStart =
@@ -204,7 +206,8 @@ function getAllStops(schedule: Schedule): Stop[] {
 }
 
 export function getPreviousStop(schedule: Schedule, stop: Stop): Stop | undefined {
-  const allStops = getAllStops(schedule).filter(s => s.stopType !== undefined && [StopType.NotProdHours].indexOf(s.stopType) === -1
+  const allStops = getAllStops(schedule).filter(
+    s => s.stopType !== undefined && [StopType.NotProdHours].indexOf(s.stopType) === -1
   );
   return allStops.filter(s => s.start < stop.start).sort((s1, s2) => s2.start - s1.start)[0];
 }

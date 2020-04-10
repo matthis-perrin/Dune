@@ -27,7 +27,15 @@ import {Colors, Palette, FontWeight} from '@root/theme';
 
 import {getWeekDay} from '@shared/lib/time';
 import {capitalize, startOfDay} from '@shared/lib/utils';
-import {ProdInfo, Schedule, Operation, StopType, Stock, Constants} from '@shared/models';
+import {
+  ProdInfo,
+  Schedule,
+  Operation,
+  StopType,
+  Stock,
+  Constants,
+  MachineType,
+} from '@shared/models';
 
 interface ReportViewerProps {
   machine: string;
@@ -152,7 +160,7 @@ export class ReportViewer extends React.Component<ReportViewerProps> {
           speeds={prodInfo.speedTimes}
           events={events}
           // AP
-          machine={'Mondon'}
+          machine={MachineType.Mondon}
         />
       </CharContainer>
     );

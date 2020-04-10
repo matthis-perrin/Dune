@@ -7,14 +7,7 @@ import {getPlanProdTitle} from '@root/lib/plan_prod';
 import {getColorForStopType, getLabelForStopType} from '@root/lib/stop';
 import {Palette} from '@root/theme';
 
-import {
-  Stop,
-  StopType,
-  UnplannedStop,
-  Cleaning,
-  ScheduledPlanProd,
-  Maintenance,
-} from '@shared/models';
+import {Stop, StopType, UnplannedStop, Cleaning, Maintenance, PlanProduction} from '@shared/models';
 
 interface StopDetailsProps {
   stop: Stop;
@@ -24,7 +17,7 @@ interface StopDetailsProps {
   cleanings: Cleaning[];
   planProdId?: number;
   maintenanceId?: number;
-  availablePlanProds: ScheduledPlanProd[];
+  availablePlanProds: PlanProduction[];
   availableMaintenances: Maintenance[];
   onRemoveType(): void;
   onRemoveUnplannedStop(name: string): void;
@@ -78,7 +71,9 @@ export class StopDetails extends React.Component<StopDetailsProps> {
         value={selectedPlanProdId}
       >
         {availablePlanProds.map(p => (
-          <PlanProdOption key={p.planProd.id} value={p.planProd.id}>{getPlanProdTitle(p.planProd.id)}</PlanProdOption>
+          <PlanProdOption key={p.id} value={p.id}>
+            {getPlanProdTitle(p.id)}
+          </PlanProdOption>
         ))}
       </PlanProdSelect>
     );
@@ -92,7 +87,9 @@ export class StopDetails extends React.Component<StopDetailsProps> {
         value={selectedMaintenanceId}
       >
         {availableMaintenances.map(m => (
-          <MaintenanceOption key={m.id} value={m.id}>{m.title}</MaintenanceOption>
+          <MaintenanceOption key={m.id} value={m.id}>
+            {m.title}
+          </MaintenanceOption>
         ))}
       </MaintenanceSelect>
     );
@@ -147,9 +144,7 @@ export class StopDetails extends React.Component<StopDetailsProps> {
     return (
       <Wrapper>
         {this.renderType(type)}
-        {unplannedStops
-          .sort((r1, r2) => r1.order - r2.order)
-          .map(r => this.renderUnplannedStop(r))}
+        {unplannedStops.sort((r1, r2) => r1.order - r2.order).map(r => this.renderUnplannedStop(r))}
         {comments.map((comment, index) => this.renderComment(comment, index))}
         {cleanings.sort((c1, c2) => c1.order - c2.order).map(c => this.renderCleaning(c))}
       </Wrapper>

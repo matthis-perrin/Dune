@@ -32,8 +32,7 @@ import {
   updatePlanProductionInfo,
   movePlanProduction,
   getPlanProd,
-  getNotStartedPlanProds,
-  getStartedPlanProdsInRange,
+  getPlanProdsStatus,
 } from '@shared/db/plan_production';
 import {listRefentes} from '@shared/db/refentes';
 import {getSpeedProdBetween} from '@shared/db/speed_prods';
@@ -349,23 +348,22 @@ export async function handleCommand(
       rangeStart = lastSpeedTime ? startOfDay(new Date(lastSpeedTime.time)).getTime() : 0;
     }
 
-    const lastPlanProdChange = await getLastPlanProdChangeBefore(db, rangeStart);
-    rangeStart = lastPlanProdChange ? lastPlanProdChange.start : 0;
+    // const lastPlanProdChange = await getLastPlanProdChangeBefore(db, rangeStart);
+    // rangeStart = lastPlanProdChange ? lastPlanProdChange.start : 0;
 
     if (rangeEnd === undefined) {
       rangeEnd = lastSpeedTime ? endOfDay(new Date(lastSpeedTime.time)).getTime() : Date.now() * 2;
     }
 
-    const needNotStartedPlanProd = lastSpeedTime === undefined || rangeEnd > lastSpeedTime.time;
-
-    const [stops, prods, notStartedPlans, startedPlans, maintenances, nonProds] = await AllPromise([
+    const [stops, prods, statusPlans, maintenances, nonProds] = await AllPromise([
       getSpeedStopBetween(db, rangeStart, rangeEnd),
       getSpeedProdBetween(db, rangeStart, rangeEnd),
-      needNotStartedPlanProd ? getNotStartedPlanProds(SQLITE_DB.Prod) : Promise.resolve([]),
-      getStartedPlanProdsInRange(SQLITE_DB.Prod, rangeStart, rangeEnd, log.debug),
+      getPlanProdsStatus(db, SQLITE_DB.Prod, rangeStart, rangeEnd),
       getMaintenancesBetween(db, rangeStart, rangeEnd),
       getNonProdsBetween(db, rangeStart, rangeEnd),
     ]);
+    const notStartedPlans = statusPlans.notStarted;
+    const startedPlans = statusPlans.started;
     const res: ScheduleInfo = {
       stops,
       prods,

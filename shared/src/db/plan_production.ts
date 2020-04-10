@@ -1,8 +1,8 @@
 import knex from 'knex';
 
-import {getLatestStopWithPlanIdBefore, SpeedStopsColumn} from '@shared/db/speed_stops';
+import {getLatestStopWithPlanIdBefore, SpeedStopsColumn, lineAsStop} from '@shared/db/speed_stops';
 import {PLANS_PRODUCTION_TABLE_NAME, SPEED_STOPS_TABLE_NAME} from '@shared/db/table_names';
-import {PlanProductionRaw, PlanProductionInfo} from '@shared/models';
+import {PlanProductionRaw, PlanProductionInfo, StopType} from '@shared/models';
 import {asMap, asNumber, asString, asArray, asBoolean} from '@shared/type_utils';
 import {AllPromise} from '@shared/promise_utils';
 
@@ -282,47 +282,61 @@ export async function getPlanProd(db: knex, id: number): Promise<PlanProductionR
   )[0];
 }
 
-export async function getNotStartedPlanProds(db: knex): Promise<PlanProductionRaw[]> {
-  return db
+export async function getPlanProdsStatus(
+  stopDb: knex,
+  planProdDb: knex,
+  rangeStart: number,
+  rangeEnd: number
+): Promise<{started: PlanProductionRaw[]; notStarted: PlanProductionRaw[]}> {
+  const planProdsPromise = planProdDb
     .select()
     .from(PLANS_PRODUCTION_TABLE_NAME)
-    .leftOuterJoin(
-      SPEED_STOPS_TABLE_NAME,
-      `${PLANS_PRODUCTION_TABLE_NAME}.${PlansProductionColumn.ID_COLUMN}`,
-      `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`
-    )
-    .whereNull(`${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`)
     .map(mapLineToPlanProductionRaw);
-}
-
-export async function getStartedPlanProdsInRange(
-  db: knex,
-  start: number,
-  end: number,
-  debug: DebugFn
-): Promise<PlanProductionRaw[]> {
-  const speedStartColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.Start}`;
-  const speedEndColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.End}`;
-  const speedPlanIdColumn = `${SPEED_STOPS_TABLE_NAME}.${SpeedStopsColumn.PlanProdId}`;
-
-  return db
+  const stopsPromise = stopDb
     .select()
-    .from(PLANS_PRODUCTION_TABLE_NAME)
-    .leftOuterJoin(
-      SPEED_STOPS_TABLE_NAME,
-      `${PLANS_PRODUCTION_TABLE_NAME}.${PlansProductionColumn.ID_COLUMN}`,
-      speedPlanIdColumn
-    )
-    .whereNotNull(speedPlanIdColumn)
-    .andWhere(function (): void {
-      // tslint:disable:no-invalid-this
-      this.where(speedStartColumn, '>=', start)
-        .andWhere(speedStartColumn, '<', end)
-        .orWhere(function (): void {
-          this.where(speedEndColumn, '>=', start).andWhere(speedEndColumn, '<', end);
-        });
-      // tslint:enable:no-invalid-this
-    })
-    .groupBy(speedPlanIdColumn)
-    .map(mapLineToPlanProductionRaw);
+    .from(SPEED_STOPS_TABLE_NAME)
+    .orderBy(SpeedStopsColumn.Start, 'desc')
+    .where(SpeedStopsColumn.StopType, '=', StopType.ChangePlanProd)
+    .map(lineAsStop);
+  const stopsMondonPromise = planProdDb
+    .select()
+    .from(SPEED_STOPS_TABLE_NAME)
+    .orderBy(SpeedStopsColumn.Start, 'desc')
+    .where(SpeedStopsColumn.StopType, '=', StopType.ChangePlanProd)
+    .map(lineAsStop);
+  const startedPlanProds: PlanProductionRaw[] = [];
+  const notstartedPlanProds: PlanProductionRaw[] = [];
+  const [planProds, stops, stopsMondon] = await Promise.all([
+    planProdsPromise,
+    stopsPromise,
+    stopsMondonPromise,
+  ]);
+  const startedInRangePlansprodId = new Set<number>();
+  const startedOutRangePlansprodId = new Set<number>();
+  stops.forEach(stop => {
+    if (stop.planProdId) {
+      if (stop.start > rangeStart && stop.start < rangeEnd) {
+        startedInRangePlansprodId.add(stop.planProdId);
+      } else {
+        startedOutRangePlansprodId.add(stop.planProdId);
+      }
+    }
+  });
+  stopsMondon.forEach(stop => {
+    if (stop.planProdId) {
+      if (stop.start > rangeStart && stop.start < rangeEnd) {
+        startedInRangePlansprodId.add(stop.planProdId);
+      } else {
+        startedOutRangePlansprodId.add(stop.planProdId);
+      }
+    }
+  });
+  planProds.forEach(planProd => {
+    if (startedInRangePlansprodId.has(planProd.id)) {
+      startedPlanProds.push(planProd);
+    } else if (!startedOutRangePlansprodId.has(planProd.id)) {
+      notstartedPlanProds.push(planProd);
+    }
+  });
+  return {started: startedPlanProds, notStarted: notstartedPlanProds};
 }

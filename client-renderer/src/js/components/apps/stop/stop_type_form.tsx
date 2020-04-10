@@ -5,14 +5,14 @@ import {getLabelForStopType} from '@root/lib/stop';
 import {isSameDay} from '@root/lib/utils';
 import {Palette, Colors} from '@root/theme';
 
-import {Stop, StopType, ScheduledPlanProd, Maintenance} from '@shared/models';
+import {Stop, StopType, Maintenance, PlanProduction} from '@shared/models';
 
 interface StopTypeFormProps {
   stop: Stop;
   type?: StopType;
   previousStop?: Stop;
   hadProd: boolean;
-  availablePlanProds: ScheduledPlanProd[];
+  availablePlanProds: PlanProduction[];
   availableMaintenances: Maintenance[];
   lastPlanId?: number;
   onChange(newType: StopType, newPlanProdId: number, newMaintenanceId?: number): void;
@@ -37,7 +37,7 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
       let maintenanceId: number | undefined;
 
       if (value === StopType.ChangePlanProd) {
-        planProdId = availablePlanProds[0].planProd.id;
+        planProdId = availablePlanProds[0].id;
       }
       if (value === StopType.Maintenance) {
         maintenanceId = availableMaintenances[0].id;

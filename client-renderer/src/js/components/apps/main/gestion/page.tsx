@@ -13,7 +13,7 @@ import {FontWeight, Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {startOfDay, padNumber} from '@shared/lib/utils';
-import {Stock, BobineQuantities, Schedule, Config, ProdRange} from '@shared/models';
+import {Stock, BobineQuantities, Schedule, Config, ProdRange, MachineType} from '@shared/models';
 
 const LAST_MONTH = 11;
 
@@ -40,7 +40,7 @@ export class GestionPage extends React.Component<Props, State> {
     const month = new Date().getMonth();
     this.state = {month, year};
     const {start, end} = this.getProdStoreRange(year, month);
-    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
+    this.scheduleStore = new ScheduleStore(MachineType.Mondon, {start, end});
   }
 
   public componentDidMount(): void {

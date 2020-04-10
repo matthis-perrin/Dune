@@ -22,7 +22,8 @@ export class BridgeTransport {
   // tslint:disable-next-line:no-any
   constructor(private readonly eventHandler: (event: BridgeEvent, data: any) => void) {
     window.addEventListener(
-      'message', event => {
+      'message',
+      event => {
         if (event.source !== window) {
           console.error(
             'Received "message" event with a source different than window: ',

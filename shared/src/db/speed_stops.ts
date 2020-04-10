@@ -33,7 +33,7 @@ export async function createSpeedStopsTable(db: knex): Promise<void> {
 }
 
 // tslint:disable-next-line:no-any
-function lineAsStop(lineData: any): Stop {
+export function lineAsStop(lineData: any): Stop {
   const line = asMap(lineData);
   const stopInfoJSON = asString(line[SpeedStopsColumn.StopInfo], undefined);
   return {

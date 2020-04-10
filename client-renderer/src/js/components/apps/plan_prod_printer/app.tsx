@@ -10,7 +10,7 @@ import {cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
 import {startOfDay, endOfDay, arrayJoin} from '@shared/lib/utils';
-import {BobineQuantities, Schedule, ScheduledPlanProd} from '@shared/models';
+import {BobineQuantities, Schedule, ScheduledPlanProd, MachineType} from '@shared/models';
 
 interface PlanProdPrinterAppProps {
   day: number;
@@ -35,7 +35,7 @@ export class PlanProdPrinterApp extends React.Component<
     const start = startOfDay(new Date(props.day)).getTime();
     const end = endOfDay(new Date(props.day)).getTime();
     this.state = {};
-    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
+    this.scheduleStore = new ScheduleStore(MachineType.Mondon, {start, end});
   }
 
   public componentDidMount(): void {

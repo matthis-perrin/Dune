@@ -8,7 +8,7 @@ import {Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {padNumber} from '@shared/lib/utils';
-import {SpeedTime, ProdRange} from '@shared/models';
+import {SpeedTime, ProdRange, MachineType} from '@shared/models';
 import {removeUndefined} from '@shared/type_utils';
 
 export interface SpeedChartEvent {
@@ -110,7 +110,7 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
   // AP
   private getOption(machine: string): Param {
-    if (machine === 'Mondon') {
+    if (machine === MachineType.Mondon) {
       return mondonOption;
     }
     return giaveOption;
@@ -177,9 +177,6 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
     if (lastSpeed && lastSpeed.time > rangeEnd) {
       rangeEnd = lastSpeed.time;
     }
-    console.log(rangeStart, rangeEnd);
-    console.log(speedMap);
-    console.log(firstSpeed, lastSpeed);
     const data: Datum[] = [];
     let currentMinute = Math.floor(rangeStart / (60 * 1000));
     let currentSpeeds: SpeedTime[] = [];
@@ -359,12 +356,8 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
   }
 
   public updateChart(): void {
-    console.log(this.barDataset, this.eventDataset, 'test');
     if (this.barDataset && this.eventDataset) {
-      console.log('après if');
       const data = this.normalizeSpeeds();
-      console.log(data[0]);
-      console.log('après data[0]');
       const firstDate = data[0].start;
       const lastDate = data[data.length - 1].end;
 

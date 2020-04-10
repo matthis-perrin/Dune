@@ -52,6 +52,7 @@ import {
   Operation,
   Schedule,
   Constants,
+  MachineType,
 } from '@shared/models';
 import {asMap, asNumber} from '@shared/type_utils';
 import {AllPromise} from '@shared/promise_utils';
@@ -99,7 +100,7 @@ export class PlanProdEditorApp extends React.Component<Props, State> {
       comment: '',
     };
     const {start, end} = props;
-    this.scheduleStore = new ScheduleStore('Mondon', {start, end});
+    this.scheduleStore = new ScheduleStore(MachineType.Mondon, {start, end});
   }
 
   public componentDidMount(): void {
