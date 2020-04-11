@@ -8,6 +8,7 @@ export const CleaningColumns = {
   NAME: 'name',
   LABEL: 'label',
   ORDER: 'order',
+  MACHINE: 'machine',
 };
 
 export async function createCleaningTable(db: knex): Promise<void> {
@@ -17,6 +18,7 @@ export async function createCleaningTable(db: knex): Promise<void> {
       table.string(CleaningColumns.NAME).primary().notNullable();
       table.text(CleaningColumns.LABEL).notNullable();
       table.text(CleaningColumns.ORDER).notNullable();
+      table.text(CleaningColumns.MACHINE);
     });
   }
 }
@@ -30,6 +32,7 @@ export async function listCleanings(db: knex): Promise<Cleaning[]> {
         name: asString(b[CleaningColumns.NAME], ''),
         label: asString(b[CleaningColumns.LABEL], ''),
         order: asNumber(b[CleaningColumns.ORDER], 0),
+        machine: asNumber(b[CleaningColumns.MACHINE], ''),
       };
     });
 }
