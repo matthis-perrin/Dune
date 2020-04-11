@@ -9,16 +9,18 @@ export const UnplannedStopColumns = {
   LABEL: 'label',
   GROUP: 'group',
   ORDER: 'order',
+  MACHINE: 'machine',
 };
 
 export async function createUnplannedStopTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(UNPLANNED_STOPS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(UNPLANNED_STOPS_TABLE_NAME, table => {
-      table.text(UnplannedStopColumns.NAME).primary().notNullable();
+      table.string(UnplannedStopColumns.NAME).primary().notNullable();
       table.text(UnplannedStopColumns.LABEL).notNullable();
       table.text(UnplannedStopColumns.GROUP).notNullable();
       table.text(UnplannedStopColumns.ORDER).notNullable();
+      table.text(UnplannedStopColumns.MACHINE);
     });
   }
 }
@@ -33,6 +35,7 @@ export async function listUnplannedStop(db: knex): Promise<UnplannedStop[]> {
         label: asString(b[UnplannedStopColumns.LABEL], ''),
         group: asString(b[UnplannedStopColumns.GROUP], ''),
         order: asNumber(b[UnplannedStopColumns.ORDER], 0),
+        machine: asString(b[UnplannedStopColumns.MACHINE], ''),
       };
     });
 }

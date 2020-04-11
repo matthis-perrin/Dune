@@ -39,7 +39,6 @@ import {getSpeedProdBetween} from '@shared/db/speed_prods';
 import {
   getSpeedStopBetween,
   updateStopInfo,
-  getLastPlanProdChangeBefore,
   startMaintenanceStop,
   deleteMaintenanceStop,
   endMaintenanceStop,
