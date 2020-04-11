@@ -32,7 +32,7 @@ export async function listCleanings(db: knex): Promise<Cleaning[]> {
         name: asString(b[CleaningColumns.NAME], ''),
         label: asString(b[CleaningColumns.LABEL], ''),
         order: asNumber(b[CleaningColumns.ORDER], 0),
-        machine: asNumber(b[CleaningColumns.MACHINE], ''),
+        machine: asString(b[CleaningColumns.MACHINE], ''),
       };
     });
 }

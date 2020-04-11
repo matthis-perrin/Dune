@@ -8,6 +8,7 @@ import {Colors} from '@root/theme';
 import {Stop, UnplannedStop} from '@shared/models';
 
 interface UnplannedStopsFormProps {
+  machine: string;
   stop: Stop;
   unplannedStops: UnplannedStop[];
   onChange(newUnplannedStops: UnplannedStop[]): void;
@@ -37,8 +38,15 @@ export class UnplannedStopsForm extends React.Component<
   }
 
   private readonly handleStoresChanged = (): void => {
+    const {machine} = this.props;
+    let newAllUnplannedStops = unplannedStopsStore.getData();
+    if (newAllUnplannedStops) {
+      newAllUnplannedStops = newAllUnplannedStops.filter(
+        u => u.machine === machine || u.machine === ''
+      );
+    }
     this.setState({
-      allUnplannedStops: unplannedStopsStore.getData(),
+      allUnplannedStops: newAllUnplannedStops,
     });
   };
 
@@ -49,7 +57,8 @@ export class UnplannedStopsForm extends React.Component<
     const {allUnplannedStops = []} = this.state;
     if (event.target.checked) {
       const newUnplannedStops = [...unplannedStops];
-      const checked: UnplannedStop | undefined = allUnplannedStops.filter(stop => stop.name === name
+      const checked: UnplannedStop | undefined = allUnplannedStops.filter(
+        stop => stop.name === name
       )[0];
       newUnplannedStops.push(checked);
       onChange(newUnplannedStops);

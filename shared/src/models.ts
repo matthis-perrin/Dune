@@ -494,12 +494,14 @@ export interface UnplannedStop {
   label: string;
   group: string;
   order: number;
+  machine: string;
 }
 
 export interface Cleaning {
   name: string;
   label: string;
   order: number;
+  machine: string;
 }
 
 export interface ProdHours extends ProdRange {

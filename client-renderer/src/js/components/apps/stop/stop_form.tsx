@@ -67,7 +67,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       this.state = {
         stopType,
         unplannedStops,
-        cleanings,
+        cleanings: cleanings.filter(u => u.machine === props.machine || u.machine === ''),
         comments,
         planProdId,
         maintenanceId,
@@ -273,7 +273,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private renderUnplannedStops(): JSX.Element {
-    const {stop} = this.props;
+    const {stop, machine} = this.props;
     const {unplannedStops, stopType} = this.state;
     if (stopType === undefined || stopType !== StopType.Unplanned) {
       return <React.Fragment />;
@@ -283,6 +283,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
         <ContentTitle>RAISONS</ContentTitle>
         <ContentInside>
           <UnplannedStopsForm
+            machine={machine}
             stop={stop}
             unplannedStops={unplannedStops}
             onChange={this.handleOtherReasonsChanged}
@@ -293,7 +294,7 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
   }
 
   private renderCleanings(): JSX.Element {
-    const {stop} = this.props;
+    const {stop, machine} = this.props;
     const {cleanings, stopType} = this.state;
     if (stopType === undefined) {
       return <React.Fragment />;
@@ -302,7 +303,12 @@ export class StopForm extends React.Component<StopFormProps, StopFormState> {
       <CleaningBlock>
         <ContentTitle>NETTOYAGES</ContentTitle>
         <ContentInside>
-          <CleaningsForm stop={stop} cleanings={cleanings} onChange={this.handleCleaningsChanged} />
+          <CleaningsForm
+            machine={machine}
+            stop={stop}
+            cleanings={cleanings}
+            onChange={this.handleCleaningsChanged}
+          />
         </ContentInside>
       </CleaningBlock>
     );

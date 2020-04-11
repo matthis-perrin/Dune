@@ -7,6 +7,7 @@ import {cleaningsStore} from '@root/stores/data_store';
 import {Stop, Cleaning} from '@shared/models';
 
 interface CleaningsFormProps {
+  machine: string;
   stop: Stop;
   cleanings: Cleaning[];
   onChange(newCleanings: Cleaning[]): void;
@@ -35,8 +36,13 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
   }
 
   private readonly handleStoresChanged = (): void => {
+    const {machine} = this.props;
+    let newAllCleanings = cleaningsStore.getData();
+    if (newAllCleanings) {
+      newAllCleanings = newAllCleanings.filter(u => u.machine === machine || u.machine === '');
+    }
     this.setState({
-      allCleanings: cleaningsStore.getData(),
+      allCleanings: newAllCleanings,
     });
   };
 
@@ -47,7 +53,8 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
     const {allCleanings = []} = this.state;
     if (event.target.checked) {
       const newCleanings = [...cleanings];
-      const checked: Cleaning | undefined = allCleanings.filter(cleaning => cleaning.name === name
+      const checked: Cleaning | undefined = allCleanings.filter(
+        cleaning => cleaning.name === name
       )[0];
       newCleanings.push(checked);
       onChange(newCleanings);
