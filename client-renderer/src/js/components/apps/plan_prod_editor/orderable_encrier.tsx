@@ -46,7 +46,7 @@ export class OrderableEncrier extends React.Component<
 
   private getEncrierHeight(): number {
     const {pixelPerMM} = this.props;
-    return (theme.planProd.elementsBaseHeight + theme.planProd.basePadding) * pixelPerMM;
+    return (theme.planProd.encrierBaseHeight + theme.planProd.basePadding) * pixelPerMM;
   }
 
   private getEncrierIndexAtPos(posY: number): number {

@@ -29,7 +29,7 @@ export class Encrier extends React.Component<EncrierProps> {
     return (
       <EncrierEmptySpot
         key={`empty-spot-${index}`}
-        style={{width: size * pixelPerMM, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
+        style={{width: size * pixelPerMM, height: theme.planProd.encrierBaseHeight * pixelPerMM}}
       />
     );
   }
@@ -43,7 +43,7 @@ export class Encrier extends React.Component<EncrierProps> {
     return (
       <EmptyEncrier
         key={'empty-encrier'}
-        style={{width: size * pixelPerMM, height: theme.planProd.elementsBaseHeight * pixelPerMM}}
+        style={{width: size * pixelPerMM, height: theme.planProd.encrierBaseHeight * pixelPerMM}}
       >
         <AutoFontWeight fontSize={theme.planProd.elementsBaseLargeFontSize * pixelPerMM}>
           Encrier vide
@@ -78,7 +78,7 @@ export class Encrier extends React.Component<EncrierProps> {
           <EncrierClicheSpot
             style={{
               width: size * pixelPerMM,
-              height: theme.planProd.elementsBaseHeight * pixelPerMM,
+              height: theme.planProd.encrierBaseHeight * pixelPerMM,
               backgroundColor: color.backgroundHex,
               color: color.textHex,
             }}
