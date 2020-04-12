@@ -174,6 +174,7 @@ export const theme = {
     selectedStrokeWidth: 1,
 
     elementsBaseHeight: 100,
+    encrierBaseHeight: 70,
     basePadding: 24,
     elementsBaseSmallFontSize: 12,
     elementsBaseMediumFontSize: 20,
