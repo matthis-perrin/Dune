@@ -231,10 +231,12 @@ export function generateAllAcceptableColorsOrder(
   maxColors: number,
   previousPlanColors?: EncrierColor[]
 ): EncrierColor[][] {
-  const ordered = allSmallestArrangementsFromOrderedColors(
-    bobineColors.map(c => c.ordered),
-    maxColors
-  );
+  const orderedCliches = bobineColors.map(c => c.ordered);
+  const ordered = allSmallestArrangementsFromOrderedColors(orderedCliches, maxColors);
+  if (orderedCliches.length === 0 && ordered.length > 0) {
+    return [];
+  }
+
   const nonOrdered = clicheColorsToColorMap(bobineColors.map(c => c.nonOrdered));
 
   let finalArrangements: EncrierColor[][] = [];
