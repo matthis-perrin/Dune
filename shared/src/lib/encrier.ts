@@ -171,6 +171,9 @@ export function validColorCombinaison(bobineColors: BobineColors[], maxColors: n
     maxColors - nonOrderedCount
   );
   if (orderedArrangements.length === 0) {
+    if (ordered.length > 0) {
+      return false;
+    }
     return nonOrderedCount <= maxColors;
   }
 
