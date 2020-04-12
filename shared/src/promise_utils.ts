@@ -30,6 +30,9 @@ export async function AllPromise<T1, T2, T3, T4, T5, T6, T7, T8>(
 ): Promise<[T1, T2, T3, T4, T5, T6, T7, T8]>;
 // tslint:disable: no-any
 export async function AllPromise(all: Promise<any>[]): Promise<any[]> {
+  if (all.length === 0) {
+    return Promise.resolve([]);
+  }
   return new Promise<any[]>((resolve, reject) => {
     const promiseResults: any[] = [];
     let counter = 0;
