@@ -63,8 +63,9 @@ app.on('ready', () => {
     });
   }
   const browserWindow = createBrowserWindow({
-    width: 620,
-    height: 477,
+    width: 540,
+    // AP
+    height: 1330,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
