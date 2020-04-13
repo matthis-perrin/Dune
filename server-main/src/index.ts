@@ -59,26 +59,19 @@ startServer().catch(log.error);
 app.on('ready', () => {
   if (session.defaultSession) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      const csp = '*';
-      callback({
-        responseHeaders: {
-          'Content-Security-Policy': [csp],
-          ...details.responseHeaders,
-        },
-      });
+      callback({responseHeaders: "default-src 'self'"});
     });
   }
   const browserWindow = createBrowserWindow({
-    width: 620,
-    height: 477,
+    width: 540,
+    // AP
+    height: 1330,
   });
   // tslint:disable-next-line: no-any
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
     log.error('Failure to setup the BrowserWindow', err)
   );
-  if (process.env.MODE === 'development') {
-    browserWindow.webContents.openDevTools({mode: 'detach'});
-  }
+  // browserWindow.webContents.openDevTools({mode: 'detach'});
   log.info('Started');
 });
 
