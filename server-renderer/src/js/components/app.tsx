@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {GlobalStyle} from '@root/components/global_styles';
-import {Herisson} from '@root/components/herisson';
 import {MonitoringGescom} from '@root/components/gescom_monitoring';
 import {SpeedSimulator} from '@root/components/speed_simulator';
 import {bridge} from '@root/lib/bridge';
@@ -10,6 +9,9 @@ import {bridge} from '@root/lib/bridge';
 import {ServerStatus, MachineType} from '@shared/models';
 import {ServerSimulateAutomateMondon, ServerSimulateAutomateGiave} from '@shared/bridge/commands';
 import {AutomateMonitoring} from '@root/components/automate_monitoring';
+import {IllustrationMondon} from '@root/components/illustration_mondon';
+import {IllustrationGiave} from '@root/components/illustration_giave';
+import {IllustrationGescom} from '@root/components/illustration_gescom';
 
 const REFRESH_PERIOD_MS = 500;
 
@@ -52,10 +54,10 @@ export class App extends React.Component<Props, State> {
     return (
       <AppWrapper>
         <HerissonWrapper>
-          <Herisson
+          <IllustrationMondon
             style={{
-              width: '20%',
-              height: '20%',
+              width: '30%',
+              height: '30%',
               padding: '0px 0px 16px 0px',
             }}
           />
@@ -65,12 +67,30 @@ export class App extends React.Component<Props, State> {
           displayName={'Mondon'}
         />
         <AutomateMonitoring automate={status.automateMondon} automateName={MachineType.Mondon} />
+        <HerissonWrapper>
+          <IllustrationGiave
+            style={{
+              width: '30%',
+              height: '30%',
+              padding: '0px 0px 16px 0px',
+            }}
+          />
+        </HerissonWrapper>
         <SpeedSimulator
           serverSimulateAutomate={ServerSimulateAutomateGiave}
           displayName={'Giave'}
         />
         <AutomateMonitoring automate={status.automateGiave} automateName={MachineType.Giave} />
         {/* AP */}
+        <HerissonWrapper>
+          <IllustrationGescom
+            style={{
+              width: '30%',
+              height: '30%',
+              padding: '0px 0px 16px 0px',
+            }}
+          />
+        </HerissonWrapper>
         <MonitoringGescom gescom={status.gescom} />
         <GlobalStyle />
       </AppWrapper>
