@@ -15,6 +15,7 @@ export const BobineFilleColumns = {
   GRAMMAGE_COLUMN: 'grammage',
   REF_CLICHE_1_COLUMN: 'refCliche1',
   REF_CLICHE_2_COLUMN: 'refCliche2',
+  REF_CLICHE_3_COLUMN: 'refCliche3',
   TYPE_IMPRESSION_COLUMN: 'typeImpression',
   SOMMEIL_COLUMN: 'sommeil',
   LAST_UPDATE_COLUMN: 'lastUpdate',
@@ -34,6 +35,7 @@ export async function createBobinesFillesTable(db: knex, truncateGescom: boolean
       table.integer(BobineFilleColumns.GRAMMAGE_COLUMN).nullable();
       table.string(BobineFilleColumns.REF_CLICHE_1_COLUMN).nullable();
       table.string(BobineFilleColumns.REF_CLICHE_2_COLUMN).nullable();
+      table.string(BobineFilleColumns.REF_CLICHE_3_COLUMN).nullable();
       table.string(BobineFilleColumns.TYPE_IMPRESSION_COLUMN).nullable();
       table.boolean(BobineFilleColumns.SOMMEIL_COLUMN).nullable();
       table.dateTime(BobineFilleColumns.LAST_UPDATE_COLUMN).nullable();
@@ -57,7 +59,8 @@ function getRealLongueur(
   if (longueur === undefined) {
     return undefined;
   }
-  const matchingLongueurs = longueurMapping.filter(l => l.longueur === longueur && (l.colorRef === undefined || l.colorRef === '')
+  const matchingLongueurs = longueurMapping.filter(
+    l => l.longueur === longueur && (l.colorRef === undefined || l.colorRef === '')
   );
   const matchingLongueursAndColors = matchingLongueurs.filter(l => l.colorRef === couleurPapier);
   if (matchingLongueursAndColors.length > 0) {
@@ -97,6 +100,7 @@ export async function listBobinesFilles(
         grammage: asNumber(b[BobineFilleColumns.GRAMMAGE_COLUMN], undefined),
         refCliche1: asString(b[BobineFilleColumns.REF_CLICHE_1_COLUMN], undefined),
         refCliche2: asString(b[BobineFilleColumns.REF_CLICHE_2_COLUMN], undefined),
+        refCliche3: asString(b[BobineFilleColumns.REF_CLICHE_3_COLUMN], undefined),
         typeImpression: asString(b[BobineFilleColumns.TYPE_IMPRESSION_COLUMN], undefined),
         sommeil: asNumber(b[BobineFilleColumns.SOMMEIL_COLUMN], 0) === 1,
         lastUpdate: asNumber(b[BobineFilleColumns.LAST_UPDATE_COLUMN], 0),

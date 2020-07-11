@@ -13,7 +13,7 @@ export const automateWatcherGiave = new AutomateWatcher(
   '04',
   '0101B10014000001',
   aggregatorGiave,
-  true
+  false
 );
 export const automateWatcherMondon = new AutomateWatcher(
   '192.168.0.50',
@@ -22,7 +22,7 @@ export const automateWatcherMondon = new AutomateWatcher(
   '03',
   '0101B10014000001',
   aggregatorMondon,
-  true
+  false
 );
 export const stopsManagerMondon = new StopsManager(SQLITE_DB.Prod);
 export const stopsManagerGiave = new StopsManager(SQLITE_DB.ProdGiave);

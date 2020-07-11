@@ -2,15 +2,13 @@ import knex from 'knex';
 import {GESCOM_DB, PARAMS_DB, PROD_DB, PROD_GIAVE_DB} from '@shared/db/database_names';
 
 function createDB(dbName: string): knex {
-  return knex({
-    client: 'mysql',
-    connection: {
-      host: process.env.SQLITE_DATABASE_HOST,
-      user: process.env.SQLITE_DATABASE_USER,
-      password: process.env.SQLITE_DATABASE_PASSWORD,
-      database: dbName,
-    },
-  });
+  const connection = {
+    host: process.env.SQLITE_DATABASE_HOST,
+    user: process.env.SQLITE_DATABASE_USER,
+    password: process.env.SQLITE_DATABASE_PASSWORD,
+    database: dbName,
+  };
+  return knex({client: 'mysql', connection});
 }
 
 export const SQLITE_DB = {

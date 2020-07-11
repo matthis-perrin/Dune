@@ -87,6 +87,7 @@ export const ARTICLE_COULEUR_PAPIER_COLUMN = 'Couleur papier';
 export const ARTICLE_GRAMMAGE_COLUMN = 'Grammage papier';
 export const ARTICLE_REF_CLICHE_1_COLUMN = "Code cliche attaché à l'article";
 export const ARTICLE_REF_CLICHE_2_COLUMN = 'Code cliché attaché article 2';
+export const ARTICLE_REF_CLICHE_3_COLUMN = 'Code cliché attaché article 3';
 export const ARTICLE_TYPE_IMPRESSION_COLUMN = 'Impression Type';
 export const ARTICLE_LONGUEUR_BM_COLUMN = 'Longueur BM';
 export const ARTICLE_NOMBRE_POSES_A_COLUMN = 'NB de pose A';

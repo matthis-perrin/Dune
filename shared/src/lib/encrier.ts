@@ -81,7 +81,6 @@ function allSmallestArrangementsFromOrderedColors(
   }
 
   const minCombinaisons = combinaisons.filter(c => c.length === minSize);
-  console.log(minCombinaisons);
 
   const allEncrierColors: EncrierColor[][] = [];
   for (const combi of minCombinaisons) {
