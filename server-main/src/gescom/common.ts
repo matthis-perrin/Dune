@@ -1,4 +1,4 @@
-import * as log from 'electron-log';
+import log from 'electron-log';
 import knex from 'knex';
 
 import {SQLITE_DB} from '@root/db';
@@ -31,9 +31,10 @@ import {createSpeedTimesTable} from '@shared/db/speed_times';
 import {createStocksTable} from '@shared/db/stocks';
 import {createUnplannedStopTable} from '@shared/db/unplanned_stops';
 import {errorAsString, asArray, asMap, asDate} from '@shared/type_utils';
+import {AllPromise} from '@shared/promise_utils';
 
 export async function setupSqliteDB(truncateGescom: boolean): Promise<void> {
-  await Promise.all([
+  await AllPromise([
     createBobinesFillesTable(SQLITE_DB.Gescom, truncateGescom),
     createBobinesMeresTable(SQLITE_DB.Gescom, truncateGescom),
     createClichesTable(SQLITE_DB.Gescom, truncateGescom),
@@ -80,6 +81,7 @@ export const ARTICLE_COULEUR_PAPIER_COLUMN = 'Couleur papier';
 export const ARTICLE_GRAMMAGE_COLUMN = 'Grammage papier';
 export const ARTICLE_REF_CLICHE_1_COLUMN = "Code cliche attaché à l'article";
 export const ARTICLE_REF_CLICHE_2_COLUMN = 'Code cliché attaché article 2';
+export const ARTICLE_REF_CLICHE_3_COLUMN = 'Code cliché attaché article 3';
 export const ARTICLE_TYPE_IMPRESSION_COLUMN = 'Impression Type';
 export const ARTICLE_LONGUEUR_BM_COLUMN = 'Longueur BM';
 export const ARTICLE_NOMBRE_POSES_A_COLUMN = 'NB de pose A';
