@@ -16,7 +16,7 @@ export function getRefenteLaizes(refente: Refente): number[] {
 
 export function getRefenteSize(refente: Refente): number {
   const {chute = 0} = refente;
-  const laizes = getRefenteLaizes(refente);
+  const laizes = getRefenteLaizes(refente).map(l => (l === 173 ? 173.3 : l));
   const size = Math.round(laizes.reduce((prev, l) => prev + l, 0) + chute);
   return size;
 }
