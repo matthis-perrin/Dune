@@ -73,7 +73,8 @@ async function postStart(): Promise<void> {
   const user = getArg('-user');
   const password = getArg('-password');
   const dest = getArg('-dest');
-  const tempoChargementUI = 10000;
+  const tempo = parseFloat(getArg('-tempo') ?? '');
+  const tempoChargementUI = Number.isFinite(tempo) ? tempo : 60000;
   if (
     action === 'report' &&
     archive !== undefined &&
