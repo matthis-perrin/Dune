@@ -1,0 +1,20 @@
+v6
+- Apps must now explicitly set a log path by calling the new function app.setAppLogPath() before using app.getPath('log')
+
+v7
+- Added ipcRenderer.invoke() and ipcMain.handle() for asynchronous request/response-style IPC. These are strongly recommended over the remote module. See this "Electron’s ‘remote’ module considered harmful" blog post for more information.
+
+v8
+- Offscreen Rendering is currently disabled
+
+v9
+- Enable PDF viewer.
+
+v13
+- Added roundedCorners option for BrowserWindow
+
+v14
+- Default Changed: nativeWindowOpen now defaults to true
+
+v16
+- If your project uses node-gyp to build native modules, you may need to call it with --force-process-config depending on your project's setup and your Electron version. More information about this change can be found at #2497.

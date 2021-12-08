@@ -1,8 +1,8 @@
-const chalk = require('./node_modules/chalk');
-const prettyBytes = require('./node_modules/pretty-bytes');
-const pad = require('./node_modules/pad');
+import chalk from 'chalk';
+import prettyBytes from 'pretty-bytes';
+import pad from 'pad';
 
-const {extractMessage, MessageType, MessageSeverity} = require('./logging/message_extractor');
+import {extractMessage, MessageType, MessageSeverity} from './logging/message_extractor.js';
 
 //
 // CONSTANTS
@@ -225,7 +225,7 @@ function printSectionSeparator() {
 // ENTRY POINT
 //
 
-module.exports.logStats = function(stats, root) {
+export function logStats(stats, root) {
   const {errors, warnings} = stats.compilation;
   const {assets} = stats.toJson({assets: true});
 

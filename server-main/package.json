@@ -45,7 +45,7 @@
   },
   "sideEffect": false,
   "dependencies": {
-    "electron-log": "^3.0.5",
+    "electron-log": "^4.4.1",
     "knex": "^0.16.5",
     "lodash-es": "^4.17.11",
     "mssql": "^5.1.0",
@@ -56,9 +56,9 @@
   "devDependencies": {
     "@types/knex": "^0.16.1",
     "@types/lodash-es": "^4.17.3",
-    "@types/node": "^10.5.3",
-    "electron": "^5.0.1",
-    "electron-builder": "^20.40.2"
+    "@types/node": "^16.11.12",
+    "electron": "^16.0.4",
+    "electron-builder": "^22.14.5"
   },
   "private": true
 }

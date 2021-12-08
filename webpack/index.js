@@ -1,17 +1,19 @@
 // Node imports
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
+import yargs from 'yargs';
+
+const argv = yargs(process.argv).parse()
 
 // Paths
-const WEBPACK = path.resolve(__dirname);
+const WEBPACK = path.resolve('../webpack');
 const NODE_MODULES = path.join(WEBPACK, 'node_modules');
+const ROOT = process.cwd();
 
-nodeModules = moduleName => path.join(NODE_MODULES, moduleName);
-const {argv} = require(nodeModules('yargs'));
-const targetDirectory = argv._[0] || '.';
+const nodeModules = moduleName => path.join(NODE_MODULES, moduleName);
 const {ts, hbs, inlineCss, lintOnly, lib, noLint, lintAutoFix, dist = 'dist', noDevServer} = argv;
 
-const ROOT = path.join(process.cwd(), targetDirectory);
+
 const ENV = path.join(ROOT, '../env');
 const DIST = path.join(ROOT, dist);
 const SRC = path.join(ROOT, 'src');
@@ -19,23 +21,23 @@ const TSCONFIG_PATH = path.join(ROOT, 'tsconfig.json');
 const TSLINT_PATH = path.join(ROOT, 'tslint.json');
 
 // node_modules imports
-const CleanCSS = require(nodeModules('clean-css'));
-const CleanWebpackPlugin = require(nodeModules('clean-webpack-plugin'));
-const CompressionPlugin = require(nodeModules('compression-webpack-plugin'));
-const CopyWebpackPlugin = require(nodeModules('copy-webpack-plugin'));
-const DisableOutputWebpackPlugin = require(nodeModules('disable-output-webpack-plugin'));
-const DotenvWebpack = require(nodeModules('dotenv-webpack'));
-const express = require(nodeModules('express'));
-const ForkTsCheckerWebpackPlugin = require(nodeModules('fork-ts-checker-webpack-plugin'));
-const glob = require(nodeModules('glob'));
-const HtmlWebpackPlugin = require(nodeModules('html-webpack-plugin'));
-const TsconfigPathsPlugin = require(nodeModules('tsconfig-paths-webpack-plugin'));
-const middleware = require(nodeModules('webpack-dev-middleware'));
-const nodeExternals = require(nodeModules('webpack-node-externals'));
-const webpack = require(nodeModules('webpack'));
+import CleanCSS from 'clean-css';
+import {CleanWebpackPlugin} from 'clean-webpack-plugin';
+import CompressionPlugin from 'compression-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import DisableOutputWebpackPlugin from 'disable-output-webpack-plugin';
+import DotenvWebpack from 'dotenv-webpack';
+import express from 'express';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import glob from 'glob';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import middleware from 'webpack-dev-middleware';
+import nodeExternals from 'webpack-node-externals';
+import webpack from 'webpack';
 
 // Relative imports
-const {logStats} = require('./logger');
+import {logStats} from './logger.js';
 
 // const CircularDependencyPlugin = require('circular-dependency-plugin');
 // const circularDependencyPlugin = new CircularDependencyPlugin({
@@ -93,19 +95,17 @@ function getWebpackConfig() {
   const dotenvWebpackPlugin = new DotenvWebpack({path: path.join(ENV, `${mode}.env`)});
   const forkTsCheckerWebpackPlugin = new ForkTsCheckerWebpackPlugin({
     async: false,
-    tsconfig: TSCONFIG_PATH,
-    compilerOptions: {},
-    silent: true,
-    tslint: TSLINT_PATH,
-    tslint: !noLint,
-    tslintAutoFix: isProd || lintAutoFix,
+    typescript: {
+      enabled: true,
+      configFile: TSCONFIG_PATH,
+    },
     // watch: ROOT, // Not sure if that useful
     formatter: msg => `${PREFIX}${JSON.stringify(msg)}${SUFFIX}`,
     // We should use `ForkTsCheckerWebpackPlugin.TWO_CPU_FREE` instead to speed up typecheck.
     // Or maybe even `ForkTsCheckerWebpackPlugin.ONE_CPU_FREE`.
     // But for now we need to stay with only 1 worker because some tslint rules will fail for
     // some reason. See https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues/135.
-    workers: 1,
+    // workers: 1,
   });
   const cleanWebpackPlugin = new CleanWebpackPlugin({
     cleanAfterEveryBuildPatterns: ['!images/**/*'],
@@ -120,7 +120,7 @@ function getWebpackConfig() {
 
   // Babel target
   // const targets = isWeb ? '>0.5%' : 'node 10.5.0';
-  const targets = isWeb ? 'chrome >= 73' : 'node 10.5.0';
+  const targets = isWeb ? 'chrome >= 96' : 'node 16';
 
   // Babel presets
   const babelPresetEnv = [

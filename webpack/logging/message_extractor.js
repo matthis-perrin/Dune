@@ -1,14 +1,14 @@
-const path = require('path');
-const chalk = require('../node_modules/chalk');
+import path from 'path';
+import chalk from 'chalk';
 
-module.exports.MessageType = {
+export const MessageType = {
   Babel: 'babel',
   Typecheck: 'typecheck',
   Linter: 'linter',
   Other: 'other',
 };
 
-module.exports.MessageSeverity = {
+export const MessageSeverity = {
   Error: 'error',
   Warning: 'warning',
   Advice: 'advice',
@@ -24,7 +24,7 @@ module.exports.MessageSeverity = {
 //   line: number | undefined
 //   context: string | undefined
 // }
-module.exports.extractMessage = function(message, root, defaultSeverity) {
+export function extractMessage(message, root, defaultSeverity) {
   const babelMessage = extractBabelMessage(message, root, defaultSeverity);
   if (babelMessage) {
     return babelMessage;
