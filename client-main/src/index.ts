@@ -14,9 +14,10 @@ import {ClientAppType} from '@shared/models';
 async function startApp(): Promise<void> {
   if (session.defaultSession) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      const csp = '*';
       callback({
         responseHeaders: {
-          'Content-Security-Policy': ["default-src 'self'"],
+          'Content-Security-Policy': [csp],
           ...details.responseHeaders,
         },
       });

@@ -46,7 +46,7 @@ export async function setupBrowserWindow(
     browserWindow.webContents.on('did-finish-load', () => {
       resolve();
     });
-    browserWindow.loadURL(rendererIndexPathWithParams).catch(err => {
+    browserWindow.loadURL('file://' + rendererIndexPathWithParams).catch(err => {
       browserWindow.close();
       reject(err);
     });
