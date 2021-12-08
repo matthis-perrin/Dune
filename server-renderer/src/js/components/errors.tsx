@@ -25,10 +25,7 @@ export class Errors extends React.Component<Props> {
   private renderDate(date: Date): string {
     const day = this.padNumber(date.getDate(), 2);
     const month = this.padNumber(date.getMonth() + 1, 2);
-    const year = date
-      .getFullYear()
-      .toString()
-      .slice(2);
+    const year = date.getFullYear().toString().slice(2);
     const hour = this.padNumber(date.getHours(), 2);
     const minutes = this.padNumber(date.getMinutes(), 2);
     const seconds = this.padNumber(date.getSeconds(), 2);

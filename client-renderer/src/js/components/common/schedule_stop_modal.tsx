@@ -47,9 +47,7 @@ export class ScheduleStopModal extends React.Component<
     }
     const {start, end, title} = formData;
     const {onSave, onDone} = this.props;
-    onSave(start, end, title)
-      .then(onDone)
-      .catch(console.error);
+    onSave(start, end, title).then(onDone).catch(console.error);
   };
 
   private getFormData(): {start: number; end: number; title: string} | undefined {

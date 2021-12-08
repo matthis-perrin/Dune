@@ -284,7 +284,10 @@ export class SpeedChart extends React.Component<SpeedChartProps> {
 
     // Final Plot
     const center = new Plottable.Components.Group([events, gridline, this.bars]);
-    this.plot = new Plottable.Components.Table([[yAxis, center], [undefined, this.xAxis]]);
+    this.plot = new Plottable.Components.Table([
+      [yAxis, center],
+      [undefined, this.xAxis],
+    ]);
 
     // Gesture
     this.pziXAxis = new Plottable.Interactions.PanZoom();

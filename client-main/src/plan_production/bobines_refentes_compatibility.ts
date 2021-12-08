@@ -147,7 +147,10 @@ export function analyseLaizesLeftOnRefente(
 }
 
 function bobinesColorsAreCompatbile(bobines: BobineFilleClichePose[], nbEncrier: number): boolean {
-  return validColorCombinaison(bobines.map(b => b.couleursImpression), nbEncrier);
+  return validColorCombinaison(
+    bobines.map(b => b.couleursImpression),
+    nbEncrier
+  );
 }
 
 // Same as `compatibilityExists` but without trying all permutation of `selectedBobines`

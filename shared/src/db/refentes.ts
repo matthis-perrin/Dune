@@ -24,10 +24,7 @@ export async function createRefentesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(REFENTES_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(REFENTES_TABLE_NAME, table => {
-      table
-        .string(RefentesColumn.REF_COLUMN)
-        .notNullable()
-        .primary();
+      table.string(RefentesColumn.REF_COLUMN).notNullable().primary();
       table.string(RefentesColumn.REF_PERFO_COLUMN).notNullable();
       table.integer(RefentesColumn.DECALAGE_COLUMN).notNullable();
       table.integer(RefentesColumn.LAIZE_1_COLUMN).nullable();
@@ -45,9 +42,7 @@ export async function createRefentesTable(db: knex): Promise<void> {
 }
 
 export async function deleteRefentes(db: knex, refs: string[]): Promise<void> {
-  return db(REFENTES_TABLE_NAME)
-    .whereIn(RefentesColumn.REF_COLUMN, refs)
-    .delete();
+  return db(REFENTES_TABLE_NAME).whereIn(RefentesColumn.REF_COLUMN, refs).delete();
 }
 
 export async function listRefentes(db: knex, sinceLocalUpdate: number): Promise<Refente[]> {

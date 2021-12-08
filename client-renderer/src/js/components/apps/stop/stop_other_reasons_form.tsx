@@ -42,22 +42,21 @@ export class UnplannedStopsForm extends React.Component<
     });
   };
 
-  private readonly handleCheckboxChanged = (name: string) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const {onChange, unplannedStops} = this.props;
-    const {allUnplannedStops = []} = this.state;
-    if (event.target.checked) {
-      const newUnplannedStops = [...unplannedStops];
-      const checked: UnplannedStop | undefined = allUnplannedStops.filter(
-        stop => stop.name === name
-      )[0];
-      newUnplannedStops.push(checked);
-      onChange(newUnplannedStops);
-    } else {
-      onChange(unplannedStops.filter(stop => stop.name !== name));
-    }
-  };
+  private readonly handleCheckboxChanged =
+    (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const {onChange, unplannedStops} = this.props;
+      const {allUnplannedStops = []} = this.state;
+      if (event.target.checked) {
+        const newUnplannedStops = [...unplannedStops];
+        const checked: UnplannedStop | undefined = allUnplannedStops.filter(
+          stop => stop.name === name
+        )[0];
+        newUnplannedStops.push(checked);
+        onChange(newUnplannedStops);
+      } else {
+        onChange(unplannedStops.filter(stop => stop.name !== name));
+      }
+    };
 
   private orderStopsByGroup(): UnplannedStop[][] {
     const {allUnplannedStops} = this.state;

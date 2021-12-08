@@ -20,10 +20,7 @@ export async function createSpeedStopsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(SPEED_STOPS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(SPEED_STOPS_TABLE_NAME, table => {
-      table
-        .integer(SpeedStopsColumn.Start)
-        .notNullable()
-        .primary();
+      table.integer(SpeedStopsColumn.Start).notNullable().primary();
       table.integer(SpeedStopsColumn.End).nullable();
       table.text(SpeedStopsColumn.StopType).nullable();
       table.text(SpeedStopsColumn.StopInfo).nullable();
@@ -51,10 +48,7 @@ function lineAsStop(lineData: any): Stop {
 
 export async function getLastStop(db: knex): Promise<Stop | undefined> {
   const res = asArray(
-    await db(SPEED_STOPS_TABLE_NAME)
-      .select()
-      .orderBy(SpeedStopsColumn.Start, 'desc')
-      .limit(1)
+    await db(SPEED_STOPS_TABLE_NAME).select().orderBy(SpeedStopsColumn.Start, 'desc').limit(1)
   );
   if (res.length === 0) {
     return undefined;
@@ -145,7 +139,7 @@ export async function getSpeedStopBetween(db: knex, start: number, end: number):
     .select()
     .where(SpeedStopsColumn.Start, '>=', start)
     .andWhere(SpeedStopsColumn.Start, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(SpeedStopsColumn.End, '>=', start).andWhere(SpeedStopsColumn.End, '<', end);
     })
@@ -173,10 +167,7 @@ export async function getLastPlanProdChangeBefore(
 
 async function getStop(db: knex, start: number): Promise<Stop | undefined> {
   const res = asArray(
-    await db(SPEED_STOPS_TABLE_NAME)
-      .select()
-      .where(SpeedStopsColumn.Start, '=', start)
-      .limit(1)
+    await db(SPEED_STOPS_TABLE_NAME).select().where(SpeedStopsColumn.Start, '=', start).limit(1)
   );
   if (res.length === 0) {
     return undefined;
@@ -296,9 +287,7 @@ export async function updateStopInfo(
     [SpeedStopsColumn.MaintenanceId]: maintenanceId === undefined ? null : maintenanceId,
   };
 
-  await db(SPEED_STOPS_TABLE_NAME)
-    .where(SpeedStopsColumn.Start, '=', start)
-    .update(fields);
+  await db(SPEED_STOPS_TABLE_NAME).where(SpeedStopsColumn.Start, '=', start).update(fields);
 }
 
 // ----------------------------

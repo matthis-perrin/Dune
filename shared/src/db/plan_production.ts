@@ -14,16 +14,14 @@ export const PlansProductionColumn = {
   LOCAL_UPDATE_COLUMN: 'localUpdate',
 };
 
+// tslint:disable-next-line:no-any
 type DebugFn = (...params: any[]) => void;
 
 export async function createPlansProductionTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(PLANS_PRODUCTION_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(PLANS_PRODUCTION_TABLE_NAME, table => {
-      table
-        .integer(PlansProductionColumn.ID_COLUMN)
-        .notNullable()
-        .primary();
+      table.integer(PlansProductionColumn.ID_COLUMN).notNullable().primary();
       table.integer(PlansProductionColumn.INDEX_COLUMN).nullable();
       table.boolean(PlansProductionColumn.OPERATION_AT_START_OF_DAY).nullable();
       table.boolean(PlansProductionColumn.PRODUCTION_AT_START_OF_DAY).nullable();
@@ -260,10 +258,12 @@ export async function getClosestPlanProdBefore(
   index: number
 ): Promise<PlanProductionRaw | undefined> {
   if (index > 0) {
-    return (await db(PLANS_PRODUCTION_TABLE_NAME)
-      .select()
-      .where(PlansProductionColumn.INDEX_COLUMN, '=', index - 1)
-      .map(mapLineToPlanProductionRaw))[0];
+    return (
+      await db(PLANS_PRODUCTION_TABLE_NAME)
+        .select()
+        .where(PlansProductionColumn.INDEX_COLUMN, '=', index - 1)
+        .map(mapLineToPlanProductionRaw)
+    )[0];
   }
   const latestStopWithPlanId = await getLatestStopWithPlanIdBefore(db, Date.now() * 2);
   if (!latestStopWithPlanId || !latestStopWithPlanId.planProdId) {
@@ -273,10 +273,12 @@ export async function getClosestPlanProdBefore(
 }
 
 export async function getPlanProd(db: knex, id: number): Promise<PlanProductionRaw | undefined> {
-  return (await db(PLANS_PRODUCTION_TABLE_NAME)
-    .select()
-    .where(PlansProductionColumn.ID_COLUMN, '=', id)
-    .map(mapLineToPlanProductionRaw))[0];
+  return (
+    await db(PLANS_PRODUCTION_TABLE_NAME)
+      .select()
+      .where(PlansProductionColumn.ID_COLUMN, '=', id)
+      .map(mapLineToPlanProductionRaw)
+  )[0];
 }
 
 export async function getNotStartedPlanProds(db: knex): Promise<PlanProductionRaw[]> {
@@ -311,11 +313,11 @@ export async function getStartedPlanProdsInRange(
       speedPlanIdColumn
     )
     .whereNotNull(speedPlanIdColumn)
-    .andWhere(function(): void {
+    .andWhere(function (): void {
       // tslint:disable:no-invalid-this
       this.where(speedStartColumn, '>=', start)
         .andWhere(speedStartColumn, '<', end)
-        .orWhere(function(): void {
+        .orWhere(function (): void {
           this.where(speedEndColumn, '>=', start).andWhere(speedEndColumn, '<', end);
         });
       // tslint:enable:no-invalid-this

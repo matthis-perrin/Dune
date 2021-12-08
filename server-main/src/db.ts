@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import knex from 'knex';
 
 import {GESCOM_DB, PARAMS_DB, PROD_DB} from '@shared/db/database_names';

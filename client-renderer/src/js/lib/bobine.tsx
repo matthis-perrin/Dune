@@ -226,8 +226,9 @@ export function getBobinePoseState(
       if (!tourCount) {
         return {pose, mode: ButtonMode.Neutral};
       }
-      const reason = `Ajouter cette bobine en pose ${poseStr} amènera la quantité produite à ${tourCount *
-        totalPose} (Objectif: ${quantity})`;
+      const reason = `Ajouter cette bobine en pose ${poseStr} amènera la quantité produite à ${
+        tourCount * totalPose
+      } (Objectif: ${quantity})`;
       if (tourCount * totalPose === quantity) {
         return {pose, mode: ButtonMode.Success, reason};
       }

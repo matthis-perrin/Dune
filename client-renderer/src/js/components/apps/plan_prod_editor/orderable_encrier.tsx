@@ -165,13 +165,8 @@ export class OrderableEncrier extends React.Component<
   }
 
   public render(): JSX.Element {
-    const {
-      pixelPerMM,
-      selectedBobines,
-      selectedRefente,
-      encrierColors,
-      nonInteractive,
-    } = this.props;
+    const {pixelPerMM, selectedBobines, selectedRefente, encrierColors, nonInteractive} =
+      this.props;
     const {dragStart, dragEnd} = this.state;
     const draggedEncrierIndex = this.getDraggedEncrierIndex();
     const orderedEncriers = this.getNewEncriersOrder(draggedEncrierIndex, dragStart, dragEnd);

@@ -3,19 +3,9 @@ import {findIndex, find} from 'lodash-es';
 import {bridge} from '@root/lib/bridge';
 import {ContextMenu, contextMenuManager} from '@root/lib/context_menu';
 import {getShortPlanProdTitle} from '@root/lib/plan_prod';
-import {
-  getAllPlannedSchedules,
-  getPlanStart,
-  getPlanEnd,
-  getPlanStatus,
-} from '@root/lib/schedule_utils';
+import {getAllPlannedSchedules, getPlanStart, getPlanEnd} from '@root/lib/schedule_utils';
 
-import {
-  Schedule,
-  ScheduledPlanProd,
-  PlanProductionInfo,
-  PlanProductionStatus,
-} from '@shared/models';
+import {Schedule, ScheduledPlanProd, PlanProductionInfo} from '@shared/models';
 import {asNumber, asMap} from '@shared/type_utils';
 
 function getPlanIndex(schedule: Schedule, planSchedule: ScheduledPlanProd): number {

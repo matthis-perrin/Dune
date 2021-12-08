@@ -52,11 +52,7 @@ export class Picker<T extends {localUpdate: number; sommeil: boolean}> extends R
     if (!planProd) {
       return false;
     }
-    return (
-      getSelectable(planProd)
-        .map(getHash)
-        .indexOf(getHash(value)) !== -1
-    );
+    return getSelectable(planProd).map(getHash).indexOf(getHash(value)) !== -1;
   };
 
   private readonly shouldShowSelectionnable = (v: T, e: boolean): boolean => {

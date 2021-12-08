@@ -249,9 +249,7 @@ export function filterBobinesFillesForSelectableRefentesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, compatibleSelectableBobines, 'ref');
     log.debug(
-      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${
-        dropped.length
-      } BobinesFilles`
+      `filterBobinesFillesForSelectableRefentesAndSelectedBobines dropping ${dropped.length} BobinesFilles`
     );
     printDebugBobine(dropped);
   }
@@ -292,12 +290,8 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
       return r1.laizes.length - r2.laizes.length; // Less laizes is better
     }
     // Count by number of laize of the same size
-    const r1Count = Object.values(countBy(r1.laizes))
-      .sort()
-      .reverse();
-    const r2Count = Object.values(countBy(r2.laizes))
-      .sort()
-      .reverse();
+    const r1Count = Object.values(countBy(r1.laizes)).sort().reverse();
+    const r2Count = Object.values(countBy(r2.laizes)).sort().reverse();
     while (r1Count.length > 0 && r2Count.length > 0) {
       const firstR1Count = r1Count.shift() || 0;
       const firstR2Count = r2Count.shift() || 0;
@@ -350,9 +344,7 @@ export function filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines(
   if (DEBUG) {
     const dropped = differenceBy(selectablePapiers, newPapiers, 'ref');
     log.debug(
-      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${
-        dropped.length
-      } Papier`
+      `filterPapiersForRefentesAndSelectableBobinesAndSelectedBobines dropping ${dropped.length} Papier`
     );
     console.log(selectablePapiers.map(p => p.ref));
     console.log(dropped.map(p => p.ref));

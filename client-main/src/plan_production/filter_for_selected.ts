@@ -264,9 +264,7 @@ export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
   if (DEBUG) {
     const dropped = differenceBy(selectableBobinesFilles, newBobinesFilles, 'ref');
     log.debug(
-      `filterBobinesFillesForSelectedBobinesFillesAndCliches dropping ${
-        dropped.length
-      } BobinesFilles`
+      `filterBobinesFillesForSelectedBobinesFillesAndCliches dropping ${dropped.length} BobinesFilles`
     );
     printDebugBobine(dropped);
   }

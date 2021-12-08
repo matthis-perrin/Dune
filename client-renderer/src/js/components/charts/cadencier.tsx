@@ -155,7 +155,10 @@ export class BobineCadencierChart extends React.Component<BobineCadencierChartPr
     const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
 
     // Final Plot
-    this.plot = new Plottable.Components.Table([[yAxis, bars], [undefined, xAxis]]);
+    this.plot = new Plottable.Components.Table([
+      [yAxis, bars],
+      [undefined, xAxis],
+    ]);
 
     // Tooltips
     const tooltip = document.getElementById(CHART_TOOLTIP_ID);

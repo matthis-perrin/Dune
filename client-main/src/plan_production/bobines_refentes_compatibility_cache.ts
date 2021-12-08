@@ -63,9 +63,8 @@ class CompatibilityCache {
       if (!compatibilitiesForRefente.compatibilityBySelected.has(selectedBobinesSortedHash)) {
         compatibilitiesForRefente.compatibilityBySelected.set(selectedBobinesSortedHash, []);
       }
-      const selectableCompatibilities = compatibilitiesForRefente.compatibilityBySelected.get(
-        selectedBobinesSortedHash
-      );
+      const selectableCompatibilities =
+        compatibilitiesForRefente.compatibilityBySelected.get(selectedBobinesSortedHash);
       if (selectableCompatibilities) {
         selectableCompatibilities.push(selectableCompatibility);
       }
@@ -89,9 +88,8 @@ class CompatibilityCache {
     const selectedBobinesHashes = selectedBobines.map(b => b.hash);
     const selectedBobinesSortedHash = selectedBobinesHashes.sort().join('/');
     const selectedCombinaison = getBobineHashCombinaison(selectedBobinesHashes);
-    const compatibilities = compatibilitiesForRefente.compatibilityBySelected.get(
-      selectedBobinesSortedHash
-    );
+    const compatibilities =
+      compatibilitiesForRefente.compatibilityBySelected.get(selectedBobinesSortedHash);
     const selectableHashCombinaisons = getBobineHashCombinaison(selectableBobines.map(b => b.hash));
     if (compatibilities) {
       for (const compatibility of compatibilities) {

@@ -59,7 +59,12 @@ startServer().catch(log.error);
 app.on('ready', () => {
   if (session.defaultSession) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({responseHeaders: "default-src 'self'"});
+      callback({
+        responseHeaders: {
+          'Content-Security-Policy': ["default-src 'self'"],
+          ...details.responseHeaders,
+        },
+      });
     });
   }
   const browserWindow = createBrowserWindow({

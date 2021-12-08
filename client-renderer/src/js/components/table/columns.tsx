@@ -40,7 +40,7 @@ function getStocksSortFunction<T extends {ref: string}>(
   stocks: Map<string, Stock[]>,
   type: StockType
 ): (d1: T, d2: T) => number {
-  return function(data1: T, data2: T): number {
+  return function (data1: T, data2: T): number {
     const s1 = getStock(data1.ref, stocks, type);
     const s2 = getStock(data2.ref, stocks, type);
     return s1 - s2;
@@ -982,17 +982,15 @@ export const STOCK_ACTUEL_COLUMN: ColumnMetadata<{stock: number}, number> = {
   shouldRerender: (row1, row2) => row1.stock !== row2.stock,
 };
 
-export const STATE_ACTUEL_COLUMN: ColumnMetadata<
-  {state: BobineStateModel; info: string},
-  number
-> = {
-  title: 'ÉTAT ACTUEL',
-  width: 152,
-  renderCell: ({state, info}) => <BobineState state={state} info={info} />,
-  justifyContent: 'flex-end',
-  sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
-  shouldRerender: (row1, row2) => row1.state !== row2.state,
-};
+export const STATE_ACTUEL_COLUMN: ColumnMetadata<{state: BobineStateModel; info: string}, number> =
+  {
+    title: 'ÉTAT ACTUEL',
+    width: 152,
+    renderCell: ({state, info}) => <BobineState state={state} info={info} />,
+    justifyContent: 'flex-end',
+    sortFunction: (row1, row2) => numberSort(row1.state, row2.state),
+    shouldRerender: (row1, row2) => row1.state !== row2.state,
+  };
 
 export const QUANTITY_COLUMN: ColumnMetadata<{quantity: number}, number> = {
   title: 'QTÉ À PROD',

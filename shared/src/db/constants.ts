@@ -13,10 +13,7 @@ export async function createConstantsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(CONSTANTS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(CONSTANTS_TABLE_NAME, table => {
-      table
-        .string(ColorsColumn.NAME_COLUMN)
-        .notNullable()
-        .primary();
+      table.string(ColorsColumn.NAME_COLUMN).notNullable().primary();
       table.string(ColorsColumn.VALUE_COLUMN).notNullable();
     });
   }

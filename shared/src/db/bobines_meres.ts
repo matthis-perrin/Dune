@@ -20,10 +20,7 @@ export async function createBobinesMeresTable(db: knex, truncateGescom: boolean)
   const hasTable = await db.schema.hasTable(BOBINES_MERES_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(BOBINES_MERES_TABLE_NAME, table => {
-      table
-        .string(BobineMereColumns.REF_COLUMN)
-        .notNullable()
-        .primary();
+      table.string(BobineMereColumns.REF_COLUMN).notNullable().primary();
       table.string(BobineMereColumns.DESIGNATION_COLUMN).nullable();
       table.integer(BobineMereColumns.LAIZE_COLUMN).nullable();
       table.integer(BobineMereColumns.LONGUEUR_COLUMN).nullable();
@@ -40,9 +37,7 @@ export async function createBobinesMeresTable(db: knex, truncateGescom: boolean)
 }
 
 export async function deleteBobinesMeres(db: knex, refs: string[]): Promise<void> {
-  return db(BOBINES_MERES_TABLE_NAME)
-    .whereIn(BobineMereColumns.REF_COLUMN, refs)
-    .delete();
+  return db(BOBINES_MERES_TABLE_NAME).whereIn(BobineMereColumns.REF_COLUMN, refs).delete();
 }
 
 export async function listBobinesMeres(db: knex, sinceLocalUpdate: number): Promise<BobineMere[]> {

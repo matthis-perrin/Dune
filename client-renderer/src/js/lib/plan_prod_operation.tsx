@@ -179,18 +179,17 @@ export function countNewMultiCouleursCliches(
 ): number {
   const beforeClichePosePositions = makeClichePosePositions(before.bobines, before.encriers);
   const afterClichePosePositions = makeClichePosePositions(after.bobines, after.encriers);
-  const beforePositionsByDistance = convertPosePositionsToPositionsByDistance(
-    beforeClichePosePositions
-  );
-  const afterPositionsByDistance = convertPosePositionsToPositionsByDistance(
-    afterClichePosePositions
-  );
+  const beforePositionsByDistance =
+    convertPosePositionsToPositionsByDistance(beforeClichePosePositions);
+  const afterPositionsByDistance =
+    convertPosePositionsToPositionsByDistance(afterClichePosePositions);
 
   let newMultiCouleursClichesCount = 0;
   afterPositionsByDistance.forEach((positions, distance) => {
     const beforePositionsForDistance = beforePositionsByDistance.get(distance) || [];
-    const alreadyHereCount = positions.filter(p => beforePositionsForDistance.indexOf(p) !== -1)
-      .length;
+    const alreadyHereCount = positions.filter(
+      p => beforePositionsForDistance.indexOf(p) !== -1
+    ).length;
     const extraMultiCouleursCount = positions.length - Math.max(alreadyHereCount - 1, 0) - 1;
     newMultiCouleursClichesCount += extraMultiCouleursCount;
   });

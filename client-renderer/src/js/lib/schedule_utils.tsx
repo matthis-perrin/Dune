@@ -22,17 +22,14 @@ export function getPlanProd(schedule: Schedule, planProdId: number): ScheduledPl
 }
 
 function allSchedulesAfterDate(schedule: Schedule, date: number): PlanProdSchedule[] {
-  return schedule.plans.reduce(
-    (schedules, plan) => {
-      plan.schedulePerDay.forEach((s, day) => {
-        if (day >= date) {
-          schedules.push(s);
-        }
-      });
-      return schedules;
-    },
-    [] as PlanProdSchedule[]
-  );
+  return schedule.plans.reduce((schedules, plan) => {
+    plan.schedulePerDay.forEach((s, day) => {
+      if (day >= date) {
+        schedules.push(s);
+      }
+    });
+    return schedules;
+  }, [] as PlanProdSchedule[]);
 }
 
 export function getSchedulesFromStartOfDayUpTo(
@@ -69,17 +66,14 @@ export function getScheduleOperationTime(schedule: ScheduledPlanProd): number {
 
 export function getSchedulesForDay(schedule: Schedule, day: Date): PlanProdSchedule[] {
   const ts = dateAtHour(day, 0).getTime();
-  return schedule.plans.reduce(
-    (schedules, plan) => {
-      plan.schedulePerDay.forEach((s, scheduleDay) => {
-        if (scheduleDay === ts) {
-          schedules.push(s);
-        }
-      });
-      return schedules;
-    },
-    [] as PlanProdSchedule[]
-  );
+  return schedule.plans.reduce((schedules, plan) => {
+    plan.schedulePerDay.forEach((s, scheduleDay) => {
+      if (scheduleDay === ts) {
+        schedules.push(s);
+      }
+    });
+    return schedules;
+  }, [] as PlanProdSchedule[]);
 }
 
 export function getPlanStatus(plan: ScheduledPlanProd): PlanProductionStatus {
@@ -173,17 +167,14 @@ export function getPlanEnd(plan: ScheduledPlanProd): number | undefined {
 }
 
 export function getCurrentPlanSchedule(schedule: Schedule): PlanProdSchedule | undefined {
-  const allSchedulesDoneOrInProgress = schedule.plans.reduce(
-    (schedules, plan) => {
-      plan.schedulePerDay.forEach(s => {
-        if (s.status !== PlanProductionStatus.PLANNED) {
-          schedules.push(s);
-        }
-      });
-      return schedules;
-    },
-    [] as PlanProdSchedule[]
-  );
+  const allSchedulesDoneOrInProgress = schedule.plans.reduce((schedules, plan) => {
+    plan.schedulePerDay.forEach(s => {
+      if (s.status !== PlanProductionStatus.PLANNED) {
+        schedules.push(s);
+      }
+    });
+    return schedules;
+  }, [] as PlanProdSchedule[]);
   const scheduleWithStart = allSchedulesDoneOrInProgress.map(s => ({
     schedule: s,
     start: getScheduleStart(s) || 0,

@@ -17,10 +17,7 @@ export async function createOperationsTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(OPERATIONS_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(OPERATIONS_TABLE_NAME, table => {
-      table
-        .integer(OperationsColumn.REF_COLUMN)
-        .primary()
-        .notNullable();
+      table.integer(OperationsColumn.REF_COLUMN).primary().notNullable();
       table.string(OperationsColumn.DESCRIPTION_COLUMN).notNullable();
       table.boolean(OperationsColumn.REQUIRED_COLUMN).notNullable();
       table.string(OperationsColumn.CONSTRAINT_COLUMN).notNullable();
@@ -47,7 +44,5 @@ function rowToOperation(operationLine: any): Operation {
 }
 
 export async function listOperations(db: knex): Promise<Operation[]> {
-  return db(OPERATIONS_TABLE_NAME)
-    .select()
-    .map(rowToOperation);
+  return db(OPERATIONS_TABLE_NAME).select().map(rowToOperation);
 }

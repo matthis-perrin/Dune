@@ -5,11 +5,7 @@ const DEFAULT_COMMAND_TIMEOUT_MS = 10000;
 
 const ALPHA_NUM_COUNT = 36;
 const uniqueId = (prefix: string): string =>
-  prefix +
-  Math.random()
-    .toString(ALPHA_NUM_COUNT)
-    .substr(2)
-    .toUpperCase();
+  prefix + Math.random().toString(ALPHA_NUM_COUNT).substr(2).toUpperCase();
 
 export class BridgeTransport {
   private readonly pendingCommands = new Map<
@@ -50,9 +46,9 @@ export class BridgeTransport {
     // console.debug('BRIDGE', command, data);
     return new Promise<T>((resolve, reject) => {
       const id = uniqueId(`command-${command}`);
-      const timeout = (setTimeout(() => {
+      const timeout = setTimeout(() => {
         this.handleCommandTimingOut(id);
-      }, timeoutMs) as unknown) as number;
+      }, timeoutMs) as unknown as number;
       this.pendingCommands.set(id, {resolve, reject, timeout});
       const message = {id, command, data};
       window.postMessage({sender: 'web', data: JSON.stringify(message)}, '*');

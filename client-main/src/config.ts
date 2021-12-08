@@ -49,15 +49,15 @@ function configValueToBoolean(configValue: string): boolean {
   return configValue !== '0';
 }
 
-function configToConfigFile(config: Config): string {
+function configToConfigFile(c: Config): string {
   return [
-    `GESTION_DES_PLANS=${booleanToConfigValue(config.hasGestionPlan)}`,
-    `POPUP_DE_STOP=${booleanToConfigValue(config.hasStopPopups)}`,
-    `ACCES_PAGE_GESTION=${booleanToConfigValue(config.hasGestionPage)}`,
-    `ACCESS_PAGE_GESCOM=${booleanToConfigValue(config.hasGescomPage)}`,
-    `ACCESS_PAGE_PRODUCTION=${booleanToConfigValue(config.hasProductionPage)}`,
-    `ACCESS_PAGE_STATISTIQUES=${booleanToConfigValue(config.hasStatsPage)}`,
-    `ACCESS_PAGE_RAPPORTS=${booleanToConfigValue(config.hasRapportPage)}`,
+    `GESTION_DES_PLANS=${booleanToConfigValue(c.hasGestionPlan)}`,
+    `POPUP_DE_STOP=${booleanToConfigValue(c.hasStopPopups)}`,
+    `ACCES_PAGE_GESTION=${booleanToConfigValue(c.hasGestionPage)}`,
+    `ACCESS_PAGE_GESCOM=${booleanToConfigValue(c.hasGescomPage)}`,
+    `ACCESS_PAGE_PRODUCTION=${booleanToConfigValue(c.hasProductionPage)}`,
+    `ACCESS_PAGE_STATISTIQUES=${booleanToConfigValue(c.hasStatsPage)}`,
+    `ACCESS_PAGE_RAPPORTS=${booleanToConfigValue(c.hasRapportPage)}`,
   ].join('\r\n');
 }
 

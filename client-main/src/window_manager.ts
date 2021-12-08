@@ -12,6 +12,7 @@ import {PlanProductionChanged} from '@shared/bridge/commands';
 import {createBrowserWindow, setupBrowserWindow} from '@shared/electron/browser_window';
 import {ClientAppInfo, ClientAppType, Config} from '@shared/models';
 import {asMap, asNumber, asBoolean} from '@shared/type_utils';
+import log from 'electron-log';
 
 interface WindowOptions {
   id: string;
@@ -103,20 +104,15 @@ class WindowManager {
     failSafe: boolean = false
   ): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
-      windowInfo.browserWindow.webContents.printToPDF(
-        {
+      windowInfo.browserWindow.webContents
+        .printToPDF({
           marginsType: 0, // default margin
           pageSize: 'A4',
           printBackground: true,
           printSelectionOnly: false,
           landscape: false,
-        },
-        (printError, data) => {
-          if (printError) {
-            console.log(printError);
-            reject(printError);
-            return;
-          }
+        })
+        .then(data => {
           fs.writeFile(filePath, data, saveError => {
             if (saveError) {
               if (failSafe) {
@@ -128,8 +124,8 @@ class WindowManager {
             }
             resolve(data);
           });
-        }
-      );
+        })
+        .catch(reject);
     });
   }
 
@@ -167,32 +163,19 @@ class WindowManager {
   }
 
   public async saveToPDF(windowId: string, title: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const windowInfo = this.windows.get(windowId);
-      if (!windowInfo) {
-        reject();
-        return;
-      }
-      dialog.showSaveDialog(
-        windowInfo.browserWindow,
-        {defaultPath: title, filters: [{extensions: ['pdf'], name: 'PDF'}]},
-        filename => {
-          if (!filename) {
-            resolve();
-            return;
-          }
-          this.saveAsPDF(windowInfo, filename)
-            .then(() => {
-              if (shell.openItem(filename)) {
-                resolve();
-                return;
-              }
-              reject();
-            })
-            .catch(reject);
-        }
-      );
+    const windowInfo = this.windows.get(windowId);
+    if (!windowInfo) {
+      throw new Error(`Window ${windowId} not found`);
+    }
+    const {canceled, filePath} = await dialog.showSaveDialog(windowInfo.browserWindow, {
+      defaultPath: title,
+      filters: [{extensions: ['pdf'], name: 'PDF'}],
     });
+    if (canceled || filePath === undefined) {
+      return;
+    }
+    await this.saveAsPDF(windowInfo, filePath);
+    shell.openExternal(filePath).catch(log.error);
   }
 
   public closeWindowOfType(type: ClientAppType): void {

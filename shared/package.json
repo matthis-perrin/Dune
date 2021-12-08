@@ -1,6 +1,7 @@
 {
   "name": "shared",
   "author": "Matthis Perrin",
+  "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
     "electron": "^16.0.4",

@@ -27,21 +27,15 @@ class PlanProductionStore {
     operationAtStartOfDay: boolean,
     productionAtStartOfDay: boolean
   ): Promise<PlanProductionEngine> {
-    const [
-      bobinesFilles,
-      bobinesMeres,
-      cliches,
-      perfos,
-      refentes,
-      previousPlanProdRaw,
-    ] = await Promise.all([
-      listBobinesFilles(SQLITE_DB.Gescom, SQLITE_DB.Params, 0),
-      listBobinesMeres(SQLITE_DB.Gescom, 0),
-      listCliches(SQLITE_DB.Gescom, 0),
-      listPerfos(SQLITE_DB.Params, 0),
-      listRefentes(SQLITE_DB.Params, 0),
-      getClosestPlanProdBefore(SQLITE_DB.Prod, index),
-    ]);
+    const [bobinesFilles, bobinesMeres, cliches, perfos, refentes, previousPlanProdRaw] =
+      await Promise.all([
+        listBobinesFilles(SQLITE_DB.Gescom, SQLITE_DB.Params, 0),
+        listBobinesMeres(SQLITE_DB.Gescom, 0),
+        listCliches(SQLITE_DB.Gescom, 0),
+        listPerfos(SQLITE_DB.Params, 0),
+        listRefentes(SQLITE_DB.Params, 0),
+        getClosestPlanProdBefore(SQLITE_DB.Prod, index),
+      ]);
 
     let previousPlanProd: PlanProduction | undefined;
     if (previousPlanProdRaw) {

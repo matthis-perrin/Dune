@@ -13,7 +13,7 @@ import {FontWeight, Palette} from '@root/theme';
 
 import {dateAtHour} from '@shared/lib/time';
 import {startOfDay, padNumber} from '@shared/lib/utils';
-import {Stock, BobineQuantities, Schedule, Config, ProdRange, StopType, Stop} from '@shared/models';
+import {Stock, BobineQuantities, Schedule, Config, ProdRange} from '@shared/models';
 
 const LAST_MONTH = 11;
 

@@ -95,17 +95,19 @@ function getWebpackConfig() {
   const dotenvWebpackPlugin = new DotenvWebpack({path: path.join(ENV, `${mode}.env`)});
   const forkTsCheckerWebpackPlugin = new ForkTsCheckerWebpackPlugin({
     async: false,
-    typescript: {
-      enabled: true,
-      configFile: TSCONFIG_PATH,
-    },
+    tsconfig: TSCONFIG_PATH,
+    compilerOptions: {},
+    silent: true,
+    tslint: TSLINT_PATH,
+    tslint: !noLint,
+    tslintAutoFix: true,//isProd || lintAutoFix,
     // watch: ROOT, // Not sure if that useful
     formatter: msg => `${PREFIX}${JSON.stringify(msg)}${SUFFIX}`,
     // We should use `ForkTsCheckerWebpackPlugin.TWO_CPU_FREE` instead to speed up typecheck.
     // Or maybe even `ForkTsCheckerWebpackPlugin.ONE_CPU_FREE`.
     // But for now we need to stay with only 1 worker because some tslint rules will fail for
     // some reason. See https://github.com/Realytics/fork-ts-checker-webpack-plugin/issues/135.
-    // workers: 1,
+    workers: 1,
   });
   const cleanWebpackPlugin = new CleanWebpackPlugin({
     cleanAfterEveryBuildPatterns: ['!images/**/*'],
@@ -199,12 +201,12 @@ function getWebpackConfig() {
   if (isWeb) {
     plugins.push(
       cleanWebpackPlugin,
-      new CopyWebpackPlugin([
+      new CopyWebpackPlugin({patterns: [
         {
           from: path.join(SRC, 'images'),
           to: path.join(DIST, 'images'),
         },
-      ])
+      ]})
     );
   }
 

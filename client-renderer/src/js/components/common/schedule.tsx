@@ -308,111 +308,108 @@ export class ScheduleView extends React.Component<ScheduleViewProps> {
     return <VerticalDuration>{`${hours}h${minutesStr}`}</VerticalDuration>;
   }
 
-  private readonly handleContextMenuForPlan = (planId: number) => (
-    event: React.MouseEvent
-  ): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
-    if (!withContextMenu) {
-      return;
-    }
-    const planSchedule = getPlanProd(schedule, planId);
-    if (!planSchedule) {
-      return;
-    }
-    const planType = getPlanStatus(planSchedule);
-    if (planType === PlanProductionStatus.PLANNED) {
-      showPlanContextMenu(
-        schedule,
-        planSchedule.planProd.id,
-        planType === PlanProductionStatus.PLANNED,
-        onPlanProdRefreshNeeded
-      );
-    }
-  };
+  private readonly handleContextMenuForPlan =
+    (planId: number) =>
+    (event: React.MouseEvent): void => {
+      event.preventDefault();
+      event.stopPropagation();
+      const {schedule, withContextMenu, onPlanProdRefreshNeeded} = this.props;
+      if (!withContextMenu) {
+        return;
+      }
+      const planSchedule = getPlanProd(schedule, planId);
+      if (!planSchedule) {
+        return;
+      }
+      const planType = getPlanStatus(planSchedule);
+      if (planType === PlanProductionStatus.PLANNED) {
+        showPlanContextMenu(
+          schedule,
+          planSchedule.planProd.id,
+          planType === PlanProductionStatus.PLANNED,
+          onPlanProdRefreshNeeded
+        );
+      }
+    };
 
-  private readonly handleDoubleClickForPlanSchedule = (planSchedule: ScheduledPlanProd) => (
-    event: React.MouseEvent
-  ): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    const {schedule, withContextMenu} = this.props;
-    if (!withContextMenu) {
-      return;
-    }
-    const planType = getPlanStatus(planSchedule);
-    const planStart = getPlanStart(planSchedule);
-    const planEnd = getPlanEnd(planSchedule);
-    const start =
-      planStart !== undefined
-        ? planStart
-        : schedule.lastSpeedTime !== undefined
-        ? schedule.lastSpeedTime.time
-        : 0;
-    const end =
-      planEnd !== undefined
-        ? planEnd
-        : schedule.lastSpeedTime !== undefined
-        ? schedule.lastSpeedTime.time
-        : 0;
-    if (planType === PlanProductionStatus.PLANNED) {
-      bridge
-        .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
-        .catch(console.error);
-    }
-  };
+  private readonly handleDoubleClickForPlanSchedule =
+    (planSchedule: ScheduledPlanProd) =>
+    (event: React.MouseEvent): void => {
+      event.preventDefault();
+      event.stopPropagation();
+      const {schedule, withContextMenu} = this.props;
+      if (!withContextMenu) {
+        return;
+      }
+      const planType = getPlanStatus(planSchedule);
+      const planStart = getPlanStart(planSchedule);
+      const planEnd = getPlanEnd(planSchedule);
+      const start =
+        planStart !== undefined
+          ? planStart
+          : schedule.lastSpeedTime !== undefined
+          ? schedule.lastSpeedTime.time
+          : 0;
+      const end =
+        planEnd !== undefined
+          ? planEnd
+          : schedule.lastSpeedTime !== undefined
+          ? schedule.lastSpeedTime.time
+          : 0;
+      if (planType === PlanProductionStatus.PLANNED) {
+        bridge
+          .openPlanProdEditorApp(planSchedule.planProd.id, start, end, false)
+          .catch(console.error);
+      }
+    };
 
-  private readonly handleContextMenuForNonProd = (end: number | undefined) => (
-    event: React.MouseEvent
-  ): void => {
-    const {schedule, onPlanProdRefreshNeeded, withContextMenu} = this.props;
-    if (!schedule || end === undefined || !withContextMenu) {
-      return;
-    }
-    const nonProd = schedule.nonProds.find(np => np.end === end);
-    const currentTime =
-      schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
-    if (nonProd && nonProd.start > currentTime) {
+  private readonly handleContextMenuForNonProd =
+    (end: number | undefined) =>
+    (event: React.MouseEvent): void => {
+      const {schedule, onPlanProdRefreshNeeded, withContextMenu} = this.props;
+      if (!schedule || end === undefined || !withContextMenu) {
+        return;
+      }
+      const nonProd = schedule.nonProds.find(np => np.end === end);
+      const currentTime =
+        schedule.lastSpeedTime !== undefined ? schedule.lastSpeedTime.time : Date.now();
+      if (nonProd && nonProd.start > currentTime) {
+        event.preventDefault();
+        event.stopPropagation();
+        contextMenuManager
+          .open([
+            {
+              label: 'Supprimer cette période sans opérateurs',
+              callback: () =>
+                bridge.deleteNonProd(nonProd.id).then(onPlanProdRefreshNeeded).catch(console.error),
+            },
+          ])
+          .catch(console.error);
+      }
+    };
+
+  private readonly handleContextMenuForMaintenance =
+    (maintenanceId: number) =>
+    (event: React.MouseEvent): void => {
+      const {onPlanProdRefreshNeeded, withContextMenu} = this.props;
+      if (!withContextMenu) {
+        return;
+      }
       event.preventDefault();
       event.stopPropagation();
       contextMenuManager
         .open([
           {
-            label: 'Supprimer cette période sans opérateurs',
+            label: 'Supprimer cette maintenance',
             callback: () =>
               bridge
-                .deleteNonProd(nonProd.id)
+                .deleteMaintenance(maintenanceId)
                 .then(onPlanProdRefreshNeeded)
                 .catch(console.error),
           },
         ])
         .catch(console.error);
-    }
-  };
-
-  private readonly handleContextMenuForMaintenance = (maintenanceId: number) => (
-    event: React.MouseEvent
-  ): void => {
-    const {onPlanProdRefreshNeeded, withContextMenu} = this.props;
-    if (!withContextMenu) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    contextMenuManager
-      .open([
-        {
-          label: 'Supprimer cette maintenance',
-          callback: () =>
-            bridge
-              .deleteMaintenance(maintenanceId)
-              .then(onPlanProdRefreshNeeded)
-              .catch(console.error),
-        },
-      ])
-      .catch(console.error);
-  };
+    };
 
   private readonly handleContextMenuForDay = (event: React.MouseEvent): void => {
     const {schedule, day, onPlanProdRefreshNeeded, withContextMenu} = this.props;

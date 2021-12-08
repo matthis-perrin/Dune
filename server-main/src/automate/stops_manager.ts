@@ -143,19 +143,14 @@ class StopsManager {
   }
 
   private async analyseStopsAndProds(): Promise<boolean> {
-    const [
-      lastStop,
-      lastProd,
-      lastStopWithPlanProdId,
-      lastProdWithPlanProdId,
-      lastTime,
-    ] = await Promise.all([
-      getLastStop(SQLITE_DB.Prod),
-      getLastProd(SQLITE_DB.Prod),
-      getLastStopWithPlanProdId(SQLITE_DB.Prod),
-      getLastProdWithPlanProdId(SQLITE_DB.Prod),
-      getLastSpeedTime(SQLITE_DB.Prod, true),
-    ]);
+    const [lastStop, lastProd, lastStopWithPlanProdId, lastProdWithPlanProdId, lastTime] =
+      await Promise.all([
+        getLastStop(SQLITE_DB.Prod),
+        getLastProd(SQLITE_DB.Prod),
+        getLastStopWithPlanProdId(SQLITE_DB.Prod),
+        getLastProdWithPlanProdId(SQLITE_DB.Prod),
+        getLastSpeedTime(SQLITE_DB.Prod, true),
+      ]);
     const lastUsedTime = this.getLastUsedTime(lastStop, lastProd);
 
     if (lastTime === undefined) {

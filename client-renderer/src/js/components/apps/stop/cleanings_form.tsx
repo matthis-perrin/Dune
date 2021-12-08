@@ -40,22 +40,21 @@ export class CleaningsForm extends React.Component<CleaningsFormProps, Cleanings
     });
   };
 
-  private readonly handleCheckboxChanged = (name: string) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const {onChange, cleanings} = this.props;
-    const {allCleanings = []} = this.state;
-    if (event.target.checked) {
-      const newCleanings = [...cleanings];
-      const checked: Cleaning | undefined = allCleanings.filter(
-        cleaning => cleaning.name === name
-      )[0];
-      newCleanings.push(checked);
-      onChange(newCleanings);
-    } else {
-      onChange(cleanings.filter(cleaning => cleaning.name !== name));
-    }
-  };
+  private readonly handleCheckboxChanged =
+    (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const {onChange, cleanings} = this.props;
+      const {allCleanings = []} = this.state;
+      if (event.target.checked) {
+        const newCleanings = [...cleanings];
+        const checked: Cleaning | undefined = allCleanings.filter(
+          cleaning => cleaning.name === name
+        )[0];
+        newCleanings.push(checked);
+        onChange(newCleanings);
+      } else {
+        onChange(cleanings.filter(cleaning => cleaning.name !== name));
+      }
+    };
 
   private renderCleaning(cleaning: Cleaning, index: number): JSX.Element {
     const {cleanings} = this.props;

@@ -18,10 +18,7 @@ export async function createCadencierTable(db: knex, truncateGescom: boolean): P
   const hasTable = await db.schema.hasTable(CADENCIER_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(CADENCIER_TABLE_NAME, table => {
-      table
-        .string(CadencierColumns.ID_COLUMN)
-        .notNullable()
-        .primary();
+      table.string(CadencierColumns.ID_COLUMN).notNullable().primary();
       table.string(CadencierColumns.BOBINE_REF_COLUMN).notNullable();
       table.integer(CadencierColumns.TYPE_COLUMN).notNullable();
       table.integer(CadencierColumns.VENTE_QUANTITE_COLUMN).notNullable();
@@ -36,9 +33,7 @@ export async function createCadencierTable(db: knex, truncateGescom: boolean): P
 }
 
 export async function deleteCadencier(db: knex, ids: string[]): Promise<void> {
-  return db(CADENCIER_TABLE_NAME)
-    .whereIn(CadencierColumns.ID_COLUMN, ids)
-    .delete();
+  return db(CADENCIER_TABLE_NAME).whereIn(CadencierColumns.ID_COLUMN, ids).delete();
 }
 
 export async function listCadencier(db: knex, sinceLocalUpdate: number): Promise<Vente[]> {

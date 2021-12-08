@@ -316,7 +316,7 @@ export async function handleCommand(
     const {menuId, menuForBridge} = asMap(params);
     openContextMenu(
       browserWindow,
-      (menuForBridge as unknown) as ContextMenuForBridge[],
+      menuForBridge as unknown as ContextMenuForBridge[],
       () => sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClosed, {menuId}),
       id =>
         sendBridgeEvent(browserWindow, BridgeCommands.ContextMenuClicked, {menuId, menuItemId: id})

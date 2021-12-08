@@ -28,28 +28,27 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
     this.state = {};
   }
 
-  private readonly handleInputChange = (value: StopType) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.checked) {
-      const {lastPlanId, onChange, availablePlanProds, availableMaintenances} = this.props;
-      let planProdId = lastPlanId;
-      let maintenanceId: number | undefined;
+  private readonly handleInputChange =
+    (value: StopType) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.checked) {
+        const {lastPlanId, onChange, availablePlanProds, availableMaintenances} = this.props;
+        let planProdId = lastPlanId;
+        let maintenanceId: number | undefined;
 
-      if (value === StopType.ChangePlanProd) {
-        planProdId = availablePlanProds[0].planProd.id;
-      }
-      if (value === StopType.Maintenance) {
-        maintenanceId = availableMaintenances[0].id;
-      }
+        if (value === StopType.ChangePlanProd) {
+          planProdId = availablePlanProds[0].planProd.id;
+        }
+        if (value === StopType.Maintenance) {
+          maintenanceId = availableMaintenances[0].id;
+        }
 
-      if (planProdId === undefined) {
-        return;
-      }
+        if (planProdId === undefined) {
+          return;
+        }
 
-      onChange(value, planProdId, maintenanceId);
-    }
-  };
+        onChange(value, planProdId, maintenanceId);
+      }
+    };
 
   private renderOption(value: StopType, extra?: JSX.Element): JSX.Element {
     const {stop, type} = this.props;
@@ -73,14 +72,8 @@ export class StopTypeForm extends React.Component<StopTypeFormProps, StopTypeFor
   }
 
   public render(): JSX.Element {
-    const {
-      stop,
-      availablePlanProds,
-      availableMaintenances,
-      lastPlanId,
-      previousStop,
-      hadProd,
-    } = this.props;
+    const {stop, availablePlanProds, availableMaintenances, lastPlanId, previousStop, hadProd} =
+      this.props;
     const emptyOption = <React.Fragment />;
     const changePlanProdOption =
       availablePlanProds.length > 0 ? this.renderOption(StopType.ChangePlanProd) : emptyOption;

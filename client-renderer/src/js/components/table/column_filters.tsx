@@ -108,14 +108,12 @@ class GroupedColumnFilterPane<T, U> extends React.Component<
       return values.sort();
     }
     if (valueType === 'string') {
-      return values.sort((a, b) =>
-        ((a as unknown) as string).localeCompare((b as unknown) as string)
-      );
+      return values.sort((a, b) => (a as unknown as string).localeCompare(b as unknown as string));
     }
     if (valueType === 'boolean') {
       return values.sort((a, b) => {
-        const aa = (a as unknown) as boolean;
-        const bb = (b as unknown) as boolean;
+        const aa = a as unknown as boolean;
+        const bb = b as unknown as boolean;
         return aa === bb ? 0 : aa ? -1 : 1;
       });
     }

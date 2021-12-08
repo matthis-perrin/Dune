@@ -72,9 +72,7 @@ export class BobinesForm extends React.Component<BobinesFormProps> {
         <OrderableBobines
           key="orderable-bobines"
           planId={planId}
-          bobines={
-            (placement.filter(p => typeof p !== 'number') as unknown) as BobineFilleWithPose[]
-          }
+          bobines={placement.filter(p => typeof p !== 'number') as unknown as BobineFilleWithPose[]}
           refente={refente}
           pixelPerMM={pixelPerMM}
           onReorder={onReorder}

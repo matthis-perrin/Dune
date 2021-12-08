@@ -1,6 +1,3 @@
-import {memoize} from 'lodash-es';
-import {number} from 'prop-types';
-
 import {getWeekDay, dateAtHour} from '@shared/lib/time';
 import {capitalize, padNumber} from '@shared/lib/utils';
 
@@ -23,7 +20,7 @@ export function formatMonthCount(monthCount: number): string {
 }
 
 export const numberWithSeparator = (value: number): string => {
-  if (value >= 1000 || value <= -1000) {
+  if (Math.abs(value) >= 1000) {
     return value.toLocaleString('fr');
   }
   return value.toString();

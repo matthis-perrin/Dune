@@ -63,9 +63,7 @@ class EventHandlerNameWalker extends Lint.RuleWalker {
       if (!(callback && callback.isPrivateBound)) {
         this.addFailureAtNode(
           callback.node,
-          `The method "${
-            callbackToCheck.callbackName
-          }" should be private and bound if passed as an event handler: "${callbackToCheck.text}"`
+          `The method "${callbackToCheck.callbackName}" should be private and bound if passed as an event handler: "${callbackToCheck.text}"`
         );
       }
     }

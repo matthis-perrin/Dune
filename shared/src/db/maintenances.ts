@@ -15,10 +15,7 @@ export async function createMaintenancesTable(db: knex): Promise<void> {
   const hasTable = await db.schema.hasTable(MAINTENANCE_TABLE_NAME);
   if (!hasTable) {
     await db.schema.createTable(MAINTENANCE_TABLE_NAME, table => {
-      table
-        .integer(MaintenanceColumns.ID)
-        .primary()
-        .notNullable();
+      table.integer(MaintenanceColumns.ID).primary().notNullable();
       table.text(MaintenanceColumns.TITLE).notNullable();
       table.integer(MaintenanceColumns.START_TIME).notNullable();
       table.integer(MaintenanceColumns.END_TIME).notNullable();
@@ -46,7 +43,7 @@ export async function getMaintenancesBetween(
     .select()
     .where(MaintenanceColumns.START_TIME, '>=', start)
     .andWhere(MaintenanceColumns.START_TIME, '<', end)
-    .orWhere(function(): void {
+    .orWhere(function (): void {
       // tslint:disable-next-line:no-invalid-this
       this.where(MaintenanceColumns.END_TIME, '>=', start).andWhere(
         MaintenanceColumns.END_TIME,
@@ -64,7 +61,7 @@ export async function createMaintenance(
   title: string
 ): Promise<void> {
   return db(MAINTENANCE_TABLE_NAME).insert({
-    [MaintenanceColumns.ID]: Math.round(Math.random() * 1e9),
+    [MaintenanceColumns.ID]: Math.round(Math.random() * 1000 * 1000 * 1000),
     [MaintenanceColumns.TITLE]: title,
     [MaintenanceColumns.START_TIME]: start,
     [MaintenanceColumns.END_TIME]: end,
@@ -72,7 +69,5 @@ export async function createMaintenance(
 }
 
 export async function deleteMaintenance(db: knex, id: number): Promise<void> {
-  return db(MAINTENANCE_TABLE_NAME)
-    .where(MaintenanceColumns.ID, '=', id)
-    .del();
+  return db(MAINTENANCE_TABLE_NAME).where(MaintenanceColumns.ID, '=', id).del();
 }

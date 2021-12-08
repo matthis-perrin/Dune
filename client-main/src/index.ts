@@ -14,7 +14,12 @@ import {ClientAppType} from '@shared/models';
 async function startApp(): Promise<void> {
   if (session.defaultSession) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({responseHeaders: "default-src 'self'"});
+      callback({
+        responseHeaders: {
+          'Content-Security-Policy': ["default-src 'self'"],
+          ...details.responseHeaders,
+        },
+      });
     });
   }
   await prodHoursStore.start();
@@ -25,7 +30,7 @@ async function startApp(): Promise<void> {
 
 function getArg(name: string): string | undefined {
   const args = process.argv.slice(1);
-  const matchingArgs = args.filter(arg => arg.startsWith(`${name}=`))[0];
+  const matchingArgs = args.filter(arg => arg.startsWith(`${name}=`))[0] as string | undefined;
   if (matchingArgs === undefined) {
     return undefined;
   }
@@ -90,9 +95,10 @@ async function postStart(): Promise<void> {
       let filePath = path.join(archiveDir, filename);
       log.info(`Will save the report to ${filePath}`);
       if (fs.existsSync(filePath)) {
+        const MIN_DIGITS = 4;
         filePath = path.join(
           archiveDir,
-          `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), 4)}.pdf`
+          `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), MIN_DIGITS)}.pdf`
         );
         log.info(`File already exists. Will save to ${filePath}`);
       }
@@ -128,7 +134,7 @@ async function postStart(): Promise<void> {
           windowManager.closeWindow(reportWindow.id);
           process.exit();
         });
-    }, 10000);
+    }, 10 * 1000);
 
     return;
   } else {
