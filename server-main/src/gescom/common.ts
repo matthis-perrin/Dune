@@ -31,10 +31,9 @@ import {createSpeedTimesTable} from '@shared/db/speed_times';
 import {createStocksTable} from '@shared/db/stocks';
 import {createUnplannedStopTable} from '@shared/db/unplanned_stops';
 import {errorAsString, asArray, asMap, asDate} from '@shared/type_utils';
-import {AllPromise} from '@shared/promise_utils';
 
 export async function setupSqliteDB(truncateGescom: boolean): Promise<void> {
-  await AllPromise([
+  await Promise.all([
     createBobinesFillesTable(SQLITE_DB.Gescom, truncateGescom),
     createBobinesMeresTable(SQLITE_DB.Gescom, truncateGescom),
     createClichesTable(SQLITE_DB.Gescom, truncateGescom),

@@ -60,7 +60,8 @@ async function sendEmailAsync(
         log.error(err);
         reject(err);
       },
-      onSuccess: data => {
+      // tslint:disable-next-line: no-any
+      onSuccess: (data: any) => {
         log.info(`Success sending to ${dest}`, data);
         resolve();
       },
@@ -75,6 +76,8 @@ async function postStart(): Promise<void> {
   const user = getArg('-user');
   const password = getArg('-password');
   const dest = getArg('-dest');
+  const tempo = parseFloat(getArg('-tempo') ?? '');
+  const tempoChargementUI = Number.isFinite(tempo) ? tempo : 60000;
   if (
     action === 'report' &&
     archive !== undefined &&
@@ -96,10 +99,10 @@ async function postStart(): Promise<void> {
       let filePath = path.join(archiveDir, filename);
       log.info(`Will save the report to ${filePath}`);
       if (fs.existsSync(filePath)) {
-        const MIN_DIGITS = 4;
         filePath = path.join(
           archiveDir,
-          `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), MIN_DIGITS)}.pdf`
+          // tslint:disable-next-line: no-magic-numbers
+          `Rapport ${todayStr} ${padNumber(Math.floor(Math.random() * 1000), 4)}.pdf`
         );
         log.info(`File already exists. Will save to ${filePath}`);
       }
@@ -118,9 +121,11 @@ async function postStart(): Promise<void> {
               content: data,
             },
           ];
-          Promise.all(
-            emails.map(email => sendEmailAsync(user, password, email, subject, attachments))
-          )
+          (async () => {
+            for (const email of emails) {
+              await sendEmailAsync(user, password, email, subject, attachments);
+            }
+          })()
             .then(() => {
               windowManager.closeWindow(reportWindow.id);
               process.exit();
@@ -135,7 +140,7 @@ async function postStart(): Promise<void> {
           windowManager.closeWindow(reportWindow.id);
           process.exit();
         });
-    }, 10 * 1000);
+    }, tempoChargementUI);
 
     return;
   } else {
