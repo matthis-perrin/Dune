@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {GlobalStyle} from '@root/components/global_styles';
-import {Herisson} from '@root/components/herisson';
+import {IllustrationGescom} from '@root/components/illustration_gescom';
 import {Monitoring} from '@root/components/monitoring';
 import {SpeedSimulator} from '@root/components/speed_simulator';
 import {bridge} from '@root/lib/bridge';
@@ -51,7 +51,7 @@ export class App extends React.Component<Props, State> {
       <AppWrapper>
         {status.isDev ? <SpeedSimulator /> : <React.Fragment />}
         <Monitoring automate={status.automate} gescom={status.gescom} />
-        <Herisson
+        <IllustrationGescom
           style={{
             width: 100,
             position: 'fixed',

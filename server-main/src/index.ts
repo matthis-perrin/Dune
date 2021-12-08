@@ -59,7 +59,13 @@ startServer().catch(log.error);
 app.on('ready', () => {
   if (session.defaultSession) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({responseHeaders: "default-src 'self'"});
+      const csp = '*';
+      callback({
+        responseHeaders: {
+          'Content-Security-Policy': [csp],
+          ...details.responseHeaders,
+        },
+      });
     });
   }
   const browserWindow = createBrowserWindow({
@@ -71,7 +77,9 @@ app.on('ready', () => {
   setupBrowserWindow(browserWindow, handleCommand).catch((err: any) =>
     log.error('Failure to setup the BrowserWindow', err)
   );
-  // browserWindow.webContents.openDevTools({mode: 'detach'});
+  if (process.env.MODE === 'development') {
+    browserWindow.webContents.openDevTools({mode: 'detach'});
+  }
   log.info('Started');
 });
 

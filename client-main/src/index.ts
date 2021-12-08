@@ -60,8 +60,7 @@ async function sendEmailAsync(
         log.error(err);
         reject(err);
       },
-      // tslint:disable-next-line: no-any
-      onSuccess: (data: any) => {
+      onSuccess: data => {
         log.info(`Success sending to ${dest}`, data);
         resolve();
       },
@@ -77,7 +76,8 @@ async function postStart(): Promise<void> {
   const password = getArg('-password');
   const dest = getArg('-dest');
   const tempo = parseFloat(getArg('-tempo') ?? '');
-  const tempoChargementUI = Number.isFinite(tempo) ? tempo : 60000;
+  const DEFAULT_TEMPO_MS = 60000;
+  const tempoChargementUI = Number.isFinite(tempo) ? tempo : DEFAULT_TEMPO_MS;
   if (
     action === 'report' &&
     archive !== undefined &&
