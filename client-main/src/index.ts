@@ -106,29 +106,30 @@ async function postStart(): Promise<void> {
       windowManager
         .saveAsPDF(reportWindow, filePath, true)
         .then(data => {
-          const emails = dest.split(',');
-          const subject = `Rapport de production du ${today.toLocaleDateString('fr', {
-            month: 'long',
-            day: '2-digit',
-            year: 'numeric',
-          })}`;
-          const attachments = [
-            {
-              filename: `Rapport ${todayStr}.pdf`,
-              content: data,
-            },
-          ];
-          AllPromise(
-            emails.map(email => sendEmailAsync(user, password, email, subject, attachments))
-          )
-            .then(() => {
-              windowManager.closeWindow(reportWindow.id);
-              process.exit();
-            })
-            .catch(() => {
-              windowManager.closeWindow(reportWindow.id);
-              process.exit();
-            });
+          (async () => {
+            const emails = dest.split(',');
+            const subject = `Rapport de production du ${today.toLocaleDateString('fr', {
+              month: 'long',
+              day: '2-digit',
+              year: 'numeric',
+            })}`;
+            const attachments = [
+              {
+                filename: `Rapport ${todayStr}.pdf`,
+                content: data,
+              },
+            ];
+            for (const email of emails) {
+              await sendEmailAsync(user, password, email, subject, attachments);
+            }
+          })().then(() => {
+            windowManager.closeWindow(reportWindow.id);
+            process.exit();
+          })
+          .catch(() => {
+            windowManager.closeWindow(reportWindow.id);
+            process.exit();
+          });
         })
         .catch(err => {
           log.error(err);
