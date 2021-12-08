@@ -8,6 +8,7 @@ export interface Config {
   hasProductionPage: boolean;
   hasStatsPage: boolean;
   hasRapportPage: boolean;
+  pdfPath: string;
 }
 
 export interface BobineFille {

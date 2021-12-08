@@ -141,14 +141,7 @@ class WindowManager {
       const tempFilePath = path.join(app.getPath('temp'), tempFileName);
       this.saveAsPDF(windowInfo, tempFilePath)
         .then(() => {
-          const AdobeReaderPath = path.join(
-            'C:',
-            'Program Files (x86)',
-            'Adobe',
-            'Acrobat Reader DC',
-            'Reader',
-            'AcroRd32.exe'
-          );
+          const AdobeReaderPath = getConfig().pdfPath;
           const cmd = `"${AdobeReaderPath}" /p ${tempFilePath}`;
           child_process.exec(cmd, error => {
             if (error) {
@@ -175,7 +168,7 @@ class WindowManager {
       return;
     }
     await this.saveAsPDF(windowInfo, filePath);
-    shell.openExternal(filePath).catch(log.error);
+    shell.openExternal(`file://${filePath}`).catch(log.error);
   }
 
   public closeWindowOfType(type: ClientAppType): void {
@@ -291,7 +284,7 @@ class WindowManager {
 
   private async openOrForegroundWindow(appInfo: ClientAppInfo): Promise<WindowInfo> {
     // If window already exists, just bring it to the foreground
-    const {size, id, closable, forPrinting} = this.getWindowOptionsForAppInfo(appInfo);
+    const {size, id, closable = true, forPrinting} = this.getWindowOptionsForAppInfo(appInfo);
     let windowInfo = this.windows.get(id);
     if (windowInfo) {
       const {browserWindow} = windowInfo;

@@ -12,6 +12,14 @@ let config: Config = {
   hasProductionPage: true,
   hasStatsPage: true,
   hasRapportPage: true,
+  pdfPath: path.join(
+    'C:',
+    'Program Files (x86)',
+    'Adobe',
+    'Acrobat Reader DC',
+    'Reader',
+    'AcroRd32.exe'
+  ),
 };
 
 export function getConfig(): Config {
@@ -58,27 +66,30 @@ function configToConfigFile(c: Config): string {
     `ACCESS_PAGE_PRODUCTION=${booleanToConfigValue(c.hasProductionPage)}`,
     `ACCESS_PAGE_STATISTIQUES=${booleanToConfigValue(c.hasStatsPage)}`,
     `ACCESS_PAGE_RAPPORTS=${booleanToConfigValue(c.hasRapportPage)}`,
+    `PDF_PATH=${c.pdfPath}`,
   ].join('\r\n');
 }
 
 function configFileToConfig(configFile: string): Config {
-  const values = new Map<string, boolean>();
-  configFile.split('\r\n').forEach(line => {
+  const values = new Map<string, string>();
+  configFile.split(/\r?\n/g).forEach(line => {
     const fragments = line.split('=');
     if (fragments.length === 2) {
       const [name, value] = fragments;
-      values.set(name, configValueToBoolean(value));
+      values.set(name, value);
     }
   });
-  const getValue = (name: string): boolean => values.get(name) || false;
+  console.log(values);
+  const getBoolValue = (name: string): boolean => configValueToBoolean(values.get(name) ?? '0');
   return {
-    hasGestionPlan: getValue('GESTION_DES_PLANS'),
-    hasStopPopups: getValue('POPUP_DE_STOP'),
-    hasGestionPage: getValue('ACCES_PAGE_GESTION'),
-    hasGescomPage: getValue('ACCESS_PAGE_GESCOM'),
-    hasProductionPage: getValue('ACCESS_PAGE_PRODUCTION'),
-    hasStatsPage: getValue('ACCESS_PAGE_STATISTIQUES'),
-    hasRapportPage: getValue('ACCESS_PAGE_RAPPORTS'),
+    hasGestionPlan: getBoolValue('GESTION_DES_PLANS'),
+    hasStopPopups: getBoolValue('POPUP_DE_STOP'),
+    hasGestionPage: getBoolValue('ACCES_PAGE_GESTION'),
+    hasGescomPage: getBoolValue('ACCESS_PAGE_GESCOM'),
+    hasProductionPage: getBoolValue('ACCESS_PAGE_PRODUCTION'),
+    hasStatsPage: getBoolValue('ACCESS_PAGE_STATISTIQUES'),
+    hasRapportPage: getBoolValue('ACCESS_PAGE_RAPPORTS'),
+    pdfPath: values.get('PDF_PATH') ?? '',
   };
 }
 
