@@ -271,16 +271,15 @@ export function filterBobinesFillesForSelectedBobinesFillesAndCliches(
   return newBobinesFilles;
 }
 
-const MAX_COULEURS_IMPRESSIONS = 3;
-
 export function filterBobinesFillesForSelectedBobinesFilles(
   selectableBobinesFilles: BobineFilleClichePose[],
-  selectedBobinesFilles: BobineFilleClichePose[]
+  selectedBobinesFilles: BobineFilleClichePose[],
+  nbEncriers: number
 ): BobineFilleClichePose[] {
   const newBobinesFilles = selectableBobinesFilles.filter((b, i) => {
     return validColorCombinaison(
       selectedBobinesFilles.concat([b]).map(bb => bb.couleursImpression),
-      MAX_COULEURS_IMPRESSIONS
+      nbEncriers
     );
   });
   if (newBobinesFilles.length === selectableBobinesFilles.length) {

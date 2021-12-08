@@ -241,7 +241,8 @@ function filterAllOnce(
   if (bobinesFilles.length > 0) {
     filtered.selectableBobinesFilles = filterBobinesFillesForSelectedBobinesFilles(
       filtered.selectableBobinesFilles,
-      bobinesFilles
+      bobinesFilles,
+      nbEncriers
     );
     markPerf('filterBobinesFillesForSelectedBobinesFilles');
   }
