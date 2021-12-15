@@ -83,7 +83,10 @@ export class PlanProdPrinterApp extends React.Component<
 
     const plans: ScheduledPlanProd[] = [];
     schedule.plans.forEach(p => {
-      for (const time of Array.from(p.schedulePerDay.keys())) {
+      for (const [time, sched] of Array.from(p.schedulePerDay.entries())) {
+        if (sched.doneProdMs === 0) {
+          continue;
+        }
         if (isSameDay(new Date(time), new Date(day))) {
           plans.push(p);
           break;

@@ -149,7 +149,7 @@ async function postStart(): Promise<void> {
 }
 
 app.on('ready', () => {
-  log.info('Starting app...')
+  log.info('Starting app...');
   startApp()
     .then(() => log.info('App Started!'))
     .catch(err => {
