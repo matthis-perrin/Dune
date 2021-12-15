@@ -10,7 +10,7 @@ import {cadencierStore} from '@root/stores/list_store';
 import {ScheduleStore} from '@root/stores/schedule_store';
 
 import {startOfDay, endOfDay, arrayJoin} from '@shared/lib/utils';
-import {BobineQuantities, Schedule, ScheduledPlanProd} from '@shared/models';
+import {BobineQuantities, Schedule, ScheduledPlanProd, StopType} from '@shared/models';
 
 interface PlanProdPrinterAppProps {
   day: number;
@@ -84,7 +84,11 @@ export class PlanProdPrinterApp extends React.Component<
     const plans: ScheduledPlanProd[] = [];
     schedule.plans.forEach(p => {
       for (const [time, sched] of Array.from(p.schedulePerDay.entries())) {
-        if (sched.doneProdMs === 0) {
+        const prods = [...sched.plannedProds, ...sched.prods];
+        const stops = [...sched.plannedStops, ...sched.stops].filter(
+          stop => stop.stopType !== StopType.NotProdHours
+        );
+        if (prods.length === 0 && stops.length === 0) {
           continue;
         }
         if (isSameDay(new Date(time), new Date(day))) {
