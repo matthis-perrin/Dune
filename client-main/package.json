@@ -1,7 +1,7 @@
 {
   "name": "dune-client-main",
   "description": "Application Dune pour la gestion de la machine de production de bobines MONDON",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "author": "Matthis Perrin",
   "license": "UNLICENSED",
   "private": true,
@@ -13,6 +13,7 @@
     "build:prod": "node ../webpack/index --mode=production --target=electron-main --ts=src/index.ts",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
+    "electron-builder": "electron-builder -w",
     "builder": "electron-builder",
     "// --- DEV COMMANDS ---": "",
     "build:dev": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts",
@@ -51,7 +52,7 @@
     "lodash": "^4.17.11",
     "mysql": "^2.17.1",
     "nodejs-nodemailer-outlook": "^1.2.1",
-    "sqlite3": "^4.0.9"
+    "sqlite3": "5.0.x"
   },
   "devDependencies": {
     "@types/knex": "^0.16.1",
