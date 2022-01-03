@@ -539,6 +539,7 @@ const ProdStateContainer = styled.div`
   flex-grow: 1;
   display: flex;
   margin-bottom: ${blockMargin}px;
+  overflow-y: auto;
 `;
 
 const TeamPerfContainer = styled.div`
