@@ -13,7 +13,7 @@
     "build:prod": "node ../webpack/index --mode=production --target=electron-main --ts=src/index.ts",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
-    "electron-builder": "electron-builder -w",
+    "electron-builder": "electron-builder --win nsis",
     "builder": "electron-builder",
     "// --- DEV COMMANDS ---": "",
     "build:dev": "node ../webpack/index --mode=development --target=electron-main --ts=src/index.ts",
