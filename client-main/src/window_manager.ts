@@ -107,7 +107,7 @@ class WindowManager {
       windowInfo.browserWindow.webContents
         .printToPDF({
           marginsType: 0, // default margin
-          pageSize: 'A4',
+          pageSize: 'A3',
           printBackground: true,
           printSelectionOnly: false,
           landscape: false,
