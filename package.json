@@ -15,6 +15,8 @@
     "sm": "cd server-main && npm run build:dev",
     "sr": "cd server-renderer && npm run build:dev",
     "start": "cd client-main && yarn start",
+    "version": "node ./version.js",
+    "build": "cd client-main && yarn electron-builder",
     "install-all": "npm install && cd webpack && npm install && cd ../client-main && npm install && cd ../client-renderer && npm install && cd ../server-main && npm install && cd ../server-renderer && npm install && cd .. && cd shared && npm install && cd ..",
     "pretty": "prettier -c .prettierrc --write \"./**/*.{ts,tsx}\""
   }
