@@ -10,14 +10,15 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "cm": "cd client-main && npm run build:dev",
-    "cr": "cd client-renderer && npm run build:dev",
-    "sm": "cd server-main && npm run build:dev",
-    "sr": "cd server-renderer && npm run build:dev",
+    "cm": "cd client-main && yarn run build:dev",
+    "cr": "cd client-renderer && yarn run build:dev",
+    "sm": "cd server-main && yarn run build:dev",
+    "sr": "cd server-renderer && yarn run build:dev",
     "start": "cd client-main && yarn start",
     "version": "node ./version.js",
     "build": "rm -rf ./client-main/out && cd client-main && yarn electron-builder && open .",
-    "install-all": "npm install && cd webpack && npm install && cd ../client-main && npm install && cd ../client-renderer && npm install && cd ../server-main && npm install && cd ../server-renderer && npm install && cd .. && cd shared && npm install && cd ..",
+    "build-win": "(if exist .\\client-main\\out rd /s /q .\\client-main\\out) && cd .\\client-main && yarn build && yarn electron-builder && start .",
+    "install-all": "yarn install && cd webpack && yarn install && cd ../client-main && yarn install && cd ../client-renderer && yarn install && cd ../server-main && yarn install && cd ../server-renderer && yarn install && cd .. && cd shared && yarn install && cd ..",
     "pretty": "prettier -c .prettierrc --write \"./**/*.{ts,tsx}\""
   }
 }
