@@ -6,6 +6,7 @@ import {Cale} from '@root/components/common/cale';
 import {CAPACITE_MACHINE} from '@root/lib/constants';
 
 import {Perfo as PerfoModel} from '@shared/models';
+import {FontWeight, Palette, theme} from '@root/theme';
 
 interface PerfoProps {
   perfo: PerfoModel;
@@ -34,6 +35,38 @@ export class Perfo extends React.Component<PerfoProps> {
   public render(): JSX.Element {
     const {perfo, pixelPerMM} = this.props;
 
+    const isEmpty = [
+      perfo.cale1,
+      perfo.cale2,
+      perfo.cale3,
+      perfo.cale4,
+      perfo.cale5,
+      perfo.cale6,
+      perfo.cale7,
+      perfo.bague1,
+      perfo.bague2,
+      perfo.bague3,
+      perfo.bague4,
+      perfo.bague5,
+      perfo.bague6,
+      perfo.bague7,
+    ].every(v => v === undefined);
+
+    if (isEmpty) {
+      return (
+        <PerfoContainer
+          style={{
+            width: CAPACITE_MACHINE * pixelPerMM,
+            height: theme.planProd.elementsBaseHeight * 0.5 * pixelPerMM,
+            backgroundColor: theme.refente.backgroundColor,
+            border: `solid 1px ${Palette.Black}`,
+          }}
+        >
+          <NoPerfoLabel>SANS PERFO</NoPerfoLabel>
+        </PerfoContainer>
+      );
+    }
+
     return (
       <PerfoContainer style={{width: CAPACITE_MACHINE * pixelPerMM}}>
         {this.renderCale(perfo.cale1, true)}
@@ -59,4 +92,12 @@ const PerfoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
+`;
+
+const NoPerfoLabel = styled.div`
+  width: 100%;
+  text-align: center;
+  font-weight: ${FontWeight.Bold};
+  font-size: 32px;
+  color: red;
 `;
