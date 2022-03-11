@@ -102,7 +102,9 @@ export function firstBobinePlacementAvailableOnRefente(
   bobines: BobineFilleWithPose[],
   refente: Refente
 ): (BobineFilleWithPose | number)[] {
-  const laizes = getRefenteLaizes(refente).map(l => Math.round(l));
+  const laizes = getRefenteLaizes(refente)
+    .map(l => (l === 142 ? 140 : l))
+    .map(l => Math.round(l));
   // Check first if the provided order of bobines works
   const res = applyBobinesOnLaizes(bobines, laizes);
   if (res) {

@@ -122,7 +122,10 @@ export function analyseLaizesLeftOnRefente(
   refente: Refente
 ): Map<number, number> | undefined {
   const laizesLeft = new Map<number, number>();
-  for (const laize of refente.laizes) {
+  for (let laize of refente.laizes) {
+    if (laize === 142) {
+      laize = 140;
+    }
     const left = laizesLeft.get(laize) || 0;
     laizesLeft.set(laize, left + 1);
   }
@@ -232,7 +235,7 @@ export function bobineFitsLaizesAtIndex(
 ): boolean {
   const poseSize = getPoseSize(bobine.pose);
   for (let i = index; i < index + poseSize; i++) {
-    if (laizes[i] !== bobine.laize) {
+    if (laizes[i] !== bobine.laize && !(laizes[i] === 142 && bobine.laize === 140)) {
       return false;
     }
   }
