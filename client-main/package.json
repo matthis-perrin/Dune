@@ -43,10 +43,7 @@
       },
       "dist/index.js",
       "package.json"
-    ],
-    "win": {
-      "target": "portable"
-    }
+    ]
   },
   "sideEffect": false,
   "dependencies": {
